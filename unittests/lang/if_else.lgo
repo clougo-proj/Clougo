@@ -1,0 +1,6 @@
+to test_if_else :val
+  if :val > 1 [pr "Greater] else [pr "lessorequal]
+end
+
+test_if_else 2
+test_if_else 1

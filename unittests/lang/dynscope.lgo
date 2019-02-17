@@ -1,0 +1,26 @@
+to proc0
+  local "a
+  local "b
+  make "a "proc0
+  make "b 100
+  dump_a
+end
+
+to dump_a
+  pr :a
+end
+
+to dump_b
+  pr :b
+end
+
+to test
+  local "a
+  make "a "test
+  dump_a
+  proc0
+  dump_a
+  dump_b
+end
+
+test

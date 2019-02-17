@@ -1,0 +1,2 @@
+make "count 2
+pr (sentence "( :count ") 1 "\+ 2 "\= 3)

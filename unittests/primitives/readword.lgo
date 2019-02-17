@@ -1,0 +1,8 @@
+to a
+  type "Enter:
+  pr (se "you "are readword)
+end
+
+repeat 5[a]
+pr (se readword readword readword)
+

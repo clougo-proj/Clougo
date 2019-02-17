@@ -1,0 +1,16 @@
+to top :outer :inner
+  print [I'm in top.]
+  print sentence [:outer is] :outer
+  print sentence [:inner is] :inner bottom "x
+  print [I’m in top again.]
+  print sentence [:outer is] :outer
+  print sentence [:inner is] :inner
+end
+
+to bottom :inner
+  print [I'm in bottom.]
+  print sentence [:outer is] :outer
+  print sentence [:inner is] :inner
+end
+
+top "a "b

@@ -1,0 +1,129 @@
+to axloop
+  if wzero :t [throw "theloop]
+  make "t wdivide :t :msquared
+  make "sign (- :sign)
+  make "sum signadd :sign :sum wdivide :t :j
+  make "j :j + 2
+end
+
+to axx :m :d
+  make "t wdivide :one :m
+  make "sign 1
+  make "sum :t
+  make "msquared :m * :m
+  make "j 3
+  catch "theloop [repeat (:d + 5) [axloop]]
+  op :sum
+end
+
+to pi1k :d
+  (local "p "ans "t0_ "t1_)
+  make "t0_ timemilli
+  make "p 2 + round (:d / 3) + log10 (384 * :d) / log10 1000
+
+  make "one array :p
+  setitem 1 :one 1
+  
+  local "i
+  for [i 2 :p] [setitem :i :one 0]
+
+  make "ans wsubtract (wmult 16 (axx 5 :d)) (wmult 4 (axx 239 :d))
+  
+  make "t1_ timemilli
+  printit :ans :d
+  ;(print (:t1_-:t0_)/1000 "秒)
+  
+end
+
+to printit :x :d
+  (type item 1 :x ".)
+  local "i
+  for [i 2 :d/3+2] [
+    printthree item :i :x
+  ]
+  print "
+end
+
+to printthree :x
+  (local "d1 "d2 "d3)
+  make "d3 remainder :x 10
+  make "x (:x - :d3) / 10
+  make "d2 remainder :x 10
+  make "d1 (:x - :d2) / 10
+  type (word :d1 :d2 :d3)
+end
+
+to signadd :sign :x1 :x2
+  if :sign > 0 [op wadd :x1 :x2 stop]
+  op wsubtract :x1 :x2
+end
+
+to wadd :x1 :x2
+  (local "temp "top "rmdr)
+  make "temp 0
+  make "ret array :p
+  for [i :p 1 -1] [
+    make "top (item :i :x1) + (item :i :x2) + :temp
+    make "rmdr remainder :top 1000
+    make "temp (:top - :rmdr) / 1000
+    setitem :i :ret :rmdr
+  ]
+  op :ret
+end
+
+to wmult :n :x
+  (local "temp "top "digit "i)
+  make "temp 0
+  make "ret array :p
+  for [i :p 1] [
+    make "top (:n * (item :i :x)) + :temp
+    make "digit remainder :top 1000
+    make "temp (:top - :digit) / 1000
+    setitem :i :ret :digit
+  ]
+  op :ret
+end
+
+to wdivide :x :divisor
+  (local "dividend "ret)
+  (local "c "i)
+  
+  make "c 0
+  make "ret array :p
+  for [i 1 :p] [
+    make "dividend (:c * 1000) + (item :i :x)
+    make "c remainder :dividend :divisor
+    setitem :i :ret ((:dividend - :c) / :divisor)
+  ]
+  op :ret
+end
+
+to wsubtract :x1 :x2
+  (local "temp "top "digit "bor)
+  (local "i "ret)
+  make "temp 0
+  make "ret array :p
+  for [i :p 1 -1] [
+    make "top (item :i :x1) - (item :i :x2) + :temp
+    ifelse :top > (-1) [
+      make "temp 0
+      setitem :i :ret :top
+    ] [
+      make "digit (-((remainder (- :top) 1000) - 1000))
+      make "bor ((:top - :digit) / 1000)
+      make "temp :bor
+      setitem :i :ret (:top - (:bor * 1000))
+    ]
+  ]
+  op :ret
+end
+
+to wzero :x
+  local "i
+  for [i 1 :p] [
+    if (item :i :x) > 0 [op "false stop]
+  ]
+  op "true stop
+end
+
+pi1k 10

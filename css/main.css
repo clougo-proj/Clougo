@@ -1,0 +1,74 @@
+#editor {
+    width: 0px;
+    height: 73vh;
+}
+#term {
+    width: 99vw;
+    height: 20vh;
+    margin: auto;
+    display: block;
+}
+#turtleCanvas {
+    height: 95vh;
+    background: lightgray;
+    margin: auto;
+    display: block;
+}
+#canvasPane {
+    width: 99vw;
+    height: 73vh;
+    background: lightgray;
+    position: absolute;
+    margin: auto;
+    display: block;
+}
+#topPane {
+    height: 73vh;
+    width: 99vw;
+    margin: auto;
+    display: block;
+}
+#menubar {
+    width: 99vw;
+    border-bottom: 0;
+    background: gray;
+    margin: auto;
+    display: block;
+}
+.center {
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.glyphicon {
+    color: #fff;
+    /* font-size: 2vh; */
+}
+
+.hidden {
+    display:none;
+}
+
+/*
+.active .glyphicon {
+    color: #333;
+} */
+
+  /* .nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+    border:0;
+  }
+
+  .nav-pills>li.active>a { background-color: red },
+  .nav-pills>li.active>a:hover,
+  .nav-pills>li.active>a:focus { border:0; } */
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: black;
+    background-color: darkgray;
+}
+
+.nav-pills > li > a {
+    color: white;
+    /* font-size: 2vh; */
+}

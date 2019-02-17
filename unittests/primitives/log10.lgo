@@ -1,0 +1,6 @@
+pr log10 0.001
+pr log10 0.1
+pr log10 1
+pr log10 2
+pr log10 1000
+

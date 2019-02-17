@@ -1,0 +1,15 @@
+to test
+  local "a
+  make "a 200
+  procA
+  pr :a
+end
+
+to procA
+  pr :a
+  make "a 300
+  pr :a
+end
+
+test
+  

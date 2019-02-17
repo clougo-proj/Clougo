@@ -1,0 +1,5 @@
+repeat 5[
+	repeat 72[
+		pr "	abc
+    ]
+]

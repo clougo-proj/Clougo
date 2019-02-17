@@ -1,0 +1,9 @@
+to TestCaseInsensitivity
+  PR "HelloWorld
+  make "a 100
+  pr :A
+END
+
+testcaseinsensitivity
+TESTCASEINSENSITIVITY
+tESTcASEiNSENSITIVITY

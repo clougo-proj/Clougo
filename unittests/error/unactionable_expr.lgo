@@ -1,0 +1,8 @@
+to b
+    make "a 3
+    make "b 2
+    make "c 100
+    :c-:a*:b
+end
+
+b

@@ -1,0 +1,25 @@
+to huayuan
+  cs ht
+  rt 90 fd 200 bk 440 lt 90
+  repeat 5 [
+    hua
+    pu rt 90 fd 110 lt 90 pd
+  ]
+end
+
+to hua
+  fd 60 rt 60 ling
+  lt 120 ling
+  rt 60 fd 35
+  pu fd 40 pd
+  repeat 12 [ling rt 30]
+  pu bk 135
+end
+
+to ling
+  lt 30
+  repeat 2[fd 30 rt 60 fd 30 rt 120]
+  rt 30
+end
+
+huayuan

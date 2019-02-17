@@ -1,0 +1,5 @@
+make "j 0
+make "i 15
+for [i :j+1 10] [
+    pr :i
+]

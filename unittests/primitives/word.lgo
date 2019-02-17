@@ -1,0 +1,2 @@
+pr (word "a "b "c)
+pr (word 1 (word "de "f 18))

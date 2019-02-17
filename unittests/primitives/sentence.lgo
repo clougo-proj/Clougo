@@ -1,0 +1,5 @@
+pr (sentence "one)
+pr (Sentence "one "two)
+pr (se "un "deux "tres "quatre "cinq "six "sept "huit "neuf "dix)
+pr (se 1 2 3 4 5[6 7])
+pr (se [[1 2] [3 4]] [5 [6 7]])

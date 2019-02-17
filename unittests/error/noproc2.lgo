@@ -1,0 +1,9 @@
+to ab
+    pr1 "xyz
+end
+
+to pr1 :text
+    pr2 :text
+end
+
+ab

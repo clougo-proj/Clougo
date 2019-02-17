@@ -1,0 +1,19 @@
+to a
+    if (2>get_one) [pr1 "xyz ]
+end
+
+to pr1 :text
+    pr :text
+end
+
+to get_one
+    output get_number "one
+end
+
+to get_number :name
+    if (:name = "one) [output 1]
+    if (:name = "two) [output 2]
+    output 0
+end
+
+a

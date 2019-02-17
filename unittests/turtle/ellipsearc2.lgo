@@ -1,0 +1,12 @@
+to ellipsearc2_test :turtleheading
+  cs
+  lt :turtleheading
+  setsc 15
+  setpc 0
+  ellipsearc2 360 100 200 120
+  setpc 4
+  ellipsearc2 330 100 200 120
+  fd 100 bk 200
+  pu home pd
+end
+

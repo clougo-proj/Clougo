@@ -1,0 +1,5 @@
+for [i 60 1][fd :i rt 20]
+pu
+fd 5
+setfc 14
+fill

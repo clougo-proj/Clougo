@@ -1,0 +1,99 @@
+TO PI10000 :S  ;可以计算圆周率到10000位的程序
+  MAKE "PRECISION 6          ;定义有效数据为6位
+  MAKE "T1 TIME              ;检测开始计算时分秒
+  MAKE "TT1 (ITEM 1 :T1)*3600+(ITEM 2 :T1)*60+(ITEM 3 :T1)
+  MAKE "AAA BYTEARRAY[30006] ;所有数据的共同存储空间
+  MAKE "C BYTEARRAY 3        ;存储计算过程所需数据5及239的空间
+  ASET :C 1 25 ASET :C 2 239 MAKE "T 10
+  MAKE "PRR 0         ;数组:AAA的0-10001存被减数
+  MAKE "TM 10002      ;    10002-20003存减数
+  MAKE "RTT 20004     ;    20004-30005存答案
+ 
+  ;===主循环 P=1计算前面的分式 P=2计算后面的分式===
+  MAKE "P 1
+  LABEL "LOOPP      
+    ;=====初始化程序段=====
+    MAKE "M 0
+    LABEL "MM  ;===对所使用的数组预先赋值===
+      ASET :AAA :PRR+:M 0 ASET :AAA :TM+:M 0
+      IF :P=1 THEN[ASET :AAA :RTT+:M 0]
+      MAKE "M :M+1
+    IF :M<=:S THEN GO "MM
+    ASET :AAA :PRR 16/(:P*:P) ;公式中分子的4和16来自这里
+    IF :P=1 THEN MAKE "DE 5
+    IF :P=2 THEN MAKE "DE 239
+    MAKE "PT :PRR ;把数据指向被减数空间
+    CHU :PT :S :DE :T   ;调用除法
+    MAKE "EP 1 MAKE "G 3-2*:P
+    ;===================
+    LABEL "CC1
+      ;*****记录数据的程序语句*****
+      FOR "N 0 :S[ASET :AAA :TM+:N (AGET :AAA :PRR+:N)]  ;记录数据
+      ;****************************
+      MAKE "PT :TM MAKE "DE :EP
+      CHU :PT :S :DE :T ;调用除法
+      IF :G>0 THEN JIA ;调用加法
+      IF :G<0 THEN JFA ;调用减法
+      MAKE "EP :EP+2 MAKE "G :G*(-1)
+      MAKE "PT :PRR MAKE "DE AGET :C :P
+      CHU :PT :S :DE :T ;调用除法
+      IF :P=2 THEN CHU :PT :S :DE :T  ;调用除法
+    IF :Z=0 THEN[]ELSE[GO "CC1]
+  MAKE "P :P+1
+  IF :P<=2 GO "LOOPP
+  ;---------输出计算的结果----------
+  TYPE[计算的位数:] TYPE :S PR[位]
+  TYPE[PAI=] TYPE AGET :AAA :RTT TYPE[.]
+  FOR "I :RTT+1 :RTT+:S[XIANSHI :I]
+  ;---------输出计算的时间----------
+  MAKE "T2 TIME             ;检测计算结束时分秒
+  MAKE "TT2 (ITEM 1 :T2)*3600+(ITEM 2 :T2)*60+(ITEM 3 :T2)
+  PR[] (PR "开始计算时间 :T1)
+  (PR "计算结束时间 :T2)
+  MAKE "TT3 :TT2-:TT1
+  (TYPE "整个计算过程用了:)
+  IF :TT3<1 THEN[TYPE "小于1 ]ELSE[TYPE :TT3]
+  PR "秒
+END
+TO XIANSHI :I ;显示计算结果的过程
+  IF :T=10 THEN GO "TOD
+  IF (AGET :AAA :I)<10 THEN TYPE [0]
+  LABEL "TOD
+  MAKE "ZC AGET :AAA :I TYPE :ZC
+END
+TO CHU :PT :S :DE :T  ;除法过程
+  MAKE "D 0 MAKE "Z 0
+  MAKE "J :PT MAKE "J2 :PT+:S
+  LABEL "JJJ
+    MAKE "D :D+(AGET :AAA :J)
+    MAKE "A INT(:D/:DE)
+    MAKE "RE REMAINDER :D :DE
+    IF (OR :Z>0 (:A+:RE)>0) THEN[MAKE "Z 1]ELSE[MAKE "Z 0]
+    ASET :AAA :J :A MAKE "D :T*:RE MAKE "J :J+1
+  IF :J<=:J2 THEN GO "JJJ
+END
+TO JIA ;加法过程
+  MAKE "CY 0 MAKE "K :S
+  LABEL "LOOPA
+    MAKE "SUM (AGET :AAA :RTT+:K)+(AGET :AAA :TM+:K)+:CY
+    MAKE "CY 0
+    IF :SUM<:T THEN GO "BBB
+      MAKE "SUM :SUM-:T
+      MAKE "CY 1
+    LABEL "BBB
+    ASET :AAA :RTT+:K :SUM
+  MAKE "K :K-1
+  IF :K>=0 GO "LOOPA
+END
+TO JFA  ;减法过程
+  MAKE "LO 0 MAKE "L :S
+  LABEL "LOOPB
+    MAKE "E (AGET :AAA :RTT+:L)-(AGET :AAA :TM+:L)-:LO
+    MAKE "LO 0
+    IF :E >=0 THEN GO "LOOPC
+      MAKE "E :E+:T MAKE "LO 1
+    LABEL "LOOPC
+    ASET :AAA :RTT+:L :E
+    MAKE "L :L-1
+  IF :L>=0 THEN GO "LOOPB
+END

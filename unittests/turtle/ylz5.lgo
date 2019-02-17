@@ -1,0 +1,13 @@
+to ylz5 :r :n
+if :n<1 [stop]
+if :r<1 [stop]
+repeat 5[
+    left 90
+    ;	repeat 72[forward :r*pi/180 right 1]
+    arc2 72 :r
+    right 90
+    ylz5 :r*0.3702 :n-1
+]
+end
+
+ylz5 300 3

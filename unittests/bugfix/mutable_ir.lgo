@@ -1,0 +1,15 @@
+to a
+    pr "procA
+    make "b {1 2}
+end
+
+a
+pr :b
+
+setitem 1 :b 2  ; changing :b should not affect
+pr :b
+make "c :b
+
+a
+pr :c
+pr :b

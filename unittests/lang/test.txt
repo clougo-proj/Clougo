@@ -1,0 +1,17 @@
+dynscope run exec
+dynscope2 run exec
+globalvar run exec
+case run exec
+output run exec
+ifelse run exec
+if_else run exec
+repeat run exec
+tilde run exec
+forloop run exec
+local run exec
+newline_in_block run exec
+paren run exec
+catch run exec
+
+
+

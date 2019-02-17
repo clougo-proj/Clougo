@@ -1,0 +1,29 @@
+print run exec
+print_backslash run exec
+show run exec
+type run exec
+sentence run exec
+readword run
+word run exec
+throw run exec
+throw_uncaught run exec
+round run exec
+log10 run exec
+log10_negative_input run exec
+lput run exec
+fput run exec
+first run exec
+remainder run exec
+emptyp run exec
+butfirst run exec
+array run exec
+sqrt run exec
+sum run exec
+array_with_origin run exec
+minus run exec
+
+
+
+
+
+

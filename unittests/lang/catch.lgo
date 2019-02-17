@@ -1,0 +1,27 @@
+to catch_test0
+  type "test0:
+  catch "error [1+2]
+  output "ok
+end
+
+to catch_test1
+  type "test1:
+  catch "error [output "ok]
+  output "failed
+end
+
+to catch_test2
+  type "test2:
+  catch "endloop [
+    repeat 10 [
+      if (1 > 2) [throw "endloop]
+    ]
+  ]
+  output "ok
+end
+
+pr catch_test0
+pr catch_test1
+pr catch_test2
+
+

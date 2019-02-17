@@ -1,0 +1,53 @@
+to perm :data :begin :end  ;给一个数组data，求头begin和尾end之间所有排列
+  if :begin=:end [check10qsz :data stop] ;如果头等于尾那么检查结果并返回
+  perm :data :begin+1 :end ;第一遍:不做任何交换，直接递归调用
+
+  local "temp     
+  make "temp (item :begin :data) ;交换前，暂存数组的第一个单元
+  
+  ; 在这个循环里把数组的第一个单元跟其它每个单元都交换一遍
+  local "i
+  for [i :begin+1 :end] [~
+    setitem :begin :data (item :i :data)~
+    setitem :i :data :temp~
+    
+    ; 交换后，递归调用求剩下部分的排列
+    perm :data :begin+1 :end~
+
+    ; 恢复被第一个单元值替换的位置
+    setitem :i :data (item :begin :data)~
+  ]
+  setitem :begin :data :temp  ; 循环结束，恢复第一个单元
+end
+
+
+to check10qsz :data ;检查数组结果是否满足十全等式
+  if(or (item 1 :data)=0 (or (item 4 :data)=0 (item 7 :data)=0)) [stop]
+  
+  local "a
+  local "b
+  local "c
+  
+  ; 把数的排列组合成a,b,c三个数字
+  make "a (item 1 :data)*100+(item 2 :data)*10+(item 3 :data)
+  make "b (item 4 :data)*100+(item 5 :data)*10+(item 6 :data)
+  make "c (item 7 :data)*1000+(item 8 :data)*100+(item 9 :data)*10+(item 10 :data)
+  
+  if (and :a+:b=:c :a<:b) [~
+    ;输出符合条件的结果
+    (pr (sentence "\( :count "\) :a "+ :b "= :c))~ 
+    
+    ;计数器加一
+    make "count :count+1~  
+  ]
+end
+
+to tenqsz
+  make "count 1 ; 计数器初始值
+  local "dig
+  make "dig {0 1 2 3 4 5 6 7 8 9}
+  perm :dig 1 10  ; 求0到9数字的排列，并且输出符合十全等式的排列
+  pr "end
+end
+
+tenqsz

@@ -1,0 +1,7 @@
+make "a (array 10 (-1))
+show :a
+setitem 8 :a 100
+show :a
+setitem -1 :a 200
+show :a
+

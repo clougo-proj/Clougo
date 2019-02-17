@@ -1,0 +1,6 @@
+test_throw_on_empty_word:ok
+test_throw_on_empty_list:ok
+a
+3
+1
+{}

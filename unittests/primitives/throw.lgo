@@ -1,0 +1,32 @@
+to test_nomsg
+  type "test_nomsg:
+  catch "tag0 [
+    (throw "tag0)
+    output "error
+  ]
+  output "ok
+end
+
+to test_hasmsg
+  type "test_hasmsg:
+  output catch "tag1 [
+    (throw "tag1 "ok)
+    output "error_a
+  ]
+  output "error_b
+end
+
+to test_uncaught
+  pr "test_uncaught:
+  catch "tag1 [
+    (throw "tag0)
+    output "error_a
+  ]
+  output "error_b
+end
+
+pr test_nomsg
+pr test_hasmsg
+test_uncaught
+
+

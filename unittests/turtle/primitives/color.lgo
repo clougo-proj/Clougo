@@ -1,0 +1,8 @@
+setpc [0 255 0]
+show pc
+setpc 7
+show pc
+setfc [255 0 0]
+show floodcolor
+setfc 9
+show floodcolor

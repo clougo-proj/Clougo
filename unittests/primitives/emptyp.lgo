@@ -1,0 +1,8 @@
+pr emptyp []
+pr emptyp "
+pr emptyp 123
+pr emptyp 0
+pr emptyp [1]
+pr emptyp ["abc "def]
+pr emptyp [[]]
+pr emptyp [{}]

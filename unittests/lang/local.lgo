@@ -1,0 +1,16 @@
+to test_local
+  (local "v0)
+  (local "v1 "v2)
+  (local "v3 "v4 "v5 "v6 "v7)
+  make "v0 1
+  make "v1 :v0+1
+  make "v2 :v1+:v0
+  make "v3 :v2+:v1
+  make "v4 :v3+:v2
+  make "v5 :v4+:v3
+  make "v6 :v5+:v4
+  make "v7 :v6+:v5
+  pr (sentence :v7 :v6 :v5 :v4 :v3 :v2 :v1 :v0)
+end
+
+test_local

@@ -1,0 +1,14 @@
+noproc run exec
+noproc2 run exec
+noproc_forctrl run exec
+noproc_forbody run exec
+noproc_ifbody run exec
+noproc_ifpred run exec
+noproc_recur run exec
+toomuch_inside_parens run exec
+novalue run exec
+unactionable_const run exec
+unactionable_expr run exec
+not_enough_inputs run exec
+
+

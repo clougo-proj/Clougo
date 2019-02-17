@@ -1,0 +1,9 @@
+to a
+    if (2>1) [pr1 "xyz ]
+end
+
+to pr1 :text
+    pr2 :text
+end
+
+a

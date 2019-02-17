@@ -1,0 +1,131 @@
+to axloop
+  if wzero :t [throw "theloop]
+  make "t wdivide :t :msquared
+  make "sign (- :sign)
+  make "sum signadd :sign :sum wdivide :t :j
+  make "j :j + 2
+end
+
+to axx :m :d
+  make "t wdivide :one :m
+  make "sign 1
+  make "sum :t
+  make "msquared :m * :m
+  make "j 3
+  catch "theloop [repeat (:d + 5) [axloop]]
+  op :sum
+end
+
+to pi1000_ :d
+  local "p
+  local "ans
+  (local "t0_ "t1_)
+  make "t0_ timemilli
+  make "p 1 + round (:d / 3) + log10 (384 * :d) / log10 1000
+  make "one [1]
+  repeat :p [make "one lput 0 :one]
+  make "ans wsubtract (wmult 16 (axx 5 :d)) (wmult 4 (axx 239 :d))
+  make "t1_ timemilli
+  printit :ans :d
+  ;(print (:t1_-:t0_)/1000 "秒)
+end
+
+to printit :x :d
+  (type first :x ".)
+  wprintit bf :x :d
+  (print ")
+end
+
+to printthree :x
+  (local "d1 "d2 "d3)
+  make "d3 remainder :x 10
+  make "x (:x - :d3) / 10
+  make "d2 remainder :x 10
+  make "d1 (:x - :d2) / 10
+  type (word :d1 :d2 :d3)
+end
+
+to second :a
+  op first bf :a
+end
+
+to signadd :sign :x1 :x2
+  if :sign > 0 [op wadd :x1 :x2 stop]
+  op wsubtract :x1 :x2
+end
+
+to wadd :x1 :x2
+  local "temp
+  make "temp waddcarry :x1 :x2
+  op fput (((first :temp) * 1000) + (second :temp)) (bf bf :temp)
+end
+
+to waddcarry :x1 :x2
+  (local "temp "top "rmdr)
+  if emptyp :x1 [op [0] stop]
+  make "temp waddcarry bf :x1 bf :x2
+  make "top ((first :x1) + (first :x2) + (first :temp))
+  make "rmdr remainder :top 1000
+  op fput ((:top - :rmdr) / 1000) fput :rmdr (bf :temp)
+end
+
+to wdivide :x :n
+  op wdividex :x :n 0
+end
+
+to wdividex :x :divisor :bring
+  local "dividend
+  local "c
+  if emptyp :x [op [] stop]
+  make "dividend (:bring * 1000) + first :x
+  make "c remainder :dividend :divisor
+  op fput ((:dividend - :c) / :divisor) wdividex bf :x :divisor :c
+end
+
+to wmult :n :x
+  local "temp
+  make "temp wmultcarry :n bf :x
+  op fput ((:n * (first :x)) + (first :temp)) bf :temp
+end
+
+to wmultcarry :n :x
+  (local "temp "top "car "digit)
+  if emptyp :x [op [0] stop]
+  make "temp wmultcarry :n bf :x
+  make "top (:n * (first :x)) + (first :temp)
+  make "digit remainder :top 1000
+  make "car (:top - :digit) / 1000
+  op fput :car fput :digit bf :temp
+end
+
+to wprintit :x :d
+  if :d < 0 [stop]
+  if emptyp :x [stop]
+  printthree first :x
+  wprintit bf :x (:d - 3)
+end
+
+to wsubborrow :x1 :x2
+  (local "temp "top "digit "bor)
+  if emptyp :x1 [op [0] stop]
+  make "temp wsubborrow bf :x1 bf :x2
+  make "top ((first :x1) - (first :x2) + (first :temp))
+  if :top > (-1) [op fput 0 fput :top bf :temp stop]
+  make "digit (- ((remainder (- :top) 1000) - 1000))
+  make "bor ((:top - :digit) / 1000)
+  op fput :bor fput (:top - (:bor * 1000)) (bf :temp)
+end
+
+to wsubtract :x1 :x2
+  local "temp
+  make "temp wsubborrow :x1 :x2
+  op fput (((first :temp) * 1000) + (second :temp)) (bf bf :temp)
+end
+
+to wzero :x
+  if emptyp :x [op "true stop]
+  if (first :x) > 0 [op "false stop]
+  op wzero bf :x
+end
+
+pi1000_ 100

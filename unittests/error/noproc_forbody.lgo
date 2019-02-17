@@ -1,0 +1,9 @@
+to a
+    for[i 1 3][pr1 "xyz ]
+end
+
+to pr1 :text
+    pr2 :text
+end
+
+a

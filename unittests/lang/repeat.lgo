@@ -1,0 +1,21 @@
+to test_const_nested
+  pr "test_const_nested:
+  repeat 4[
+    repeat 2[
+      type "hello
+    ]
+    pr "
+  ]
+  pr "
+end
+
+to test_expr
+  pr "test_expr:
+  local "a
+  make "a 5
+  repeat (:a - 2) [pr "hello]
+end
+
+test_const_nested
+test_expr
+

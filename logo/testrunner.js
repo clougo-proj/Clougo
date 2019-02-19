@@ -37,6 +37,9 @@ classObj.create = function(Logo, sys) {
                     "stderrn": function(text) {
                         stderrBuffer += text;
                     },
+                    "cleartext": function() {
+                        stdoutBuffer += sys.getCleartextChar();
+                    },
                     "mockStdin": function(text) {
                         extForTest.io.onstdin = function(logoUserInputListener) {
                             logoUserInputListener(text);

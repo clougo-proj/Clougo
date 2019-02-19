@@ -18,7 +18,8 @@ function createLogoTerminal(eventHandler) {
         "echo": function() {},
         "set_prompt": function() {},
         "pause": function() {},
-        "resume": function() {}
+        "resume": function() {},
+        "clear": function() {}
     };
 
     const isReady = {
@@ -66,7 +67,6 @@ function createLogoTerminal(eventHandler) {
             curLine = "";
         },
         "prompt": function(text) {
-            // thisTerm.set_prompt(curLine + text);
             thisTerm.echo(curLine);
             curLine = "";
             thisTerm.set_prompt(text);
@@ -84,6 +84,9 @@ function createLogoTerminal(eventHandler) {
             if (getAllReady()) {
                 thisTerm.resume();
             }
+        },
+        "cleartext": function() {
+            thisTerm.clear();
         }
     };
 }
@@ -254,23 +257,40 @@ function createLogoWorker(eventHandler) {
         if (msg instanceof ArrayBuffer) {
             let tqcache = new Float32Array(msg);
             eventHandler.canvas(tqcache);
-        } else if (msg[0] == "canvas") {
-            eventHandler.canvas(msg[1]);
-        } else if (msg[0] == "ready" || msg[0] == "multiline") {
-            let prompt = (msg[0] == "ready") ? "? " : "> ";
-            eventHandler.ready();
-            eventHandler.prompt(prompt);
-        } else if (msg[0] == "continue") {
-            eventHandler.ready();
-            eventHandler.user();
-        } else if (msg[0] == "out" || msg[0] == "err") {
-            eventHandler.writeln(msg[1]);
-        } else if (msg[0] == "outn" || msg[0] == "errn") {
-            eventHandler.write(msg[1]);
-        } else if (msg[0] == "busy") {
-            eventHandler.busy();
-        } else {
-            // console.log(msg);
+            return;
+        }
+
+        switch(msg[0]) {
+            case "canvas":
+                eventHandler.canvas(msg[1]);
+                break;
+            case "ready":
+            case "multiline":
+            {
+                let prompt = (msg[0] == "ready") ? "? " : "> ";
+                eventHandler.ready();
+                eventHandler.prompt(prompt);
+                break;
+            }
+            case "continue":
+                eventHandler.ready();
+                eventHandler.user();
+                break;
+            case "out":
+            case "err":
+                eventHandler.writeln(msg[1]);
+                break;
+            case "outn":
+            case "errn":
+                eventHandler.write(msg[1]);
+                break;
+            case "busy":
+                eventHandler.busy();
+                break;
+            case "cleartext":
+                eventHandler.cleartext();
+                break;
+            default:
         }
     };
 
@@ -311,6 +331,9 @@ const logoWorker = createLogoWorker({
     },
     "writeln": function(text) {
         logoTerminal0.writeln(text);
+    },
+    "cleartext": function() {
+        logoTerminal0.cleartext();
     }
 });
 

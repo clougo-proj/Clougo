@@ -31,11 +31,16 @@ classObj.create = function logoInWeb(Logo, sys) {
         postMessage(["errn", text]);
     }
 
+    function webCleartext() {
+        postMessage(["cleartext"]);
+    }
+
     Logo.io = {
         "stdout": webStdout,
         "stdoutn": webStdoutn,
         "stderr": webStderr,
-        "stderrn": webStderrn
+        "stderrn": webStderrn,
+        "cleartext": webCleartext
     };
 
     let canvas = (function() {
@@ -91,7 +96,8 @@ classObj.create = function logoInWeb(Logo, sys) {
             "stdout": webStdout,
             "stdoutn": webStdoutn,
             "stderr": webStderr,
-            "stderrn": webStderrn
+            "stderrn": webStderrn,
+            "cleartext": webCleartext
         },
         "canvas": canvas
     };

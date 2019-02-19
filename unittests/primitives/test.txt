@@ -21,6 +21,7 @@ sqrt run exec
 sum run exec
 array_with_origin run exec
 minus run exec
+cleartext run exec
 
 
 

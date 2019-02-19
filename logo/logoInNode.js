@@ -24,7 +24,8 @@ classObj.create = function logoInNode(Logo, sys) {
         "stdout": stdout,
         "stdoutn": stdoutn,
         "stderr": stderr,
-        "stderrn": stderrn
+        "stderrn": stderrn,
+        "cleartext": function() {}
     };
 
     if ("trace" in cmd.options) {
@@ -45,6 +46,7 @@ classObj.create = function logoInNode(Logo, sys) {
             "stdoutn": function(v) { process.stdout.write(v); },
             "stderr": console.error,  // eslint-disable-line no-console
             "stderrn": function(v) { process.stderr.write(v); },
+            "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
             "onstdin": function(logoUserInputListener) {
                 sysstdin.addListener("data", function(d) {
                     let ret = logoUserInputListener(d);

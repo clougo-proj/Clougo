@@ -9,6 +9,11 @@ var classObj = {};
 classObj.create = function() {
     const sys = {};
 
+    function getCleartextChar() {
+        return "\x1Bc";
+    }
+    sys.getCleartextChar = getCleartextChar;
+
     function isUndefined(v) {
         return v === undefined;
     }

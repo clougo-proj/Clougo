@@ -16,6 +16,10 @@ classObj.create = function(logo, sys) {
         return Math.PI;
     }
 
+    function primitiveCleartext() {
+        logo.io.cleartext();
+    }
+
     function primitiveSentence() {
 
         const args = Array.prototype.slice.call(arguments);
@@ -368,6 +372,9 @@ classObj.create = function(logo, sys) {
 
     let primitive = {
         "pi": primitivePi,
+
+        "cleartext": primitiveCleartext,
+        "ct": primitiveCleartext,
 
         "forward": logo.turtle.forward,
         "fd": logo.turtle.forward,

@@ -41,7 +41,10 @@ classObj.create = function(logo, sys) {
             },
             isNextTokenBinaryOperator: function() {
                 return (this.ptr + 1 >= this.body.length) ? false :
-                    logo.lrt.util.isBinaryOperator(this.body[this.ptr+1]);
+                    logo.lrt.util.isBinaryOperator(this.body[this.ptr + 1]);
+            },
+            isTokenEndOfStatement: function(token) {
+                return sys.isUndefined(token) || token == "\\n";
             },
             peekNextToken : function() {
                 if (this.ptr + 1 >= this.body.length) {
@@ -244,7 +247,7 @@ classObj.create = function(logo, sys) {
                 curToken = evxContext.getToken();
             }
 
-            if (sys.isUndefined(curToken) || curToken == "\\n") {
+            if (evxContext.isTokenEndOfStatement(curToken)) {
                 return;
             }
 

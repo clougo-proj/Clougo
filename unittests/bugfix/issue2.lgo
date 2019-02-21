@@ -1,0 +1,8 @@
+to test
+repeat 4
+[
+pr "hi
+]
+end
+
+test

@@ -263,8 +263,15 @@ classObj.create = function(logo, sys) {
         code.push(repeatVarName, "=0;", repeatVarName, "<", repeatCount, ";", repeatVarName, "++) {\n");
         evxContext.next();
 
-        let bodycomp = logo.parse.parseBlock([evxContext.getToken(), evxContext.getSrcmap()]);
-        code.push(genBody(logo.interpreter.makeEvalContext(bodycomp[0], bodycomp[1]), true));
+        let curToken = evxContext.getToken();
+        let srcmap = evxContext.getSrcmap();
+        if (evxContext.isTokenEndOfStatement(curToken)) {
+            code.push(CodeWithSrcmap.create("throwRuntimeLogoException('NOT_ENOUGH_INPUTS', ", srcmap), "[\"repeat\"],  Error().stack)");
+        } else {
+            let bodycomp = logo.parse.parseBlock([curToken, srcmap]);
+            code.push(genBody(logo.interpreter.makeEvalContext(bodycomp[0], bodycomp[1]), true));
+        }
+
         code.push("}");
         putRepeatVarIndex();
         return code;

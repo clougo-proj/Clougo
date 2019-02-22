@@ -89,6 +89,11 @@ classObj.create = function(logo, sys) {
     }
     type.makeLogoArrayWithOrigin = makeLogoArrayWithOrigin;
 
+    function getOriginOfLogoArrayWithOrigin(val) {
+        return val[val.length - 1];
+    }
+    type.getOriginOfLogoArrayWithOrigin = getOriginOfLogoArrayWithOrigin;
+
     function isLogoArray(token) {
         return (token instanceof Array && token[0] == OBJTYPE_ARRAY);
     }

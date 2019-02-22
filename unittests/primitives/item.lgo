@@ -1,0 +1,7 @@
+show item 1[a b c]
+show item 2[1 abc def]
+show item 3{0.01 000000000 -5}
+show item 5 "abcdefg
+make "a (array (5) (-1))
+setitem -1 :a "yes
+show item -1 :a

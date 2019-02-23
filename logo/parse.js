@@ -264,12 +264,18 @@ classObj.create = function(logo, sys) {
                             last = ptr + 1;
                             continue;
                         }
-                    } else {
-                        ret.push(Delimiter.getOperatorDef(c));
-                        retsrcmap.push(addSrcmapOffset(srcmap[index], ptr));
-                        last = ptr + 1;
-                        continue;
                     }
+
+                    let opdef = Delimiter.getOperatorDef(c);
+
+                    if (c == "-" && ptr == 0 && word.length > 1) {
+                        opdef = " " + opdef; // prepend space to signify minus sign identified as unary minus operator (vs. infix difference)
+                    }
+
+                    ret.push(opdef);
+                    retsrcmap.push(addSrcmapOffset(srcmap[index], ptr));
+                    last = ptr + 1;
+                    continue;
                 }
             }
 

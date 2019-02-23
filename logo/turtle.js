@@ -628,20 +628,20 @@ classObj.create = function(logo, sys) {
         let sAngle = Math.PI * (1 + startDeg / 180);
         let eAngle = Math.PI * (1 + endDeg / 180);
 
+        let actualStartAngle = calcActualAngle(sAngle - Math.PI, radiusX, radiusY);
+        let tangentStartAngle = calcTangentAngle(sAngle - Math.PI, radiusX, radiusY); // angle between ellipse orientation and 12 o'clock
+        let centerAngle = tangentStartAngle - actualStartAngle;
+        let mod = Math.sqrt(Math.pow(radiusY * Math.cos(sAngle), 2) + Math.pow(radiusX * Math.sin(sAngle), 2));
+
+        // coordinates of center relative to turtle
+        let dcenterX = mod * Math.cos(centerAngle);
+        let dcenterY = -mod * Math.sin(centerAngle);
+
+        // absolute coordinates of center
+        let centerX = _turtleX + dcenterX * Math.cos(rad) - dcenterY * Math.sin(rad);
+        let centerY = _turtleY - dcenterX * Math.sin(rad) - dcenterY * Math.cos(rad);
+
         if (_penDown) {
-            let actualStartAngle = calcActualAngle(sAngle - Math.PI, radiusX, radiusY);
-            let tangentStartAngle = calcTangentAngle(sAngle - Math.PI, radiusX, radiusY); // angle between ellipse orientation and 12 o'clock
-            let centerAngle = tangentStartAngle - actualStartAngle;
-            let mod = Math.sqrt(Math.pow(radiusY * Math.cos(sAngle), 2) + Math.pow(radiusX * Math.sin(sAngle), 2));
-
-            // coordinates of center relative to turtle
-            let dcenterX = mod * Math.cos(centerAngle);
-            let dcenterY = -mod * Math.sin(centerAngle);
-
-            // absolute coordinates of center
-            let centerX = _turtleX + dcenterX * Math.cos(rad) - dcenterY * Math.sin(rad);
-            let centerY = _turtleY - dcenterX * Math.sin(rad) - dcenterY * Math.cos(rad);
-
             logo.ext.canvas.sendCmd("ellipse", [
                 centerX,
                 centerY,

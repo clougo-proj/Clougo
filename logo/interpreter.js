@@ -325,7 +325,7 @@ classObj.create = function(logo, sys) {
                 evxCtrlParam(evxContext, curToken, nextActualParam, 0, isInParen);
             } else if (curToken in logo.lrt.primitive) {
                 evxPrimitiveCallParam(evxContext, curToken, nextActualParam,
-                        logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
+                    logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
             } else if (curToken in logo.env._user) {
                 let callTarget = logo.env._user[curToken];
                 logo.env.async(function() {

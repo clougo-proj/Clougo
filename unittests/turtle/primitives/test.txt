@@ -5,3 +5,4 @@ color_names exec run
 pendownp exec run
 penmode exec run
 shownp exec run
+circles exec run

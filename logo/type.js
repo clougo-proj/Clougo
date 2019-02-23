@@ -155,7 +155,7 @@ classObj.create = function(logo, sys) {
 
     function isLogoNumber(s) {
         return (typeof s === "number") || (typeof s=== "string" && !isNaN(Number(s)));
-    };
+    }
     type.isLogoNumber = isLogoNumber;
 
     const isQuotedLogoWord = (function(){
@@ -272,12 +272,12 @@ classObj.create = function(logo, sys) {
 
         function getCode(name) {
             return (name in codemap) ? codemap[name] : undefined;
-        };
+        }
         LogoException.getCode = getCode;
 
         function getMessage(code) {
             return (code in msgmap) ? msgmap[code] : undefined;
-        };
+        }
         LogoException.getMessage = getMessage;
 
         LogoException.prototype = {

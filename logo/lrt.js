@@ -638,7 +638,7 @@ classObj.create = function(logo, sys) {
     };
 
     function isUnaryOperator(op) {
-        return op in unaryOperator
+        return op in unaryOperator;
     }
     lrt.util.isUnaryOperator = isUnaryOperator;
 

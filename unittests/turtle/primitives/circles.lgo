@@ -1,0 +1,8 @@
+circle 100
+circle2 100
+arc 100 200
+arc2 100 200
+ellipse 100 200
+ellipse2 100 200
+ellipsearc 60 200 100 120
+ellipsearc2 60 200 100 120

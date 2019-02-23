@@ -261,36 +261,36 @@ function createLogoWorker(eventHandler) {
         }
 
         switch(msg[0]) {
-            case "canvas":
-                eventHandler.canvas(msg[1]);
-                break;
-            case "ready":
-            case "multiline":
-            {
-                let prompt = (msg[0] == "ready") ? "? " : "> ";
-                eventHandler.ready();
-                eventHandler.prompt(prompt);
-                break;
-            }
-            case "continue":
-                eventHandler.ready();
-                eventHandler.user();
-                break;
-            case "out":
-            case "err":
-                eventHandler.writeln(msg[1]);
-                break;
-            case "outn":
-            case "errn":
-                eventHandler.write(msg[1]);
-                break;
-            case "busy":
-                eventHandler.busy();
-                break;
-            case "cleartext":
-                eventHandler.cleartext();
-                break;
-            default:
+        case "canvas":
+            eventHandler.canvas(msg[1]);
+            break;
+        case "ready":
+        case "multiline":
+        {
+            let prompt = (msg[0] == "ready") ? "? " : "> ";
+            eventHandler.ready();
+            eventHandler.prompt(prompt);
+            break;
+        }
+        case "continue":
+            eventHandler.ready();
+            eventHandler.user();
+            break;
+        case "out":
+        case "err":
+            eventHandler.writeln(msg[1]);
+            break;
+        case "outn":
+        case "errn":
+            eventHandler.write(msg[1]);
+            break;
+        case "busy":
+            eventHandler.busy();
+            break;
+        case "cleartext":
+            eventHandler.cleartext();
+            break;
+        default:
         }
     };
 

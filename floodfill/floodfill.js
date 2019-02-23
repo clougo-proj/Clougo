@@ -39,7 +39,7 @@ function floodFill(canvas, startX, startY, fillColor) {
     a: dstData[startPos+3]
   };
 
-  if (fillColor.r == startColor.r && fillColor.g == startColor.g && fillColor.b == startColor.b) {
+  if (fillColor.r == startColor.r && fillColor.g == startColor.g && fillColor.b == startColor.b && fillColor.a == startColor.a) {
     return;
   }
 

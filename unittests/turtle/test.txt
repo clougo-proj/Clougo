@@ -4,3 +4,4 @@ ylz5 exec run runl
 floodfill exec run
 huayuan exec run
 label exec run
+colortab exec run

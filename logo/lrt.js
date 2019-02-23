@@ -489,6 +489,8 @@ classObj.create = function(logo, sys) {
 
         "floodcolor": logo.turtle.floodcolor,
 
+        " -": primitiveMinus,  // unary minus operator in ambiguous context
+
         "-": primitiveMinus,
 
         "minus": primitiveMinus,
@@ -634,6 +636,7 @@ classObj.create = function(logo, sys) {
     lrt.util.logoVar = logoVar;
 
     const unaryOperator = {
+        " -" : 2, // unary minus operator in ambiguous context
         "-" : 2
     };
 

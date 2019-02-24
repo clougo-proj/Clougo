@@ -11,8 +11,8 @@
 /* global importScripts, classObj */
 
 // detect Node by testing if variable 'process' exists - don't change it
-const isNodeJsEnv = (typeof process != "undefined" && process.argv) ? true : false;
-const sys = loadScript("./sys.js").create();
+const isNodeJsEnvFlag = (typeof process != "undefined" && process.argv) ? true : false;
+const sys = loadScript("./sys.js").create(isNodeJsEnvFlag);
 const Logo = {};
 const testRunner = loadScript("./testrunner.js").create(Logo, sys);
 
@@ -51,14 +51,14 @@ Logo.mode = {
 Logo.unitTestsJsSrcFile = "../unittests/unittests.js";
 Logo.testJsSrcFileHelper = testRunner.testJsSrcFileHelper;
 
-if (isNodeJsEnv) {
+if (isNodeJsEnvFlag) {
     loadScript("./logoInNode.js").create(Logo, sys);
 } else {
     loadScript("./logoInWeb.js").create(Logo, sys);
 }
 
 function loadScript(scriptFile) {
-    if (isNodeJsEnv) {
+    if (isNodeJsEnvFlag) {
         return require(scriptFile).classObj;
     }
 

@@ -121,6 +121,11 @@ classObj.create = function(logo, sys, ext) {
                     let userInput = getUserInput();
 
                     if (sys.equalToken(userInput, "quit") || sys.equalToken(userInput, "exit") || sys.equalToken(userInput, "bye")) {
+                        logo.io.stdout("Thank you for using Logo. Bye!");
+                        if (!sys.isNodeJsEnv()) {
+                            logo.io.stdout("(You can now close the window)");
+                        }
+
                         return "exit";  // exit
                     }
 

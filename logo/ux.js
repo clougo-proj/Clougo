@@ -278,6 +278,10 @@ function createLogoWorker(eventHandler) {
             eventHandler.prompt(prompt);
             break;
         }
+        case "exit":
+            eventHandler.prompt("You can now close the window");
+            eventHandler.exit();
+            break;
         case "continue":
             eventHandler.ready();
             eventHandler.user();
@@ -340,6 +344,9 @@ const logoWorker = createLogoWorker({
     },
     "cleartext": function() {
         logoTerminal0.cleartext();
+    },
+    "exit": function() {
+        logoTerminal0.setBusy("logo");
     }
 });
 

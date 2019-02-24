@@ -6,3 +6,4 @@ pendownp exec run
 penmode exec run
 shownp exec run
 circles exec run
+setheading exec run

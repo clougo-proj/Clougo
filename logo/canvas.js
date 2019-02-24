@@ -249,6 +249,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
             ext.setBackgroundColor(makeColorString(red, green, blue));
         },
         "fillcolor" : function fillcolor(red, green, blue) {
+            ext.assert(!(isNaN(red) || isNaN(blue) || isNaN(green)));
             _floodColor = makeColorString(red, green, blue);
         },
         "arc" : function arc(turtleX, turtleY, radius, startAngle, endAngle, counterClockwise) {

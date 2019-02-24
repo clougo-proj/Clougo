@@ -1,5 +1,6 @@
 drawto 0 0 0
 hideturtle 
+moveto 0 0 0
 pencolor 0 0 0
 moveto -210 -30 0
 drawto -210 30 0
@@ -19,6 +20,7 @@ moveto -202.928932 53.071068 0
 moveto -212.928932 53.071068 0
 moveto -212.928932 53.071068 90
 drawtext 0
+moveto -212.928932 53.071068 0
 pencolor 0 0 0
 moveto -180 -30 0
 drawto -180 30 0
@@ -38,6 +40,7 @@ moveto -172.928932 53.071068 0
 moveto -182.928932 53.071068 0
 moveto -182.928932 53.071068 90
 drawtext 1
+moveto -182.928932 53.071068 0
 pencolor 0 0 0
 moveto -150 -30 0
 drawto -150 30 0
@@ -57,6 +60,7 @@ moveto -142.928932 53.071068 0
 moveto -152.928932 53.071068 0
 moveto -152.928932 53.071068 90
 drawtext 2
+moveto -152.928932 53.071068 0
 pencolor 0 0 0
 moveto -120 -30 0
 drawto -120 30 0
@@ -76,6 +80,7 @@ moveto -112.928932 53.071068 0
 moveto -122.928932 53.071068 0
 moveto -122.928932 53.071068 90
 drawtext 3
+moveto -122.928932 53.071068 0
 pencolor 0 0 0
 moveto -90 -30 0
 drawto -90 30 0
@@ -95,6 +100,7 @@ moveto -82.928932 53.071068 0
 moveto -92.928932 53.071068 0
 moveto -92.928932 53.071068 90
 drawtext 4
+moveto -92.928932 53.071068 0
 pencolor 0 0 0
 moveto -60 -30 0
 drawto -60 30 0
@@ -114,6 +120,7 @@ moveto -52.928932 53.071068 0
 moveto -62.928932 53.071068 0
 moveto -62.928932 53.071068 90
 drawtext 5
+moveto -62.928932 53.071068 0
 pencolor 0 0 0
 moveto -30 -30 0
 drawto -30 30 0
@@ -133,6 +140,7 @@ moveto -22.928932 53.071068 0
 moveto -32.928932 53.071068 0
 moveto -32.928932 53.071068 90
 drawtext 6
+moveto -32.928932 53.071068 0
 pencolor 0 0 0
 moveto 0 -30 0
 drawto 0 30 0
@@ -152,6 +160,7 @@ moveto 7.071068 53.071068 0
 moveto -2.928932 53.071068 0
 moveto -2.928932 53.071068 90
 drawtext 7
+moveto -2.928932 53.071068 0
 pencolor 0 0 0
 moveto 30 -30 0
 drawto 30 30 0
@@ -171,6 +180,7 @@ moveto 37.071068 53.071068 0
 moveto 27.071068 53.071068 0
 moveto 27.071068 53.071068 90
 drawtext 8
+moveto 27.071068 53.071068 0
 pencolor 0 0 0
 moveto 60 -30 0
 drawto 60 30 0
@@ -190,6 +200,7 @@ moveto 67.071068 53.071068 0
 moveto 57.071068 53.071068 0
 moveto 57.071068 53.071068 90
 drawtext 9
+moveto 57.071068 53.071068 0
 pencolor 0 0 0
 moveto 90 -30 0
 drawto 90 30 0
@@ -209,6 +220,7 @@ moveto 97.071068 53.071068 0
 moveto 87.071068 53.071068 0
 moveto 87.071068 53.071068 90
 drawtext 10
+moveto 87.071068 53.071068 0
 pencolor 0 0 0
 moveto 120 -30 0
 drawto 120 30 0
@@ -228,6 +240,7 @@ moveto 127.071068 53.071068 0
 moveto 117.071068 53.071068 0
 moveto 117.071068 53.071068 90
 drawtext 11
+moveto 117.071068 53.071068 0
 pencolor 0 0 0
 moveto 150 -30 0
 drawto 150 30 0
@@ -247,6 +260,7 @@ moveto 157.071068 53.071068 0
 moveto 147.071068 53.071068 0
 moveto 147.071068 53.071068 90
 drawtext 12
+moveto 147.071068 53.071068 0
 pencolor 0 0 0
 moveto 180 -30 0
 drawto 180 30 0
@@ -266,6 +280,7 @@ moveto 187.071068 53.071068 0
 moveto 177.071068 53.071068 0
 moveto 177.071068 53.071068 90
 drawtext 13
+moveto 177.071068 53.071068 0
 pencolor 0 0 0
 moveto 210 -30 0
 drawto 210 30 0
@@ -285,6 +300,7 @@ moveto 217.071068 53.071068 0
 moveto 207.071068 53.071068 0
 moveto 207.071068 53.071068 90
 drawtext 14
+moveto 207.071068 53.071068 0
 pencolor 0 0 0
 moveto 240 -30 0
 drawto 240 30 0

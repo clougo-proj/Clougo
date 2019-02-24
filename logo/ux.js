@@ -10,6 +10,12 @@
 
 /* global jQuery, $, ArrayBuffer, Float32Array, ace, createTurtleCanvas */
 
+function assert(cond, msg) {
+    if (!cond) {
+        throw Error(msg);
+    }
+}
+
 function createLogoTerminal(eventHandler) {
 
     let curLine = "";
@@ -343,7 +349,8 @@ const turtleCanvas = createTurtleCanvas("turtleCanvas", {
     "setBackgroundColor": function(color) {
         $("#turtleCanvas").css("background-color", color);
         $("#canvasPane").css("background-color", color);
-    }
+    },
+    "assert": assert
 });
 
 if (getUrlParams("mode") == "beta") {

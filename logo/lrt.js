@@ -394,7 +394,8 @@ classObj.create = function(logo, sys) {
 
         "clearscreen": logo.turtle.clearscreen,
         "cs": logo.turtle.clearscreen,
-        "draw": logo.turtle.clearscreen,
+
+        "draw": logo.turtle.draw,
 
         "clean": logo.turtle.clean,
 

@@ -1,0 +1,7 @@
+moveto 0 0 0
+clean 
+showturtle 
+pensize 1
+pencolor 0 0 0
+bgcolor 255 255 255
+fillcolor 0 0 0

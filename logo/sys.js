@@ -6,8 +6,13 @@
 "use strict";
 
 var classObj = {};
-classObj.create = function() {
+classObj.create = function(isNodeJsEnvFlag) {
     const sys = {};
+
+    function isNodeJsEnv() {
+        return !!isNodeJsEnvFlag;
+    }
+    sys.isNodeJsEnv = isNodeJsEnv;
 
     function getCleartextChar() {
         return "\x1Bc";

@@ -56,7 +56,7 @@ classObj.create = function logoInWeb(Logo, sys) {
 
             let code = CanvasCommon.getPrimitiveCode(cmd);
             if (code in CanvasCommon.primitivecode) {
-                if (tqCachePtr + args.length >= tqCacheSize) {
+                if (tqCachePtr + args.length >= tqCacheSize - 1) {
                     canvas.flush();
                 }
 

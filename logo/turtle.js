@@ -391,7 +391,8 @@ classObj.create = function(logo, sys) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
             function() { return ["setheading", logo.type.logoToString(deg, true)]; } );
 
-        _turtleHeading = deg;
+        _turtleHeading = moduloDeg(deg);
+        logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.setheading = primitiveSetheading;
 
@@ -744,16 +745,26 @@ classObj.create = function(logo, sys) {
     turtle.home = primitiveHome;
 
     function primitiveLeft(deg) {
-        _turtleHeading = (_turtleHeading - deg) % 360;
+        logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
+            function() { return ["left", logo.type.logoToString(deg, true)]; } );
+
+        _turtleHeading = moduloDeg(_turtleHeading - deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.left = primitiveLeft;
 
     function primitiveRight(deg) {
-        _turtleHeading = (_turtleHeading + deg) % 360;
+        logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
+            function() { return ["right", logo.type.logoToString(deg, true)]; } );
+
+        _turtleHeading = moduloDeg(_turtleHeading + deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.right = primitiveRight;
+
+    function moduloDeg(deg) {
+        return deg >= 0 ? deg % 360 : (deg % 360) +360;
+    }
 
     return turtle;
 };

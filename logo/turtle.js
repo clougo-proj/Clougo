@@ -205,7 +205,7 @@ classObj.create = function(logo, sys) {
         return rad / Math.PI * 180;
     }
 
-    turtle.reset = function reset() {
+    function primitiveReset() {
         _turtleX = originX;
         _turtleY = originY;
         _turtleHeading = originalHeading;
@@ -214,87 +214,114 @@ classObj.create = function(logo, sys) {
         _penColor = PALETTE[0];
         _bgColor = PALETTE[15];
         _penSize = 1;
-    };
+    }
+    turtle.reset = primitiveReset;
 
-    turtle.pendown = function pendown() {
+    function primitivePendown() {
         _penDown = true;
-    };
+    }
+    turtle.pendown = primitivePendown;
 
-    turtle.pendownp = function pendownp() {
+    function primitivePendownp() {
         return _penDown;
-    };
+    }
+    turtle.pendownp = primitivePendownp;
 
-    turtle.penup = function penup() {
+    function primitivePenup() {
         _penDown = false;
-    };
+    }
+    turtle.penup = primitivePenup;
 
-    turtle.penpaint = function penpaint() {
+    function primitivepenPaint() {
         _penDown = true;
         _penMode = "paint";
         logo.ext.canvas.sendCmd("penpaint");
-    };
+    }
+    turtle.penpaint = primitivepenPaint;
 
-    turtle.penerase = function penerase() {
+    function primitivePenerase() {
         _penDown = true;
         _penMode = "erase";
         logo.ext.canvas.sendCmd("penerase");
-    };
+    }
+    turtle.penerase = primitivePenerase;
 
-    turtle.penreverse = function penreverse() {
+    function primitivePenreverse() {
         _penDown = true;
         _penMode = "reverse";
         logo.ext.canvas.sendCmd("penreverse");
-    };
+    }
+    turtle.penreverse = primitivePenreverse;
 
-    turtle.penmode = function penmode() {
+    function primitivePenmode() {
         return _penMode;
-    };
+    }
+    turtle.penmode = primitivePenmode;
 
-    turtle.showturtle = function showturtle() {
+    function primitiveShowturtle() {
         _showTurtle = true;
         logo.ext.canvas.sendCmd("showturtle");
-    };
+    }
+    turtle.showturtle = primitiveShowturtle;
 
-    turtle.hideturtle = function hideturtle() {
+    function primitiveHideturtle() {
         _showTurtle = false;
         logo.ext.canvas.sendCmd("hideturtle");
-    };
+    }
+    turtle.hideturtle = primitiveHideturtle;
 
-    turtle.shownp = function shownp() {
+    function primitiveShownp() {
         return _showTurtle;
-    };
+    }
+    turtle.shownp = primitiveShownp;
 
-    turtle.forward = function forward(length) {
+    function primitiveForward(length) {
         _turtleX += Math.sin(d2r(_turtleHeading)) * length;
         _turtleY += Math.cos(d2r(_turtleHeading)) * length;
         logo.ext.canvas.sendCmd(
             _penDown ? "drawto" : "moveto",
             [_turtleX, _turtleY, _turtleHeading]
         );
-    };
+    }
+    turtle.forward = primitiveForward;
 
-    turtle.back = function back(length) {
+    function primitiveBack(length) {
         _turtleX -= Math.sin(d2r(_turtleHeading)) * length;
         _turtleY -= Math.cos(d2r(_turtleHeading)) * length;
         logo.ext.canvas.sendCmd(
             _penDown ? "drawto" : "moveto",
             [_turtleX, _turtleY, _turtleHeading]
         );
-    };
+    }
+    turtle.back = primitiveBack;
 
-    turtle.clearscreen = function clearscreen() {
+    function primitiveClearscreen() {
         _turtleX = originX;
         _turtleY = originY;
         _turtleHeading = originalHeading;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
         logo.ext.canvas.sendCmd("clean");
-    };
+    }
+    turtle.clearscreen = primitiveClearscreen;
 
-    turtle.clean = function clean() {
+    function primitiveDraw() {
+        primitiveClearscreen();
+        primitivePendown();
+        primitiveShowturtle();
+        primitiveSetpensize(1);
+        primitiveSetpencolor(0);
+        primitiveSetbackground(15);
+        primitiveSetfloodcolor(0);
+        // setlabelfont [[Arial] -24 0 0 400 0 0 0 0 3 2 1 18]
+    }
+    turtle.draw = primitiveDraw;
+
+    function primitiveClean() {
         logo.ext.canvas.sendCmd("clean");
-    };
+    }
+    turtle.clean = primitiveClean;
 
-    turtle.setxy = function setxy(newX, newY) {
+    function primitiveSetxy(newX, newY) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(newX), "INVALID_INPUT",
             function() { return ["setxy", logo.type.logoToString(newX, true)]; } );
 
@@ -304,13 +331,15 @@ classObj.create = function(logo, sys) {
         _turtleX = newX;
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.setxy = primitiveSetxy;
 
-    turtle.pos = function pos() {
+    function primitivePos() {
         return logo.type.makeLogoList([_turtleX, _turtleY]);
-    };
+    }
+    turtle.pos = primitivePos;
 
-    turtle.setpos = function setpos(pos) {
+    function primitiveSetpos(pos) {
         logo.type.verifyOrThrow(
             logo.type.isLogoList(pos) &&
                     pos.length == 3 &&
@@ -322,44 +351,51 @@ classObj.create = function(logo, sys) {
         _turtleX = pos[1];
         _turtleY = pos[2];
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.setpos = primitiveSetpos;
 
-    turtle.xcor = function xcor() {
+    function primitiveXcor() {
         return _turtleX;
-    };
+    }
+    turtle.xcor = primitiveXcor;
 
-    turtle.setx = function setx(newX) {
+    function primitiveSetx(newX) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(newX), "INVALID_INPUT",
             function() { return ["setx", logo.type.logoToString(newX, true)]; } );
 
         _turtleX = newX;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.setx = primitiveSetx;
 
-    turtle.ycor = function ycor() {
+    function primitiveYcor() {
         return _turtleY;
-    };
+    }
+    turtle.ycor = primitiveYcor;
 
-    turtle.sety = function sety(newY) {
+    function primitiveSety(newY) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(newY), "INVALID_INPUT",
             function() { return ["sety", logo.type.logoToString(newY, true)]; } );
 
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.sety = primitiveSety;
 
-    turtle.heading = function heading() {
+    function primitiveHeading() {
         return _turtleHeading;
-    };
+    }
+    turtle.heading = primitiveHeading;
 
-    turtle.setheading = function setheading(deg) {
+    function primitiveSetheading(deg) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
             function() { return ["setheading", logo.type.logoToString(deg, true)]; } );
 
         _turtleHeading = deg;
-    };
+    }
+    turtle.setheading = primitiveSetheading;
 
-    turtle.towards = function(pos) {
+    function primitiveTowards(pos) {
         logo.type.verifyOrThrow(
             logo.type.isLogoList(pos) &&
                     pos.length == 3 &&
@@ -381,14 +417,16 @@ classObj.create = function(logo, sys) {
 
         let deg = r2d(Math.atan2(dX, dY));
         return (deg < 0) ? deg + 360 : deg;
-    };
+    }
+    turtle.towards = primitiveTowards;
 
-    turtle.setbackground = function setbackground(color) {
+    function primitiveSetbackground(color) {
         if (typeof color === "number" && color in PALETTE) {
             _bgColor = PALETTE[color];
             logo.ext.canvas.sendCmd("bgcolor", _bgColor);
         }
-    };
+    }
+    turtle.setbackground = primitiveSetbackground;
 
     function isPaletteIndex(color) {
         return /*sys.isInteger(color) &&*/ color in PALETTE;
@@ -426,45 +464,51 @@ classObj.create = function(logo, sys) {
         return color;
     }
 
-    turtle.setfloodcolor = function setfloodcolor(color) {
+    function primitiveSetfloodcolor(color) {
         logo.type.verifyOrThrow(isValidColorValue(color), "INVALID_INPUT",
             function() { return ["setfloodcolor", logo.type.logoToString(color, true)]; });
 
         _floodColor = isColorName(color) ? RGB_BY_COLOR_NAME[color.toLowerCase()] : logo.type.unbox(color);
         logo.ext.canvas.sendCmd("fillcolor", getRGB(_floodColor));
-    };
+    }
+    turtle.setfloodcolor = primitiveSetfloodcolor;
 
-    turtle.floodcolor = function floodcolor() {
+    function primitiveFloodcolor() {
         return isPaletteIndex(_floodColor) ? _floodColor : logo.type.makeLogoList(_floodColor);
-    };
+    }
+    turtle.floodcolor = primitiveFloodcolor;
 
-    turtle.setpencolor = function setpencolor(color) {
+    function primitiveSetpencolor(color) {
         logo.type.verifyOrThrow(isValidColorValue(color), "INVALID_INPUT",
             function() { return ["setpencolor", logo.type.logoToString(color, true)]; });
 
         _penColor = isColorName(color) ? RGB_BY_COLOR_NAME[color.toLowerCase()] : logo.type.unbox(color);
         logo.ext.canvas.sendCmd("pencolor", getRGB(_penColor));
-    };
+    }
+    turtle.setpencolor = primitiveSetpencolor;
 
-    turtle.pencolor = function pencolor() {
+    function primitivePencolor() {
         return isPaletteIndex(_penColor) ? _penColor : logo.type.makeLogoList(_penColor);
-    };
+    }
+    turtle.pencolor = primitivePencolor;
 
-    turtle.setpensize = function setpensize(size) {
+    function primitiveSetpensize(size) {
         logo.type.verifyOrThrow(sys.isInteger(size) && size > 0, "INVALID_INPUT",
             function() { return ["setpensize", logo.type.logoToString(size, true)]; });
 
         _penSize = size;
         logo.ext.canvas.sendCmd("pensize", [_penSize]);
-    };
+    }
+    turtle.setpensize = primitiveSetpensize;
 
-    turtle.circle = function circle(radius) {
+    function primitiveCircle(radius) {
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [_turtleX, _turtleY, radius, 0, 360, false]);
         }
-    };
+    }
+    turtle.circle = primitiveCircle;
 
-    turtle.circle2 = function circle2(radius) {
+    function primitiveCircle2(radius) {
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [
                 _turtleX + Math.cos(d2r(_turtleHeading)) * radius,
@@ -474,9 +518,10 @@ classObj.create = function(logo, sys) {
                 360,
                 false]);
         }
-    };
+    }
+    turtle.circle2 = primitiveCircle2;
 
-    turtle.arc = function arc(deg, radius) {
+    function primitiveArc(deg, radius) {
         if (_penDown) {
             let sAngle = (_turtleHeading + 90) % 360;
 
@@ -493,9 +538,10 @@ classObj.create = function(logo, sys) {
                 sAngle + deg,
                 deg < 0]);
         }
-    };
+    }
+    turtle.arc = primitiveArc;
 
-    turtle.arc2 = function arc2(deg, radius) {
+    function primitiveArc2(deg, radius) {
         let sAngle = (_turtleHeading + 180) % 360;
 
         if (radius < 0) {
@@ -517,9 +563,10 @@ classObj.create = function(logo, sys) {
         _turtleY -= (Math.sin(d2r(_turtleHeading))  - Math.sin(d2r(_turtleHeading + deg))) * radius;
         _turtleHeading += deg;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.arc2 = primitiveArc2;
 
-    turtle.ellipse = function ellipse(radiusX, radiusY) {
+    function primitiveEllipse(radiusX, radiusY) {
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX,
@@ -531,9 +578,10 @@ classObj.create = function(logo, sys) {
                 360,
                 false]);
         }
-    };
+    }
+    turtle.ellipse = primitiveEllipse;
 
-    turtle.ellipse2 = function ellipse2(radiusX, radiusY) {
+    function primitiveEllipse2(radiusX, radiusY) {
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX + Math.cos(d2r(_turtleHeading)) * radiusY,
@@ -545,9 +593,10 @@ classObj.create = function(logo, sys) {
                 360,
                 false]);
         }
-    };
+    }
+    turtle.ellipse2 = primitiveEllipse2;
 
-    turtle.ellipsearc = function ellipsearc(deg, radiusX, radiusY, startDeg) {
+    function primitiveEllipsearc(deg, radiusX, radiusY, startDeg) {
         let endDeg = startDeg + deg;
         if (radiusX < 0) {
             radiusX = -radiusX;
@@ -575,9 +624,10 @@ classObj.create = function(logo, sys) {
                 eAngle,
                 deg < 0]);
         }
-    };
+    }
+    turtle.ellipsearc = primitiveEllipsearc;
 
-    turtle.ellipsearc2 = function ellipsearc2(deg, radiusX, radiusY, startDeg) {
+    function primitiveEllipsearc2(deg, radiusX, radiusY, startDeg) {
         function arcctg(x) {
             return Math.PI / 2 - Math.atan(x);
         }
@@ -667,37 +717,43 @@ classObj.create = function(logo, sys) {
         osTurtleHeading += Math.PI - calcTangentAngle(eAngle, radiusX, radiusY) + tangentStartAngle;
         _turtleHeading = r2d(Math.PI * 0.5 - osTurtleHeading) % 360;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.ellipsearc2 = primitiveEllipsearc2;
 
-    turtle.label = function label(text) {
+    function primitiveLabel(text) {
         if (typeof text === "number") {
             logo.ext.canvas.sendCmd("drawtext", [text]);
             return;
         }
 
         logo.ext.canvas.sendCmdAsString("drawtext", [logo.type.logoToString(text)]);
-    };
+    }
+    turtle.label = primitiveLabel;
 
-    turtle.fill = function fill() {
+    function primitiveFill() {
         logo.ext.canvas.sendCmd("fill");
-    };
+    }
+    turtle.fill = primitiveFill;
 
-    turtle.home = function home() {
+    function primitiveHome() {
         _turtleX = originX;
         _turtleY = originY;
         _turtleHeading = originalHeading;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.home = primitiveHome;
 
-    turtle.left = function left(deg) {
+    function primitiveLeft(deg) {
         _turtleHeading = (_turtleHeading - deg) % 360;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.left = primitiveLeft;
 
-    turtle.right = function right(deg) {
+    function primitiveRight(deg) {
         _turtleHeading = (_turtleHeading + deg) % 360;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
-    };
+    }
+    turtle.right = primitiveRight;
 
     return turtle;
 };

@@ -96,7 +96,7 @@ classObj.create = function(Logo, sys) {
 
             testCmd.forEach(function(testMethod) {
                 extForTest.io.mockStdin(testInBase);
-                logo.env.resetWorkspace();
+                logo.env.initLogoEnv();
                 count++;
 
                 Logo.io.stdoutn(testName + "(" + testMethod + "):");

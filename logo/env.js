@@ -238,7 +238,15 @@ classObj.create = function(logo, sys, ext) {
     }
     env.asyncCatch = asyncCatch;
 
-    function resetWorkspace() {
+    function initLogoEnv() {
+        clearWorkspace();
+
+        registerOnStdinCallback();
+    }
+    env.initLogoEnv = initLogoEnv;
+
+    function clearWorkspace() {
+
         _globalScope = {"_global": 1 };
 
         env._scopeStack = [_globalScope];
@@ -250,11 +258,9 @@ classObj.create = function(logo, sys, ext) {
         _userInput = [];
 
         $ret = undefined;
-
-        registerOnStdinCallback();
         asyncReset();
     }
-    env.resetWorkspace = resetWorkspace;
+    env.clearWorkspace = clearWorkspace;
 
     function resetInterpreterCallStack() {
         env._callstack = [];

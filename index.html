@@ -22,6 +22,8 @@
   <div class="row">
 
           <ul id="menubar" class="nav nav-pills">
+              <li><a onclick="if (confirm('Are you sure you wish to ERASE ALL?')) { clearWorkspace() }"
+                data-toggle="tab"><span class="glyphicon glyphicon-erase"></span></a></li>
             <li><a onclick="zoomTurtleCanvas()">
                 <span  id="zoomTurtleCanvasButton" class="glyphicon glyphicon-zoom-in"></span></a>
             </li>

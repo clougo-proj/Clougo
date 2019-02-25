@@ -127,6 +127,9 @@ classObj.create = function logoInWeb(Logo, sys) {
 
                     let logoStatus = logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
                     postMessage([logoStatus]);
+                } else if (op == "clearWorkspace") {
+                    logo.env.clearWorkspace();
+                    postMessage(["ready"]);
                 }
 
                 if (!sys.isUndefined(ret)) {

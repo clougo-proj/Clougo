@@ -34,7 +34,7 @@ Logo.create = function(ext) {
     logo.parse = loadScript("./parse.js").create(logo, sys);
     logo.env = loadScript("./env.js").create(logo, sys, ext);
 
-    logo.env.resetWorkspace();
+    logo.env.initLogoEnv();
 
     return logo;
 }; // Logo.create

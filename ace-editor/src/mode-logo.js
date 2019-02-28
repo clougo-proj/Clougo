@@ -11,7 +11,7 @@ var LogoHighlightRules = function() {
     var supportFunctions = "cs|setsc|setpc|setfc|ellipsearc2|setpc|fd|forward|pu|fill|lt|left|rt" +
             "|right|home|pd|back|bk|arc2|arc|circle|st|showturtle|ht|hideturtle|listp|pr|print" +
             "|make|throw|item|setitem|local|type|output|op|log10|seth|setheading|setxy|setx|sety" +
-			"|xcor|ycor|label";
+			"|xcor|ycor|label|mdarray|mditem|mdsetitem|setpensize|round|localmake|list|sentence|se";
 
     var keywordMapper = this.createKeywordMapper({
         "keyword.control": keywordControl,

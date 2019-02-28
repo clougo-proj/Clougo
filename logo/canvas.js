@@ -291,7 +291,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
             _convasContext.translate(_tx, _ty);
             _convasContext.rotate(-_td);
             _convasContext.textBaseline="top";
-            _convasContext.font = "60px sans-serif";
+            _convasContext.font = "30pt arial";
             _convasContext.fillStyle = _penColor;
             _convasContext.fillText(text, 0, 0);  // BEACH:text
             _convasContext.restore();

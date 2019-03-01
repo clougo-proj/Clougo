@@ -19,7 +19,7 @@ classObj.create = function(logo, sys, ext) {
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _parserState, _runTime,  _userInput, _retVal;
 
-    let $ret, $scopecache, $scopeStackLength, $forBegin, $forEnd, $forStep, $forDecrease; // eslint-disable-line no-unused-vars
+    let $ret, $scopecache, $scopeStackLength; // eslint-disable-line no-unused-vars
 
     function isReservedWordTthen(v) {
         return sys.equalToken(v, "then");

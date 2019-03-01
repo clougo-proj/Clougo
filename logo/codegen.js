@@ -294,16 +294,16 @@ classObj.create = function(logo, sys) {
         forLoopCtrl.next();
 
         let forBegin = genToken(forLoopCtrl, 0);
-        code.push("$forBegin = ", forBegin, ";\n");
+        code.push("{const $forBegin = ", forBegin, ";\n");
 
         forLoopCtrl.next();
 
         let forEnd = genToken(forLoopCtrl, 0);
-        code.push("$forEnd = ", forEnd, ";\n");
-        code.push("$forDecrease = $forEnd < $forBegin;\n");
+        code.push("const $forEnd = ", forEnd, ";\n");
+        code.push("const $forDecrease = $forEnd < $forBegin;\n");
 
         let forStep = forLoopCtrl.next() ? genToken(forLoopCtrl, 0) : "$forDecrease ? -1 : 1";
-        code.push("$forStep = ", forStep, ";\n");
+        code.push("const $forStep = ", forStep, ";\n");
 
         code.push("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n");
         code.push("for(", forVarName, "=$forBegin; ($forDecrease && ", forVarName, ">=$forEnd) || (!$forDecrease &&", forVarName, "<=$forEnd); ", forVarName, "+=$forStep) {\n");
@@ -312,7 +312,7 @@ classObj.create = function(logo, sys) {
 
         comp = logo.parse.parseBlock([evxContext.getToken(), evxContext.getSrcmap()]);
         code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
-        code.push("}");
+        code.push("}}");
 
         return code;
     }
@@ -714,7 +714,7 @@ classObj.create = function(logo, sys) {
         code.push(insertDelimiters(params.map(function(v, n) { return CodeWithSrcmap.create(v, paramSrcmaps[n]); } ) , ",") );
         code.push(")");
         code.push("{\n");
-        code.push("var $ret, $scopeStackLength, $forBegin, $forEnd, $forStep, $forDecrease;\n");
+        code.push("var $ret, $scopeStackLength;\n");
 
         if (sys.Config.get("dynamicScope")) {
             code.push("var $scope = {}, $scopecache = {};\n");

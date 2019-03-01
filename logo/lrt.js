@@ -20,6 +20,11 @@ classObj.create = function(logo, sys) {
         logo.io.cleartext();
     }
 
+    function primitiveList() {
+        const args = Array.prototype.slice.call(arguments);
+        return logo.type.makeLogoList(args);
+    }
+
     function primitiveSentence() {
 
         const args = Array.prototype.slice.call(arguments);
@@ -34,7 +39,7 @@ classObj.create = function(logo, sys) {
             } else if (logo.type.isLogoWord(item)) {
                 sentence.push(item);
             } else {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["setence", logo.type.logoToString(item, true)], null, Error().stack);
+                throw logo.type.LogoException.create("INVALID_INPUT", ["sentence", logo.type.logoToString(item, true)], null, Error().stack);
             }
         }
 
@@ -539,6 +544,8 @@ classObj.create = function(logo, sys) {
 
         "word": primitiveWord,
 
+        "list": primitiveList,
+
         "sentence": primitiveSentence,
         "se": primitiveSentence,
 
@@ -583,6 +590,7 @@ classObj.create = function(logo, sys) {
 
     primitiveParamCount.se =
     primitiveParamCount.sentence =
+    primitiveParamCount.list =
     primitiveParamCount.word = [2, 1, -1];
 
     primitiveParamCount.throw =

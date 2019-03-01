@@ -1,5 +1,6 @@
 make "j 0
-make "i 15
-for [i :j+1 10] [
-    pr :i
+for [i :j+1 2] [
+	for [k :j-1 3] [
+		pr (se :i :k)
+	]
 ]

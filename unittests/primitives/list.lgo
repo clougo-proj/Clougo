@@ -1,0 +1,5 @@
+show (list "one)
+show (List "one "two)
+show (list "un "deux "tres "quatre "cinq "six "sept "huit "neuf "dix)
+show (list 1 2 3 4 5[6 7])
+show (list [[1 2] [3 4]] [5 [6 7]])

@@ -184,18 +184,20 @@ classObj.create = function(logo, sys) {
     const originX = 0;
     const originY = 0;
     const originalHeading = 0; // deg
+    const originalPenSize = logo.type.makeLogoList([1, 1]);
+
+    let _showTurtle = true;
 
     let _turtleX = originX;
     let _turtleY = originY;
     let _turtleHeading = originalHeading;
 
-    let _showTurtle = true;
     let _penDown = true;
     let _penMode = "paint";
     let _floodColor = PALETTE[0];
     let _penColor = PALETTE[0];
     let _bgColor = PALETTE[15];
-    let _penSize = 1;
+    let _penSize = originalPenSize;
 
     function d2r(deg) {
         return deg * Math.PI / 180;
@@ -209,11 +211,12 @@ classObj.create = function(logo, sys) {
         _turtleX = originX;
         _turtleY = originY;
         _turtleHeading = originalHeading;
+
         _penDown = true;
         _floodColor = PALETTE[0];
         _penColor = PALETTE[0];
         _bgColor = PALETTE[15];
-        _penSize = 1;
+        _penSize = originalPenSize;
     }
     turtle.reset = primitiveReset;
 
@@ -494,13 +497,21 @@ classObj.create = function(logo, sys) {
     turtle.pencolor = primitivePencolor;
 
     function primitiveSetpensize(size) {
-        logo.type.verifyOrThrow(sys.isInteger(size) && size > 0, "INVALID_INPUT",
+        logo.type.verifyOrThrow(
+            (sys.isInteger(size) && size > 0) ||
+                (logo.type.isLogoList(size) && logo.type.length(size) == 2 && size[1] > 0 && size[2] > 0), "INVALID_INPUT",
             function() { return ["setpensize", logo.type.logoToString(size, true)]; });
 
-        _penSize = size;
-        logo.ext.canvas.sendCmd("pensize", [_penSize]);
+        let actualSize = sys.isInteger(size) ? size : Math.floor(size[2]);
+        _penSize = logo.type.makeLogoList([actualSize, actualSize]);
+        logo.ext.canvas.sendCmd("pensize", [actualSize]);
     }
     turtle.setpensize = primitiveSetpensize;
+
+    function primitivePensize() {
+        return _penSize;
+    }
+    turtle.pensize = primitivePensize;
 
     function primitiveCircle(radius) {
         if (_penDown) {

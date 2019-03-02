@@ -1,0 +1,4 @@
+setpensize [1 2] show pensize ; [2 2]
+setpensize [2 1] show pensize ; [1 1]
+setpensize 10 show pensize ; [10 10]
+setpensize [1 0.5] show pensize ;  [0 0]

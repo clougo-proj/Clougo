@@ -448,6 +448,8 @@ classObj.create = function(logo, sys) {
 
         "setpensize": logo.turtle.setpensize,
 
+        "pensize": logo.turtle.pensize,
+
         "circle": logo.turtle.circle,
 
         "circle2": logo.turtle.circle2,

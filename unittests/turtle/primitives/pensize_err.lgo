@@ -1,0 +1,22 @@
+; negative
+setpensize -1
+
+; decimal
+setpensize 0.5
+
+; not number
+setpensize "abc
+setpensize {1 2}
+
+; incorrect list dimension
+setpensize []
+setpensize [1]
+setpensize [3 4 5]
+
+; list with negative numbers
+setpensize [-1 1]
+setpensize [1 -0.5]
+
+;list with non-number elements
+setpensize [def 1]
+setpensize [2 def]

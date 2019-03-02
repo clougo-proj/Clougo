@@ -1,0 +1,39 @@
+to test_localmake_sub
+  localmake "v0 1
+  localmake "v1 :v0+1
+  localmake "v2 :v1+:v0
+  localmake "v3 :v2+:v1
+  localmake "v4 :v3+:v2
+  localmake "v5 :v4+:v3
+  localmake "v6 :v5+:v4
+  localmake "v7 :v6+:v5
+  pr (sentence :v7 :v6 :v5 :v4 :v3 :v2 :v1 :v0)
+end
+
+to test_localmake_sub0
+  localmake "v0 0
+  localmake "v1 0
+  localmake "v2 0
+  localmake "v3 0
+  localmake "v4 0
+  localmake "v5 0
+  localmake "v6 0
+  localmake "v7 0
+  test_localmake_sub
+  pr (sentence :v7 :v6 :v5 :v4 :v3 :v2 :v1 :v0)
+end
+
+to test_localmake
+  make "v0 -1
+  make "v1 -1
+  make "v2 -1
+  make "v3 -1
+  make "v4 -1
+  make "v5 -1
+  make "v6 -1
+  make "v7 -1
+  test_localmake_sub0
+  pr (sentence :v7 :v6 :v5 :v4 :v3 :v2 :v1 :v0)
+end
+
+test_localmake

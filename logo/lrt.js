@@ -195,7 +195,7 @@ classObj.create = function(logo, sys) {
         });
     }
 
-    function primitiveMakelocal(varname, val) {
+    function primitiveLocalmake(varname, val) {
         let ptr = logo.env._scopeStack.length - 1;
         logo.env._scopeStack[ptr][varname] = val;
     }
@@ -536,7 +536,7 @@ classObj.create = function(logo, sys) {
 
         "local": primitiveLocal,
 
-        "makelocal": primitiveMakelocal,
+        "localmake": primitiveLocalmake,
 
         "item": primitiveItem,
 

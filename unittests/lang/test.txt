@@ -12,6 +12,4 @@ local run exec
 newline_in_block run exec
 paren run exec
 catch run exec
-
-
-
+localmake run exec

@@ -1,0 +1,22 @@
+setpensize doesn't like -1 as input
+    at 1,1
+setpensize doesn't like 0.5 as input
+    at 1,1
+setpensize doesn't like abc as input
+    at 1,1
+setpensize doesn't like {1 2} as input
+    at 1,1
+setpensize doesn't like [] as input
+    at 1,1
+setpensize doesn't like [1] as input
+    at 1,1
+setpensize doesn't like [3 4 5] as input
+    at 1,1
+setpensize doesn't like [-1 1] as input
+    at 1,1
+setpensize doesn't like [1 -0.5] as input
+    at 1,1
+setpensize doesn't like [def 1] as input
+    at 1,1
+setpensize doesn't like [2 def] as input
+    at 1,1

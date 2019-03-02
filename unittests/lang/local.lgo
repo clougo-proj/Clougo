@@ -1,4 +1,4 @@
-to test_local
+to test_local_sub
   (local "v0)
   (local "v1 "v2)
   (local "v3 "v4 "v5 "v6 "v7)
@@ -10,6 +10,35 @@ to test_local
   make "v5 :v4+:v3
   make "v6 :v5+:v4
   make "v7 :v6+:v5
+  pr (sentence :v7 :v6 :v5 :v4 :v3 :v2 :v1 :v0)
+end
+
+to test_local_sub0
+  (local "v0)
+  (local "v1 "v2)
+  (local "v3 "v4 "v5 "v6 "v7)
+  make "v0 0
+  make "v1 0
+  make "v2 0
+  make "v3 0
+  make "v4 0
+  make "v5 0
+  make "v6 0
+  make "v7 0
+  test_local_sub
+  pr (sentence :v7 :v6 :v5 :v4 :v3 :v2 :v1 :v0)
+end
+
+to test_local
+  make "v0 -1
+  make "v1 -1
+  make "v2 -1
+  make "v3 -1
+  make "v4 -1
+  make "v5 -1
+  make "v6 -1
+  make "v7 -1
+  test_local_sub0
   pr (sentence :v7 :v6 :v5 :v4 :v3 :v2 :v1 :v0)
 end
 

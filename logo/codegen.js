@@ -49,6 +49,7 @@ classObj.create = function(logo, sys) {
         "and": [genAnd, true],
         "or": [genOr, true],
         "make": [genMake],
+        "localmake": [genLocalmake],
         "local": [genLocal],
         "repeat": [genRepeat, false, true, true],
         "for": [genFor, false, true, true],
@@ -354,7 +355,26 @@ classObj.create = function(logo, sys) {
         code.push("=");
         code.push(genToken(evxContext,0));
         code.push(";undefined");
-        return code;//.join("");
+        return code;
+    }
+
+    function genLocalmake(evxContext) {
+        let code = [];
+
+        evxContext.next();
+
+        let varName = logo.env.extractVarName(evxContext.getToken());
+        addLocalVar(varName);
+
+        code.push("var ");
+
+        Array.prototype.push.apply(code, genLogoVarLref(varName, evxContext.getSrcmap()));
+
+        evxContext.next();
+        code.push("=");
+        code.push(genToken(evxContext,0));
+        code.push(";undefined");
+        return code;
     }
 
     function genLogoVarRef(curToken, srcmap) {

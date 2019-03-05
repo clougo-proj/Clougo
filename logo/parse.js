@@ -25,12 +25,10 @@ classObj.create = function(logo, sys) {
             "\t": [SP_BASE],
             undefined: [SP_NONE],
             ";" : [SP_COMMENT],
-            "[" : [SP_BASE|SP_OPEN, "]", logo.type.makeLogoList],
+            "[" : [SP_BASE|SP_OPEN, "]"],
             "]" : [SP_BASE|SP_CLOSE, "[", logo.type.makeLogoList],
-            "{" : [SP_BASE|SP_OPEN, "}", logo.type.makeLogoArray],
+            "{" : [SP_BASE|SP_OPEN, "}"],
             "}" : [SP_BASE|SP_CLOSE, "{", logo.type.makeLogoArray],
-            "(" : [SP_OPEN, ")", logo.type.makeParen],
-            ")" : [SP_CLOSE, "(", logo.type.makeParen],
             "+" : [SP_OPERATOR, "+"],
             "-" : [SP_OPERATOR, "-"],
             "*" : [SP_OPERATOR, "*"],
@@ -87,7 +85,7 @@ classObj.create = function(logo, sys) {
             return definition[c][1];
         };
 
-        Delimiter.getScopeFactory = function getScopeFactory(c) {
+        Delimiter.getLiteralFactory = function getLiteralFactory(c) {
             return definition[c][2];
         };
 
@@ -343,7 +341,6 @@ classObj.create = function(logo, sys) {
             _parseInComment = false;
         }
 
-        let makeScope;
         s = s.replace(/\s+$/g, "");
         for ( ; _parseCol < s.length; _parseCol++) {
             let c = s.charAt(_parseCol);
@@ -428,9 +425,8 @@ classObj.create = function(logo, sys) {
                 if (Delimiter.isOpening(c)) {
                     _parseStack.push([_parseState, _parseData, _parseExpecting, _parseSrcmap]);
                     _parseState = "line";
-                    makeScope = Delimiter.getScopeFactory(c);
-                    _parseData = makeScope();
-                    _parseSrcmap = makeScope();
+                    _parseData = [];
+                    _parseSrcmap = [];
                     _parseExpecting = Delimiter.getExpectedClosing(c);
                 } else if (Delimiter.isClosing(c)) {
                     if (_parseExpecting != c) {
@@ -440,8 +436,10 @@ classObj.create = function(logo, sys) {
                     let frame = _parseStack.pop();
                     _parseState = frame[0];
 
-                    frame[1].push(_parseData);
-                    frame[3].push(_parseSrcmap);
+                    let makeLiteral = Delimiter.getLiteralFactory(c);
+
+                    frame[1].push(makeLiteral(_parseData));
+                    frame[3].push(makeLiteral(_parseSrcmap));
                     _parseData = frame[1];
                     _parseSrcmap = frame[3];
                     _parseExpecting = frame[2];

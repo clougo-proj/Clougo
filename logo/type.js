@@ -9,13 +9,16 @@ var classObj = {};
 classObj.create = function(logo, sys) {
     const type = {};
 
-    const OBJTYPE_COMPOUND = 0;  // [body, srcmap]
-    const OBJTYPE_LIST = 1;
-    const OBJTYPE_ARRAY = 2;
-    const OBJTYPE_PROC = 3;
-    const OBJTYPE_BLOCK = 4;
-    const OBJTYPE_ASYNC_RETURN = 7;
-    const OBJTYPE_ARRAY_WITH_ORIGIN = 8;
+    const OBJTYPE = {
+        MIN_VALUE: 0,
+        COMPOUND: 0, // [body, srcmap]
+        LIST: 1,
+        ARRAY: 2,
+        PROC: 3,
+        BLOCK: 4,
+        ASYNC_RETURN: 7,
+        MAX_VALUE: 7
+    };
 
     function makeObject(t, val) {
         if (sys.isUndefined(val)) {
@@ -29,108 +32,190 @@ classObj.create = function(logo, sys) {
         return ret;
     }
 
+    function getObjType(obj) {
+        return obj[0];
+    }
+    type.getObjType = getObjType;
+
     function makeCompound(val) {
-        return makeObject(OBJTYPE_COMPOUND, val);
+        return makeObject(OBJTYPE.COMPOUND, val);
     }
     type.makeCompound = makeCompound;
 
     function isCompound(token) {
-        return (token instanceof Array && token[0] == OBJTYPE_COMPOUND);
+        return (token instanceof Array && token[0] == OBJTYPE.COMPOUND);
     }
     type.isCompound = isCompound;
 
     function makeLogoList(val) {
-        return makeObject(OBJTYPE_LIST, val);
+        return makeObject(OBJTYPE.LIST, val);
     }
     type.makeLogoList = makeLogoList;
 
+    function isLogoObj(val) {
+        return Array.isArray(val) && val.length > 0 &&
+            val[0] >= OBJTYPE.MIN_VALUE & val[0] <= OBJTYPE.MAX_VALUE;
+    }
+    type.isLogoObj = isLogoObj;
+
     function isLogoList(token) {
-        return (token instanceof Array && token[0] == OBJTYPE_LIST);
+        return (token instanceof Array && token[0] == OBJTYPE.LIST);
     }
     type.isLogoList = isLogoList;
 
-    function length(thing) {
-        if (isLogoList(thing) || isLogoArray(thing)) {
-            return thing.length - 1;
-        }
-
-        if (isLogoArrayWithOrigin(thing)) {
-            return thing.length - 2;
-        }
-
-        sys.assert(isLogoWord(thing));
+    function listOrigin() {
         return 1;
     }
+    type.listOrigin = listOrigin;
+
+    function listButFirst(list) {
+        return makeLogoList(list.slice(2));
+    }
+    type.listButFirst = listButFirst;
+
+    function listMaxIndex(list) {
+        return list.length - 1;
+    }
+    type.listMaxIndex = listMaxIndex;
+
+    function listIndexWithinRange(index, list) {
+        return index >= listOrigin() && index <= listMaxIndex(list);
+    }
+    type.listIndexWithinRange = listIndexWithinRange;
+
+    function listSetItem(index, list, val) {
+        list[index] = val;
+    }
+    type.listSetItem = listSetItem;
+
+    function listItem(index, list) {
+        return list[index];
+    }
+    type.listItem = listItem;
+
+    function listLength(list) {
+        return list.length - 1;
+    }
+    type.listLength = listLength;
+
+    function arrayOrigin(array) {
+        return array[array.length - 1];
+    }
+    type.arrayOrigin = arrayOrigin;
+
+    function arrayMaxIndex(array) {
+        return arrayOrigin(array) + array.length - 3;
+    }
+    type.arrayMaxIndex = arrayMaxIndex;
+
+    function arrayIndexWithinRange(index, array) {
+        return index >= arrayOrigin(array) && index <= arrayMaxIndex(array);
+    }
+    type.arrayIndexWithinRange = arrayIndexWithinRange;
+
+    function arraySetItem(index, array, val) {
+        array[index - arrayOrigin(array) + 1] = val;
+    }
+    type.arraySetItem = arraySetItem;
+
+    function arrayItem(index, array) {
+        return array[index - arrayOrigin(array) + 1];
+    }
+    type.arrayItem = arrayItem;
+
+    function arrayLength(array) {
+        return array.length - 2;
+    }
+    type.arrayLength = arrayLength;
+
+    const length = (function() {
+        const getLengthHelper = {};
+
+        getLengthHelper[OBJTYPE.LIST] = listLength;
+        getLengthHelper[OBJTYPE.ARRAY] = arrayLength;
+
+        return function(thing) {
+            if (isLogoWord(thing)) {
+                return 1;
+            }
+
+            sys.assert(isLogoObj(thing) && thing[0] in getLengthHelper);
+            return getLengthHelper[thing[0]](thing);
+        };
+    })();
     type.length = length;
 
-    function unbox(thing) {
-        if (isLogoList(thing) || isLogoArray(thing)) {
-            return thing.slice(1);
-        }
+    const unbox = (function() {
+        const unboxHelper = {};
 
-        if (isLogoArrayWithOrigin(thing)) {
-            return thing.slice(1, thing.length - 1);
-        }
+        unboxHelper[OBJTYPE.LIST] = function(obj) { return obj.slice(1); };
 
-        sys.assert(isLogoWord(thing));
-        return thing;
-    }
+        unboxHelper[OBJTYPE.ARRAY] =
+            function(obj) {
+                return obj.slice(1, obj.length - 1);
+            };
+
+        return function(thing) {
+            if (isLogoWord(thing)) {
+                return thing;
+            }
+
+            sys.assert(isLogoObj(thing) && thing[0] in unboxHelper);
+            return unboxHelper[thing[0]](thing);
+        };
+    })();
     type.unbox = unbox;
 
-    function makeLogoArray(val) {
-        return makeObject(OBJTYPE_ARRAY, val);
-    }
-    type.makeLogoArray = makeLogoArray;
+    function makeLogoArray(val, origin) {
+        if (sys.isUndefined(origin)) {
+            origin = 1;
+        }
 
-    function makeLogoArrayWithOrigin(val, origin) {
-        let ret = makeObject(OBJTYPE_ARRAY_WITH_ORIGIN, val);
+        let ret = makeObject(OBJTYPE.ARRAY, val);
         ret.push(origin);
         return ret;
     }
-    type.makeLogoArrayWithOrigin = makeLogoArrayWithOrigin;
+    type.makeLogoArray = makeLogoArray;
 
-    function getOriginOfLogoArrayWithOrigin(val) {
-        return val[val.length - 1];
+    function makeLogoArrayBySize(size, origin) {
+        let ret = makeObject(OBJTYPE.ARRAY, Array.apply(null, Array(size)).map(function() { return null; }));
+        ret.push(origin);
+        return ret;
     }
-    type.getOriginOfLogoArrayWithOrigin = getOriginOfLogoArrayWithOrigin;
+    type.makeLogoArrayBySize = makeLogoArrayBySize;
 
     function isLogoArray(token) {
-        return (token instanceof Array && token[0] == OBJTYPE_ARRAY);
+        return (token instanceof Array && token[0] == OBJTYPE.ARRAY);
     }
     type.isLogoArray = isLogoArray;
 
-    function isLogoArrayWithOrigin(token) {
-        return (token instanceof Array && token[0] == OBJTYPE_ARRAY_WITH_ORIGIN);
-    }
-    type.isLogoArrayWithOrigin = isLogoArrayWithOrigin;
-
     function makeLogoProc(val) {
-        return makeObject(OBJTYPE_PROC, val);
+        return makeObject(OBJTYPE.PROC, val);
     }
     type.makeLogoProc = makeLogoProc;
 
     function isLogoProc(token) {
-        return (token instanceof Array && token[0] == OBJTYPE_PROC);
+        return (token instanceof Array && token[0] == OBJTYPE.PROC);
     }
     type.isLogoProc = isLogoProc;
 
     function makeLogoBlock(val) {
-        return makeObject(OBJTYPE_BLOCK, val);
+        return makeObject(OBJTYPE.BLOCK, val);
     }
     type.makeLogoBlock = makeLogoBlock;
 
     function isLogoBlock(token) {
-        return (token instanceof Array && token[0] == OBJTYPE_BLOCK);
+        return (token instanceof Array && token[0] == OBJTYPE.BLOCK);
     }
     type.isLogoBlock = isLogoBlock;
 
     function makeLogoAsyncReturn(val) {
-        return makeObject(OBJTYPE_ASYNC_RETURN, val);
+        return makeObject(OBJTYPE.ASYNC_RETURN, val);
     }
     type.makeLogoAsyncReturn = makeLogoAsyncReturn;
 
     function isLogoAsyncReturn(obj) {
-        return (obj instanceof Array && obj[0] == OBJTYPE_ASYNC_RETURN);
+        return (obj instanceof Array && obj[0] == OBJTYPE.ASYNC_RETURN);
     }
     type.isLogoAsyncReturn = isLogoAsyncReturn;
 
@@ -146,12 +231,15 @@ classObj.create = function(logo, sys) {
     }
     type.setLogoAsyncReturnValue = setLogoAsyncReturnValue;
 
-    const isLogoWord = (function(){
-        return function(v) {
-            return typeof v === "string" || typeof v === "number";
-        };
-    })();
+    function isLogoWord(v){
+        return typeof v === "string" || typeof v === "number";
+    }
     type.isLogoWord = isLogoWord;
+
+    function wordGetItem(index, word) {
+        return word[index - 1];
+    }
+    type.wordGetItem = wordGetItem;
 
     function isLogoNumber(s) {
         return (typeof s === "number") || (typeof s=== "string" && !isNaN(Number(s)));
@@ -201,7 +289,7 @@ classObj.create = function(logo, sys) {
     }
     type.getVarValue = getVarValue;
 
-    function logoToString(v, outterBracket) {
+    function toString(v, outterBracket) {
         if (sys.isUndefined(outterBracket)) {
             outterBracket = false;
         }
@@ -218,21 +306,20 @@ classObj.create = function(logo, sys) {
             return outterBracket ? "[]" : "";
         }
 
-        if (!(isLogoArray(v) || isLogoList(v) || isLogoArrayWithOrigin(v))) {
+        if (!(isLogoList(v) || isLogoArray(v))) {
             return v;
         }
 
-        function logoToStringHelper(v) {
-            return type.isLogoArray(v) ? "{" +  v.slice(1).map(logoToStringHelper).join(" ") + "}" :
-                type.isLogoList(v) ? "[" +  v.slice(1).map(logoToStringHelper).join(" ") + "]" :
-                    type.isLogoArrayWithOrigin(v) ? "{" +  v.slice(1, v.length - 1).map(logoToStringHelper).join(" ") + "}" :
-                        sys.isNull(v) ? "[]" : v;
+        function toStringHelper(v) {
+            return type.isLogoList(v) ? "[" +  v.slice(1).map(toStringHelper).join(" ") + "]" :
+                type.isLogoArray(v) ? "{" +  v.slice(1, v.length - 1).map(toStringHelper).join(" ") + "}" :
+                    sys.isNull(v) ? "[]" : v;
         }
 
-        return type.isLogoArray(v) || type.isLogoArrayWithOrigin(v) || (outterBracket && type.isLogoList(v)) ? logoToStringHelper(v) :
-            v.slice(1).map(logoToStringHelper).join(" ");
+        return type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) ? toStringHelper(v) :
+            v.slice(1).map(toStringHelper).join(" ");
     }
-    type.logoToString = logoToString;
+    type.toString = toString;
 
     function verifyOrThrow(predicate, exceptionType, getMessage) {
         if (!predicate) {
@@ -304,8 +391,8 @@ classObj.create = function(logo, sys) {
                 }
 
                 return sys.isUndefined(this._value) ? msg :
-                    msg.replace(/\{0\}/g, logo.type.logoToString(this._value[0], true))
-                        .replace(/\{1\}/g, logo.type.logoToString(this._value[1], true));
+                    msg.replace(/\{0\}/g, logo.type.toString(this._value[0], true))
+                        .replace(/\{1\}/g, logo.type.toString(this._value[1], true));
             }
         };
 

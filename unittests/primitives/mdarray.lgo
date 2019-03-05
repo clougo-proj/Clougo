@@ -1,0 +1,41 @@
+pr [1-D mdarray is inter-operable with array]
+make "a mdarray [3]
+show :a
+setitem 2 :a 0
+show :a
+show item 2 :a
+show mditem [2] :a
+mdsetitem [3] :a "xyz
+show :a
+show item 3 :a
+show mditem [3] :a
+
+pr "
+pr [2-D mdarray]
+make "a (mdarray [3 4] -1)
+mdsetitem [1 2] :a 1
+show :a
+show mditem [1 2] :a
+mdsetitem [-1 -1] :a 100
+show :a
+show mditem [-1 -1] :a
+show item -1 :a
+show item 0 :a
+setitem 1 (item 0 :a) "h
+show item 0 :a
+show :a
+
+pr "
+pr [3-D mdarray]
+make "a (mdarray [3 4 5] -1)
+mdsetitem [1 2 3] :a 1
+show :a
+show mditem [1 2 3] :a
+mdsetitem [-1 -1 0] :a 100
+show :a
+show mditem [-1 -1 0] :a
+show item -1 :a
+show item 0 :a
+mdsetitem [1 2] (item 0 :a) "h
+show item 0 :a
+show :a

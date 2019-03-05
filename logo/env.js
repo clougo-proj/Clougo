@@ -131,7 +131,7 @@ classObj.create = function(logo, sys, ext) {
 
                     let ret = exec(userInput, sys.Config.get("genCommand"), 0);
                     if (!sys.isUndefined(ret)) {
-                        logo.io.stdout("Result:" + logo.type.logoToString(ret));
+                        logo.io.stdout("Result:" + logo.type.toString(ret));
                     }
                 }
 

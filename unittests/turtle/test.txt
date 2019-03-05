@@ -6,3 +6,4 @@ floodfill exec run
 huayuan exec run
 label exec run
 colortab exec run
+rgb exec run

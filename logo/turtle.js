@@ -326,10 +326,10 @@ classObj.create = function(logo, sys) {
 
     function primitiveSetxy(newX, newY) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(newX), "INVALID_INPUT",
-            function() { return ["setxy", logo.type.logoToString(newX, true)]; } );
+            function() { return ["setxy", logo.type.toString(newX, true)]; } );
 
         logo.type.verifyOrThrow(logo.type.isLogoNumber(newY), "INVALID_INPUT",
-            function() { return ["setxy", logo.type.logoToString(newY, true)]; } );
+            function() { return ["setxy", logo.type.toString(newY, true)]; } );
 
         _turtleX = newX;
         _turtleY = newY;
@@ -349,7 +349,7 @@ classObj.create = function(logo, sys) {
                     logo.type.isLogoNumber(pos[1]) &&
                     logo.type.isLogoNumber(pos[2]),
             "INVALID_INPUT",
-            function() { return ["setpos", logo.type.logoToString(pos, true)]; } );
+            function() { return ["setpos", logo.type.toString(pos, true)]; } );
 
         _turtleX = pos[1];
         _turtleY = pos[2];
@@ -364,7 +364,7 @@ classObj.create = function(logo, sys) {
 
     function primitiveSetx(newX) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(newX), "INVALID_INPUT",
-            function() { return ["setx", logo.type.logoToString(newX, true)]; } );
+            function() { return ["setx", logo.type.toString(newX, true)]; } );
 
         _turtleX = newX;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
@@ -378,7 +378,7 @@ classObj.create = function(logo, sys) {
 
     function primitiveSety(newY) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(newY), "INVALID_INPUT",
-            function() { return ["sety", logo.type.logoToString(newY, true)]; } );
+            function() { return ["sety", logo.type.toString(newY, true)]; } );
 
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
@@ -392,7 +392,7 @@ classObj.create = function(logo, sys) {
 
     function primitiveSetheading(deg) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
-            function() { return ["setheading", logo.type.logoToString(deg, true)]; } );
+            function() { return ["setheading", logo.type.toString(deg, true)]; } );
 
         _turtleHeading = moduloDeg(deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
@@ -406,7 +406,7 @@ classObj.create = function(logo, sys) {
                     logo.type.isLogoNumber(pos[1]) &&
                     logo.type.isLogoNumber(pos[2]),
             "INVALID_INPUT",
-            function() { return ["towards", logo.type.logoToString(pos, true)]; } );
+            function() { return ["towards", logo.type.toString(pos, true)]; } );
 
         let dX = pos[1] - _turtleX;
         let dY = pos[2] - _turtleY;
@@ -470,7 +470,7 @@ classObj.create = function(logo, sys) {
 
     function primitiveSetfloodcolor(color) {
         logo.type.verifyOrThrow(isValidColorValue(color), "INVALID_INPUT",
-            function() { return ["setfloodcolor", logo.type.logoToString(color, true)]; });
+            function() { return ["setfloodcolor", logo.type.toString(color, true)]; });
 
         _floodColor = isColorName(color) ? RGB_BY_COLOR_NAME[color.toLowerCase()] : logo.type.unbox(color);
         logo.ext.canvas.sendCmd("fillcolor", getRGB(_floodColor));
@@ -484,7 +484,7 @@ classObj.create = function(logo, sys) {
 
     function primitiveSetpencolor(color) {
         logo.type.verifyOrThrow(isValidColorValue(color), "INVALID_INPUT",
-            function() { return ["setpencolor", logo.type.logoToString(color, true)]; });
+            function() { return ["setpencolor", logo.type.toString(color, true)]; });
 
         _penColor = isColorName(color) ? RGB_BY_COLOR_NAME[color.toLowerCase()] : logo.type.unbox(color);
         logo.ext.canvas.sendCmd("pencolor", getRGB(_penColor));
@@ -500,7 +500,7 @@ classObj.create = function(logo, sys) {
         logo.type.verifyOrThrow(
             (sys.isInteger(size) && size > 0) ||
                 (logo.type.isLogoList(size) && logo.type.length(size) == 2 && size[1] > 0 && size[2] > 0), "INVALID_INPUT",
-            function() { return ["setpensize", logo.type.logoToString(size, true)]; });
+            function() { return ["setpensize", logo.type.toString(size, true)]; });
 
         let actualSize = sys.isInteger(size) ? size : Math.floor(size[2]);
         _penSize = logo.type.makeLogoList([actualSize, actualSize]);
@@ -738,7 +738,7 @@ classObj.create = function(logo, sys) {
             return;
         }
 
-        logo.ext.canvas.sendCmdAsString("drawtext", [logo.type.logoToString(text)]);
+        logo.ext.canvas.sendCmdAsString("drawtext", [logo.type.toString(text)]);
     }
     turtle.label = primitiveLabel;
 
@@ -757,7 +757,7 @@ classObj.create = function(logo, sys) {
 
     function primitiveLeft(deg) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
-            function() { return ["left", logo.type.logoToString(deg, true)]; } );
+            function() { return ["left", logo.type.toString(deg, true)]; } );
 
         _turtleHeading = moduloDeg(_turtleHeading - deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
@@ -766,7 +766,7 @@ classObj.create = function(logo, sys) {
 
     function primitiveRight(deg) {
         logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
-            function() { return ["right", logo.type.logoToString(deg, true)]; } );
+            function() { return ["right", logo.type.toString(deg, true)]; } );
 
         _turtleHeading = moduloDeg(_turtleHeading + deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);

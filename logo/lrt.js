@@ -417,6 +417,10 @@ classObj.create = function(logo, sys) {
                 - Math.round(-opnd);
     }
 
+    function primitiveRandom(range) {
+        return Math.floor(Math.random() * Math.floor(range));
+    }
+
     function primitiveThrow(tag, value) {
         throw logo.type.LogoException.create("CUSTOM", [tag, value], null, Error().stack);
     }
@@ -591,6 +595,8 @@ classObj.create = function(logo, sys) {
         "log10": primitiveLog10,
 
         "round": primitiveRound,
+
+        "random": primitiveRandom,
 
         "lessp": primitiveLessp,
 

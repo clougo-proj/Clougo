@@ -1,0 +1,15 @@
+make "sum 0
+make "count 1000
+repeat :count[
+  make "n random 101
+  ;pr :n
+  if (or :n<0 :n>100) [
+    pr :n
+  ]
+  make "sum :sum+:n
+]
+
+make "avg :sum/:count
+if (or :avg<45 :avg>55) [
+  (pr "sum= :sum/:count)
+]

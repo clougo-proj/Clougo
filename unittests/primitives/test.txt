@@ -25,3 +25,4 @@ cleartext run exec
 item run exec
 list run exec
 mdarray run exec
+random run exec

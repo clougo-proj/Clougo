@@ -1,0 +1,54 @@
+to rgb    ;RGB色谱演示程序
+  cs ht   ; ◆程序文件030101可由用户定义的1600万色rgb·启动命令rgb
+  make "s (mdarray [3 361] 0) ;储存色值空间
+  setpc 0 setpensize [1 1]     ;画颜色坐标
+  pu setxy -180 -64 pd sety 64 bk 128 seth 90
+  repeat 8[fd 45 lt 90 fd 5 bk 10 fd 5 rt 90]  ;画水平线8个刻度
+  pu setxy -220 75 pd label "255                  ;标注255数值
+for[i 0 360 45][pu sety -70 setx :i-185 seth 90 pd label :i]
+ ;标注0～360度数值
+  rgb_s    ;调用子程序
+end
+
+to rgb_s    ;画颜色三角形和色轮子程序
+  setpensize[5 5] pu  ;画斜率色阶宽度5
+  for [i 0 2][for [j 0 360][ mdsetitem (se :i :j) :s 0 ]]
+  for [j 0 90][       ;处理R色谱
+    make "zc round 255/90*:j mdsetitem (se 0 :j) :s :zc
+    ;pr :zc
+    setpc (list :zc 0 0) dot]
+  for [j 91 180][
+    make "zc round 255/90*(180-:j) mdsetitem (se 0 :j) :s :zc
+    setpc (list :zc 0 0) dot]
+  for [j 112 202][  ;处理G色谱
+    make "zc round 255/90*(:j-112) mdsetitem (se 1 :j) :s :zc
+    setpc (list 0 :zc 0) dot]
+  for [j 203 291][
+    make "zc round 255/90*(291-:j) mdsetitem (se 1 :j) :s :zc
+    setpc (list 0 :zc 0) dot]
+  for [j 0 45][     ;处理B色谱
+    make "zc round 255/90*(45-:j) mdsetitem (se 2 :j) :s :zc
+    setpc (list 0 0 :zc) dot]
+  for [j 225 315][
+    make "zc round 255/90*(:j-225) mdsetitem (se 2 :j) :s :zc
+    setpc (list 0 0 :zc) dot]
+  for [j 316 360][
+    make "zc round 255/90*(405-:j) mdsetitem (se 2 :j) :s :zc
+    setpc (list 0 0 :zc) dot]
+  setpensize [2 2]   ;画色轮和色谱用笔宽2
+  for [i 0 360][
+    localmake "r mditem (se 0 :i) :s
+    localmake "g mditem (se 1 :i) :s
+    localmake "b mditem (se 2 :i) :s
+    ;show (list :r :g :b)
+    setpc (list :r :g :b)        ;定义颜色
+    pu setxy 0 130 pd seth :i fd 60 bk 60     
+    pu setxy :i-180 -155 seth 0 pd fd 50 bk 50]
+end
+
+to dot  ;移位到斜率三角形色阶上画色点
+  setxy :j-180 :zc/2-64 ;找到画点的位置
+  pd fd 1 bk 1 pu  ;画1个点
+end
+
+rgb

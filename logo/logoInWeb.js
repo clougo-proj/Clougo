@@ -133,7 +133,7 @@ classObj.create = function logoInWeb(Logo, sys) {
                 }
 
                 if (!sys.isUndefined(ret)) {
-                    sys.stdout("Result:"  + logo.type.logoToString(ret));
+                    sys.stdout("Result:"  + logo.type.toString(ret));
                 }
 
                 ext.canvas.flush();

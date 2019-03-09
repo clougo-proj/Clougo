@@ -35,6 +35,17 @@ classObj.create = function logoInWeb(Logo, sys) {
         postMessage(["cleartext"]);
     }
 
+    function webExit(batchMode) {
+        if (!batchMode) {
+            postMessage(["out", "Thank you for using Logo. Bye!"]);
+            postMessage(["out", "(You may now close the window)"]);
+        }
+    }
+
+    function webReady() {
+        postMessage(["ready"]);
+    }
+
     Logo.io = {
         "stdout": webStdout,
         "stdoutn": webStdoutn,
@@ -97,7 +108,9 @@ classObj.create = function logoInWeb(Logo, sys) {
             "stdoutn": webStdoutn,
             "stderr": webStderr,
             "stderrn": webStderrn,
-            "cleartext": webCleartext
+            "cleartext": webCleartext,
+            "exit": webExit,
+            "ready": webReady
         },
         "canvas": canvas
     };
@@ -109,7 +122,7 @@ classObj.create = function logoInWeb(Logo, sys) {
                 let data = e.data[1];
                 let srcidx = e.data[2];
                 let ret = undefined;
-                logo.env.setParserState("ready");
+                logo.env.setEnvState("ready");
 
                 postMessage(["busy"]);
                 if (op == "test") {
@@ -118,15 +131,15 @@ classObj.create = function logoInWeb(Logo, sys) {
                     postMessage(["ready"]);
                 } else if (op == Logo.mode.RUN) {
                     ret = logo.env.exec(data, false, srcidx);
-                    postMessage(["ready"]);
+                    postMessage([logo.env.getEnvState()]);
                 } else if (op == "exec") {
                     ret = logo.env.exec(data, true, srcidx);
-                    postMessage(["ready"]);
+                    postMessage([logo.env.getEnvState()]);
                 } else if (op == "console") {  // command entered in console
                     logo.env.setInteractiveMode();
 
-                    let logoStatus = logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
-                    postMessage([logoStatus]);
+                    logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
+                    postMessage([logo.env.getEnvState()]);
                 } else if (op == "clearWorkspace") {
                     logo.env.clearWorkspace();
                     postMessage(["ready"]);

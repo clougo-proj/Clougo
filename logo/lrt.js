@@ -433,7 +433,7 @@ classObj.create = function(logo, sys) {
         let ret = logo.type.makeLogoAsyncReturn();
         function doWhileLoopBody() {
             logo.env.async(function() {
-                throw logo.type.LogoException.create("READX");
+                throw logo.type.LogoException.create("YIELD", ["continue"]);
             }, function() {
                 if (!logo.env.hasUserInput()) {
                     doWhileLoopBody();
@@ -454,6 +454,14 @@ classObj.create = function(logo, sys) {
 
     function primitiveTimeMilli() {
         return new Date().getTime();
+    }
+
+    function primitiveWait(delay) {
+        setTimeout(logo.env.resumeAfterWait, 50 / 3 * delay);
+        logo.env.setEnvState("timeout");
+        logo.env.async(function() {
+            throw logo.type.LogoException.create("YIELD", ["timeout"]);
+        });
     }
 
     let primitive = {
@@ -657,7 +665,9 @@ classObj.create = function(logo, sys) {
 
         "timemilli": primitiveTimeMilli,
 
-        "throw": primitiveThrow
+        "throw": primitiveThrow,
+
+        "wait": primitiveWait
     };
     lrt.primitive = primitive;
 

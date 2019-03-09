@@ -47,16 +47,28 @@ classObj.create = function logoInNode(Logo, sys) {
             "stderr": console.error,  // eslint-disable-line no-console
             "stderrn": function(v) { process.stderr.write(v); },
             "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
-            "onstdin": function(logoUserInputListener) {
-                sysstdin.addListener("data", function(d) {
-                    let ret = logoUserInputListener(d);
+            "ready": function() {
+                process.stdout.write("? ");
+            },
+            "exit": function(batchMode) {
+                if (!batchMode) {
+                    console.log("Thank you for using Logo. Bye!");  // eslint-disable-line no-console
+                }
 
-                    if (ret == "exit") {
+                process.exit();
+            },
+            "onstdin": function(logoUserInputListener, getEnvState) {
+                sysstdin.addListener("data", function(d) {
+                    logoUserInputListener(d);
+
+                    let envState = getEnvState();
+
+                    if (envState == "exit") {
                         process.exit();
                     }
 
-                    let prompt = ret == "ready" ? "? " :
-                        ret == "multiline" ? "> " : "";
+                    let prompt = envState == "ready" ? "? " :
+                        envState == "multiline" ? "> " : "";
 
                     process.stdout.write(prompt);
                 });

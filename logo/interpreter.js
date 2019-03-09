@@ -423,7 +423,7 @@ classObj.create = function(logo, sys) {
                     return e; // rethrow
                 }
 
-                sys.assert(!e.codeEquals("READX"), "READX not expected");
+                sys.assert(!e.codeEquals("YIELD"), "YIELD not expected");
                 if (e.codeEquals("OUTPUT")) {
                     retVal = e.getValue();
                 }

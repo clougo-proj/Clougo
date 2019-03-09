@@ -1,0 +1,10 @@
+to x
+  localmake "time timemilli
+  wait 60
+  make "time timemilli - :time
+  if (and :time < 1050 :time >950) [
+    pr "passed
+  ]
+end
+
+x

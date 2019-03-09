@@ -267,6 +267,7 @@ function createLogoWorker(eventHandler) {
 
     let worker = new Worker("logo/logo.js");
 
+    // handles messages from logo worker
     worker.onmessage = function(event) {
         let msg = event.data;
 
@@ -278,37 +279,44 @@ function createLogoWorker(eventHandler) {
 
         switch(msg[0]) {
         case "canvas":
+            // message for turtle canvas
             eventHandler.canvas(msg[1]);
             break;
         case "ready":
         case "multiline":
         {
+            // ready for logo command line input
             let prompt = (msg[0] == "ready") ? "? " : "> ";
             eventHandler.ready();
             eventHandler.prompt(prompt);
             break;
         }
-        case "exit":
-            eventHandler.prompt("You can now close the window");
-            eventHandler.exit();
-            break;
         case "continue":
+            // ready for user interative input (e.g. readword)
             eventHandler.ready();
             eventHandler.user();
             break;
         case "out":
         case "err":
+            // out/err stream with newline
             eventHandler.writeln(msg[1]);
             break;
         case "outn":
         case "errn":
+            // out/err stream w/o newline
             eventHandler.write(msg[1]);
             break;
+        case "cleartext":
+            // cleartext in terminal
+            eventHandler.cleartext();
+            break;
         case "busy":
+            // logo work is busy (vs. ready)
             eventHandler.busy();
             break;
-        case "cleartext":
-            eventHandler.cleartext();
+        case "exit":
+            eventHandler.prompt("You can now close the window");
+            eventHandler.exit();
             break;
         default:
         }

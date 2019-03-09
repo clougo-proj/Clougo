@@ -3,7 +3,7 @@ print_backslash run exec
 show run exec
 type run exec
 sentence run exec
-readword run
+readword run exec
 word run exec
 throw run exec
 throw_uncaught run exec

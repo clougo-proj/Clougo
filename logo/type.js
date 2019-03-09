@@ -340,7 +340,7 @@ classObj.create = function(logo, sys) {
             "LAST_ERROR_CODE"       : 1024,
             "STOP"                  : 65535,
             "OUTPUT"                : 65534,
-            "READX"                 : 65533,
+            "YIELD"                 : 65533,
             "CUSTOM"                : 65532
         };
 

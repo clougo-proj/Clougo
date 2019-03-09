@@ -17,7 +17,7 @@ classObj.create = function(logo, sys, ext) {
     };
 
     let _logoMode = LogoMode.BATCH;
-    let _globalScope, _parserState, _runTime,  _userInput, _retVal;
+    let _globalScope, _envState, _runTime,  _userInput, _retVal;
 
     let $ret, $scopecache, $scopeStackLength; // eslint-disable-line no-unused-vars
 
@@ -92,7 +92,7 @@ classObj.create = function(logo, sys, ext) {
 
     function registerOnStdinCallback() {
         if ("io" in ext && "onstdin" in ext.io && typeof ext.io.onstdin == "function") {
-            ext.io.onstdin(function(d){
+            ext.io.onstdin(function(d){ // logoUserInputListener
                 setUserInput(d.toString());
 
                 // read from redirected input stream
@@ -100,20 +100,24 @@ classObj.create = function(logo, sys, ext) {
                     if (!asyncCompleted()) {
                         asyncExec();
                         if (asyncCompleted()) {
-                            return "exit"; // exit
+                            return; // exit
                         }
                     }
 
-                    return "continue";
+                    return; // pending user input
                 }
 
                 // interactive mode
+                if (_envState == "timeout") {
+                    return;
+                }
+
                 if (!asyncCompleted()) {
                     asyncExec();
                 }
 
                 if (!asyncCompleted() && !hasUserInput()) {
-                    return "continue"; // no prompt
+                    return; // pending user input
                 }
 
                 while (hasUserInput()) {
@@ -121,12 +125,9 @@ classObj.create = function(logo, sys, ext) {
                     let userInput = getUserInput();
 
                     if (sys.equalToken(userInput, "quit") || sys.equalToken(userInput, "exit") || sys.equalToken(userInput, "bye")) {
-                        logo.io.stdout("Thank you for using Logo. Bye!");
-                        if (!sys.isNodeJsEnv()) {
-                            logo.io.stdout("(You can now close the window)");
-                        }
-
-                        return "exit";  // exit
+                        _envState = "exit";
+                        ext.io.exit();
+                        return; // exit
                     }
 
                     let ret = exec(userInput, sys.Config.get("genCommand"), 0);
@@ -135,8 +136,8 @@ classObj.create = function(logo, sys, ext) {
                     }
                 }
 
-                return getParserState(); // ready | multiline | continue
-            });
+                return;
+            }, getEnvState);
         }
     }
 
@@ -167,11 +168,11 @@ classObj.create = function(logo, sys, ext) {
             if (!Array.isArray(func)) { // not a catch block
                 try {
                     func();
-                    setParserState("ready");
+                    setEnvState("ready");
                 } catch(e) {
-                    if (logo.type.LogoException.is(e) && e.codeEquals("READX")) {
-                        // halt execution and wait for user input
-                        setParserState("continue");
+                    if (logo.type.LogoException.is(e) && e.codeEquals("YIELD")) {
+                        // halt execution pending user input or time-out
+                        setEnvState(e.getValue()[0]);
                         break;
                     }
 
@@ -183,6 +184,18 @@ classObj.create = function(logo, sys, ext) {
         }
     }
     env.asyncExec = asyncExec;
+
+    function resumeAfterWait() {
+        asyncExec();
+        if (asyncCompleted()) {
+            if (batchMode()) {
+                ext.io.exit(true);
+            }
+
+            ext.io.ready();
+        }
+    }
+    env.resumeAfterWait = resumeAfterWait;
 
     function handleCatch(e) {
         outerLoop:
@@ -268,15 +281,15 @@ classObj.create = function(logo, sys, ext) {
     }
     env.resetInterpreterCallStack = resetInterpreterCallStack;
 
-    function setParserState(val) {
-        _parserState = val;
+    function setEnvState(val) {
+        _envState = val;
     }
-    env.setParserState = setParserState;
+    env.setEnvState = setEnvState;
 
-    function getParserState() {
-        return _parserState;
+    function getEnvState() {
+        return _envState;
     }
-    env.getParserState = getParserState;
+    env.getEnvState = getEnvState;
 
     function setRunTime(val) {
         _runTime = val;
@@ -292,9 +305,13 @@ classObj.create = function(logo, sys, ext) {
 
         let parsedCode = logo.parse.parseSrc(command, srcidx);
         sys.trace(parsedCode, "parse.result");
-        setParserState( sys.isUndefined(parsedCode) ? "multiline" : "ready");
+        setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
 
-        return genjs ? evalLogoGen.apply(null, parsedCode) : evalLogo.apply(null, parsedCode);
+        return genjs && canTranspile(command) ? evalLogoGen.apply(null, parsedCode) : evalLogo.apply(null, parsedCode);
+    }
+
+    function canTranspile(logosrc) {
+        return !logosrc.match(/\s(wait|readword)\s/);
     }
 
     function timedExec(f) {
@@ -419,7 +436,9 @@ classObj.create = function(logo, sys, ext) {
     function evalLogoJs(logoJsSrc) {
         try {
             sys.trace("evalLogoJs" + logoJsSrc, "evalJs");
-            return eval(logoJsSrc);
+            let retVal = eval(logoJsSrc);
+            _envState = "continue";
+            return retVal;
         } catch(e) {
             if (!logo.type.LogoException.is(e)) {
                 if (e.stack) {
@@ -445,7 +464,9 @@ classObj.create = function(logo, sys, ext) {
     env.evalLogoJsTimed = evalLogoJsTimed;
 
     function evalLogoGen(parsedCommand, srcmap) {
-        return sys.isUndefined(parsedCommand) ? undefined : evalLogoJs(logo.codegen(parsedCommand, srcmap));
+        const ret = sys.isUndefined(parsedCommand) ? undefined : evalLogoJs(logo.codegen(parsedCommand, srcmap));
+        setEnvState("ready");
+        return ret;
     }
     env.evalLogoGen = evalLogoGen;
 

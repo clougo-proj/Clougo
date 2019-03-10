@@ -258,7 +258,7 @@ classObj.create = function(logo, sys) {
     }
 
     function primitiveMake(varname, val) {
-        logo.env.findLogoVarScope(varname)[varname] = val;
+        logo.env.findLogoVarScope(varname)[varname.toLowerCase()] = val;
     }
 
     function primitiveAnd(a, b) {
@@ -274,13 +274,13 @@ classObj.create = function(logo, sys) {
         let ptr = logo.env._scopeStack.length - 1;
 
         args.forEach(function(varname){
-            logo.env._scopeStack[ptr][varname] = undefined;
+            logo.env._scopeStack[ptr][varname.toLowerCase()] = undefined;
         });
     }
 
     function primitiveLocalmake(varname, val) {
         let ptr = logo.env._scopeStack.length - 1;
-        logo.env._scopeStack[ptr][varname] = val;
+        logo.env._scopeStack[ptr][varname.toLowerCase()] = val;
     }
 
     function primitiveSetitem(index, array, val) {

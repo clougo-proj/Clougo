@@ -1,0 +1,13 @@
+
+TO TEST_LOCALMAKE
+  LOCALMAKE "N [localmake passed]
+  PR :N
+END
+
+TO TEST_MAKE
+  MAKE "M [make passed]
+  PR :M
+END
+
+test_localmake
+test_make

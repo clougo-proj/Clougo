@@ -311,7 +311,7 @@ classObj.create = function(logo, sys, ext) {
     }
 
     function canTranspile(logosrc) {
-        return !logosrc.match(/\s(wait|readword)\s/);
+        return !logosrc.match(/\s(wait|readword)\s/i);
     }
 
     function timedExec(f) {

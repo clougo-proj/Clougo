@@ -609,22 +609,21 @@ classObj.create = function(logo, sys) {
     turtle.ellipse2 = primitiveEllipse2;
 
     function primitiveEllipsearc(deg, radiusX, radiusY, startDeg) {
-        let endDeg = startDeg + deg;
-        if (radiusX < 0) {
-            radiusX = -radiusX;
-            startDeg = -startDeg;
-            endDeg = -endDeg;
-        }
+        logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
+            function() { return ["ellipsearc", logo.type.toString(deg, true)]; } );
 
-        if (radiusY < 0) {
-            radiusY = -radiusY;
-            startDeg = 180 - startDeg;
-            endDeg = 180 - endDeg;
-        }
+        logo.type.verifyOrThrow(logo.type.isLogoNumber(radiusX) && radiusX >= 0, "INVALID_INPUT",
+            function() { return ["ellipsearc", logo.type.toString(radiusX, true)]; } );
+
+        logo.type.verifyOrThrow(logo.type.isLogoNumber(radiusY) && radiusY >= 0, "INVALID_INPUT",
+            function() { return ["ellipsearc", logo.type.toString(radiusY, true)]; } );
+
+        logo.type.verifyOrThrow(logo.type.isLogoNumber(startDeg) && startDeg >= 0 && startDeg < 360, "INVALID_INPUT",
+            function() { return ["ellipsearc", logo.type.toString(startDeg, true)]; } );
 
         if (_penDown) {
             let sAngle = (startDeg + 90) % 360;
-            let eAngle = (endDeg + 90)  % 360;
+            let eAngle = sAngle + deg;
 
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX,

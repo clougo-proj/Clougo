@@ -173,6 +173,7 @@ classObj.create = function(logo, sys, ext) {
                     if (logo.type.LogoException.is(e) && e.codeEquals("YIELD")) {
                         // halt execution pending user input or time-out
                         setEnvState(e.getValue()[0]);
+                        ext.canvas.flush();
                         break;
                     }
 
@@ -187,6 +188,7 @@ classObj.create = function(logo, sys, ext) {
 
     function resumeAfterWait() {
         asyncExec();
+
         if (asyncCompleted()) {
             if (batchMode()) {
                 ext.io.exit(true);

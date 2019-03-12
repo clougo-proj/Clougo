@@ -46,6 +46,7 @@ classObj.create = function logoInNode(Logo, sys) {
             "stdoutn": function(v) { process.stdout.write(v); },
             "stderr": console.error,  // eslint-disable-line no-console
             "stderrn": function(v) { process.stderr.write(v); },
+            "drawflush": function() {},
             "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
             "ready": function() {
                 process.stdout.write("? ");

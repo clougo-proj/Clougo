@@ -109,6 +109,7 @@ classObj.create = function logoInWeb(Logo, sys) {
             "stderr": webStderr,
             "stderrn": webStderrn,
             "cleartext": webCleartext,
+            "drawflush": function() { ext.canvas.flush(); },
             "exit": webExit,
             "ready": webReady
         },

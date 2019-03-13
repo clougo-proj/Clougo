@@ -81,7 +81,7 @@ classObj.create = function(Logo, sys) {
         let count = 0, failCount = 0;
 
         const runTest = function(test, testName) {
-            const testCmd = test.__command__;
+            const testCmd = test.__tag__;
             const testSrc = test.__lgo__;
             if (sys.isUndefined(testSrc)) {
                 Logo.io.stderr("ERROR: Missing lgo file for test " + testName);
@@ -139,7 +139,7 @@ classObj.create = function(Logo, sys) {
         };
 
         function runUnitTestDir(curDir, curName) {
-            if ("__command__" in curDir) {
+            if ("__tag__" in curDir) {
                 if (sys.isUndefined(reFilter) || curName.match(reFilter)) {
                     runTest(curDir, curName);
                 }

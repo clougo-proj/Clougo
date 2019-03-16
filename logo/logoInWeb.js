@@ -8,7 +8,7 @@
 
 "use strict";
 
-/* global importScripts, Float32Array, CanvasCommon */
+/* global importScripts, Float32Array, CanvasCommon, unittests */
 
 var classObj = {};
 classObj.create = function logoInWeb(Logo, sys) {
@@ -127,14 +127,9 @@ classObj.create = function logoInWeb(Logo, sys) {
 
                 postMessage(["busy"]);
                 if (op == "test") {
-                    fetch(Logo.unitTestsJsonFile)
-                        .then(function(response) {
-                            return response.json();
-                        })
-                        .then(function(unittests) {
-                            Logo.testJsSrcFileHelper(unittests, undefined, ext);
-                            postMessage(["ready"]);
-                        });
+                    importScripts(Logo.unitTestsJsSrcFile);
+                    Logo.testJsSrcFileHelper(unittests, undefined, ext);
+                    postMessage(["ready"]);
                 } else if (op == Logo.mode.RUN) {
                     ret = logo.env.exec(data, false, srcidx);
                     postMessage([logo.env.getEnvState()]);

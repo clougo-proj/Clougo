@@ -48,7 +48,7 @@ Logo.mode = {
     CODEGEN: "codegen"
 };
 
-Logo.unitTestsJsonFile = "../json/unittests.json";
+Logo.unitTestsJsSrcFile = "../generated/unittests.js";
 Logo.testJsSrcFileHelper = testRunner.testJsSrcFileHelper;
 
 if (isNodeJsEnvFlag) {

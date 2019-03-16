@@ -8,8 +8,8 @@
 
 "use strict";
 
-var classObj = {};
-classObj.create = function logoInNode(Logo, sys) {
+var $classObj = {};
+$classObj.create = function logoInNode(Logo, sys) {
 
     const stdout = console.log; // eslint-disable-line no-console
     const stdoutn = sysstdoutn;
@@ -24,8 +24,7 @@ classObj.create = function logoInNode(Logo, sys) {
         "stdout": stdout,
         "stdoutn": stdoutn,
         "stderr": stderr,
-        "stderrn": stderrn,
-        "cleartext": function() {}
+        "stderrn": stderrn
     };
 
     if ("trace" in cmd.options) {
@@ -33,20 +32,24 @@ classObj.create = function logoInNode(Logo, sys) {
     }
 
     if ("on" in cmd.options) {
-        sys.Config.setFibs(cmd.options.on, true);
+        sys.Config.setConfigs(cmd.options.on, true);
     }
 
     if ("off" in cmd.options) {
-        sys.Config.setFibs(cmd.options.off, false);
+        sys.Config.setConfigs(cmd.options.off, false);
     }
 
     const ext = {
+        "entry": {
+            "exec": function(logoSrc) { logo.env.exec(logoSrc, true, 1); }
+        },
         "io": {
             "stdout": console.log,  // eslint-disable-line no-console
             "stdoutn": function(v) { process.stdout.write(v); },
             "stderr": console.error,  // eslint-disable-line no-console
             "stderrn": function(v) { process.stderr.write(v); },
             "drawflush": function() {},
+            "editorload": function() {},
             "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
             "ready": function() {
                 process.stdout.write("? ");
@@ -101,7 +104,7 @@ classObj.create = function logoInNode(Logo, sys) {
         fs.readFile(cmd.file, "utf8", thenRunLogoFile(cmd.op)); // logo source file (.lgo)
         return;
     } else if (cmd.op == "test") {
-        let unittests = require(Logo.unitTestsJsSrcFile).unittests;
+        let unittests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
         Logo.testJsSrcFileHelper(unittests, "test" in cmd.options ? cmd.options.test : [], ext);
         process.exit();
     } else if (cmd.op == "console") {
@@ -206,5 +209,5 @@ classObj.create = function logoInNode(Logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

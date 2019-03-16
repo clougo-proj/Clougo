@@ -124,19 +124,21 @@ const getUrlParams = (function() {
     };
 })();
 
-function runProgram(compile) { // eslint-disable-line no-unused-vars
+function runProgram(src, transpile) { // eslint-disable-line no-unused-vars
     saveEditorContent();
     logoTerminal0.setBusy("logo");
-    if (compile) {
-        logoWorker.exec(editor.getValue());
+    if (transpile) {
+        logoWorker.exec(src);
     } else {
-        logoWorker.run(editor.getValue());
+        logoWorker.run(src);
     }
 }
 
 function clearWorkspace() { // eslint-disable-line no-unused-vars
     logoWorker.clearWorkspace();
     editor.setValue("");
+    logoTerminal0.cleartext();
+    writeLogoStorage("logoSrc", "");
 }
 
 function runLogoTest() { // eslint-disable-line no-unused-vars
@@ -318,6 +320,9 @@ function createLogoWorker(eventHandler) {
             eventHandler.prompt("You can now close the window");
             eventHandler.exit();
             break;
+        case "editorload":
+            eventHandler.editorLoad(msg[1]);
+            break;
         default:
         }
     };
@@ -368,6 +373,9 @@ const logoWorker = createLogoWorker({
     },
     "exit": function() {
         logoTerminal0.setBusy("logo");
+    },
+    "editorLoad": function(src) {
+        editor.setValue(editor.getValue() + "\n" + src);
     }
 });
 

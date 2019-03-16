@@ -8,8 +8,8 @@
 
 "use strict";
 
-var classObj = {};
-classObj.create = function(logo, sys) {
+var $classObj = {};
+$classObj.create = function(logo, sys) {
     const interpreter = {};
     const ctrl = {
         "repeat": evxCtrlRepeat,
@@ -612,5 +612,5 @@ classObj.create = function(logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

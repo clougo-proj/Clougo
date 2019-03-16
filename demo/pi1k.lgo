@@ -16,7 +16,7 @@ to axx :m :d
   op :sum
 end
 
-to pi1k :d
+to calcpi :d
   (local "p "ans "t0_ "t1_)
   make "t0_ timemilli
   make "p 2 + round (:d / 3) + log10 (384 * :d) / log10 1000
@@ -105,10 +105,10 @@ to wsubtract :x1 :x2
   make "ret array :p
   for [i :p 1 -1] [
     make "top (item :i :x1) - (item :i :x2) + :temp
-    if :top > -1 [
+    ifelse :top > -1 [
       make "temp 0
       setitem :i :ret :top
-    ] else [
+    ] [
       make "digit (-((remainder (- :top) 1000) - 1000))
       make "bor ((:top - :digit) / 1000)
       make "temp :bor
@@ -126,4 +126,4 @@ to wzero :x
   op "true stop
 end
 
-pi1k 1000
+calcpi 1000

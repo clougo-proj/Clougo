@@ -5,8 +5,8 @@
 
 "use strict";
 
-var classObj = {};
-classObj.create = function(logo, sys) {
+var $classObj = {};
+$classObj.create = function(logo, sys) {
     const type = {};
 
     const OBJTYPE = {
@@ -337,6 +337,7 @@ classObj.create = function(logo, sys) {
             "UNACTIONABLE_DATUM"    : 9,
             "VAR_HAS_NO_VALUE"      : 11,
             "UNKNOWN_PROC"          : 13,
+            "CANT_OPEN_FILE"        : 40,
             "LAST_ERROR_CODE"       : 1024,
             "STOP"                  : 65535,
             "OUTPUT"                : 65534,
@@ -352,6 +353,7 @@ classObj.create = function(logo, sys) {
             9  : "You don't say what to do with {0}",
             11 : "{0} has no value",
             13 : "I don't know how to {0}",
+            40 : "I can't open file {0}",
             65532 : "Can't find catch tag for {0}"
         };
 
@@ -418,5 +420,5 @@ classObj.create = function(logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

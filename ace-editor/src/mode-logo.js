@@ -12,7 +12,7 @@ var LogoHighlightRules = function() {
             "|right|home|pd|back|bk|arc2|arc|circle|st|showturtle|ht|hideturtle|listp|pr|print" +
             "|make|throw|item|setitem|local|type|output|op|log10|seth|setheading|setxy|setx|sety" +
             "|xcor|ycor|label|mdarray|mditem|mdsetitem|setpensize|round|localmake|list|sentence" +
-            "|se|wait|timemilli";
+            "|se|wait|timemilli|ifelse";
 
     var keywordMapper = this.createKeywordMapper({
         "keyword.control": keywordControl,

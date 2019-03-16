@@ -101,7 +101,7 @@ classObj.create = function logoInNode(Logo, sys) {
         fs.readFile(cmd.file, "utf8", thenRunLogoFile(cmd.op)); // logo source file (.lgo)
         return;
     } else if (cmd.op == "test") {
-        let unittests = require(Logo.unitTestsJsonFile);
+        let unittests = require(Logo.unitTestsJsSrcFile).unittests;
         Logo.testJsSrcFileHelper(unittests, "test" in cmd.options ? cmd.options.test : [], ext);
         process.exit();
     } else if (cmd.op == "console") {

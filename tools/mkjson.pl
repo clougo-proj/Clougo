@@ -6,10 +6,20 @@ use JSON;
 my @filetype = qw/lgo ljs in out err eval parse codegen draw/;
 my $json = JSON->new->allow_nonref;
 my $root = $ARGV[0];
+my $toJs = $ARGV[1] eq "--js";
 
 die "makeut.pl <root_dir>" unless (-e $root && -d $root);
 my ($dir, $parent) = @{splitPath($root)};
+
+if ($toJs) {
+    print "var $dir = ";
+}
+
 print encodeDir($dir, $parent);
+
+if ($toJs) {
+    print ";\nif (typeof exports !== \"undefined\") { exports.unittests = unittests; }\n";
+}
 
 sub splitPath {
     my $path = shift;

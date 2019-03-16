@@ -5,8 +5,8 @@
 
 "use strict";
 
-var classObj = {};
-classObj.create = function(logo, sys) {
+var $classObj = {};
+$classObj.create = function(logo, sys) {
     const parse = {};
 
     const Delimiter = (function() {
@@ -502,5 +502,5 @@ classObj.create = function(logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

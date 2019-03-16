@@ -5,8 +5,8 @@
 
 "use strict";
 
-var classObj = {};
-classObj.create = function(Logo, sys) {
+var $classObj = {};
+$classObj.create = function(Logo, sys) {
     const testRunner = {};
 
     function testJsSrcFileHelper (unittests, options, ext) {
@@ -165,5 +165,5 @@ classObj.create = function(Logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

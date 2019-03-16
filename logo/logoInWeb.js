@@ -8,10 +8,10 @@
 
 "use strict";
 
-/* global importScripts, Float32Array, CanvasCommon, unittests */
+/* global importScripts, Float32Array, CanvasCommon */
 
-var classObj = {};
-classObj.create = function logoInWeb(Logo, sys) {
+var $classObj = {};
+$classObj.create = function logoInWeb(Logo, sys) {
 
     importScripts("CanvasCommon.js");
 
@@ -35,6 +35,10 @@ classObj.create = function logoInWeb(Logo, sys) {
         postMessage(["cleartext"]);
     }
 
+    function webEditorLoad(src) {
+        postMessage(["editorload", src]);
+    }
+
     function webExit(batchMode) {
         if (!batchMode) {
             postMessage(["out", "Thank you for using Logo. Bye!"]);
@@ -46,12 +50,39 @@ classObj.create = function logoInWeb(Logo, sys) {
         postMessage(["ready"]);
     }
 
+    function webTest() {
+        let unittests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
+        Logo.testJsSrcFileHelper(unittests, undefined, ext);
+        postMessage(["ready"]);
+    }
+
+    function webRun(src, srcidx) {
+        logo.env.exec(src, false, srcidx);
+        postMessage([logo.env.getEnvState()]);
+    }
+
+    function webExec(src, srcidx) {
+        logo.env.exec(src, true, srcidx);
+        postMessage([logo.env.getEnvState()]);
+    }
+
+    function webOnConsole(data, logoUserInputListener) {
+        logo.env.setInteractiveMode();
+        logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
+        postMessage([logo.env.getEnvState()]);
+    }
+
+    function webClearWorkspace() {
+        logo.env.clearWorkspace();
+        logo.turtle.draw();
+        postMessage(["ready"]);
+    }
+
     Logo.io = {
         "stdout": webStdout,
         "stdoutn": webStdoutn,
         "stderr": webStderr,
-        "stderrn": webStderrn,
-        "cleartext": webCleartext
+        "stderrn": webStderrn
     };
 
     let canvas = (function() {
@@ -103,12 +134,16 @@ classObj.create = function logoInWeb(Logo, sys) {
     })();
 
     const ext = {
+        "entry": {
+            "exec": webExec,
+        },
         "io": {
             "stdout": webStdout,
             "stdoutn": webStdoutn,
             "stderr": webStderr,
             "stderrn": webStderrn,
             "cleartext": webCleartext,
+            "editorload": webEditorLoad,
             "drawflush": function() { ext.canvas.flush(); },
             "exit": webExit,
             "ready": webReady
@@ -122,32 +157,26 @@ classObj.create = function logoInWeb(Logo, sys) {
                 let op = e.data[0];
                 let data = e.data[1];
                 let srcidx = e.data[2];
-                let ret = undefined;
                 logo.env.setEnvState("ready");
 
                 postMessage(["busy"]);
-                if (op == "test") {
-                    importScripts(Logo.unitTestsJsSrcFile);
-                    Logo.testJsSrcFileHelper(unittests, undefined, ext);
-                    postMessage(["ready"]);
-                } else if (op == Logo.mode.RUN) {
-                    ret = logo.env.exec(data, false, srcidx);
-                    postMessage([logo.env.getEnvState()]);
-                } else if (op == "exec") {
-                    ret = logo.env.exec(data, true, srcidx);
-                    postMessage([logo.env.getEnvState()]);
-                } else if (op == "console") {  // command entered in console
-                    logo.env.setInteractiveMode();
-
-                    logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
-                    postMessage([logo.env.getEnvState()]);
-                } else if (op == "clearWorkspace") {
-                    logo.env.clearWorkspace();
-                    postMessage(["ready"]);
-                }
-
-                if (!sys.isUndefined(ret)) {
-                    sys.stdout("Result:"  + logo.type.toString(ret));
+                switch(op) {
+                case "test":
+                    webTest();
+                    break;
+                case "run":
+                    webRun(data, srcidx);
+                    break;
+                case "exec":
+                    webExec(data, srcidx);
+                    break;
+                case "console":
+                    webOnConsole(data, logoUserInputListener);
+                    break;
+                case "clearWorkspace":
+                    webClearWorkspace();
+                    break;
+                default:
                 }
 
                 ext.canvas.flush();
@@ -159,5 +188,5 @@ classObj.create = function logoInWeb(Logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

@@ -10,14 +10,14 @@
 }
 #turtleCanvas {
     height: 95vh;
-    background: lightgray;
+    background: white;
     margin: auto;
     display: block;
 }
 #canvasPane {
     width: 99vw;
     height: 73vh;
-    background: lightgray;
+    background: white;
     position: absolute;
     margin: auto;
     display: block;

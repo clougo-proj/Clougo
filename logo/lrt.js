@@ -8,8 +8,8 @@
 
 "use strict";
 
-var classObj = {};
-classObj.create = function(logo, sys) {
+var $classObj = {};
+$classObj.create = function(logo, sys) {
     const lrt = {};
 
     function primitivePi() {
@@ -464,6 +464,33 @@ classObj.create = function(logo, sys) {
         });
     }
 
+    const primitiveDemo = (function() {
+        let demo = undefined;
+        return function(name) {
+            if (demo === undefined) {
+                demo = sys.util.jsonFromJs(sys.Config.get("demoJsSrcFile"));
+            }
+
+            let option = undefined;
+            if (logo.type.isLogoList(name)) {
+                option = logo.type.listItem(2, name);
+                name = logo.type.listItem(1, name);
+            }
+
+            if (!(name in demo && "__lgo__" in demo[name])) {
+                throw logo.type.LogoException.create("CANT_OPEN_FILE", [name]);
+            }
+
+            let src = demo[name]["__lgo__"];
+
+            if (option !== undefined && option.toLowerCase() == "load") {
+                logo.io.editorload(src);
+            }
+
+            logo.entry.exec(src);
+        };
+    })();
+
     let primitive = {
         "pi": primitivePi,
 
@@ -667,7 +694,9 @@ classObj.create = function(logo, sys) {
 
         "throw": primitiveThrow,
 
-        "wait": primitiveWait
+        "wait": primitiveWait,
+
+        "demo": primitiveDemo
     };
     lrt.primitive = primitive;
 
@@ -790,5 +819,5 @@ classObj.create = function(logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

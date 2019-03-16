@@ -1,0 +1,15 @@
+to color    ;填色演示
+  cs ht          ;清屏  隐龟
+  for[i 0 15][   ;循环  输出0-15色块(注解中不允许使用换行转接符号所以用-号)
+    seth 0 setpc 0                        ;海龟向上外框颜色黑色
+    pu setxy :i*40-260 -30 pd           ;移动到画框的位置
+    repeat 2[fd 60 rt 90 fd 20 rt 90] ;画长方形装颜色的框
+    pu rt 45 fd 10 pd                     ;移步到框内
+    setfc :i fill         ;在框内填入相应的颜色
+    pu lt 45 fd 90        ;移动到框的上方
+    setx xcor-10          ;海龟左移10显示的字才能对准方框
+    pd rt 90 label :i    ;在方框上以图形的方式显示0～15编号
+    ]
+end
+
+color

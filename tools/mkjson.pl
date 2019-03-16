@@ -12,13 +12,13 @@ die "makeut.pl <root_dir>" unless (-e $root && -d $root);
 my ($dir, $parent) = @{splitPath($root)};
 
 if ($toJs) {
-    print "var $dir = ";
+    print "var \$jsonObj = ";
 }
 
 print encodeDir($dir, $parent);
 
 if ($toJs) {
-    print ";\nif (typeof exports !== \"undefined\") { exports.unittests = unittests; }\n";
+    print ";\nif (typeof exports !== \"undefined\") { exports.\$jsonObj = \$jsonObj; }\n";
 }
 
 sub splitPath {

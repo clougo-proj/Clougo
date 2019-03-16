@@ -5,9 +5,11 @@
 
 "use strict";
 
-var classObj = {};
-classObj.create = function(isNodeJsEnvFlag) {
+var $classObj = {};
+$classObj.create = function(isNodeJsEnvFlag, util) {
     const sys = {};
+
+    sys.util = util;
 
     function isNodeJsEnv() {
         return !!isNodeJsEnvFlag;
@@ -119,26 +121,28 @@ classObj.create = function(isNodeJsEnvFlag) {
     const Config = (function() {
         const Config = {};
         const config = {
+            unitTestsJsSrcFile: "../generated/unittests.js",
+            demoJsSrcFile: "../generated/demo.js",
             unactionableDatum : true,  // raise runtime exception for unactionable datum
             genCommand : false,        // use codegen for interactive commands
             dynamicScope: true,
             trace: true
         };
 
-        Config.set = function(fibname, val) {
-            assert(fibname in config, "Unknown config:" + fibname);
-            assert(typeof val == typeof config[fibname], "Expect type:" + typeof config[fibname] + " but got type:" + typeof val + " on config:" + fibname);
-            config[fibname] = val;
+        Config.set = function(configName, val) {
+            assert(configName in config, "Unknown config:" + configName);
+            assert(typeof val == typeof config[configName], "Expect type:" + typeof config[configName] + " but got type:" + typeof val + " on config:" + configName);
+            config[configName] = val;
         };
 
-        Config.get = function(fibname) {
-            assert(fibname in config, "Unknown config:" + fibname);
-            return config[fibname];
+        Config.get = function(configName) {
+            assert(configName in config, "Unknown config:" + configName);
+            return config[configName];
         };
 
-        Config.setFibs = function(fibnames, val) {
-            fibnames.forEach(function(fibname) {
-                Config.set(fibname, val);
+        Config.setConfigs = function(configNames, val) {
+            configNames.forEach(function(configName) {
+                Config.set(configName, val);
             });
         };
 
@@ -160,5 +164,5 @@ classObj.create = function(isNodeJsEnvFlag) {
 };
 
 if (typeof exports != "undefined") {
-    exports.classObj = classObj;
+    exports.$classObj = $classObj;
 }

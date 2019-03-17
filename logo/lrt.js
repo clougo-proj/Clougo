@@ -473,8 +473,10 @@ $classObj.create = function(logo, sys) {
 
             let option = undefined;
             if (logo.type.isLogoList(name)) {
-                option = logo.type.listItem(2, name);
-                name = logo.type.listItem(1, name);
+                option = logo.type.listItem(2, name).toLowerCase();
+                name = logo.type.listItem(1, name).toLowerCase();
+            } else {
+                name = name.toLowerCase();
             }
 
             if (!(name in demo && "__lgo__" in demo[name])) {
@@ -483,7 +485,7 @@ $classObj.create = function(logo, sys) {
 
             let src = demo[name]["__lgo__"];
 
-            if (option !== undefined && option.toLowerCase() == "load") {
+            if (option !== undefined && option == "load") {
                 logo.io.editorload(src);
             }
 

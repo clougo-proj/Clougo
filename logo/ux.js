@@ -124,8 +124,9 @@ const getUrlParams = (function() {
     };
 })();
 
-function runProgram(src, transpile) { // eslint-disable-line no-unused-vars
+function runProgram(transpile) { // eslint-disable-line no-unused-vars
     saveEditorContent();
+    let src = editor.getValue();
     logoTerminal0.setBusy("logo");
     if (transpile) {
         logoWorker.exec(src);

@@ -381,13 +381,13 @@ $classObj.create = function(logo, sys) {
         let varName = logo.env.extractVarName(curToken);
         return isLocalVar(varName) ?  [CodeWithSrcmap.create("logo.lrt.util.logoVar(", srcmap), varName, ", \"", varName, "\")"] :
             isGlobalVar(varName) ? [CodeWithSrcmap.create("logo.lrt.util.logoVar(_globalScope[", srcmap), "\"" + varName+ "\"" , "], \"", varName, "\")"] :
-                [CodeWithSrcmap.create("logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", srcmap), varName, "\", $scopecache)[\"", varName, "\"", "], \"", varName, "\")"];
+                [CodeWithSrcmap.create("logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", srcmap), varName, "\", $scopeCache)[\"", varName, "\"", "], \"", varName, "\")"];
     }
 
     function genLogoVarLref(varName, srcmap) {
         return isLocalVar(varName) ? [CodeWithSrcmap.create(varName, srcmap)] :
             isGlobalVar(varName) ? ["_globalScope[", CodeWithSrcmap.create("'" + varName + "'", srcmap), "]"] :
-                ["logo.env.findLogoVarScope(", CodeWithSrcmap.create("'" + varName + "', $scopecache)['" + varName + "'", srcmap), "]"];
+                ["logo.env.findLogoVarScope(", CodeWithSrcmap.create("'" + varName + "', $scopeCache)['" + varName + "'", srcmap), "]"];
     }
 
     function insertDelimiters(param, delimiter) {
@@ -704,7 +704,7 @@ $classObj.create = function(logo, sys) {
         let code = mergeCode(genBody(evxContext, true));
         let ret = "// " + JSON.stringify(p) + "\n" +
                 "//" + JSON.stringify(srcmap) + "\n" +
-                "logo.generatedCodeSrcmap = " + JSON.stringify(logo.generatedCodeSrcmap) + ";$scopecache={};\n" +
+                "logo.generatedCodeSrcmap = " + JSON.stringify(logo.generatedCodeSrcmap) + ";$scopeCache={};\n" +
                 code;
 
         sys.trace(JSON.stringify(logo.generatedCodeSrcmap), "codegen");
@@ -737,7 +737,7 @@ $classObj.create = function(logo, sys) {
         code.push("var $ret, $scopeStackLength;\n");
 
         if (sys.Config.get("dynamicScope")) {
-            code.push("var $scope = {}, $scopecache = {};\n");
+            code.push("var $scope = {}, $scopeCache = {};\n");
             code.push("logo.env._scopeStack.push($scope);\n$scopeStackLength = logo.env._scopeStack.length;\n");
         }
 

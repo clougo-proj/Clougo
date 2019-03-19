@@ -19,7 +19,7 @@ $classObj.create = function(logo, sys, ext) {
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime,  _userInput, _retVal;
 
-    let $ret, $scopecache, $scopeStackLength; // eslint-disable-line no-unused-vars
+    let $ret, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
 
     function isReservedWordTthen(v) {
         return sys.equalToken(v, "then");
@@ -31,11 +31,11 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.extractVarName = extractVarName;
 
-    function findLogoVarScope(varname, scopecache) {
+    function findLogoVarScope(varname, scopeCache) {
         let ptr = env._scopeStack.length - 1;
 
-        if (typeof scopecache == "object" && varname in scopecache) {
-            return scopecache[varname];
+        if (typeof scopeCache == "object" && varname in scopeCache) {
+            return scopeCache[varname];
         }
 
         while(!(varname in env._scopeStack[ptr]) && ptr != 0) {
@@ -43,8 +43,8 @@ $classObj.create = function(logo, sys, ext) {
         }
 
         let scope = env._scopeStack[ptr];
-        if (typeof scopecache == "object") {
-            scopecache[varname] = scope;
+        if (typeof scopeCache == "object") {
+            scopeCache[varname] = scope;
         }
 
         return scope;

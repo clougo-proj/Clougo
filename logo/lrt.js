@@ -26,20 +26,20 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveSentence() {
-
+        logo.env.setPrimitiveName("sentence");
         const args = Array.prototype.slice.call(arguments);
         const sentence = logo.type.makeLogoList();
 
         for (let i in args) {
             let item = args[i];
-            if (logo.type.isLogoList(item)) {
-                for (let j = 1; j < item.length; j++) {
-                    sentence.push(item[j]);
-                }
-            } else if (logo.type.isLogoWord(item)) {
+            if (logo.type.isLogoWord(item)) {
                 sentence.push(item);
-            } else {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["sentence", logo.type.toString(item, true)], null, Error().stack);
+                continue;
+            }
+
+            logo.type.checkInputList(item);
+            for (let j = 1; j < item.length; j++) {
+                sentence.push(item[j]);
             }
         }
 
@@ -47,15 +47,14 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveWord() {
+        logo.env.setPrimitiveName("word");
+
         const args = Array.prototype.slice.call(arguments);
         let word = "";
 
         for (let i in args) {
             let item = args[i];
-            if (!logo.type.isLogoWord(item)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["word", logo.type.toString(item, true)], null, Error().stack);
-            }
-
+            logo.type.checkInputWord(item);
             word += item;
         }
 
@@ -83,73 +82,50 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveMdarray(sizeList, origin) {
+        logo.env.setPrimitiveName("mdarray");
+
         if (sys.isUndefined(origin)) {
             origin = 1;
         }
 
-        if (!logo.type.isLogoList(sizeList) || logo.type.length(sizeList) < 1) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["mdarray", logo.type.toString(sizeList, true)], null, Error().stack);
-        }
-
+        logo.type.checkInputNonEmptyList(sizeList);
         return mdarrayHelper(sizeList, logo.type.listOrigin(), logo.type.listMaxIndex(sizeList), origin);
     }
 
     function primitiveMdsetitem(indexList, array, value) {
-        if (!logo.type.isLogoList(indexList) || logo.type.length(indexList) < 1) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["mdsetitem", logo.type.toString(indexList, true)], null, Error().stack);
-        }
+        logo.env.setPrimitiveName("mdsetitem");
 
-        if (!logo.type.isLogoArray(array)) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["mdsetitem", logo.type.toString(array, true)], null, Error().stack);
-        }
+        logo.type.checkInputNonEmptyList(indexList);
+        logo.type.checkInputArray(array);
 
         let currentItem = array;
         let sizeListMaxIndex = logo.type.listMaxIndex(indexList);
         for (let i = logo.type.listOrigin(); i < sizeListMaxIndex; i++) {
             let index = logo.type.listItem(i, indexList);
-
-            if (!logo.type.isLogoArray(currentItem)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["mdsetitem", logo.type.toString(currentItem, true)], null, Error().stack);
-            }
-
-            if (index < logo.type.arrayOrigin(currentItem) || index > logo.type.arrayMaxIndex(currentItem)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["mdsetitem", logo.type.toString(index, true)], null, Error().stack);
-            }
-
+            logo.type.checkInputArray(currentItem);
+            logo.type.checkIndexWithinArrayRange(index, currentItem);
             currentItem = logo.type.arrayItem(index, currentItem);
         }
 
         let index = logo.type.listItem(sizeListMaxIndex, indexList);
-        if (!logo.type.isLogoArray(currentItem) || index < logo.type.arrayOrigin(currentItem) || index > logo.type.arrayMaxIndex(currentItem)) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["mdsetitem", logo.type.toString(index, true)], null, Error().stack);
-        }
-
+        logo.type.checkInputArray(currentItem);
+        logo.type.checkIndexWithinArrayRange(index, currentItem);
         logo.type.arraySetItem(index, currentItem, value);
     }
 
     function primitiveMditem(indexList, array) {
-        if (!logo.type.isLogoList(indexList) || logo.type.length(indexList) < 1) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["mditem", logo.type.toString(indexList, true)], null, Error().stack);
-        }
+        logo.env.setPrimitiveName("mditem");
 
-        if (!logo.type.isLogoArray(array)) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["mditem", logo.type.toString(array, true)], null, Error().stack);
-        }
+        logo.type.checkInputNonEmptyList(indexList);
+        logo.type.checkInputArray(array);
 
         let currentItem = array;
         let origin = logo.type.arrayOrigin(array);
         let sizeListMaxIndex = logo.type.listMaxIndex(indexList);
         for (let i = logo.type.listOrigin(); i <= sizeListMaxIndex; i++) {
             let index = logo.type.listItem(i, indexList);
-
-            if (!logo.type.isLogoArray(currentItem) || logo.type.arrayOrigin(currentItem) != origin) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["mdsetitem", logo.type.toString(currentItem, true)], null, Error().stack);
-            }
-
-            if (index < logo.type.arrayOrigin(origin) || index > logo.type.arrayMaxIndex(currentItem, origin)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["mdsetitem", logo.type.toString(index, true)], null, Error().stack);
-            }
-
+            logo.type.checkInputArray(currentItem);
+            logo.type.checkIndexWithinArrayRange(index, currentItem);
             currentItem = logo.type.arrayItem(index, currentItem, origin);
         }
 
@@ -157,31 +133,23 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveFirst(thing) {
+        logo.env.setPrimitiveName("first");
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "number") {
                 thing = thing.toString();
             }
 
-            if (thing.length < 1) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["first", "||"], null, Error().stack);
-            }
-
+            logo.type.checkInputNonEmptyWord(thing);
             return thing.substr(0, 1);
         }
 
         if (logo.type.isLogoList(thing)) {
-            if (thing.length < 2) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["first", "[]"], null, Error().stack);
-            }
-
+            logo.type.checkInputNonEmptyList(thing);
             return logo.type.listItem(logo.type.listOrigin(thing), thing);
         }
 
-        if (logo.type.isLogoArray(thing)) {
-            return logo.type.arrayOrigin(thing);
-        }
-
-        throw logo.type.LogoException.create("INVALID_INPUT", ["first", logo.type.toString(thing)], null, Error().stack);
+        logo.type.checkInputArray(thing);
+        return logo.type.arrayOrigin(thing);
     }
 
     function primitiveEmptyp(thing) {
@@ -190,27 +158,18 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveButfirstHelper(primitiveName, thing) {
+        logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "number") {
                 thing = thing.toString();
             }
 
-            if (thing.length < 1) {
-                throw logo.type.LogoException.create("INVALID_INPUT", [primitiveName, "||"], null, Error().stack);
-            }
-
+            logo.type.checkInputNonEmptyWord(thing);
             return thing.substr(1);
         }
 
-        if (logo.type.isLogoList(thing)) {
-            if (thing.length < 2) {
-                throw logo.type.LogoException.create("INVALID_INPUT", [primitiveName, "[]"], null, Error().stack);
-            }
-
-            return logo.type.listButFirst(thing);
-        }
-
-        throw logo.type.LogoException.create("INVALID_INPUT", [primitiveName, logo.type.toString(thing)], null, Error().stack);
+        logo.type.checkInputNonEmptyList(thing);
+        return logo.type.listButFirst(thing);
     }
 
     function primitiveButfirst(thing) {
@@ -222,36 +181,28 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveFput(thing, list) {
-        if (logo.type.isLogoWord(list)) {
-            if (!logo.type.isLogoWord(thing) || thing.length != 1) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["fput", logo.type.toString(list)], null, Error().stack);
-            }
+        logo.env.setPrimitiveName("fput");
 
+        if (logo.type.isLogoWord(list)) {
+            logo.type.checkInputOneLetterWord(thing);
             return thing.concat(list);
         }
 
-        if (!logo.type.isLogoList(list)) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["fput", logo.type.toString(list)], null, Error().stack);
-        }
-
+        logo.type.checkInputList(list);
         let newlist = list.slice(0);
         newlist.splice(1, 0, thing);
         return newlist;
     }
 
     function primitiveLput(thing, list) {
-        if (logo.type.isLogoWord(list)) {
-            if (!logo.type.isLogoWord(thing) || thing.length != 1) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["lput0", logo.type.toString(list)], null, Error().stack);
-            }
+        logo.env.setPrimitiveName("lput");
 
+        if (logo.type.isLogoWord(list)) {
+            logo.type.checkInputOneLetterWord(thing);
             return list.concat(thing);
         }
 
-        if (!logo.type.isLogoList(list)) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["lput1", logo.type.toString(list)], null, Error().stack);
-        }
-
+        logo.type.checkInputList(list);
         let newlist = list.slice(0);
         newlist.push(thing);
         return newlist;
@@ -284,46 +235,30 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveSetitem(index, array, val) {
-        if (!logo.type.isLogoArray(array)) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["setitem", logo.type.toString(array, true)], undefined, Error().stack);
-        }
+        logo.env.setPrimitiveName("setitem");
 
-        if (!(sys.isInteger(index) && logo.type.arrayIndexWithinRange(index, array))) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["setitem", logo.type.toString(index, true)], undefined, Error().stack);
-        }
-
+        logo.type.checkInputArray(array);
+        logo.type.checkInputInteger(index);
+        logo.type.checkIndexWithinArrayRange(index, array);
         logo.type.arraySetItem(index, array, val);
     }
 
     function primitiveItem(index, thing) {
-        if (logo.type.isLogoList(thing)) {
-            let ret = logo.type.listItem(index, thing);
-            if (index == 0 || ret === undefined) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["item", index], undefined, Error().stack);
-            }
+        logo.env.setPrimitiveName("item");
 
-            return ret;
+        if (logo.type.isLogoList(thing)) {
+            logo.type.checkIndexWithinListRange(index, thing);
+            return logo.type.listItem(index, thing);
         }
 
         if (logo.type.isLogoWord(thing)) {
-            if (!(index >= 0 && index < thing.length)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["item", index], undefined, Error().stack);
-            }
-
+            logo.type.checkIndexWithinWordRange(index, thing);
             return logo.type.wordGetItem(index, thing);
         }
 
-
-        if (logo.type.isLogoArray(thing)) {
-            let ret = logo.type.arrayItem(index, thing);
-            if (ret === undefined) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["item", index], undefined, Error().stack);
-            }
-
-            return ret;
-        }
-
-        throw logo.type.LogoException.create("INVALID_INPUT", ["item", thing], undefined, Error().stack);
+        logo.type.checkInputArray(thing);
+        logo.type.checkIndexWithinArrayRange(index, thing);
+        return logo.type.arrayItem(index, thing);
     }
 
     function primitivePrint() {
@@ -397,16 +332,14 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveSqrt(opnd) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(opnd) && opnd >= 0, "INVALID_INPUT",
-            function() { return ["sqrt", logo.type.toString(opnd, true)]; });
-
+        logo.env.setPrimitiveName("sqrt");
+        logo.type.checkInputNonNegNumber(opnd);
         return Math.sqrt(opnd);
     }
 
     function primitiveLog10(opnd) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(opnd) && opnd > 0, "INVALID_INPUT",
-            function() { return ["log10", logo.type.toString(opnd, true)]; });
-
+        logo.env.setPrimitiveName("log10");
+        logo.type.checkInputPosNumber(opnd);
         return Math.log10(opnd);
     }
 

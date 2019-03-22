@@ -12,175 +12,6 @@ var $classObj = {};
 $classObj.create = function(logo, sys) {
     const turtle = {};
 
-    const PALETTE = {
-        0: [0, 0, 0],
-        1: [0, 0, 255],
-        2: [0, 255, 0],
-        3: [0, 255, 255],
-        4: [255, 0, 0],
-        5: [255, 0, 255],
-        6: [255, 255, 0],
-        15: [255, 255, 255],
-        7: [155, 96, 59],
-        8: [197, 136, 18],
-        9: [100, 162, 64],
-        10: [120, 187, 187],
-        11: [255, 149, 119],
-        12: [144, 113, 208],
-        13: [255, 163, 0],
-        14: [183, 183, 183],
-    };
-
-    const RGB_BY_COLOR_NAME = {
-        "aliceblue": [240, 248, 255],
-        "antiquewhite": [250, 235, 215],
-        "aqua": [0, 255, 255],
-        "aquamarine": [127, 255, 212],
-        "azure": [240, 255, 255],
-        "beige": [245, 245, 220],
-        "bisque": [255, 228, 196],
-        "black": [0, 0, 0],
-        "blanchedalmond": [255, 235, 205],
-        "blue": [0, 0, 255],
-        "blueviolet": [138, 43, 226],
-        "brown": [165, 42, 42],
-        "burlywood": [222, 184, 135],
-        "cadetblue": [95, 158, 160],
-        "chartreuse": [127, 255, 0],
-        "chocolate": [210, 105, 30],
-        "coral": [255, 127, 80],
-        "cornflowerblue": [100, 149, 237],
-        "cornsilk": [255, 248, 220],
-        "crimson": [220, 20, 60],
-        "cyan": [0, 255, 255],
-        "darkblue": [0, 0, 139],
-        "darkcyan": [0, 139, 139],
-        "darkgoldenrod": [184, 134, 11],
-        "darkgray": [169, 169, 169],
-        "darkgreen": [0, 100, 0],
-        "darkgrey": [169, 169, 169],
-        "darkkhaki": [189, 183, 107],
-        "darkmagenta": [139, 0, 139],
-        "darkolivegreen": [85, 107, 47],
-        "darkorange": [255, 140, 0],
-        "darkorchid": [153, 50, 204],
-        "darkred": [139, 0, 0],
-        "darksalmon": [233, 150, 122],
-        "darkseagreen": [143, 188, 143],
-        "darkslateblue": [72, 61, 139],
-        "darkslategray": [47, 79, 79],
-        "darkslategrey": [47, 79, 79],
-        "darkturquoise": [0, 206, 209],
-        "darkviolet": [148, 0, 211],
-        "deeppink": [255, 20, 147],
-        "deepskyblue": [0, 191, 255],
-        "dimgray": [105, 105, 105],
-        "dimgrey": [105, 105, 105],
-        "dodgerblue": [30, 144, 255],
-        "firebrick": [178, 34, 34],
-        "floralwhite": [255, 250, 240],
-        "forestgreen": [34, 139, 34],
-        "fuchsia": [255, 0, 255],
-        "gainsboro": [220, 220, 220],
-        "ghostwhite": [248, 248, 255],
-        "gold": [255, 215, 0],
-        "goldenrod": [218, 165, 32],
-        "gray": [128, 128, 128],
-        "green": [0, 128, 0],
-        "greenyellow": [173, 255, 47],
-        "grey": [128, 128, 128],
-        "honeydew": [240, 255, 240],
-        "hotpink": [255, 105, 180],
-        "indianred": [205, 92, 92],
-        "indigo": [75, 0, 130],
-        "ivory": [255, 255, 240],
-        "khaki": [240, 230, 140],
-        "lavender": [230, 230, 250],
-        "lavenderblush": [255, 240, 245],
-        "lawngreen": [124, 252, 0],
-        "lemonchiffon": [255, 250, 205],
-        "lightblue": [173, 216, 230],
-        "lightcoral": [240, 128, 128],
-        "lightcyan": [224, 255, 255],
-        "lightgoldenrodyellow": [250, 250, 210],
-        "lightgray": [211, 211, 211],
-        "lightgreen": [144, 238, 144],
-        "lightgrey": [211, 211, 211],
-        "lightpink": [255, 182, 193],
-        "lightsalmon": [255, 160, 122],
-        "lightseagreen": [32, 178, 170],
-        "lightskyblue": [135, 206, 250],
-        "lightslategray": [119, 136, 153],
-        "lightslategrey": [119, 136, 153],
-        "lightsteelblue": [176, 196, 222],
-        "lightyellow": [255, 255, 224],
-        "lime": [0, 255, 0],
-        "limegreen": [50, 205, 50],
-        "linen": [250, 240, 230],
-        "magenta": [255, 0, 255],
-        "maroon": [128, 0, 0],
-        "mediumaquamarine": [102, 205, 170],
-        "mediumblue": [0, 0, 205],
-        "mediumorchid": [186, 85, 211],
-        "mediumpurple": [147, 112, 216],
-        "mediumseagreen": [60, 179, 113],
-        "mediumslateblue": [123, 104, 238],
-        "mediumspringgreen": [0, 250, 154],
-        "mediumturquoise": [72, 209, 204],
-        "mediumvioletred": [199, 21, 133],
-        "midnightblue": [25, 25, 112],
-        "mintcream": [245, 255, 250],
-        "mistyrose": [255, 228, 225],
-        "moccasin": [255, 228, 181],
-        "navajowhite": [255, 222, 173],
-        "navy": [0, 0, 128],
-        "oldlace": [253, 245, 230],
-        "olive": [128, 128, 0],
-        "olivedrab": [107, 142, 35],
-        "orange": [255, 165, 0],
-        "orangered": [255, 69, 0],
-        "orchid": [218, 112, 214],
-        "palegoldenrod": [238, 232, 170],
-        "palegreen": [152, 251, 152],
-        "paleturquoise": [175, 238, 238],
-        "palevioletred": [216, 112, 147],
-        "papayawhip": [255, 239, 213],
-        "peachpuff": [255, 218, 185],
-        "peru": [205, 133, 63],
-        "pink": [255, 192, 203],
-        "plum": [221, 160, 221],
-        "powderblue": [176, 224, 230],
-        "purple": [128, 0, 128],
-        "red": [255, 0, 0],
-        "rosybrown": [188, 143, 143],
-        "royalblue": [65, 105, 225],
-        "saddlebrown": [139, 69, 19],
-        "salmon": [250, 128, 114],
-        "sandybrown": [244, 164, 96],
-        "seagreen": [46, 139, 87],
-        "seashell": [255, 245, 238],
-        "sienna": [160, 82, 45],
-        "silver": [192, 192, 192],
-        "skyblue": [135, 206, 235],
-        "slateblue": [106, 90, 205],
-        "slategray": [112, 128, 144],
-        "slategrey": [112, 128, 144],
-        "snow": [255, 250, 250],
-        "springgreen": [0, 255, 127],
-        "steelblue": [70, 130, 180],
-        "tan": [210, 180, 140],
-        "teal": [0, 128, 128],
-        "thistle": [216, 191, 216],
-        "tomato": [255, 99, 71],
-        "turquoise": [64, 224, 208],
-        "violet": [238, 130, 238],
-        "wheat": [245, 222, 179],
-        "white": [255, 255, 255],
-        "whitesmoke": [245, 245, 245],
-        "yellow": [255, 255, 0],
-        "yellowgreen": [154, 205, 50],
-    };
-
     const originX = 0;
     const originY = 0;
     const originalHeading = 0; // deg
@@ -194,9 +25,9 @@ $classObj.create = function(logo, sys) {
 
     let _penDown = true;
     let _penMode = "paint";
-    let _floodColor = PALETTE[0];
-    let _penColor = PALETTE[0];
-    let _bgColor = PALETTE[15];
+    let _floodColor = logo.type.getPaletteRGB(0);
+    let _penColor = logo.type.getPaletteRGB(0);
+    let _bgColor = logo.type.getPaletteRGB(15);
     let _penSize = originalPenSize;
 
     function d2r(deg) {
@@ -213,9 +44,9 @@ $classObj.create = function(logo, sys) {
         _turtleHeading = originalHeading;
 
         _penDown = true;
-        _floodColor = PALETTE[0];
-        _penColor = PALETTE[0];
-        _bgColor = PALETTE[15];
+        _floodColor = logo.type.getPaletteRGB(0);
+        _penColor = logo.type.getPaletteRGB(0);
+        _bgColor = logo.type.getPaletteRGB(15);
         _penSize = originalPenSize;
     }
     turtle.reset = primitiveReset;
@@ -325,12 +156,9 @@ $classObj.create = function(logo, sys) {
     turtle.clean = primitiveClean;
 
     function primitiveSetxy(newX, newY) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(newX), "INVALID_INPUT",
-            function() { return ["setxy", logo.type.toString(newX, true)]; } );
-
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(newY), "INVALID_INPUT",
-            function() { return ["setxy", logo.type.toString(newY, true)]; } );
-
+        logo.env.setPrimitiveName("setxy");
+        logo.type.checkInputNumber(newX);
+        logo.type.checkInputNumber(newY);
         _turtleX = newX;
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
@@ -343,16 +171,10 @@ $classObj.create = function(logo, sys) {
     turtle.pos = primitivePos;
 
     function primitiveSetpos(pos) {
-        logo.type.verifyOrThrow(
-            logo.type.isLogoList(pos) &&
-                    pos.length == 3 &&
-                    logo.type.isLogoNumber(pos[1]) &&
-                    logo.type.isLogoNumber(pos[2]),
-            "INVALID_INPUT",
-            function() { return ["setpos", logo.type.toString(pos, true)]; } );
-
-        _turtleX = pos[1];
-        _turtleY = pos[2];
+        logo.env.setPrimitiveName("setpos");
+        logo.type.checkInput2DCartesianCoordinate(pos);
+        _turtleX = logo.type.listItem(1, pos);
+        _turtleY = logo.type.listItem(2, pos);
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.setpos = primitiveSetpos;
@@ -363,9 +185,8 @@ $classObj.create = function(logo, sys) {
     turtle.xcor = primitiveXcor;
 
     function primitiveSetx(newX) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(newX), "INVALID_INPUT",
-            function() { return ["setx", logo.type.toString(newX, true)]; } );
-
+        logo.env.setPrimitiveName("setx");
+        logo.type.checkInputNumber(newX);
         _turtleX = newX;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
@@ -377,9 +198,8 @@ $classObj.create = function(logo, sys) {
     turtle.ycor = primitiveYcor;
 
     function primitiveSety(newY) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(newY), "INVALID_INPUT",
-            function() { return ["sety", logo.type.toString(newY, true)]; } );
-
+        logo.env.setPrimitiveName("sety");
+        logo.type.checkInputNumber(newY);
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
@@ -391,25 +211,18 @@ $classObj.create = function(logo, sys) {
     turtle.heading = primitiveHeading;
 
     function primitiveSetheading(deg) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
-            function() { return ["setheading", logo.type.toString(deg, true)]; } );
-
+        logo.env.setPrimitiveName("setheading");
+        logo.type.checkInputNumber(deg);
         _turtleHeading = moduloDeg(deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.setheading = primitiveSetheading;
 
     function primitiveTowards(pos) {
-        logo.type.verifyOrThrow(
-            logo.type.isLogoList(pos) &&
-                    pos.length == 3 &&
-                    logo.type.isLogoNumber(pos[1]) &&
-                    logo.type.isLogoNumber(pos[2]),
-            "INVALID_INPUT",
-            function() { return ["towards", logo.type.toString(pos, true)]; } );
-
-        let dX = pos[1] - _turtleX;
-        let dY = pos[2] - _turtleY;
+        logo.env.setPrimitiveName("towards");
+        logo.type.checkInput2DCartesianCoordinate(pos);
+        let dX = logo.type.listItem(1, pos) - _turtleX;
+        let dY = logo.type.listItem(2, pos) - _turtleY;
 
         if (dX == 0) {
             return (dY < 0) ? 180 : 0;
@@ -425,83 +238,42 @@ $classObj.create = function(logo, sys) {
     turtle.towards = primitiveTowards;
 
     function primitiveSetbackground(color) {
-        if (typeof color === "number" && color in PALETTE) {
-            _bgColor = PALETTE[color];
-            logo.ext.canvas.sendCmd("bgcolor", _bgColor);
-        }
+        logo.env.setPrimitiveName("setbackground");
+        logo.type.checkInputColor(color);
+        _bgColor = logo.type.getRGB(color);
+        logo.ext.canvas.sendCmd("bgcolor", _bgColor);
     }
     turtle.setbackground = primitiveSetbackground;
 
-    function isPaletteIndex(color) {
-        return /*sys.isInteger(color) &&*/ color in PALETTE;
-    }
-
-    function isRGB(rgb) {
-        return Array.isArray(rgb) && rgb.length == 3 &&
-                sys.isInteger(rgb[0]) && rgb[0] >= 0 && rgb[0] <= 255 &&
-                sys.isInteger(rgb[1]) && rgb[1] >= 0 && rgb[1] <= 255 &&
-                sys.isInteger(rgb[2]) && rgb[2] >= 0 && rgb[2] <= 255;
-    }
-
-    function isColorName(color) {
-        return typeof color === "string" && color.toLowerCase() in RGB_BY_COLOR_NAME;
-    }
-
-    function isRGBinLogoList(color) {
-        return logo.type.isLogoList(color) && isRGB(logo.type.unbox(color));
-    }
-
-    function isValidColorValue(color) {
-        return isPaletteIndex(color) || isRGBinLogoList(color) || isColorName(color);
-    }
-
-    function getRGB(color) {
-        if (isPaletteIndex(color)) {
-            return PALETTE[color];
-        }
-
-        if (isColorName(color)) {
-            return RGB_BY_COLOR_NAME[color];
-        }
-
-        sys.assert(isRGB(color));
-        return color;
-    }
-
     function primitiveSetfloodcolor(color) {
-        logo.type.verifyOrThrow(isValidColorValue(color), "INVALID_INPUT",
-            function() { return ["setfloodcolor", logo.type.toString(color, true)]; });
-
-        _floodColor = isColorName(color) ? RGB_BY_COLOR_NAME[color.toLowerCase()] : logo.type.unbox(color);
-        logo.ext.canvas.sendCmd("fillcolor", getRGB(_floodColor));
+        logo.env.setPrimitiveName("setfloodcolor");
+        logo.type.checkInputColor(color);
+        _floodColor = logo.type.isPaletteIndex(color) ? color : logo.type.makeLogoList(logo.type.getRGB(color));
+        logo.ext.canvas.sendCmd("fillcolor",  logo.type.getRGB(_floodColor));
     }
     turtle.setfloodcolor = primitiveSetfloodcolor;
 
     function primitiveFloodcolor() {
-        return isPaletteIndex(_floodColor) ? _floodColor : logo.type.makeLogoList(_floodColor);
+        return _floodColor;
     }
     turtle.floodcolor = primitiveFloodcolor;
 
     function primitiveSetpencolor(color) {
-        logo.type.verifyOrThrow(isValidColorValue(color), "INVALID_INPUT",
-            function() { return ["setpencolor", logo.type.toString(color, true)]; });
-
-        _penColor = isColorName(color) ? RGB_BY_COLOR_NAME[color.toLowerCase()] : logo.type.unbox(color);
-        logo.ext.canvas.sendCmd("pencolor", getRGB(_penColor));
+        logo.env.setPrimitiveName("setpencolor");
+        logo.type.checkInputColor(color);
+        _penColor = logo.type.isPaletteIndex(color) ? color : logo.type.makeLogoList(logo.type.getRGB(color));
+        logo.ext.canvas.sendCmd("pencolor", logo.type.getRGB(_penColor));
     }
     turtle.setpencolor = primitiveSetpencolor;
 
     function primitivePencolor() {
-        return isPaletteIndex(_penColor) ? _penColor : logo.type.makeLogoList(_penColor);
+        return _penColor;
     }
     turtle.pencolor = primitivePencolor;
 
     function primitiveSetpensize(size) {
-        logo.type.verifyOrThrow(
-            (sys.isInteger(size) && size > 0) ||
-                (logo.type.isLogoList(size) && logo.type.length(size) == 2 && size[1] > 0 && size[2] > 0), "INVALID_INPUT",
-            function() { return ["setpensize", logo.type.toString(size, true)]; });
-
+        logo.env.setPrimitiveName("setpensize");
+        logo.type.checkInputPensize(size);
         let actualSize = sys.isInteger(size) ? size : Math.floor(size[2]);
         _penSize = logo.type.makeLogoList([actualSize, actualSize]);
         logo.ext.canvas.sendCmd("pensize", [actualSize]);
@@ -609,17 +381,11 @@ $classObj.create = function(logo, sys) {
     turtle.ellipse2 = primitiveEllipse2;
 
     function primitiveEllipsearc(deg, radiusX, radiusY, startDeg) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
-            function() { return ["ellipsearc", logo.type.toString(deg, true)]; } );
-
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(radiusX) && radiusX >= 0, "INVALID_INPUT",
-            function() { return ["ellipsearc", logo.type.toString(radiusX, true)]; } );
-
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(radiusY) && radiusY >= 0, "INVALID_INPUT",
-            function() { return ["ellipsearc", logo.type.toString(radiusY, true)]; } );
-
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(startDeg) && startDeg >= 0 && startDeg < 360, "INVALID_INPUT",
-            function() { return ["ellipsearc", logo.type.toString(startDeg, true)]; } );
+        logo.env.setPrimitiveName("ellipsearc");
+        logo.type.checkInputNumber(deg);
+        logo.type.checkInputNonNegNumber(radiusX);
+        logo.type.checkInputNonNegNumber(radiusY);
+        logo.type.checkInputNonNegNumber(startDeg);
 
         if (_penDown) {
             let sAngle = (startDeg + 90) % 360;
@@ -755,18 +521,16 @@ $classObj.create = function(logo, sys) {
     turtle.home = primitiveHome;
 
     function primitiveLeft(deg) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
-            function() { return ["left", logo.type.toString(deg, true)]; } );
-
+        logo.env.setPrimitiveName("left");
+        logo.type.checkInputNumber(deg);
         _turtleHeading = moduloDeg(_turtleHeading - deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.left = primitiveLeft;
 
     function primitiveRight(deg) {
-        logo.type.verifyOrThrow(logo.type.isLogoNumber(deg), "INVALID_INPUT",
-            function() { return ["right", logo.type.toString(deg, true)]; } );
-
+        logo.env.setPrimitiveName("right");
+        logo.type.checkInputNumber(deg);
         _turtleHeading = moduloDeg(_turtleHeading + deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }

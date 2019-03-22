@@ -19,7 +19,17 @@ $classObj.create = function(logo, sys, ext) {
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime,  _userInput, _retVal;
 
-    let $ret, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
+    let $ret, $primitiveName, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
+
+    function setPrimitiveName(primitiveName) {
+        $primitiveName = primitiveName;
+    }
+    env.setPrimitiveName = setPrimitiveName;
+
+    function getPrimitiveName() {
+        return $primitiveName;
+    }
+    env.getPrimitiveName = getPrimitiveName;
 
     function isReservedWordTthen(v) {
         return sys.equalToken(v, "then");

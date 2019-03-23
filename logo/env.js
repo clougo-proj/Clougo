@@ -313,10 +313,10 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.getRunTime = getRunTime;
 
-    function logoExecHelper(command, genjs, srcidx) {
+    function logoExecHelper(command, genjs, srcidx, srcLine) {
         resetInterpreterCallStack();
 
-        let parsedCode = logo.parse.parseSrc(command, srcidx);
+        let parsedCode = logo.parse.parseSrc(command, srcidx, srcLine);
         sys.trace(parsedCode, "parse.result");
         setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
 
@@ -356,7 +356,10 @@ $classObj.create = function(logo, sys, ext) {
         return timedExec(
             function() {
                 let ret;
-                logoSrc.split(/\n/).forEach(function(line) { ret = logoExecHelper(line, genjs, srcidx); } );
+                logoSrc.split(/\n/).forEach(function(line, lineNum) {
+                    ret = logoExecHelper(line, genjs, srcidx, lineNum);
+                });
+
                 return ret;
             }
         );

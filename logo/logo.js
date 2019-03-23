@@ -50,11 +50,12 @@ Logo.mode = {
     RUN: "run",
     RUNL: "runl",
     EXEC: "exec",
+    EXECL: "execl",
     EXECJS: "execjs",
     CODEGEN: "codegen"
 };
 
-Logo.testJsSrcFileHelper = testRunner.testJsSrcFileHelper;
+Logo.runTests = testRunner.runTests;
 
 if (isNodeJsEnvFlag) {
     classFromJs("./logoInNode.js").create(Logo, sys);

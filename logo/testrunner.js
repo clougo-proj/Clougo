@@ -8,10 +8,39 @@
 var $classObj = {};
 $classObj.create = function(Logo, sys) {
     const testRunner = {};
+    testRunner.runTests = runTests;
+    return testRunner;
 
-    function testJsSrcFileHelper (unittests, options, ext) {
+    function runTests(unittests, options, ext) {
+        const extForTest = makeLogoDependenciesForTest();
+        const logo = Logo.create(extForTest);
 
-        const extForTest = (function() {
+        // make regex for filtering unit tests by their full names
+        const reFilter = sys.isUndefined(options) ? undefined : sys.makeMatchListRegexp(options);
+        let count = 0, failCount = 0;
+
+        runUnitTestDir(unittests);
+        Logo.io.stdout("Total:" + count + "\tFailed:" + failCount);
+        return;
+
+        function runUnitTestDir(curDir, curName) {
+            if ("__tag__" in curDir) {
+                if (sys.isUndefined(reFilter) || curName.match(reFilter)) {
+                    runTest(curDir, curName);
+                }
+
+                return ;
+            }
+
+            for(let subKey in curDir) {
+                let subDir = curDir[subKey];
+                if (typeof subDir == "object") {
+                    runUnitTestDir(subDir, sys.isUndefined(curName) ? subKey : curName + "." + subKey);
+                }
+            }
+        }
+
+        function makeLogoDependenciesForTest() {
 
             let stdoutBuffer = "";
             let stderrBuffer = "";
@@ -71,16 +100,9 @@ $classObj.create = function(Logo, sys) {
             };
 
             return extForTest;
-        })();
+        }
 
-        const logo = Logo.create(extForTest);
-
-        // make regex for filtering unit tests by their full names
-        const reFilter = sys.isUndefined(options) ? undefined : sys.makeMatchListRegexp(options);
-
-        let count = 0, failCount = 0;
-
-        const runTest = function(test, testName) {
+        function runTest(test, testName) {
             const testCmd = test.__tag__;
             const testSrc = test.__lgo__;
             if (sys.isUndefined(testSrc)) {
@@ -94,34 +116,49 @@ $classObj.create = function(Logo, sys) {
             const testDrawBase = sys.emptyStringIfUndefined(test.__draw__);
             const testParseBase = sys.emptyStringIfUndefined(test.__parse__);
 
-            testCmd.forEach(function(testMethod) {
+            testCmd.forEach(runTestHelper);
+
+            function runTestHelper(testMethod) {
+                const testMethodRunner = makeTestMethodRunner();
+
                 extForTest.io.mockStdin(testInBase);
                 logo.env.initLogoEnv();
                 count++;
 
                 Logo.io.stdoutn(testName + "(" + testMethod + "):");
+                if (testMethod in testMethodRunner) {
+                    testMethodRunner[testMethod]();
+                }
 
-                if (testMethod == Logo.mode.PARSE) {
+                function makeTestMethodRunner() {
+                    const testMethodRunner = {};
+                    testMethodRunner[Logo.mode.PARSE] = testParse;
+                    testMethodRunner[Logo.mode.RUNL] = function() { testGeneric( function(testSrc) { logo.env.execByLine(testSrc, false, 1); }); };
+                    testMethodRunner[Logo.mode.EXECL] = function() { testGeneric( function(testSrc) { logo.env.execByLine(testSrc, true, 1); }); };
+                    testMethodRunner[Logo.mode.EXECJS] = function()  { testGeneric( function() { logo.env.evalLogoJsTimed(test.__ljs__); }); };
+                    testMethodRunner[Logo.mode.RUN] = function() { testGeneric(function(testSrc) { logo.env.exec(testSrc, false, 1); }); };
+                    testMethodRunner[Logo.mode.EXEC] = function() { testGeneric(function(testSrc) { logo.env.exec(testSrc, true, 1); }); };
+                    return testMethodRunner;
+                }
+
+                function testParse() {
                     const parseResult = JSON.stringify(logo.parse.parseSrc(testSrc, 1)) + "\n";
                     if (!sys.isUndefined(testParseBase)) {
                         if (parseResult == testParseBase) {
                             Logo.io.stdout("\t\tpassed ");
-                        } else {
-                            Logo.io.stdout("\t\tfailed " + "\n\tsource:"+testSrc+"\n\texpect:<"+testParseBase+">\n\tparse :<"+parseResult+">");
-                            failCount++;
+                            return;
                         }
+
+                        Logo.io.stdout("\t\tfailed " + "\n\tsource:"+testSrc+"\n\texpect:<"+testParseBase+">\n\tparse :<"+parseResult+">");
+                        failCount++;
                     }
-                } else if (testMethod == Logo.mode.EXEC || testMethod == Logo.mode.RUN || testMethod == Logo.mode.RUNL || testMethod == Logo.mode.EXECJS) {
+                }
+
+                function testGeneric(runTestSrc) {
                     extForTest.io.clearBuffers();
                     extForTest.canvas.clearBuffer();
 
-                    if (testMethod == Logo.mode.RUNL) {
-                        logo.env.execByLine(testSrc, testMethod == Logo.mode.EXEC, 1);
-                    } else if (testMethod == Logo.mode.EXECJS) {
-                        logo.env.evalLogoJsTimed(test.__ljs__);
-                    } else {
-                        logo.env.exec(testSrc, testMethod == Logo.mode.EXEC, 1);
-                    }
+                    runTestSrc(testSrc);
 
                     const outActual = extForTest.io.getStdoutBuffer();
                     const errActual = extForTest.io.getStderrBuffer();
@@ -129,39 +166,15 @@ $classObj.create = function(Logo, sys) {
 
                     if (outActual == testOutBase && errActual == testErrBase && drawActual == testDrawBase) {
                         Logo.io.stdout("\t\tpassed\trun time: "+logo.env.getRunTime()+"ms");
-                    } else {
-                        Logo.io.stdout("\t\tfailed ");
-                        failCount++;
+                        return;
                     }
-                }
-            });
 
-        };
-
-        function runUnitTestDir(curDir, curName) {
-            if ("__tag__" in curDir) {
-                if (sys.isUndefined(reFilter) || curName.match(reFilter)) {
-                    runTest(curDir, curName);
-                }
-
-                return ;
-            }
-
-            for(let subKey in curDir) {
-                let subDir = curDir[subKey];
-                if (typeof subDir == "object") {
-                    runUnitTestDir(subDir, sys.isUndefined(curName) ? subKey : curName + "." + subKey);
+                    Logo.io.stdout("\t\tfailed ");
+                    failCount++;
                 }
             }
         }
-
-        runUnitTestDir(unittests);
-        Logo.io.stdout("Total:" + count + "\tFailed:" + failCount);
     }
-
-    testRunner.testJsSrcFileHelper = testJsSrcFileHelper;
-
-    return testRunner;
 };
 
 if (typeof exports != "undefined") {

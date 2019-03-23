@@ -8,5 +8,5 @@ shownp exec run
 circles exec run
 setheading exec run
 pensize exec run
-pensize_err runl
+pensize_err runl execl
 ellipsearc exec run

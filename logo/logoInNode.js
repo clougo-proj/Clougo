@@ -12,13 +12,9 @@ var $classObj = {};
 $classObj.create = function logoInNode(Logo, sys) {
 
     const stdout = console.log; // eslint-disable-line no-console
-    const stdoutn = sysstdoutn;
+    const stdoutn = function(v) { process.stdout.write(v); };
     const stderr = console.error; // eslint-disable-line no-console
-    const stderrn = sysstderrn;
-
-    const cmd = parseArgv(process.argv);
-
-    const sysstdin = process.openStdin();
+    const stderrn = function(v) { process.stderr.write(v); };
 
     Logo.io = {
         "stdout": stdout,
@@ -27,114 +23,55 @@ $classObj.create = function logoInNode(Logo, sys) {
         "stderrn": stderrn
     };
 
-    if ("trace" in cmd.options) {
-        sys.Trace.setTraceOptions(cmd.options.trace);
-    }
-
-    if ("on" in cmd.options) {
-        sys.Config.setConfigs(cmd.options.on, true);
-    }
-
-    if ("off" in cmd.options) {
-        sys.Config.setConfigs(cmd.options.off, false);
-    }
-
-    const ext = {
-        "entry": {
-            "exec": function(logoSrc) { logo.env.exec(logoSrc, true, 1); }
-        },
-        "io": {
-            "stdout": console.log,  // eslint-disable-line no-console
-            "stdoutn": function(v) { process.stdout.write(v); },
-            "stderr": console.error,  // eslint-disable-line no-console
-            "stderrn": function(v) { process.stderr.write(v); },
-            "drawflush": function() {},
-            "editorload": function() {},
-            "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
-            "ready": function() {
-                process.stdout.write("? ");
-            },
-            "exit": function(batchMode) {
-                if (!batchMode) {
-                    console.log("Thank you for using Logo. Bye!");  // eslint-disable-line no-console
-                }
-
-                process.exit();
-            },
-            "onstdin": function(logoUserInputListener, getEnvState) {
-                sysstdin.addListener("data", function(d) {
-                    logoUserInputListener(d);
-
-                    let envState = getEnvState();
-
-                    if (envState == "exit") {
-                        process.exit();
-                    }
-
-                    let prompt = envState == "ready" ? "? " :
-                        envState == "multiline" ? "> " : "";
-
-                    process.stdout.write(prompt);
-                });
-            }
-        },
-        "canvas": {
-            "sendCmd": function(cmd, args) {
-                if (sys.isUndefined(args)) {
-                    args = [];
-                }
-
-                sys.trace(cmd + " " + args.map(sys.logoFround6).join(" "), "draw");
-            },
-            "sendCmdAsString": function(cmd, args) {
-                if (sys.isUndefined(args)) {
-                    args = [];
-                }
-
-                sys.trace(cmd + " " + args.join(" "), "draw");
-            }
-        }
-    };
-
+    const ext = makeLogoDependencies();
     const logo = Logo.create(ext);
 
+    const srcRunner = makeSrcRunner();
     const fs = require("fs");
+    const cmd = parseArgv(process.argv);
 
-    if (cmd.op == Logo.mode.PARSE || cmd.op == "codegen" || cmd.op == Logo.mode.RUN || cmd.op == Logo.mode.RUNL || cmd.op == Logo.mode.EXEC || cmd.op == Logo.mode.EXECJS) {
-        fs.readFile(cmd.file, "utf8", thenRunLogoFile(cmd.op)); // logo source file (.lgo)
+    setCmdLineConfigs(cmd.options);
+
+    if (cmd.op in srcRunner) {
+        const logoSrc = fs.readFileSync(cmd.file, "utf8"); // logo source file (.lgo)
+        const startTime = new Date();
+
+        sys.trace(startTime.toLocaleString(), "time");
+        srcRunner[cmd.op](logoSrc);
+
+        if (logo.env.asyncCompleted()) {
+            process.exit();
+        }
+
         return;
-    } else if (cmd.op == "test") {
+    }
+
+    if (cmd.op == "test") {
         let unittests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
-        Logo.testJsSrcFileHelper(unittests, "test" in cmd.options ? cmd.options.test : [], ext);
+        Logo.runTests(unittests, "test" in cmd.options ? cmd.options.test : [], ext);
         process.exit();
-    } else if (cmd.op == "console") {
+    }
+
+    if (cmd.op == "console") {
         process.stdout.write("Welcome to Logo\n? ");
         logo.env.setInteractiveMode();
         return;
-    } else {
-        stderr(
-            "Usage:\n" +
-                "\tnode logo.js console                         - interactive mode\n" +
-                "\tnode logo.js parse <logosrcfile>             - parse only\n" +
-                "\tnode logo.js codegen <logosrcfile>           - generate JS code\n" +
-                "\tnode logo.js run <logosrcfile>               - run with interpreter\n" +
-                "\tnode logo.js exec <logosrcfile>              - compile to JS and execute\n" +
-                "\tnode logo.js execjs <jssrcfile>              - execute precompiled JS\n" +
-                "\tnode logo.js test <logo_unit_test_jsfile>    - run JavaScript unit test file\n\n" +
-                "\toptions:[on,off,trace,test]\n" +
-                "\ttrace:[parse,evx,codegen,lrt,time,draw]\n"
-        );
-
-        process.exit();
     }
 
-    function sysstdoutn(v) {
-        process.stdout.write(v);
-    }
+    stderr(
+        "Usage:\n" +
+            "\tnode logo.js console                         - interactive mode\n" +
+            "\tnode logo.js parse <logosrcfile>             - parse only\n" +
+            "\tnode logo.js codegen <logosrcfile>           - generate JS code\n" +
+            "\tnode logo.js run <logosrcfile>               - run with interpreter\n" +
+            "\tnode logo.js exec <logosrcfile>              - compile to JS and execute\n" +
+            "\tnode logo.js execjs <jssrcfile>              - execute precompiled JS\n" +
+            "\tnode logo.js test <logo_unit_test_jsfile>    - run JavaScript unit test file\n\n" +
+            "\toptions:[on,off,trace,test]\n" +
+            "\ttrace:[parse,evx,codegen,lrt,time,draw]\n"
+    );
 
-    function sysstderrn(v) {
-        process.stdout.write(v);
-    }
+    process.exit();
 
     function parseArgv(argv) {
         let cmd = {};
@@ -160,49 +97,96 @@ $classObj.create = function logoInNode(Logo, sys) {
         }
     }
 
-    function thenRunLogoFile(runlogosrc_mode) {
-        return function runlogosrc(err, logoSrc) {
-            let starttime = new Date();
+    function setCmdLineConfigs(options) {
+        if ("trace" in options) {
+            sys.Trace.setTraceOptions(options.trace);
+        }
 
-            if (err != null) {
-                stderr(err.message); // error reading source
-                return;
-            }
+        if ("on" in options) {
+            sys.Config.setConfigs(options.on, true);
+        }
 
-            sys.trace(starttime.toLocaleString(), "time");
+        if ("off" in options) {
+            sys.Config.setConfigs(options.off, false);
+        }
+    }
 
-            switch (runlogosrc_mode) {
-            case Logo.mode.RUN:
-                logo.env.exec(logoSrc, false, 1);
-                break;
+    function makeSrcRunner() {
+        const srcRunner = {};
 
-            case Logo.mode.RUNL:
-                logo.env.execByLine(logoSrc, false, 1);
-                break;
+        srcRunner[Logo.mode.RUN] = function(src) { logo.env.exec(src, false, 1); };
+        srcRunner[Logo.mode.RUNL] = function(src) { logo.env.execByLine(src, false, 1); };
+        srcRunner[Logo.mode.EXEC] = function(src) { logo.env.exec(src, true, 1); };
+        srcRunner[Logo.mode.EXECL] = function(src) { logo.env.execByLine(src, false, 1); };
+        srcRunner[Logo.mode.EXECJS] = function(src) { logo.env.evalLogoJsTimed(src); };
+        srcRunner[Logo.mode.PARSE] = function(src) {
+            stdout(JSON.stringify(logo.parse.parseSrc(src, 1)));
+        };
 
-            case Logo.mode.EXEC:
-                logo.env.exec(logoSrc, true, 1);
-                break;
+        srcRunner[Logo.mode.CODEGEN] = function(src) {
+            let ir = logo.parse.parseSrc(src, 1);
+            stdout(logo.codegen(ir[0], ir[1]));
+        };
 
-            case Logo.mode.PARSE:
-                stdout(JSON.stringify(logo.parse.parseSrc(logoSrc, 1)));
-                break;
+        return srcRunner;
+    }
 
-            case Logo.mode.CODEGEN:
-            {
-                let ir = logo.parse.parseSrc(logoSrc, 1);
-                stdout(logo.codegen(ir[0], ir[1]));
-                break;
-            }
-            case Logo.mode.EXECJS:
-                logo.env.evalLogoJsTimed(logoSrc);
-                break;
+    function makeLogoDependencies() {
+        return  {
+            "entry": {
+                "exec": function(logoSrc) { logo.env.exec(logoSrc, true, 1); }
+            },
+            "io": {
+                "stdout": console.log,  // eslint-disable-line no-console
+                "stdoutn": function(v) { process.stdout.write(v); },
+                "stderr": console.error,  // eslint-disable-line no-console
+                "stderrn": function(v) { process.stderr.write(v); },
+                "drawflush": function() {},
+                "editorload": function() {},
+                "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
+                "ready": function() {
+                    process.stdout.write("? ");
+                },
+                "exit": function(batchMode) {
+                    if (!batchMode) {
+                        console.log("Thank you for using Logo. Bye!");  // eslint-disable-line no-console
+                    }
 
-            default:
-            }
+                    process.exit();
+                },
+                "onstdin": function(logoUserInputListener, getEnvState) {
+                    const sysstdin = process.openStdin();
+                    sysstdin.addListener("data", function(d) {
+                        logoUserInputListener(d);
 
-            if (logo.env.asyncCompleted()) {
-                process.exit();
+                        let envState = getEnvState();
+
+                        if (envState == "exit") {
+                            process.exit();
+                        }
+
+                        let prompt = envState == "ready" ? "? " :
+                            envState == "multiline" ? "> " : "";
+
+                        process.stdout.write(prompt);
+                    });
+                }
+            },
+            "canvas": {
+                "sendCmd": function(cmd, args) {
+                    if (sys.isUndefined(args)) {
+                        args = [];
+                    }
+
+                    sys.trace(cmd + " " + args.map(sys.logoFround6).join(" "), "draw");
+                },
+                "sendCmdAsString": function(cmd, args) {
+                    if (sys.isUndefined(args)) {
+                        args = [];
+                    }
+
+                    sys.trace(cmd + " " + args.join(" "), "draw");
+                }
             }
         };
     }

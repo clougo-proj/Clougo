@@ -15,6 +15,18 @@ $classObj.create = function logoInWeb(Logo, sys) {
 
     importScripts("CanvasCommon.js");
 
+    Logo.io = {
+        "stdout": webStdout,
+        "stdoutn": webStdoutn,
+        "stderr": webStderr,
+        "stderrn": webStderrn
+    };
+
+    const ext = makeLogoDependencies();
+    const logo = Logo.create(ext);
+
+    return;
+
     function webStdout(text) {
         postMessage(["out", text]);
     }
@@ -52,7 +64,7 @@ $classObj.create = function logoInWeb(Logo, sys) {
 
     function webTest() {
         let unittests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
-        Logo.testJsSrcFileHelper(unittests, undefined, ext);
+        Logo.runTests(unittests, undefined, ext);
         postMessage(["ready"]);
     }
 
@@ -78,14 +90,61 @@ $classObj.create = function logoInWeb(Logo, sys) {
         postMessage(["ready"]);
     }
 
-    Logo.io = {
-        "stdout": webStdout,
-        "stdoutn": webStdoutn,
-        "stderr": webStderr,
-        "stderrn": webStderrn
-    };
+    function registerEventHandler(logoUserInputListener) {
+        self.addEventListener("message",
+            function(e) {
+                let op = e.data[0];
+                let data = e.data[1];
+                let srcidx = e.data[2];
+                logo.env.setEnvState("ready");
 
-    let canvas = (function() {
+                postMessage(["busy"]);
+                switch(op) {
+                case "test":
+                    webTest();
+                    break;
+                case "run":
+                    webRun(data, srcidx);
+                    break;
+                case "exec":
+                    webExec(data, srcidx);
+                    break;
+                case "console":
+                    webOnConsole(data, logoUserInputListener);
+                    break;
+                case "clearWorkspace":
+                    webClearWorkspace();
+                    break;
+                default:
+                }
+
+                ext.canvas.flush();
+            }, false);
+    }
+
+    function makeLogoDependencies() {
+        const canvas = makeCanvas();
+        return {
+            "entry": {
+                "exec": webExec,
+            },
+            "io": {
+                "stdout": webStdout,
+                "stdoutn": webStdoutn,
+                "stderr": webStderr,
+                "stderrn": webStderrn,
+                "cleartext": webCleartext,
+                "editorload": webEditorLoad,
+                "drawflush": function() { ext.canvas.flush(); },
+                "exit": webExit,
+                "ready": webReady,
+                "onstdin": registerEventHandler
+            },
+            "canvas": canvas
+        };
+    }
+
+    function makeCanvas() {
         const canvas = {};
         const tqCacheSize = 128;
         let tqCacheArray = new Float32Array(tqCacheSize);
@@ -131,60 +190,7 @@ $classObj.create = function logoInWeb(Logo, sys) {
         };
 
         return canvas;
-    })();
-
-    const ext = {
-        "entry": {
-            "exec": webExec,
-        },
-        "io": {
-            "stdout": webStdout,
-            "stdoutn": webStdoutn,
-            "stderr": webStderr,
-            "stderrn": webStderrn,
-            "cleartext": webCleartext,
-            "editorload": webEditorLoad,
-            "drawflush": function() { ext.canvas.flush(); },
-            "exit": webExit,
-            "ready": webReady
-        },
-        "canvas": canvas
-    };
-
-    ext.io.onstdin = function(logoUserInputListener) {
-        self.addEventListener("message",
-            function(e) {
-                let op = e.data[0];
-                let data = e.data[1];
-                let srcidx = e.data[2];
-                logo.env.setEnvState("ready");
-
-                postMessage(["busy"]);
-                switch(op) {
-                case "test":
-                    webTest();
-                    break;
-                case "run":
-                    webRun(data, srcidx);
-                    break;
-                case "exec":
-                    webExec(data, srcidx);
-                    break;
-                case "console":
-                    webOnConsole(data, logoUserInputListener);
-                    break;
-                case "clearWorkspace":
-                    webClearWorkspace();
-                    break;
-                default:
-                }
-
-                ext.canvas.flush();
-            }, false);
-    };
-
-    // logo environment for interative mode and run/exec
-    const logo = Logo.create(ext);
+    }
 };
 
 if (typeof exports != "undefined") {

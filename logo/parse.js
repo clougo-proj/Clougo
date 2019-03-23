@@ -459,10 +459,10 @@ $classObj.create = function(logo, sys) {
         }
     };
 
-    parse.parseSrc = function(s, srcidx_) {
-        _parseLine = 0;
+    parse.parseSrc = function(s, srcidx, srcLine) {
+        _parseLine = srcLine === undefined ? 0 : srcLine;
         _parseCol = 0;
-        _parseSource = srcidx_;
+        _parseSource = srcidx;
         _parseLastTo = -1;
 
         let lines = s.split(/\r?\n/);

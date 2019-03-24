@@ -1,0 +1,5 @@
+pr int []
+pr int {}
+pr int "abc
+pr int "true
+pr int "false

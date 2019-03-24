@@ -1,0 +1,15 @@
+pr int 5.5
+pr int 5.1
+pr int 5.9
+pr int -5.5
+pr int -5.1
+pr int -5.9
+pr int 0
+pr int "100.1
+pr int "100.5
+pr int "100.9
+pr int "-100.1
+pr int "-100.5
+pr int "-100.9
+pr int "0
+pr int pi*10000

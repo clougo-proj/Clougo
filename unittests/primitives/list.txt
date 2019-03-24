@@ -8,6 +8,7 @@ word run exec
 throw run exec
 throw_uncaught run exec
 round run exec
+round_err runl execl
 log10 run exec
 log10_negative_input run exec
 lput run exec

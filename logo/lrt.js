@@ -354,6 +354,7 @@ $classObj.create = function(logo, sys) {
 
     function primitiveRound(primitiveName, opnd) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNumber(opnd);
         let sign = Math.sign(opnd);
         return sign == 0 ? 0 :
             sign > 0 ? Math.round(opnd) :

@@ -165,7 +165,6 @@ $classObj.create = function(logo, sys) {
         const paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
 
         let srcmap = evxContext.getSrcmap();
-
         logo.env.async(function() {
             if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength == -1)) {
                 let forLoopBody = function(j) {
@@ -319,11 +318,11 @@ $classObj.create = function(logo, sys) {
                 precedence = 0;
             }
 
-            let nextActualParam = [];
-            curToken = curToken.toLowerCase();
+            const nextActualParam = [];
             if (curToken in ctrl) {
                 evxCtrlParam(evxContext, curToken, nextActualParam, 0, isInParen);
             } else if (curToken in logo.lrt.primitive) {
+                nextActualParam.push(curToken);
                 evxPrimitiveCallParam(evxContext, curToken, nextActualParam,
                     logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
             } else if (curToken in logo.env._user) {
@@ -353,9 +352,9 @@ $classObj.create = function(logo, sys) {
         evxContext.next();
 
         let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
-        nextActualParam = [evxContext.retVal];
+        nextActualParam = [nextOp, evxContext.retVal];
         logo.env.async(function() {
-            evxProcCallParam(evxContext, callTarget.length - 1, nextActualParam, nextPrec);
+            evxProcCallParam(evxContext, callTarget.length - 2, nextActualParam, nextPrec);
         }, function() {
             evxContext.retVal = callTarget.apply(undefined, nextActualParam);
         });

@@ -109,7 +109,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.shownp = primitiveShownp;
 
-    function primitiveForward(length) {
+    function primitiveForward(primitiveName, length) {
+        logo.env.setPrimitiveName(primitiveName);
         _turtleX += Math.sin(d2r(_turtleHeading)) * length;
         _turtleY += Math.cos(d2r(_turtleHeading)) * length;
         logo.ext.canvas.sendCmd(
@@ -119,7 +120,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.forward = primitiveForward;
 
-    function primitiveBack(length) {
+    function primitiveBack(primitiveName, length) {
+        logo.env.setPrimitiveName(primitiveName);
         _turtleX -= Math.sin(d2r(_turtleHeading)) * length;
         _turtleY -= Math.cos(d2r(_turtleHeading)) * length;
         logo.ext.canvas.sendCmd(
@@ -142,10 +144,10 @@ $classObj.create = function(logo, sys) {
         primitiveClearscreen();
         primitivePendown();
         primitiveShowturtle();
-        primitiveSetpensize(1);
-        primitiveSetpencolor(0);
-        primitiveSetbackground(15);
-        primitiveSetfloodcolor(0);
+        primitiveSetpensize("setpensize", 1);
+        primitiveSetpencolor("setpencolor", 0);
+        primitiveSetbackground("setbackground", 15);
+        primitiveSetfloodcolor("setfloorcolor", 0);
         // setlabelfont [[Arial] -24 0 0 400 0 0 0 0 3 2 1 18]
     }
     turtle.draw = primitiveDraw;
@@ -155,8 +157,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.clean = primitiveClean;
 
-    function primitiveSetxy(newX, newY) {
-        logo.env.setPrimitiveName("setxy");
+    function primitiveSetxy(primitiveName, newX, newY) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(newX);
         logo.type.checkInputNumber(newY);
         _turtleX = newX;
@@ -170,8 +172,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.pos = primitivePos;
 
-    function primitiveSetpos(pos) {
-        logo.env.setPrimitiveName("setpos");
+    function primitiveSetpos(primitiveName, pos) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInput2DCartesianCoordinate(pos);
         _turtleX = logo.type.listItem(1, pos);
         _turtleY = logo.type.listItem(2, pos);
@@ -184,8 +186,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.xcor = primitiveXcor;
 
-    function primitiveSetx(newX) {
-        logo.env.setPrimitiveName("setx");
+    function primitiveSetx(primitiveName, newX) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(newX);
         _turtleX = newX;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
@@ -197,8 +199,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.ycor = primitiveYcor;
 
-    function primitiveSety(newY) {
-        logo.env.setPrimitiveName("sety");
+    function primitiveSety(primitiveName, newY) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(newY);
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
@@ -210,16 +212,16 @@ $classObj.create = function(logo, sys) {
     }
     turtle.heading = primitiveHeading;
 
-    function primitiveSetheading(deg) {
-        logo.env.setPrimitiveName("setheading");
+    function primitiveSetheading(primitiveName, deg) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(deg);
         _turtleHeading = moduloDeg(deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.setheading = primitiveSetheading;
 
-    function primitiveTowards(pos) {
-        logo.env.setPrimitiveName("towards");
+    function primitiveTowards(primitiveName, pos) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInput2DCartesianCoordinate(pos);
         let dX = logo.type.listItem(1, pos) - _turtleX;
         let dY = logo.type.listItem(2, pos) - _turtleY;
@@ -237,16 +239,16 @@ $classObj.create = function(logo, sys) {
     }
     turtle.towards = primitiveTowards;
 
-    function primitiveSetbackground(color) {
-        logo.env.setPrimitiveName("setbackground");
+    function primitiveSetbackground(primitiveName, color) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputColor(color);
         _bgColor = logo.type.getRGB(color);
         logo.ext.canvas.sendCmd("bgcolor", _bgColor);
     }
     turtle.setbackground = primitiveSetbackground;
 
-    function primitiveSetfloodcolor(color) {
-        logo.env.setPrimitiveName("setfloodcolor");
+    function primitiveSetfloodcolor(primitiveName, color) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputColor(color);
         _floodColor = logo.type.isPaletteIndex(color) ? color : logo.type.makeLogoList(logo.type.getRGB(color));
         logo.ext.canvas.sendCmd("fillcolor",  logo.type.getRGB(_floodColor));
@@ -258,8 +260,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.floodcolor = primitiveFloodcolor;
 
-    function primitiveSetpencolor(color) {
-        logo.env.setPrimitiveName("setpencolor");
+    function primitiveSetpencolor(primitiveName, color) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputColor(color);
         _penColor = logo.type.isPaletteIndex(color) ? color : logo.type.makeLogoList(logo.type.getRGB(color));
         logo.ext.canvas.sendCmd("pencolor", logo.type.getRGB(_penColor));
@@ -271,8 +273,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.pencolor = primitivePencolor;
 
-    function primitiveSetpensize(size) {
-        logo.env.setPrimitiveName("setpensize");
+    function primitiveSetpensize(primitiveName, size) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputPensize(size);
         let actualSize = sys.isInteger(size) ? size : Math.floor(size[2]);
         _penSize = logo.type.makeLogoList([actualSize, actualSize]);
@@ -285,14 +287,16 @@ $classObj.create = function(logo, sys) {
     }
     turtle.pensize = primitivePensize;
 
-    function primitiveCircle(radius) {
+    function primitiveCircle(primitiveName, radius) {
+        logo.env.setPrimitiveName(primitiveName);
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [_turtleX, _turtleY, radius, 0, 360, false]);
         }
     }
     turtle.circle = primitiveCircle;
 
-    function primitiveCircle2(radius) {
+    function primitiveCircle2(primitiveName, radius) {
+        logo.env.setPrimitiveName(primitiveName);
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [
                 _turtleX + Math.cos(d2r(_turtleHeading)) * radius,
@@ -305,7 +309,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.circle2 = primitiveCircle2;
 
-    function primitiveArc(deg, radius) {
+    function primitiveArc(primitiveName, deg, radius) {
+        logo.env.setPrimitiveName(primitiveName);
         if (_penDown) {
             let sAngle = (_turtleHeading + 90) % 360;
 
@@ -325,7 +330,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.arc = primitiveArc;
 
-    function primitiveArc2(deg, radius) {
+    function primitiveArc2(primitiveName, deg, radius) {
+        logo.env.setPrimitiveName(primitiveName);
         let sAngle = (_turtleHeading + 180) % 360;
 
         if (radius < 0) {
@@ -350,7 +356,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.arc2 = primitiveArc2;
 
-    function primitiveEllipse(radiusX, radiusY) {
+    function primitiveEllipse(primitiveName, radiusX, radiusY) {
+        logo.env.setPrimitiveName(primitiveName);
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX,
@@ -365,7 +372,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.ellipse = primitiveEllipse;
 
-    function primitiveEllipse2(radiusX, radiusY) {
+    function primitiveEllipse2(primitiveName, radiusX, radiusY) {
+        logo.env.setPrimitiveName(primitiveName);
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX + Math.cos(d2r(_turtleHeading)) * radiusY,
@@ -380,8 +388,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.ellipse2 = primitiveEllipse2;
 
-    function primitiveEllipsearc(deg, radiusX, radiusY, startDeg) {
-        logo.env.setPrimitiveName("ellipsearc");
+    function primitiveEllipsearc(primitiveName, deg, radiusX, radiusY, startDeg) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(deg);
         logo.type.checkInputNonNegNumber(radiusX);
         logo.type.checkInputNonNegNumber(radiusY);
@@ -404,7 +412,7 @@ $classObj.create = function(logo, sys) {
     }
     turtle.ellipsearc = primitiveEllipsearc;
 
-    function primitiveEllipsearc2(deg, radiusX, radiusY, startDeg) {
+    function primitiveEllipsearc2(primitiveName, deg, radiusX, radiusY, startDeg) {
         function arcctg(x) {
             return Math.PI / 2 - Math.atan(x);
         }
@@ -436,6 +444,7 @@ $classObj.create = function(logo, sys) {
             return tangentAngle;
         }
 
+        logo.env.setPrimitiveName(primitiveName);
         let endDeg = startDeg + deg;
         if (radiusX < 0) {
             radiusX = -radiusX;
@@ -497,7 +506,8 @@ $classObj.create = function(logo, sys) {
     }
     turtle.ellipsearc2 = primitiveEllipsearc2;
 
-    function primitiveLabel(text) {
+    function primitiveLabel(primitiveName, text) {
+        logo.env.setPrimitiveName(primitiveName);
         if (typeof text === "number") {
             logo.ext.canvas.sendCmd("drawtext", [text]);
             return;
@@ -520,16 +530,16 @@ $classObj.create = function(logo, sys) {
     }
     turtle.home = primitiveHome;
 
-    function primitiveLeft(deg) {
-        logo.env.setPrimitiveName("left");
+    function primitiveLeft(primitiveName, deg) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(deg);
         _turtleHeading = moduloDeg(_turtleHeading - deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.left = primitiveLeft;
 
-    function primitiveRight(deg) {
-        logo.env.setPrimitiveName("right");
+    function primitiveRight(primitiveName, deg) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(deg);
         _turtleHeading = moduloDeg(_turtleHeading + deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);

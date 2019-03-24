@@ -405,7 +405,6 @@ $classObj.create = function(logo, sys) {
 
     function genProcCallParam(evxContext, paramListLength) {
         let param = [];
-
         for (let j = 0; j < paramListLength; j++) { // push actual parameters
             evxContext.next();
             param.push(genToken(evxContext));
@@ -545,7 +544,6 @@ $classObj.create = function(logo, sys) {
                 code.push("$ret=");
             }
 
-            curToken = curToken.toLowerCase();
             if (curToken in genNativeJs) {
                 code.push(genNativeJs[curToken][0](evxContext, isInParen));
                 noOperator = getGenNativeJsNoOperator(curToken);
@@ -554,7 +552,7 @@ $classObj.create = function(logo, sys) {
             } else if (curToken in logo.lrt.primitive) {
                 code.push("logo.lrt.primitive['");
                 code.push(CodeWithSrcmap.create(curToken, srcmap));
-                code.push("'](", genPrimitiveCallParam(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken), isInParen), ")");
+                code.push("'](\"", curToken, "\", ", genPrimitiveCallParam(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken), isInParen), ")");
                 evxContext.retExpr = markRetExpr;
             } else if (curToken in logo.env._ws) {
                 code.push("(");
@@ -601,7 +599,7 @@ $classObj.create = function(logo, sys) {
 
             let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
             code.push(CodeWithSrcmap.create(nextOp, nextOpSrcmap));
-            code.push(genProcCallParam(evxContext, callTarget.length - 1));
+            code.push(genProcCallParam(evxContext, callTarget.length - 2));
 
             evxContext.retExpr = markRetExpr;
         }

@@ -22,12 +22,13 @@ $classObj.create = function(logo, sys) {
 
     function primitiveList() {
         const args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
         return logo.type.makeLogoList(args);
     }
 
     function primitiveSentence() {
-        logo.env.setPrimitiveName("sentence");
         const args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
         const sentence = logo.type.makeLogoList();
 
         for (let i in args) {
@@ -47,9 +48,8 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveWord() {
-        logo.env.setPrimitiveName("word");
-
         const args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
         let word = "";
 
         for (let i in args) {
@@ -61,7 +61,8 @@ $classObj.create = function(logo, sys) {
         return word;
     }
 
-    function primitiveArray(size, origin) {
+    function primitiveArray(primitiveName, size, origin) {
+        logo.env.setPrimitiveName(primitiveName);
         if (sys.isUndefined(origin)) {
             origin = 1;
         }
@@ -81,9 +82,8 @@ $classObj.create = function(logo, sys) {
         return ret;
     }
 
-    function primitiveMdarray(sizeList, origin) {
-        logo.env.setPrimitiveName("mdarray");
-
+    function primitiveMdarray(primitiveName, sizeList, origin) {
+        logo.env.setPrimitiveName(primitiveName);
         if (sys.isUndefined(origin)) {
             origin = 1;
         }
@@ -92,8 +92,8 @@ $classObj.create = function(logo, sys) {
         return mdarrayHelper(sizeList, logo.type.listOrigin(), logo.type.listMaxIndex(sizeList), origin);
     }
 
-    function primitiveMdsetitem(indexList, array, value) {
-        logo.env.setPrimitiveName("mdsetitem");
+    function primitiveMdsetitem(primitiveName, indexList, array, value) {
+        logo.env.setPrimitiveName(primitiveName);
 
         logo.type.checkInputNonEmptyList(indexList);
         logo.type.checkInputArray(array);
@@ -113,9 +113,8 @@ $classObj.create = function(logo, sys) {
         logo.type.arraySetItem(index, currentItem, value);
     }
 
-    function primitiveMditem(indexList, array) {
-        logo.env.setPrimitiveName("mditem");
-
+    function primitiveMditem(primitiveName, indexList, array) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNonEmptyList(indexList);
         logo.type.checkInputArray(array);
 
@@ -132,8 +131,8 @@ $classObj.create = function(logo, sys) {
         return currentItem;
     }
 
-    function primitiveFirst(thing) {
-        logo.env.setPrimitiveName("first");
+    function primitiveFirst(primitiveName, thing) {
+        logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "number") {
                 thing = thing.toString();
@@ -152,12 +151,13 @@ $classObj.create = function(logo, sys) {
         return logo.type.arrayOrigin(thing);
     }
 
-    function primitiveEmptyp(thing) {
+    function primitiveEmptyp(primitiveName, thing) {
+        logo.env.setPrimitiveName(primitiveName);
         return (typeof thing === "string" && thing.length == 0) ||
             (logo.type.isLogoList(thing) && thing.length < 2);
     }
 
-    function primitiveButfirstHelper(primitiveName, thing) {
+    function primitiveButfirst(primitiveName, thing) {
         logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "number") {
@@ -172,17 +172,8 @@ $classObj.create = function(logo, sys) {
         return logo.type.listButFirst(thing);
     }
 
-    function primitiveButfirst(thing) {
-        return primitiveButfirstHelper("butfirst", thing);
-    }
-
-    function primitiveBf(thing) {
-        return primitiveButfirstHelper("bf", thing);
-    }
-
-    function primitiveFput(thing, list) {
-        logo.env.setPrimitiveName("fput");
-
+    function primitiveFput(primitiveName, thing, list) {
+        logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(list)) {
             logo.type.checkInputOneLetterWord(thing);
             return thing.concat(list);
@@ -194,9 +185,8 @@ $classObj.create = function(logo, sys) {
         return newlist;
     }
 
-    function primitiveLput(thing, list) {
-        logo.env.setPrimitiveName("lput");
-
+    function primitiveLput(primitiveName, thing, list) {
+        logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(list)) {
             logo.type.checkInputOneLetterWord(thing);
             return list.concat(thing);
@@ -208,20 +198,24 @@ $classObj.create = function(logo, sys) {
         return newlist;
     }
 
-    function primitiveMake(varname, val) {
+    function primitiveMake(primitiveName, varname, val) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.env.findLogoVarScope(varname)[varname.toLowerCase()] = val;
     }
 
-    function primitiveAnd(a, b) {
+    function primitiveAnd(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
         return a && b;
     }
 
-    function primitiveOr(a, b) {
+    function primitiveOr(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
         return a || b;
     }
 
     function primitiveLocal() {
         let args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
         let ptr = logo.env._scopeStack.length - 1;
 
         args.forEach(function(varname){
@@ -229,13 +223,14 @@ $classObj.create = function(logo, sys) {
         });
     }
 
-    function primitiveLocalmake(varname, val) {
+    function primitiveLocalmake(primitiveName, varname, val) {
+        logo.env.setPrimitiveName(primitiveName);
         let ptr = logo.env._scopeStack.length - 1;
         logo.env._scopeStack[ptr][varname.toLowerCase()] = val;
     }
 
-    function primitiveSetitem(index, array, val) {
-        logo.env.setPrimitiveName("setitem");
+    function primitiveSetitem(primitiveName, index, array, val) {
+        logo.env.setPrimitiveName(primitiveName);
 
         logo.type.checkInputArray(array);
         logo.type.checkInputInteger(index);
@@ -243,8 +238,8 @@ $classObj.create = function(logo, sys) {
         logo.type.arraySetItem(index, array, val);
     }
 
-    function primitiveItem(index, thing) {
-        logo.env.setPrimitiveName("item");
+    function primitiveItem(primitiveName, index, thing) {
+        logo.env.setPrimitiveName(primitiveName);
 
         if (logo.type.isLogoList(thing)) {
             logo.type.checkIndexWithinListRange(index, thing);
@@ -263,16 +258,19 @@ $classObj.create = function(logo, sys) {
 
     function primitivePrint() {
         let args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
         logo.io.stdout(args.map(function(v) { return logo.type.toString(v);}).join(" "));
     }
 
     function primitiveShow() {
         let args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
         logo.io.stdout(args.map(function(v){ return logo.type.toString(v, true);}).join(" "));
     }
 
     function primitiveType() {
         let args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
         logo.io.stdoutn(args.map(function(v) { return logo.type.toString(v);}).join(""));
     }
 
@@ -287,74 +285,88 @@ $classObj.create = function(logo, sys) {
         return readListHelper();
     }
 
-    function primitiveLessp(a, b) {
+    function primitiveLessp(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
         return a < b;
     }
 
-    function primitiveLessequalp(a, b) {
+    function primitiveLessequalp(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
         return a <= b;
     }
 
-    function primitiveGreaterp(a, b) {
+    function primitiveGreaterp(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
         return a > b;
     }
 
-    function primitiveGreaterequalp(a, b) {
+    function primitiveGreaterequalp(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
         return a >= b;
     }
 
-    function primitiveEqualp(a, b) {
+    function primitiveEqualp(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
         return a == b;
     }
 
-    function primitiveMinus(a) {
+    function primitiveMinus(primitiveName, a) {
+        logo.env.setPrimitiveName(primitiveName);
         return -a;
     }
 
-    function primitiveQuotient(opnd1, opnd2) {
+    function primitiveQuotient(primitiveName, opnd1, opnd2) {
+        logo.env.setPrimitiveName(primitiveName);
         return opnd1 / opnd2;
     }
 
-    function primitiveProduct(opnd1, opnd2) {
+    function primitiveProduct(primitiveName, opnd1, opnd2) {
+        logo.env.setPrimitiveName(primitiveName);
         return opnd1 * opnd2;
     }
 
-    function primitiveRemainder(opnd1, opnd2) {
+    function primitiveRemainder(primitiveName, opnd1, opnd2) {
+        logo.env.setPrimitiveName(primitiveName);
         return opnd1 % opnd2;
     }
 
-    function primitiveSum(opnd1, opnd2) {
+    function primitiveSum(primitiveName, opnd1, opnd2) {
+        logo.env.setPrimitiveName(primitiveName);
         return opnd1 + opnd2;
     }
 
-    function primitiveDifference(opnd1, opnd2) {
+    function primitiveDifference(primitiveName, opnd1, opnd2) {
+        logo.env.setPrimitiveName(primitiveName);
         return opnd1 - opnd2;
     }
 
-    function primitiveSqrt(opnd) {
-        logo.env.setPrimitiveName("sqrt");
+    function primitiveSqrt(primitiveName, opnd) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNonNegNumber(opnd);
         return Math.sqrt(opnd);
     }
 
-    function primitiveLog10(opnd) {
-        logo.env.setPrimitiveName("log10");
+    function primitiveLog10(primitiveName, opnd) {
+        logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputPosNumber(opnd);
         return Math.log10(opnd);
     }
 
-    function primitiveRound(opnd) {
+    function primitiveRound(primitiveName, opnd) {
+        logo.env.setPrimitiveName(primitiveName);
         let sign = Math.sign(opnd);
         return sign == 0 ? 0 :
             sign > 0 ? Math.round(opnd) :
                 - Math.round(-opnd);
     }
 
-    function primitiveRandom(range) {
+    function primitiveRandom(primitiveName, range) {
+        logo.env.setPrimitiveName(primitiveName);
         return Math.floor(Math.random() * Math.floor(range));
     }
 
-    function primitiveThrow(tag, value) {
+    function primitiveThrow(primitiveName, tag, value) {
+        logo.env.setPrimitiveName(primitiveName);
         throw logo.type.LogoException.create("CUSTOM", [tag, value], null, Error().stack);
     }
 
@@ -389,7 +401,8 @@ $classObj.create = function(logo, sys) {
         return new Date().getTime();
     }
 
-    function primitiveWait(delay) {
+    function primitiveWait(primitiveName, delay) {
+        logo.env.setPrimitiveName(primitiveName);
         setTimeout(logo.env.resumeAfterWait, 50 / 3 * delay);
         logo.env.setEnvState("timeout");
         logo.env.async(function() {
@@ -399,7 +412,9 @@ $classObj.create = function(logo, sys) {
 
     const primitiveDemo = (function() {
         let demo = undefined;
-        return function(name) {
+        return function(primitiveName, name) {
+            logo.env.setPrimitiveName(primitiveName);
+
             if (demo === undefined) {
                 demo = sys.util.jsonFromJs(sys.Config.get("demoJsSrcFile"));
             }
@@ -613,7 +628,7 @@ $classObj.create = function(logo, sys) {
         "first": primitiveFirst,
 
         "butfirst": primitiveButfirst,
-        "bf": primitiveBf,
+        "bf": primitiveButfirst,
 
         "fput": primitiveFput,
 
@@ -640,7 +655,7 @@ $classObj.create = function(logo, sys) {
     const primitiveParamCount = {};
     Object.keys(primitive).map(
         function(k) {
-            let l = primitive[k].length;
+            let l = primitive[k].length - 1;
             primitiveParamCount[k] = [l, l, l]; // [def, min, max]
         });
 

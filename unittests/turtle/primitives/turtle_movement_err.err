@@ -1,0 +1,82 @@
+forward doesn't like abc as input
+    at 1,1
+forward doesn't like {} as input
+    at 2,1
+forward doesn't like [] as input
+    at 3,1
+back doesn't like abc as input
+    at 5,1
+back doesn't like {} as input
+    at 6,1
+back doesn't like [] as input
+    at 7,1
+left doesn't like abc as input
+    at 9,1
+lt doesn't like {} as input
+    at 10,1
+lt doesn't like [] as input
+    at 11,1
+right doesn't like abc as input
+    at 13,1
+rt doesn't like {} as input
+    at 14,1
+rt doesn't like [] as input
+    at 15,1
+setxy doesn't like abc as input
+    at 17,1
+setxy doesn't like abc as input
+    at 18,1
+setxy doesn't like {} as input
+    at 19,1
+setxy doesn't like {} as input
+    at 20,1
+setxy doesn't like [] as input
+    at 21,1
+setxy doesn't like [] as input
+    at 22,1
+setpos doesn't like 0 as input
+    at 24,1
+setpos doesn't like abc as input
+    at 25,1
+setpos doesn't like [] as input
+    at 26,1
+setpos doesn't like {} as input
+    at 27,1
+setpos doesn't like [abc 0] as input
+    at 28,1
+setpos doesn't like [0 abc] as input
+    at 29,1
+setpos doesn't like [[] 0] as input
+    at 30,1
+setpos doesn't like [0 []] as input
+    at 31,1
+setpos doesn't like [{} 0] as input
+    at 32,1
+setpos doesn't like [0 {}] as input
+    at 33,1
+setpos doesn't like [0 0 0] as input
+    at 34,1
+setx doesn't like abc as input
+    at 36,1
+setx doesn't like {} as input
+    at 37,1
+setx doesn't like [] as input
+    at 38,1
+sety doesn't like abc as input
+    at 40,1
+sety doesn't like {} as input
+    at 41,1
+sety doesn't like [] as input
+    at 42,1
+setheading doesn't like abc as input
+    at 44,1
+seth doesn't like {} as input
+    at 45,1
+seth doesn't like [] as input
+    at 46,1
+towards doesn't like abc as input
+    at 48,1
+towards doesn't like {} as input
+    at 49,1
+towards doesn't like [] as input
+    at 50,1

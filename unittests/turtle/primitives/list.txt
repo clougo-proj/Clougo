@@ -6,7 +6,9 @@ pendownp exec run
 penmode exec run
 shownp exec run
 circles exec run
+circles_err execl runl
 setheading exec run
 pensize exec run
 pensize_err runl execl
 ellipsearc exec run
+turtle_movement_err execl runl

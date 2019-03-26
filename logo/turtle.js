@@ -109,10 +109,11 @@ $classObj.create = function(logo, sys) {
     }
     turtle.shownp = primitiveShownp;
 
-    function primitiveForward(primitiveName, length) {
+    function primitiveForward(primitiveName, distance) {
         logo.env.setPrimitiveName(primitiveName);
-        _turtleX += Math.sin(d2r(_turtleHeading)) * length;
-        _turtleY += Math.cos(d2r(_turtleHeading)) * length;
+        logo.type.checkInputNumber(distance);
+        _turtleX += Math.sin(d2r(_turtleHeading)) * distance;
+        _turtleY += Math.cos(d2r(_turtleHeading)) * distance;
         logo.ext.canvas.sendCmd(
             _penDown ? "drawto" : "moveto",
             [_turtleX, _turtleY, _turtleHeading]
@@ -120,10 +121,11 @@ $classObj.create = function(logo, sys) {
     }
     turtle.forward = primitiveForward;
 
-    function primitiveBack(primitiveName, length) {
+    function primitiveBack(primitiveName, distance) {
         logo.env.setPrimitiveName(primitiveName);
-        _turtleX -= Math.sin(d2r(_turtleHeading)) * length;
-        _turtleY -= Math.cos(d2r(_turtleHeading)) * length;
+        logo.type.checkInputNumber(distance);
+        _turtleX -= Math.sin(d2r(_turtleHeading)) * distance;
+        _turtleY -= Math.cos(d2r(_turtleHeading)) * distance;
         logo.ext.canvas.sendCmd(
             _penDown ? "drawto" : "moveto",
             [_turtleX, _turtleY, _turtleHeading]
@@ -289,6 +291,7 @@ $classObj.create = function(logo, sys) {
 
     function primitiveCircle(primitiveName, radius) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNonNegNumber(radius);
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [_turtleX, _turtleY, radius, 0, 360, false]);
         }
@@ -297,6 +300,7 @@ $classObj.create = function(logo, sys) {
 
     function primitiveCircle2(primitiveName, radius) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNonNegNumber(radius);
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [
                 _turtleX + Math.cos(d2r(_turtleHeading)) * radius,
@@ -311,6 +315,8 @@ $classObj.create = function(logo, sys) {
 
     function primitiveArc(primitiveName, deg, radius) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNonNegNumber(radius);
+        logo.type.checkInputNumber(deg);
         if (_penDown) {
             let sAngle = (_turtleHeading + 90) % 360;
 
@@ -332,8 +338,9 @@ $classObj.create = function(logo, sys) {
 
     function primitiveArc2(primitiveName, deg, radius) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNonNegNumber(radius);
+        logo.type.checkInputNumber(deg);
         let sAngle = (_turtleHeading + 180) % 360;
-
         if (radius < 0) {
             radius = -radius;
             sAngle = (sAngle + 180) % 360;
@@ -358,6 +365,8 @@ $classObj.create = function(logo, sys) {
 
     function primitiveEllipse(primitiveName, radiusX, radiusY) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNonNegNumber(radiusX);
+        logo.type.checkInputNonNegNumber(radiusY);
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX,
@@ -374,6 +383,8 @@ $classObj.create = function(logo, sys) {
 
     function primitiveEllipse2(primitiveName, radiusX, radiusY) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNonNegNumber(radiusX);
+        logo.type.checkInputNonNegNumber(radiusY);
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX + Math.cos(d2r(_turtleHeading)) * radiusY,
@@ -393,7 +404,7 @@ $classObj.create = function(logo, sys) {
         logo.type.checkInputNumber(deg);
         logo.type.checkInputNonNegNumber(radiusX);
         logo.type.checkInputNonNegNumber(radiusY);
-        logo.type.checkInputNonNegNumber(startDeg);
+        logo.type.checkInputNumber(startDeg);
 
         if (_penDown) {
             let sAngle = (startDeg + 90) % 360;
@@ -413,51 +424,13 @@ $classObj.create = function(logo, sys) {
     turtle.ellipsearc = primitiveEllipsearc;
 
     function primitiveEllipsearc2(primitiveName, deg, radiusX, radiusY, startDeg) {
-        function arcctg(x) {
-            return Math.PI / 2 - Math.atan(x);
-        }
-
-        function calcActualAngle(angle, radiusX, radiusY) {
-            angle %= 2 * Math.PI;
-            if (angle == Math.PI * 0.5 || angle == Math.PI || angle == Math.PI * 1.5 || angle == Math.PI * 2) {
-                return angle;
-            }
-
-            let period = Math.floor(angle / Math.PI);
-            let actualAngle = Math.atan(radiusX * Math.tan(angle) / radiusY);
-            if (actualAngle < 0) {
-                actualAngle += Math.PI;
-            }
-
-            actualAngle += period * Math.PI;
-            return actualAngle;
-        }
-
-        function calcTangentAngle(angle, radiusX, radiusY) {
-            angle %= 2 * Math.PI;
-            if (angle == Math.PI * 0.5 || angle == Math.PI || angle == Math.PI * 1.5 || angle == Math.PI * 2) {
-                return angle;
-            }
-
-            let period = Math.floor(angle / Math.PI);
-            let tangentAngle = period * Math.PI + arcctg(radiusX / Math.tan(angle) / radiusY);
-            return tangentAngle;
-        }
-
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNumber(deg);
+        logo.type.checkInputNonNegNumber(radiusX);
+        logo.type.checkInputNonNegNumber(radiusY);
+        logo.type.checkInputNumber(startDeg);
+
         let endDeg = startDeg + deg;
-        if (radiusX < 0) {
-            radiusX = -radiusX;
-            startDeg = -startDeg;
-            endDeg = -endDeg;
-        }
-
-        if (radiusY < 0) {
-            radiusY = -radiusY;
-            startDeg = 180 - startDeg;
-            endDeg = 180 - endDeg;
-        }
-
         let osOriginHeading = Math.PI * 0.5; // os = "Old School", original heading pi/2
         let osTurtleHeading = Math.PI * 0.5 - d2r(_turtleHeading);
         let rad = osOriginHeading - osTurtleHeading;
@@ -503,6 +476,37 @@ $classObj.create = function(logo, sys) {
         osTurtleHeading += Math.PI - calcTangentAngle(eAngle, radiusX, radiusY) + tangentStartAngle;
         _turtleHeading = r2d(Math.PI * 0.5 - osTurtleHeading) % 360;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
+
+        function arcctg(x) {
+            return Math.PI / 2 - Math.atan(x);
+        }
+
+        function calcActualAngle(angle, radiusX, radiusY) {
+            angle %= 2 * Math.PI;
+            if (angle == Math.PI * 0.5 || angle == Math.PI || angle == Math.PI * 1.5 || angle == Math.PI * 2) {
+                return angle;
+            }
+
+            let period = Math.floor(angle / Math.PI);
+            let actualAngle = Math.atan(radiusX * Math.tan(angle) / radiusY);
+            if (actualAngle < 0) {
+                actualAngle += Math.PI;
+            }
+
+            actualAngle += period * Math.PI;
+            return actualAngle;
+        }
+
+        function calcTangentAngle(angle, radiusX, radiusY) {
+            angle %= 2 * Math.PI;
+            if (angle == Math.PI * 0.5 || angle == Math.PI || angle == Math.PI * 1.5 || angle == Math.PI * 2) {
+                return angle;
+            }
+
+            let period = Math.floor(angle / Math.PI);
+            let tangentAngle = period * Math.PI + arcctg(radiusX / Math.tan(angle) / radiusY);
+            return tangentAngle;
+        }
     }
     turtle.ellipsearc2 = primitiveEllipsearc2;
 

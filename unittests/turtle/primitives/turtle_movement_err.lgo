@@ -1,0 +1,50 @@
+forward "abc
+forward {}
+forward []
+
+back "abc
+back {}
+back []
+
+left "abc
+lt {}
+lt []
+
+right "abc
+rt {}
+rt []
+
+setxy "abc 200
+setxy 100 "abc
+setxy {} 200
+setxy 100 {}
+setxy [] 200
+setxy 100 []
+
+setpos 0
+setpos "abc
+setpos []
+setpos {}
+setpos [abc 0]
+setpos [0 abc]
+setpos [[] 0]
+setpos [0 []]
+setpos [{} 0]
+setpos [0 {}]
+setpos [0 0 0]
+
+setx "abc
+setx {}
+setx []
+
+sety "abc
+sety {}
+sety []
+
+setheading "abc
+seth {}
+seth []
+
+towards "abc
+towards {}
+towards []

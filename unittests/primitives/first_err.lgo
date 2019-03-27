@@ -1,0 +1,3 @@
+first " ; empty word
+first [] ; empty list
+(first) ; not enough input

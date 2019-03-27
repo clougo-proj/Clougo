@@ -198,14 +198,19 @@ $classObj.create = function(logo, sys) {
                         let retVal = evxContext.retVal;
                         nextActualParam.push(retVal);
                     }, function() {
-                        if (++j < paramListLength) {
+                        j = j + 1;
+                        if (j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen)) {
                             forLoopBody(j);
+                        } else if (j < paramListMinLength) {
+                            throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap(), Error().stack);
                         }
                     });
                 };
 
-                if (paramListLength > 0) {
+                if (paramListLength > 0 && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen)) {
                     forLoopBody(0);
+                } else if (0 < paramListMinLength) {
+                    throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap(), Error().stack);
                 }
             }
         }, function() {

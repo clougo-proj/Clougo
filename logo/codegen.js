@@ -425,15 +425,17 @@ $classObj.create = function(logo, sys) {
         }
 
         let paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
+        let paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
         let paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
+        let j = 0;
 
         if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength==-1)) {
-            for (let j = 0; (j < paramListMaxLength || paramListMaxLength == -1) &&
+            for (; (j < paramListMaxLength || paramListMaxLength == -1) &&
                     (isInParen && evxContext.peekNextToken() != ")" ) && evxContext.next(); j++) {
                 param.push(genToken(evxContext));
             }
         } else {
-            for (let j = 0; j < paramListLength; j++) { // push actual parameters
+            for (; j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen) ; j++) { // push actual parameters
                 evxContext.next();
                 let generatedParam = genToken(evxContext, precedence, false, true, isInParen, true);
                 if (generatedParam == CODEGEN_CONSTANTS.NOP) {
@@ -443,6 +445,11 @@ $classObj.create = function(logo, sys) {
 
                 param.push(generatedParam);
             }
+        }
+
+        if (j < paramListMinLength) {
+            param.push([CodeWithSrcmap.create("throwRuntimeLogoException('NOT_ENOUGH_INPUTS', ", evxContext.getSrcmap()),
+                "[ \"" + primitiveName + "\"],  Error().stack)"]);
         }
 
         return insertDelimiters(param, ",");

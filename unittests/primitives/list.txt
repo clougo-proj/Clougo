@@ -16,6 +16,7 @@ log10_negative_input run exec
 lput run exec
 fput run exec
 first run exec
+first_err runl execl
 remainder run exec
 emptyp run exec
 butfirst run exec

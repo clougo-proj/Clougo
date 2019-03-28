@@ -203,14 +203,18 @@ $classObj.create = function(logo, sys) {
         logo.env.findLogoVarScope(varname)[varname.toLowerCase()] = val;
     }
 
-    function primitiveAnd(primitiveName, a, b) {
-        logo.env.setPrimitiveName(primitiveName);
-        return a && b;
+    function primitiveAnd() {
+        const args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
+        args.forEach(logo.type.checkInputBoolean);
+        return args.reduce(function(accumulator, currentValue) { return accumulator && logo.type.asLogoBoolean(currentValue); }, true);
     }
 
-    function primitiveOr(primitiveName, a, b) {
-        logo.env.setPrimitiveName(primitiveName);
-        return a || b;
+    function primitiveOr() {
+        const args = Array.prototype.slice.call(arguments);
+        logo.env.setPrimitiveName(args.shift());
+        args.forEach(logo.type.checkInputBoolean);
+        return args.reduce(function(accumulator, currentValue) { return accumulator || logo.type.asLogoBoolean(currentValue); }, false);
     }
 
     function primitiveLocal() {
@@ -676,24 +680,19 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.show =
     primitiveParamCount.pr =
     primitiveParamCount.print =
-    primitiveParamCount.type = [1, 1, -1];
+    primitiveParamCount.type = [1, 0, -1];
 
     primitiveParamCount.se =
     primitiveParamCount.sentence =
     primitiveParamCount.list =
     primitiveParamCount.word = [2, 1, -1];
 
+    primitiveParamCount.and =
+    primitiveParamCount.or = [2, 0, -1];
+
     primitiveParamCount.mdarray =
     primitiveParamCount.throw =
     primitiveParamCount.array = [1, 1, 2];
-
-    primitiveParamCount.ellipse =
-    primitiveParamCount.ellipse2 =
-    primitiveParamCount.arc =
-    primitiveParamCount.arc2 = [2, 2, 2];
-
-    primitiveParamCount.ellipsearc =
-    primitiveParamCount.ellipsearc2 = [4, 4, 4];
 
     lrt.primitiveParamCount = primitiveParamCount;
 

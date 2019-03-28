@@ -1,0 +1,33 @@
+show (and)
+(pr)
+show (and "true)
+show (and "false)
+show (and 1 = 1)
+show (and 1 > 2)
+(pr)
+show and "false "false
+show and "false "true
+show and "true "false
+show and "true "true
+(pr)
+show and 1<0 2<1
+show and 1<0 2>1
+show and 1>0 2<1
+show and 1>0 2>1
+(pr)
+show (and "true "true "true "true)
+show (and "true "true "true "false)
+show (and "true "true "false "true)
+show (and "true "false "true "true)
+show (and "false "true "true "true)
+show (and "true "true "false "false)
+show (and "true "false "true "false)
+show (and "false "true "true "false)
+show (and "true "false "false "true)
+show (and "false "true "false "true)
+show (and "false "false "true "true)
+show (and "false "false "false "true)
+show (and "false "false "true "false)
+show (and "false "true "false "false)
+show (and "true "false "false "false)
+show (and "false "false "false "false)

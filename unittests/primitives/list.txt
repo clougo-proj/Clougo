@@ -30,3 +30,7 @@ item run exec
 list run exec
 mdarray run exec
 random run exec
+and run exec
+and_err runl execl
+or run exec
+or_err runl execl

@@ -1,0 +1,14 @@
+or doesn't like 1 as input
+    at 1,2
+or doesn't like 2 as input
+    at 2,2
+or doesn't like abc as input
+    at 3,2
+or doesn't like [] as input
+    at 4,2
+or doesn't like {} as input
+    at 5,2
+or doesn't like abc as input
+    at 6,1
+or doesn't like def as input
+    at 7,1

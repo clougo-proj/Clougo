@@ -46,8 +46,6 @@ $classObj.create = function(logo, sys) {
         "if": [genIf, false, true, true],
         "catch": [genCatch, false, true, true],
         "ifelse": [genIfElse, false, true, true],
-        "and": [genAnd, true],
-        "or": [genOr, true],
         "make": [genMake],
         "localmake": [genLocalmake],
         "local": [genLocal],
@@ -314,30 +312,6 @@ $classObj.create = function(logo, sys) {
         comp = logo.parse.parseBlock([evxContext.getToken(), evxContext.getSrcmap()]);
         code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
         code.push("}}");
-
-        return code;
-    }
-
-    function genAnd(evxContext) {
-        let code = [];
-
-        evxContext.next();
-        code.push(genToken(evxContext, 0));
-        code.push("&&");
-        evxContext.next();
-        code.push(genToken(evxContext, 0));
-
-        return code;
-    }
-
-    function genOr(evxContext) {
-        let code = [];
-
-        evxContext.next();
-        code.push(genToken(evxContext, 0));
-        code.push("||");
-        evxContext.next();
-        code.push(genToken(evxContext, 0));
 
         return code;
     }

@@ -435,6 +435,17 @@ $classObj.create = function(logo, sys) {
     }
     type.checkAndThrow = checkAndThrow;
 
+    function checkMinInputCount(value) {
+        checkAndThrow(!(value >= logo.lrt.util.getPrimitiveParamMinCount(logo.env.getPrimitiveName())),
+            "NOT_ENOUGH_INPUTS", value);
+    }
+    type.checkMinInputCount = checkMinInputCount;
+
+    function checkInputBoolean(value) {
+        checkAndThrow(!logo.type.isLogoBoolean(value), "INVALID_INPUT", value);
+    }
+    type.checkInputBoolean = checkInputBoolean;
+
     function checkInputWord(value) {
         checkAndThrow(!logo.type.isLogoWord(value), "INVALID_INPUT", value);
     }
@@ -575,9 +586,15 @@ $classObj.create = function(logo, sys) {
     type.isStringLiteral = isStringLiteral;
 
     function isLogoBoolean(token) {
-        return (sys.equalToken(token, "\"true") || sys.equalToken(token, "\"false"));
+        return typeof token === "boolean" || sys.equalToken(token, "true") || sys.equalToken(token, "false");
     }
     type.isLogoBoolean = isLogoBoolean;
+
+    function asLogoBoolean(value) {
+        return typeof value === "boolean" ? value :
+            (sys.equalToken(value, "true")) ? true : false;
+    }
+    type.asLogoBoolean = asLogoBoolean;
 
     function isLogoVarRef(token) {
         return (typeof token == "string" && token.charAt(0) == ":");

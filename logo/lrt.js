@@ -217,6 +217,12 @@ $classObj.create = function(logo, sys) {
         return args.reduce(function(accumulator, currentValue) { return accumulator || logo.type.asLogoBoolean(currentValue); }, false);
     }
 
+    function primitiveNot(primitiveName, value) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputBoolean(value);
+        return !logo.type.asLogoBoolean(value);
+    }
+
     function primitiveLocal() {
         let args = Array.prototype.slice.call(arguments);
         logo.env.setPrimitiveName(args.shift());
@@ -653,6 +659,8 @@ $classObj.create = function(logo, sys) {
         "and": primitiveAnd,
 
         "or": primitiveOr,
+
+        "not": primitiveNot,
 
         "readword": primitiveReadword,
 

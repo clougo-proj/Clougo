@@ -34,3 +34,5 @@ and run exec
 and_err runl execl
 or run exec
 or_err runl execl
+not run exec
+not_err runl execl

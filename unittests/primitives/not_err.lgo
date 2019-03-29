@@ -1,0 +1,8 @@
+(not)
+(not 1)
+(not "2)
+(not "abc)
+(not [])
+(not {})
+(not "true "true)
+(not "false "true)

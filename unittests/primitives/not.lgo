@@ -1,0 +1,4 @@
+show (not "true)
+show (not "false)
+show (not 1 = 1)
+show (not 1 > 2)

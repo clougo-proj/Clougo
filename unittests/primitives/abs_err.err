@@ -1,0 +1,14 @@
+Not enough inputs to abs
+    at 1,2
+abs doesn't like true as input
+    at 2,1
+abs doesn't like false as input
+    at 3,1
+abs doesn't like a0 as input
+    at 4,1
+abs doesn't like {} as input
+    at 5,1
+abs doesn't like [] as input
+    at 6,1
+Too much inside ()'s
+    at 7,9

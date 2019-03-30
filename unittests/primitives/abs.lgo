@@ -1,0 +1,8 @@
+show abs 1
+show abs -1.0
+show abs "-1.01
+show abs "0
+show abs 1e-7
+show abs -1e-7
+show abs "-.1e2
+show abs 1/-2

@@ -380,6 +380,12 @@ $classObj.create = function(logo, sys) {
                 - Math.floor(-opnd);
     }
 
+    function primitiveAbs(primitiveName, opnd) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNumber(opnd);
+        return Math.abs(opnd);
+    }
+
     function primitiveRandom(primitiveName, range) {
         logo.env.setPrimitiveName(primitiveName);
         return Math.floor(Math.random() * Math.floor(range));
@@ -602,6 +608,8 @@ $classObj.create = function(logo, sys) {
         "round": primitiveRound,
 
         "int": primitiveInt,
+
+        "abs": primitiveAbs,
 
         "random": primitiveRandom,
 

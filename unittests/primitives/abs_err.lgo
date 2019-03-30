@@ -1,0 +1,7 @@
+(abs)
+abs "true
+abs "false
+abs "a0
+abs {}
+abs []
+(abs 10 20)

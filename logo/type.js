@@ -633,6 +633,10 @@ $classObj.create = function(logo, sys) {
             return outterBracket ? "[]" : "";
         }
 
+        if (sys.isNumber(v)) {
+            return +(v.toPrecision(15));
+        }
+
         if (!(isLogoList(v) || isLogoArray(v))) {
             return v;
         }

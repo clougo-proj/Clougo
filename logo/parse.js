@@ -192,7 +192,7 @@ $classObj.create = function(logo, sys) {
                 return;
             }
 
-            if (word.substr(0, 1) == "\"") {
+            if (word.substring(0, 1) == "\"") {
                 let last = 0;
                 let ptr = 1;
                 for (; ptr < word.length; ptr++) {
@@ -204,7 +204,7 @@ $classObj.create = function(logo, sys) {
 
                     if (c == "(" || c== ")") {
                         if (ptr > last) {
-                            ret.push(word.substr(last, ptr - last));
+                            ret.push(word.substring(last, ptr));
                             retsrcmap.push(addSrcmapOffset(srcmap[index], last));
                         }
 
@@ -216,7 +216,7 @@ $classObj.create = function(logo, sys) {
                 }
 
                 if (ptr > last) {
-                    ret.push(word.substr(last, ptr - last));
+                    ret.push(word.substring(last, ptr));
                     retsrcmap.push(addSrcmapOffset(srcmap[index], last));
                 }
 
@@ -229,7 +229,7 @@ $classObj.create = function(logo, sys) {
                 let c = word.charAt(ptr);
                 if (c == "(" || c== ")") {
                     if (ptr > last) {
-                        ret.push(word.substr(last, ptr - last).toLowerCase());
+                        ret.push(word.substring(last, ptr).toLowerCase());
                         retsrcmap.push(addSrcmapOffset(srcmap[index], last));
                     }
 
@@ -241,7 +241,7 @@ $classObj.create = function(logo, sys) {
 
                 if (Delimiter.isOperator(c)) {
                     if (ptr > last) {
-                        ret.push(word.substr(last, ptr - last));
+                        ret.push(word.substring(last, ptr));
                         retsrcmap.push(addSrcmapOffset(srcmap[index], last));
                         last = ptr;
                     }
@@ -278,7 +278,7 @@ $classObj.create = function(logo, sys) {
             }
 
             if (ptr > last) {
-                ret.push(sys.toNumberIfApplicable(word.substr(last, ptr - last).toLowerCase()));
+                ret.push(sys.toNumberIfApplicable(word.substring(last, ptr).toLowerCase()));
                 retsrcmap.push(addSrcmapOffset(srcmap[index], last));
             }
         });

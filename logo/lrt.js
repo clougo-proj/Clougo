@@ -139,7 +139,7 @@ $classObj.create = function(logo, sys) {
             }
 
             logo.type.checkInputNonEmptyWord(thing);
-            return thing.substr(0, 1);
+            return thing.substring(0, 1);
         }
 
         if (logo.type.isLogoList(thing)) {
@@ -165,7 +165,7 @@ $classObj.create = function(logo, sys) {
             }
 
             logo.type.checkInputNonEmptyWord(thing);
-            return thing.substr(1);
+            return thing.substring(1);
         }
 
         logo.type.checkInputNonEmptyList(thing);

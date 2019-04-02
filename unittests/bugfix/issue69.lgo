@@ -1,0 +1,4 @@
+show 1e2
+show 1e-2
+show 1e-6+1e10=12*(2e-9+2)
+show 10*(word "1e "-2)

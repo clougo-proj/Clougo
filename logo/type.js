@@ -576,7 +576,7 @@ $classObj.create = function(logo, sys) {
     type.isQuotedLogoWord = isQuotedLogoWord;
 
     function unquoteLogoWord(v) {
-        return v.substr(1).replace(/\\/g, "");
+        return v.substring(1).replace(/\\/g, "");
     }
     type.unquoteLogoWord = unquoteLogoWord;
 

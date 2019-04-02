@@ -37,7 +37,7 @@ $classObj.create = function(logo, sys, ext) {
     env.isReservedWordTthen = isReservedWordTthen;
 
     function extractVarName(varname) {
-        return varname.substr(1).toLowerCase();
+        return varname.substring(1).toLowerCase();
     }
     env.extractVarName = extractVarName;
 

@@ -239,6 +239,16 @@ $classObj.create = function(logo, sys) {
                     continue;
                 }
 
+                const re_scientificNotation = /^-?\d*\.?\d+e[+-]?\d+/;
+                let wordSubString = word.substring(ptr);
+                let matched = wordSubString.match(re_scientificNotation);
+                if (matched)
+                {
+                    let captured = matched[0];
+                    ptr = ptr + captured.length - 1;
+                    continue;
+                }
+
                 if (Delimiter.isOperator(c)) {
                     if (ptr > last) {
                         ret.push(word.substring(last, ptr));
@@ -278,7 +288,7 @@ $classObj.create = function(logo, sys) {
             }
 
             if (ptr > last) {
-                ret.push(sys.toNumberIfApplicable(word.substring(last, ptr).toLowerCase()));
+                ret.push(word.substring(last, ptr).toLowerCase());
                 retsrcmap.push(addSrcmapOffset(srcmap[index], last));
             }
         });

@@ -3,3 +3,4 @@ mininputs exec run
 issue2 exec run
 issue4 exec run
 issue41 exec run
+issue69 exec run

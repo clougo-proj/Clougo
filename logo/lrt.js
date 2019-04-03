@@ -356,6 +356,18 @@ $classObj.create = function(logo, sys) {
         return Math.sqrt(opnd);
     }
 
+    function primitivePower(primitiveName, base, exp) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNumber(base);
+        if (base < 0) {
+            logo.type.checkInputInteger(exp);
+        } else {
+            logo.type.checkInputNumber(exp);
+        }
+
+        return Math.pow(base, exp);
+    }
+
     function primitiveLog10(primitiveName, opnd) {
         logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputPosNumber(opnd);
@@ -602,6 +614,8 @@ $classObj.create = function(logo, sys) {
         "remainder": primitiveRemainder,
 
         "sqrt": primitiveSqrt,
+
+        "power": primitivePower,
 
         "log10": primitiveLog10,
 

@@ -1,0 +1,10 @@
+(power)
+(power 1)
+(power 1 2 3)
+power [] 1
+power {} 1
+power 1 []
+power 1 {}
+power [] {}
+power {} []
+power -1 0.5

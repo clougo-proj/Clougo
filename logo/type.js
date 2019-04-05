@@ -318,7 +318,7 @@ $classObj.create = function(logo, sys) {
     type.listLength = listLength;
 
     function arrayOrigin(array) {
-        return array[array.length - 1];
+        return array[1];
     }
     type.arrayOrigin = arrayOrigin;
 
@@ -333,12 +333,12 @@ $classObj.create = function(logo, sys) {
     type.arrayIndexWithinRange = arrayIndexWithinRange;
 
     function arraySetItem(index, array, val) {
-        array[index - arrayOrigin(array) + 1] = val;
+        array[index - arrayOrigin(array) + 2] = val;
     }
     type.arraySetItem = arraySetItem;
 
     function arrayItem(index, array) {
-        return array[index - arrayOrigin(array) + 1];
+        return array[index - arrayOrigin(array) + 2];
     }
     type.arrayItem = arrayItem;
 
@@ -391,14 +391,14 @@ $classObj.create = function(logo, sys) {
         }
 
         let ret = makeObject(OBJTYPE.ARRAY, val);
-        ret.push(origin);
+        ret.splice(1, 0, origin);
         return ret;
     }
     type.makeLogoArray = makeLogoArray;
 
     function makeLogoArrayBySize(size, origin) {
         let ret = makeObject(OBJTYPE.ARRAY, Array.apply(null, Array(size)).map(function() { return null; }));
-        ret.push(origin);
+        ret.splice(1, 0, origin);
         return ret;
     }
     type.makeLogoArrayBySize = makeLogoArrayBySize;
@@ -643,7 +643,7 @@ $classObj.create = function(logo, sys) {
 
         function toStringHelper(v) {
             return type.isLogoList(v) ? "[" +  v.slice(1).map(toStringHelper).join(" ") + "]" :
-                type.isLogoArray(v) ? "{" +  v.slice(1, v.length - 1).map(toStringHelper).join(" ") + "}" :
+                type.isLogoArray(v) ? "{" +  v.slice(2, v.length).map(toStringHelper).join(" ") + "}" :
                     sys.isNull(v) ? "[]" : v;
         }
 

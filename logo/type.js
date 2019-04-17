@@ -206,6 +206,12 @@ $classObj.create = function(logo, sys) {
     }
     type.getObjType = getObjType;
 
+    function annotateSrcmap(obj, srcmap) {
+        obj[0] = srcmap;
+        return obj;
+    }
+    type.annotateSrcmap = annotateSrcmap;
+
     function makeCompound(val) {
         return makeObject(OBJTYPE.COMPOUND, val);
     }
@@ -605,6 +611,37 @@ $classObj.create = function(logo, sys) {
         return val != false && val != "false";
     }
     type.isNotLogoFalse = isNotLogoFalse;
+
+    function isNonNegInteger(value) {
+        return sys.isInteger(value) && value >= 0;
+    }
+    type.isNonNegInteger = isNonNegInteger;
+
+    function srcmapToString(srcmap) {
+        return isCompositeSrcmap(srcmap) ? compositeSrcmapToString(srcmap) : simpleSrcmapToString(srcmap);
+    }
+    type.srcmapToString = srcmapToString;
+
+    function isCompositeSrcmap(value) {
+        return Array.isArray(value) && value.length > 0 && Array.isArray(value[0]);
+    }
+    type.isCompositeSrcmap = isCompositeSrcmap;
+
+    function isSimpleSrcmap(value) {
+        return Array.isArray(value) && value.length == 3 &&
+            isNonNegInteger(value[0]) && isNonNegInteger(value[1]) && isNonNegInteger(value[2]);
+    }
+    type.isSimpleSrcmap = isSimpleSrcmap;
+
+    function compositeSrcmapToString(srcmap) {
+        return simpleSrcmapToString(srcmap[0]);
+    }
+    type.compositeSrcmapToString = compositeSrcmapToString;
+
+    function simpleSrcmapToString(srcmap) {
+        return srcmap[1] + "," + srcmap[2];
+    }
+    type.simpleSrcmapToString = simpleSrcmapToString;
 
     function getVarValue(varname, srcmap) {
         const curScope = logo.env.findLogoVarScope(varname);

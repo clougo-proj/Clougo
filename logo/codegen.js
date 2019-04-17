@@ -377,11 +377,11 @@ $classObj.create = function(logo, sys) {
         return ret;
     }
 
-    function genProcCallParam(evxContext, paramListLength) {
+    function genProcCallParam(evxContext, paramListLength, precedence) {
         let param = [];
         for (let j = 0; j < paramListLength; j++) { // push actual parameters
             evxContext.next();
-            param.push(genToken(evxContext));
+            param.push(genToken(evxContext, precedence));
         }
 
         return insertDelimiters(param, ",");
@@ -579,8 +579,19 @@ $classObj.create = function(logo, sys) {
             evxContext.next();
 
             let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
-            code.push(CodeWithSrcmap.create(nextOp, nextOpSrcmap));
-            code.push(genProcCallParam(evxContext, callTarget.length - 2));
+            let primitiveName = logo.lrt.util.getBinaryOperatorPrimitiveName(nextOp);
+            if (primitiveName !== undefined) {
+                code.splice(0, 0, "logo.lrt.primitive['", CodeWithSrcmap.create(primitiveName, nextOpSrcmap),
+                    "'](\"", primitiveName, "\", ");
+
+                code.push(",");
+                code.push(genProcCallParam(evxContext, callTarget.length - 2, nextPrec));
+                code.push(")");
+            } else {
+                code.push(CodeWithSrcmap.create(nextOp, nextOpSrcmap));
+                code.push(genProcCallParam(evxContext, callTarget.length - 2, nextPrec));
+            }
+
 
             evxContext.retExpr = markRetExpr;
         }

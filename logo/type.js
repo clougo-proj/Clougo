@@ -323,6 +323,18 @@ $classObj.create = function(logo, sys) {
     }
     type.listLength = listLength;
 
+    function listEqual(a, b) {
+        let length = listLength(a);
+        for (let i = 0; i < length; i++) {
+            if (!equal(listItem(i, a), listItem(i, b))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    type.listEqual = listEqual;
+
     function arrayOrigin(array) {
         return array[1];
     }
@@ -652,6 +664,15 @@ $classObj.create = function(logo, sys) {
         return curScope[varname];
     }
     type.getVarValue = getVarValue;
+
+    function equal(a, b) {
+        if (isLogoList(a) && isLogoList(b) && listLength(a) == listLength(b)) {
+            return listEqual(a, b);
+        }
+
+        return a == b;
+    }
+    type.equal = equal;
 
     function toString(v, outterBracket) {
         if (sys.isUndefined(outterBracket)) {

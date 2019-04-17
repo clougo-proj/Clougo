@@ -391,8 +391,8 @@ $classObj.create = function(logo, sys, ext) {
             stack.map(function(v) {
                 return !Array.isArray(v[1]) || v[1][0] == 0 ? "" :
                     typeof v[0] !== "undefined" ?
-                        "    " + v[0] + " at " + v[1][1] + "," + v[1][2] :
-                        "    at " + v[1][1] + "," + v[1][2];
+                        "    " + v[0] + " at " + logo.type.srcmapToString(v[1]) :
+                        "    at " + logo.type.srcmapToString(v[1]);
             }).filter(function(v) { return v != ""; })
                 .join("\n");
     }

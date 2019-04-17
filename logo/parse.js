@@ -25,10 +25,10 @@ $classObj.create = function(logo, sys) {
             "\t": [SP_BASE],
             undefined: [SP_NONE],
             ";" : [SP_COMMENT],
-            "[" : [SP_BASE|SP_OPEN, "]"],
-            "]" : [SP_BASE|SP_CLOSE, "[", logo.type.makeLogoList],
-            "{" : [SP_BASE|SP_OPEN, "}"],
-            "}" : [SP_BASE|SP_CLOSE, "{", logo.type.makeLogoArray],
+            "[" : [SP_BASE|SP_OPEN, "]", logo.type.makeLogoList],
+            "]" : [SP_BASE|SP_CLOSE, "["],
+            "{" : [SP_BASE|SP_OPEN, "}", logo.type.makeLogoArray],
+            "}" : [SP_BASE|SP_CLOSE, "{"],
             "+" : [SP_OPERATOR, "+"],
             "-" : [SP_OPERATOR, "-"],
             "*" : [SP_OPERATOR, "*"],
@@ -121,6 +121,14 @@ $classObj.create = function(logo, sys) {
         _parseInProc = false;
     }
     parse.reset = reset;
+
+    function makeSrcmap() {
+        return [_parseSource, _parseLine + 1, _parseCol + 1];
+    }
+
+    function makeWordSrcmap() {
+        return [_parseSource, _parseWordLine + 1, _parseWordCol + 1];
+    }
 
     // parse a block; return the result
     // tokenization: escape character, parentheses, operators
@@ -320,7 +328,7 @@ $classObj.create = function(logo, sys) {
 
             sys.trace("TOKEN0="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
             _parseData.push(_parseWord);
-            _parseSrcmap.push([_parseSource, _parseWordLine + 1, _parseWordCol + 1]);
+            _parseSrcmap.push(makeWordSrcmap());
             _parseWord = "";
         }
 
@@ -435,8 +443,8 @@ $classObj.create = function(logo, sys) {
                 if (Delimiter.isOpening(c)) {
                     _parseStack.push([_parseState, _parseData, _parseExpecting, _parseSrcmap]);
                     _parseState = "line";
-                    _parseData = [];
-                    _parseSrcmap = [];
+                    _parseData =  Delimiter.getLiteralFactory(c)();
+                    _parseSrcmap =  logo.type.annotateSrcmap(Delimiter.getLiteralFactory(c)(), makeSrcmap());
                     _parseExpecting = Delimiter.getExpectedClosing(c);
                 } else if (Delimiter.isClosing(c)) {
                     if (_parseExpecting != c) {
@@ -446,10 +454,9 @@ $classObj.create = function(logo, sys) {
                     let frame = _parseStack.pop();
                     _parseState = frame[0];
 
-                    let makeLiteral = Delimiter.getLiteralFactory(c);
+                    frame[1].push(_parseData);
+                    frame[3].push(_parseSrcmap);
 
-                    frame[1].push(makeLiteral(_parseData));
-                    frame[3].push(makeLiteral(_parseSrcmap));
                     _parseData = frame[1];
                     _parseSrcmap = frame[3];
                     _parseExpecting = frame[2];

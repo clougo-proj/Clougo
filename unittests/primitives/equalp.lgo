@@ -1,0 +1,40 @@
+to f
+  op [1 2]
+end
+pr "abc
+show equal? "abc "abc
+show equalp "abc "abc
+show "abc = "abc
+
+pr "
+pr [abc output from proc]
+show equal? "abc word "a "bc
+show equalp "abc word "a "bc
+show equal? word "a "bc "abc
+show equalp word "a "bc "abc
+show equal? word "a "bc word "ab "c
+show equalp word "a "bc word "ab "c
+show "abc = word "a "bc
+
+pr "
+pr [numeric vs. parsed numeric]
+show equal? 0.01 "1e-2
+show equalp 0.01 "1e-2
+show 0.01="1e-2
+show equal? "0.01 1e-2
+show equalp "0.01 1e-2
+show "0.01 = 1e-2
+
+pr "
+pr [lists]
+show equal? [1 2] [1 2]
+show equalp [1 2] [1 2]
+show [1 2] = [1 2]
+show[1 2]=f
+show f = [1 2]
+
+pr "
+pr [not equal]
+show equal? 1e-6+1e10 12*(2e-9+2)
+show equalp 1e-6+1e10 12*(2e-9+2)
+show 1e-6+1e10=12*(2e-9+2)

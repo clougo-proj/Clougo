@@ -1,0 +1,33 @@
+abc
+true
+true
+true
+
+abc output from proc
+true
+true
+true
+true
+true
+true
+true
+
+numeric vs. parsed numeric
+true
+true
+true
+true
+true
+true
+
+lists
+true
+true
+true
+true
+true
+
+not equal
+false
+false
+false

@@ -317,7 +317,7 @@ $classObj.create = function(logo, sys) {
 
     function primitiveEqualp(primitiveName, a, b) {
         logo.env.setPrimitiveName(primitiveName);
-        return a == b;
+        return logo.type.equal(a, b);
     }
 
     function primitiveMinus(primitiveName, a) {
@@ -635,6 +635,9 @@ $classObj.create = function(logo, sys) {
 
         "greaterequalp": primitiveGreaterequalp,
 
+        "equalp": primitiveEqualp,
+        "equal?": primitiveEqualp,
+
         "emptyp": primitiveEmptyp,
 
         "show": primitiveShow,
@@ -784,7 +787,7 @@ $classObj.create = function(logo, sys) {
         "-" :[2, primitiveDifference],
         "*" :[3, primitiveProduct],
         "/" :[3, primitiveQuotient],
-        "==":[1, primitiveEqualp],
+        "==":[1, primitiveEqualp, "equalp"],
         ">=":[1, primitiveGreaterequalp],
         ">" :[1, primitiveGreaterp],
         "<=":[1, primitiveLessequalp],
@@ -805,6 +808,11 @@ $classObj.create = function(logo, sys) {
         return binaryOperator[op][1];
     }
     lrt.util.getBinaryOperatorRuntimeFunc = getBinaryOperatorRuntimeFunc;
+
+    function getBinaryOperatorPrimitiveName(op) {
+        return binaryOperator[op][2];
+    }
+    lrt.util.getBinaryOperatorPrimitiveName = getBinaryOperatorPrimitiveName;
 
     return lrt;
 };

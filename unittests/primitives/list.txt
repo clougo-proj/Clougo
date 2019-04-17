@@ -40,3 +40,4 @@ abs run exec
 abs_err runl execl
 power run exec
 power_err runl execl
+equalp run exec

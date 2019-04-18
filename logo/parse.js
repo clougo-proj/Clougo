@@ -378,17 +378,8 @@ $classObj.create = function(logo, sys) {
                 }
 
                 if (c != "~") {
-                    if (_parseWord != "") {
-                        insertParseWord();
-                    }
-
-                    if (_parseStack.length == 0 && _parseLastTo != -1) {
-                        convertFormalParam();
-                        _parseLastTo = -1;
-                    }
-
-                    _parseWordLine = _parseLine + 1;
-                    _parseWordCol = 0;
+                    terminateLine();
+                    break;
                 }
 
                 _parseInComment = false;
@@ -428,6 +419,11 @@ $classObj.create = function(logo, sys) {
 
             if (c == ";") {
                 _parseInComment = true;
+                if (isLastChar) {
+                    terminateLine();
+                    break;
+                }
+
                 continue;
             }
 

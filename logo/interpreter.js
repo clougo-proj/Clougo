@@ -28,12 +28,13 @@ $classObj.create = function(logo, sys) {
                     this.ptr++;
                     return true;
                 } else {
+                    this.eol = true;
                     return false;
                 }
             },
             getToken: function() {
                 return (sys.isUndefined(this.body)) ? undefined :
-                    (this.ptr < this.body.length) ? this.body[this.ptr] : undefined;
+                    !this.eol ? this.body[this.ptr] : undefined;
             },
             getSrcmap: function() {
                 return (sys.isUndefined(this.srcmap)) ? undefined :
@@ -66,6 +67,7 @@ $classObj.create = function(logo, sys) {
         obj.srcmap = srcmap;
         obj.retVal = undefined;
         obj.retExpr = false;
+        obj.eol = false;
 
         return obj;
     }

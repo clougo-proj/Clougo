@@ -151,10 +151,9 @@ $classObj.create = function(logo, sys) {
         return logo.type.arrayOrigin(thing);
     }
 
-    function primitiveEmptyp(primitiveName, thing) {
+    function primitiveEmptyp(primitiveName, value) {
         logo.env.setPrimitiveName(primitiveName);
-        return (typeof thing === "string" && thing.length == 0) ||
-            (logo.type.isLogoList(thing) && thing.length < 2);
+        return logo.type.isEmptyString(value) || logo.type.isEmptyList(value);
     }
 
     function primitiveWordp(primitiveName, thing) {
@@ -652,6 +651,7 @@ $classObj.create = function(logo, sys) {
         "notequal?": primitiveNotequalp,
 
         "emptyp": primitiveEmptyp,
+        "empty?": primitiveEmptyp,
 
         "wordp": primitiveWordp,
         "word?": primitiveWordp,

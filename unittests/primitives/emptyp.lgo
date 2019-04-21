@@ -6,3 +6,12 @@ pr emptyp [1]
 pr emptyp ["abc "def]
 pr emptyp [[]]
 pr emptyp [{}]
+
+pr empty? []
+pr empty? "
+pr empty? 123
+pr empty? 0
+pr empty? [1]
+pr empty? ["abc "def]
+pr empty? [[]]
+pr empty? [{}]

@@ -57,8 +57,8 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     sys.makeMatchListRegexp = makeMatchListRegexp;
 
     function equalToken(val1, val2) {
-        return (typeof val1 == "string" && typeof val2 == "string") ?
-            val2.toLowerCase() == val1.toLowerCase() : val2 == val1;
+        return (val2 === val1) || ((typeof val1 === "string" && typeof val2 === "string") &&
+            val2.toLowerCase() === val1.toLowerCase());
     }
     sys.equalToken = equalToken;
 

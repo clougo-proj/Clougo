@@ -1,10 +1,16 @@
 to f
   op [1 2]
 end
-pr "abc
+pr "string
 show equal? "abc "abc
 show equalp "abc "abc
 show "abc = "abc
+show equal? "ab "abc
+show equalp "ab "abc
+show "ab = "abc
+show equal? "abc "ab
+show equalp "abc "ab
+show "abc = "ab
 
 pr "
 pr [abc output from proc]
@@ -24,6 +30,28 @@ show 0.01="1e-2
 show equal? "0.01 1e-2
 show equalp "0.01 1e-2
 show "0.01 = 1e-2
+show equal? "0.010 1e-2
+show equalp "0.010 1e-2
+show "0.010 = 1e-2
+
+pr "
+pr [boolean]
+show equal? "true "true
+show equal? "true "false
+show equal? "false "true
+show equal? "false "false
+show equal? "true not "false
+show equal? "false not "true
+show equal? not "true "false
+show equal? not "false "true
+show equal? "true []
+show equal? "false []
+show equal? "true {}
+show equal? "false {}
+show equal? [] "true
+show equal? [] "false
+show equal? {} "true
+show equal? {} "false
 
 pr "
 pr [lists]
@@ -32,6 +60,24 @@ show equalp [1 2] [1 2]
 show [1 2] = [1 2]
 show[1 2]=f
 show f = [1 2]
+show equal? [2 1] [1 2]
+show equalp [2 1] [1 2]
+show [2 1] = [1 2]
+show equal? [1 2] [2 1]
+show equalp [1 2] [2 1]
+show [1 2] = [2 1]
+
+pr "
+pr [compounds]
+show equal? [abc [def [true]]] [abc [def [true]]]
+show equalp [abc [def [true]]] [abc [def [true]]]
+show [abc [def [true]]]=[abc [def [true]]]
+show equal? [abc [def [false]]] [abc [def [false]]]
+show equalp [abc [def [false]]] [abc [def [false]]]
+show [abc [def [false]]]=[abc [def [false]]]
+show equal? (se not "true "true) (se "false not "false)
+show equalp (se not "true "true) (se "false not "false)
+show (se not "true "true)=(se "false not "false) ; bug
 
 pr "
 pr [not equal]

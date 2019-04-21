@@ -335,6 +335,11 @@ $classObj.create = function(logo, sys) {
     }
     type.listEqual = listEqual;
 
+    function booleanEqual(a, b) {
+        return isLogoBoolean(a) && isLogoBoolean(b) && asLogoBoolean(a) === asLogoBoolean(b);
+    }
+    type.booleanEqual = booleanEqual;
+
     function arrayOrigin(array) {
         return array[1];
     }
@@ -668,6 +673,10 @@ $classObj.create = function(logo, sys) {
     function equal(a, b) {
         if (isLogoList(a) && isLogoList(b) && listLength(a) == listLength(b)) {
             return listEqual(a, b);
+        }
+
+        if (isLogoBoolean(a) || isLogoBoolean(b)) {
+            return booleanEqual(a,b);
         }
 
         return a == b;

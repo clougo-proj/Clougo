@@ -133,6 +133,21 @@ $classObj.create = function(logo, sys) {
     // parse a block; return the result
     // tokenization: escape character, parentheses, operators
     parse.parseBlock = function(comp) {
+        let list = comp[0].slice();
+        let srcmap = comp[1].slice();
+
+        sys.assert(logo.type.isLogoList(list));
+
+        let ret = logo.type.makeLogoBlock();
+        let retsrcmap = logo.type.makeLogoBlock();
+        let lastto = -1;
+
+        list.shift();
+        srcmap.shift();
+        list.forEach(processLine);
+
+        return [ret, retsrcmap];
+
         function addSrcmapOffset(origSrcmap, offset) {
             let newSrcmap = origSrcmap.slice(0);
             newSrcmap[2] += offset;
@@ -147,18 +162,7 @@ $classObj.create = function(logo, sys) {
             });
         }
 
-        let list = comp[0].slice();
-        let srcmap = comp[1].slice();
-
-        sys.assert(logo.type.isLogoList(list));
-
-        let ret = logo.type.makeLogoBlock();
-        let retsrcmap = logo.type.makeLogoBlock();
-        let lastto = -1;
-
-        list.shift();
-        srcmap.shift();
-        list.forEach(function(word, index){
+        function processLine(word, index){
             if (typeof word != "string" || word.length == 0) {
                 ret.push(word);
                 retsrcmap.push(srcmap[index]);
@@ -200,58 +204,44 @@ $classObj.create = function(logo, sys) {
                 return;
             }
 
+            let last = 0;
+            let ptr = 0;
+            let isStringLiteral = false;
             if (word.substring(0, 1) == "\"") {
-                let last = 0;
-                let ptr = 1;
-                for (; ptr < word.length; ptr++) {
+                ptr = 1;
+                isStringLiteral = true;
+            }
+
+            for (; ptr < word.length; ptr++) {
+                let c = word.charAt(ptr);
+
+                if (isStringLiteral) {
                     let c = word.charAt(ptr);
                     if (c == "\\" && ptr < word.length - 1) {
                         ptr++;
                         continue;
                     }
-
-                    if (c == "(" || c== ")") {
-                        if (ptr > last) {
-                            ret.push(word.substring(last, ptr));
-                            retsrcmap.push(addSrcmapOffset(srcmap[index], last));
-                        }
-
-                        ret.push(c);
-                        retsrcmap.push(addSrcmapOffset(srcmap[index], ptr));
-                        last = ptr + 1;
-                        continue;
-                    }
                 }
 
-                if (ptr > last) {
-                    ret.push(word.substring(last, ptr));
-                    retsrcmap.push(addSrcmapOffset(srcmap[index], last));
-                }
-
-                return;
-            }
-
-            let last = 0;
-            let ptr = 0;
-            for (; ptr < word.length; ptr++) {
-                let c = word.charAt(ptr);
                 if (c == "(" || c== ")") {
                     if (ptr > last) {
-                        ret.push(word.substring(last, ptr).toLowerCase());
-                        retsrcmap.push(addSrcmapOffset(srcmap[index], last));
+                        captureToken(word.substring(last, ptr), last);
                     }
 
-                    ret.push(c);
-                    retsrcmap.push(addSrcmapOffset(srcmap[index], ptr));
+                    captureToken(c, ptr);
                     last = ptr + 1;
+                    isStringLiteral = false;
+                    continue;
+                }
+
+                if (isStringLiteral) {
                     continue;
                 }
 
                 const re_scientificNotation = /^-?\d*\.?\d+e[+-]?\d+/;
                 let wordSubString = word.substring(ptr);
                 let matched = wordSubString.match(re_scientificNotation);
-                if (matched)
-                {
+                if (matched) {
                     let captured = matched[0];
                     ptr = ptr + captured.length - 1;
                     continue;
@@ -259,8 +249,7 @@ $classObj.create = function(logo, sys) {
 
                 if (Delimiter.isOperator(c)) {
                     if (ptr > last) {
-                        ret.push(word.substring(last, ptr));
-                        retsrcmap.push(addSrcmapOffset(srcmap[index], last));
+                        captureToken(word.substring(last, ptr), last);
                         last = ptr;
                     }
 
@@ -269,39 +258,35 @@ $classObj.create = function(logo, sys) {
                         let subdef = Delimiter.getOperatorDef(c);
 
                         if (nextc in subdef) {
-                            ret.push(Delimiter.getOperatorDef(nextc, subdef));
-                            retsrcmap.push(addSrcmapOffset(srcmap[index], ptr));
+                            captureToken(Delimiter.getOperatorDef(nextc, subdef), ptr);
                             ptr++;
-                            last = ptr + 1;
-                            continue;
                         } else {
-                            ret.push(Delimiter.getOperatorDef("", subdef));
-                            retsrcmap.push(addSrcmapOffset(srcmap[index], ptr));
-                            last = ptr + 1;
-                            continue;
+                            captureToken(Delimiter.getOperatorDef("", subdef), ptr);
                         }
+                    } else {
+                        let opdef = Delimiter.getOperatorDef(c);
+
+                        if (c == "-" && ptr == 0 && word.length > 1) {
+                            opdef = " " + opdef; // prepend space to signify minus sign identified as unary minus operator (vs. infix difference)
+                        }
+
+                        captureToken(opdef, ptr);
                     }
 
-                    let opdef = Delimiter.getOperatorDef(c);
-
-                    if (c == "-" && ptr == 0 && word.length > 1) {
-                        opdef = " " + opdef; // prepend space to signify minus sign identified as unary minus operator (vs. infix difference)
-                    }
-
-                    ret.push(opdef);
-                    retsrcmap.push(addSrcmapOffset(srcmap[index], ptr));
                     last = ptr + 1;
-                    continue;
                 }
             }
 
             if (ptr > last) {
-                ret.push(word.substring(last, ptr).toLowerCase());
-                retsrcmap.push(addSrcmapOffset(srcmap[index], last));
+                captureToken(word.substring(last, ptr), last);
             }
-        });
 
-        return [ret, retsrcmap];
+            function captureToken(token, offset) {
+                ret.push(isStringLiteral ? token : token.toLowerCase());
+                retsrcmap.push(addSrcmapOffset(srcmap[index], offset));
+            }
+        }
+
     }; // parse.parseBlock
 
     // parse a line; result in _parseData/_parseSrcmap

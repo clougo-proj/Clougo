@@ -1,0 +1,2 @@
+show (word "2)=2
+show (se "a "b)=[a b]

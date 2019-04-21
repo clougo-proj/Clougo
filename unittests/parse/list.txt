@@ -3,3 +3,4 @@ parse1 parse
 parse2 parse
 tab parse
 scientific parse
+equal_after_quote parse run exec

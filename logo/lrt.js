@@ -325,6 +325,11 @@ $classObj.create = function(logo, sys) {
         return logo.type.equal(a, b);
     }
 
+    function primitiveNotequalp(primitiveName, a, b) {
+        logo.env.setPrimitiveName(primitiveName);
+        return !logo.type.equal(a, b);
+    }
+
     function primitiveMinus(primitiveName, a) {
         logo.env.setPrimitiveName(primitiveName);
         return -a;
@@ -643,6 +648,9 @@ $classObj.create = function(logo, sys) {
         "equalp": primitiveEqualp,
         "equal?": primitiveEqualp,
 
+        "notequalp": primitiveNotequalp,
+        "notequal?": primitiveNotequalp,
+
         "emptyp": primitiveEmptyp,
 
         "wordp": primitiveWordp,
@@ -796,6 +804,7 @@ $classObj.create = function(logo, sys) {
         "*" :[3, primitiveProduct],
         "/" :[3, primitiveQuotient],
         "==":[1, primitiveEqualp, "equalp"],
+        "<>":[1, primitiveNotequalp, "notequalp"],
         ">=":[1, primitiveGreaterequalp],
         ">" :[1, primitiveGreaterp],
         "<=":[1, primitiveLessequalp],

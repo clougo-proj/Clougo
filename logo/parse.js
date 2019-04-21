@@ -40,6 +40,7 @@ $classObj.create = function(logo, sys) {
             }],
             "<" : [SP_MULTICHAR|SP_OPERATOR, {
                 "=": [SP_OPERATOR, "<="],
+                ">": [SP_OPERATOR, "<>"],
                 "" : [SP_OPERATOR, "<"]
             }]
         };

@@ -1,0 +1,86 @@
+to f
+  op [1 2]
+end
+pr "string
+show notequal? "abc "abc
+show notequalp "abc "abc
+show "abc <> "abc
+show notequal? "ab "abc
+show notequalp "ab "abc
+show "ab <> "abc
+show notequal? "abc "ab
+show notequalp "abc "ab
+show "abc <> "ab
+
+pr "
+pr [abc output from proc]
+show notequal? "abc word "a "bc
+show notequalp "abc word "a "bc
+show notequal? word "a "bc "abc
+show notequalp word "a "bc "abc
+show notequal? word "a "bc word "ab "c
+show notequalp word "a "bc word "ab "c
+show "abc <> word "a "bc
+
+pr "
+pr [numeric vs. parsed numeric]
+show notequal? 0.01 "1e-2
+show notequalp 0.01 "1e-2
+show 0.01<>"1e-2
+show notequal? "0.01 1e-2
+show notequalp "0.01 1e-2
+show "0.01 <> 1e-2
+show notequal? "0.010 1e-2
+show notequalp "0.010 1e-2
+show "0.010 <> 1e-2
+
+pr "
+pr [boolean]
+show notequal? "true "true
+show notequal? "true "false
+show notequal? "false "true
+show notequal? "false "false
+show notequal? "true not "false
+show notequal? "false not "true
+show notequal? not "true "false
+show notequal? not "false "true
+show notequal? "true []
+show notequal? "false []
+show notequal? "true {}
+show notequal? "false {}
+show notequal? [] "true
+show notequal? [] "false
+show notequal? {} "true
+show notequal? {} "false
+
+pr "
+pr [lists]
+show notequal? [1 2] [1 2]
+show notequalp [1 2] [1 2]
+show [1 2] <> [1 2]
+show[1 2]<>f
+show f <> [1 2]
+show notequal? [2 1] [1 2]
+show notequalp [2 1] [1 2]
+show [2 1] <> [1 2]
+show notequal? [1 2] [2 1]
+show notequalp [1 2] [2 1]
+show [1 2] <> [2 1]
+
+pr "
+pr [compounds]
+show notequal? [abc [def [true]]] [abc [def [true]]]
+show notequalp [abc [def [true]]] [abc [def [true]]]
+show [abc [def [true]]]<>[abc [def [true]]]
+show notequal? [abc [def [false]]] [abc [def [false]]]
+show notequalp [abc [def [false]]] [abc [def [false]]]
+show [abc [def [false]]]<>[abc [def [false]]]
+show notequal? (se not "true "true) (se "false not "false)
+show notequalp (se not "true "true) (se "false not "false)
+show (se not "true "true)<>(se "false not "false) ; bug
+
+pr "
+pr [not equal]
+show notequal? 1e-6+1e10 12*(2e-9+2)
+show notequalp 1e-6+1e10 12*(2e-9+2)
+show 1e-6+1e10<>12*(2e-9+2)

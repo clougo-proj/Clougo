@@ -571,7 +571,7 @@ $classObj.create = function(logo, sys) {
     type.setLogoAsyncReturnValue = setLogoAsyncReturnValue;
 
     function isLogoWord(v){
-        return typeof v === "string" || typeof v === "number";
+        return typeof v === "string" || typeof v === "number" || typeof v === "boolean";
     }
     type.isLogoWord = isLogoWord;
 

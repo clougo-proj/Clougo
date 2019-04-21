@@ -1,0 +1,19 @@
+words
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+
+not words
+false
+false
+false
+false
+false
+false

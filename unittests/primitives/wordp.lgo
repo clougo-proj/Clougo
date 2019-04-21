@@ -1,0 +1,20 @@
+pr "words
+show wordp 0
+show word? -0.01
+show wordp 3+1e-7
+show word? 3-"1e-12
+show wordp "abc
+show word? pi
+show wordp "true
+show word? "false
+show wordp not "True
+show word? not "FALSE
+
+pr "
+pr [not words]
+show wordp []
+show word? {}
+show wordp [abc]
+show word? [12]
+show wordp [true]
+show word? [false]

@@ -157,6 +157,11 @@ $classObj.create = function(logo, sys) {
             (logo.type.isLogoList(thing) && thing.length < 2);
     }
 
+    function primitiveWordp(primitiveName, thing) {
+        logo.env.setPrimitiveName(primitiveName);
+        return logo.type.isLogoWord(thing);
+    }
+
     function primitiveButfirst(primitiveName, thing) {
         logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(thing)) {
@@ -639,6 +644,9 @@ $classObj.create = function(logo, sys) {
         "equal?": primitiveEqualp,
 
         "emptyp": primitiveEmptyp,
+
+        "wordp": primitiveWordp,
+        "word?": primitiveWordp,
 
         "show": primitiveShow,
 

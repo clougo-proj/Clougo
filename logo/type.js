@@ -274,6 +274,16 @@ $classObj.create = function(logo, sys) {
     }
     type.isColor = isColor;
 
+    function isEmptyString(value) {
+        return typeof value === "string" && value.length === 0;
+    }
+    type.isEmptyString = isEmptyString;
+
+    function isEmptyList(value) {
+        return isLogoList(value) && listLength(value) === 0;
+    }
+    type.isEmptyList = isEmptyList;
+
     function getRGB(color) {
         if (isPaletteIndex(color)) {
             return logo.type.getPaletteRGB(color);

@@ -298,10 +298,7 @@ $classObj.create = function(logo, sys) {
     }
     type.getRGB = getRGB;
 
-    function listOrigin() {
-        return 1;
-    }
-    type.listOrigin = listOrigin;
+    type.LIST_ORIGIN = 1;
 
     function listButFirst(list) {
         return makeLogoList(list.slice(2));
@@ -314,7 +311,7 @@ $classObj.create = function(logo, sys) {
     type.listMaxIndex = listMaxIndex;
 
     function listIndexWithinRange(index, list) {
-        return index >= listOrigin() && index <= listMaxIndex(list);
+        return index >= type.LIST_ORIGIN && index <= listMaxIndex(list);
     }
     type.listIndexWithinRange = listIndexWithinRange;
 

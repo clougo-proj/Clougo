@@ -89,7 +89,7 @@ $classObj.create = function(logo, sys) {
         }
 
         logo.type.checkInputNonEmptyList(sizeList);
-        return mdarrayHelper(sizeList, logo.type.listOrigin(), logo.type.listMaxIndex(sizeList), origin);
+        return mdarrayHelper(sizeList, logo.type.LIST_ORIGIN, logo.type.listMaxIndex(sizeList), origin);
     }
 
     function primitiveMdsetitem(primitiveName, indexList, array, value) {
@@ -100,7 +100,7 @@ $classObj.create = function(logo, sys) {
 
         let currentItem = array;
         let sizeListMaxIndex = logo.type.listMaxIndex(indexList);
-        for (let i = logo.type.listOrigin(); i < sizeListMaxIndex; i++) {
+        for (let i = logo.type.LIST_ORIGIN; i < sizeListMaxIndex; i++) {
             let index = logo.type.listItem(i, indexList);
             logo.type.checkInputArray(currentItem);
             logo.type.checkIndexWithinArrayRange(index, currentItem);
@@ -121,7 +121,7 @@ $classObj.create = function(logo, sys) {
         let currentItem = array;
         let origin = logo.type.arrayOrigin(array);
         let sizeListMaxIndex = logo.type.listMaxIndex(indexList);
-        for (let i = logo.type.listOrigin(); i <= sizeListMaxIndex; i++) {
+        for (let i = logo.type.LIST_ORIGIN; i <= sizeListMaxIndex; i++) {
             let index = logo.type.listItem(i, indexList);
             logo.type.checkInputArray(currentItem);
             logo.type.checkIndexWithinArrayRange(index, currentItem);
@@ -134,6 +134,10 @@ $classObj.create = function(logo, sys) {
     function primitiveFirst(primitiveName, thing) {
         logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(thing)) {
+            if (typeof thing === "boolean") {
+                return thing ? "t" : "f";
+            }
+
             if (typeof thing === "number") {
                 thing = thing.toString();
             }
@@ -144,7 +148,7 @@ $classObj.create = function(logo, sys) {
 
         if (logo.type.isLogoList(thing)) {
             logo.type.checkInputNonEmptyList(thing);
-            return logo.type.listItem(logo.type.listOrigin(thing), thing);
+            return logo.type.listItem(logo.type.LIST_ORIGIN, thing);
         }
 
         logo.type.checkInputArray(thing);

@@ -1,7 +1,10 @@
 pr first "abc
 pr first 321
+pr first [1 2 3]
+pr first [a b c]
+pr first "true
+pr first "false
+pr first not "false
+pr first not "true
 pr first {}
 pr first [{}]
-
-
-

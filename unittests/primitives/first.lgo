@@ -8,3 +8,4 @@ pr first not "false
 pr first not "true
 pr first {}
 pr first [{}]
+pr first pi

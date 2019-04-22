@@ -139,7 +139,7 @@ $classObj.create = function(logo, sys) {
             }
 
             if (typeof thing === "number") {
-                thing = thing.toString();
+                thing = logo.type.toString(thing);
             }
 
             logo.type.checkInputNonEmptyWord(thing);
@@ -153,6 +153,26 @@ $classObj.create = function(logo, sys) {
 
         logo.type.checkInputArray(thing);
         return logo.type.arrayOrigin(thing);
+    }
+
+    function primitiveLast(primitiveName, thing) {
+        logo.env.setPrimitiveName(primitiveName);
+        if (logo.type.isLogoWord(thing)) {
+            if (typeof thing === "boolean") {
+                return "e";
+            }
+
+            if (typeof thing === "number") {
+                thing = logo.type.toString(thing);
+            }
+
+            logo.type.checkInputNonEmptyWord(thing);
+            let length = thing.length;
+            return thing.substring(length - 1, length);
+        }
+
+        logo.type.checkInputNonEmptyList(thing);
+        return logo.type.listItem(logo.type.listLength(thing), thing);
     }
 
     function primitiveEmptyp(primitiveName, value) {
@@ -693,6 +713,8 @@ $classObj.create = function(logo, sys) {
         "mdarray": primitiveMdarray,
 
         "first": primitiveFirst,
+
+        "last": primitiveLast,
 
         "butfirst": primitiveButfirst,
         "bf": primitiveButfirst,

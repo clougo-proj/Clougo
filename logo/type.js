@@ -708,7 +708,7 @@ $classObj.create = function(logo, sys) {
         }
 
         if (sys.isNumber(v)) {
-            return +(v.toPrecision(15));
+            return (+(v.toPrecision(15))).toString();
         }
 
         if (!(isLogoList(v) || isLogoArray(v))) {

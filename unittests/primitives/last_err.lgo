@@ -1,0 +1,4 @@
+last " ; empty word
+last [] ; empty list
+(last) ; not enough input
+last {0} ; cannot be array

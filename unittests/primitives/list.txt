@@ -17,6 +17,8 @@ lput run exec
 fput run exec
 first run exec
 first_err runl execl
+last run exec
+last_err runl execl
 remainder run exec
 emptyp run exec
 butfirst run exec

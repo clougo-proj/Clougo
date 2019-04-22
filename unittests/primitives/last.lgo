@@ -1,0 +1,10 @@
+pr last "abc
+pr last 321
+pr last [1 2 3]
+pr last [a b c]
+pr last "true
+pr last "false
+pr last not "false
+pr last not "true
+pr last [{}]
+pr last pi

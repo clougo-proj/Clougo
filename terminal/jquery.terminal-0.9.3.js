@@ -3101,29 +3101,30 @@
                 var string = $.type(line) === "function" ? line() : line;
                 string = $.type(string) === "string" ? string : String(string);
                 if (string !== '') {
-                    if (line_settings.exec) {
-                        string = $.map(string.split(format_exec_re), function(string) {
-                            if (string.match(format_exec_re)) {
-                            // redraw should not execute commands and it have
-                            // and lines variable have all extended commands
-                                string = string.replace(/^\[\[|\]\]$/g, '');
-                                if (prev_command && prev_command.command == string) {
-                                    self.error(strings.recursiveCall);
-                                } else {
-                                    $.terminal.extended_command(self, string);
-                                }
-                                return '';
-                            } else {
-                                return string;
-                            }
-                        }).join('');
-                        if (string !== '') {
-                            // string can be empty after removing extended commands
-                            buffer_line(string, line_settings);
-                        }
-                    } else {
-                        buffer_line(string, line_settings);
-                    }
+                    buffer_line(string, line_settings);
+                    // if (line_settings.exec) {
+                    //     string = $.map(string.split(format_exec_re), function(string) {
+                    //         if (string.match(format_exec_re)) {
+                    //         // redraw should not execute commands and it have
+                    //         // and lines variable have all extended commands
+                    //             string = string.replace(/^\[\[|\]\]$/g, '');
+                    //             if (prev_command && prev_command.command == string) {
+                    //                 self.error(strings.recursiveCall);
+                    //             } else {
+                    //                 $.terminal.extended_command(self, string);
+                    //             }
+                    //             return '';
+                    //         } else {
+                    //             return string;
+                    //         }
+                    //     }).join('');
+                    //     if (string !== '') {
+                    //         // string can be empty after removing extended commands
+                    //         buffer_line(string, line_settings);
+                    //     }
+                    // } else {
+                    //     buffer_line(string, line_settings);
+                    // }
                 }
             } catch (e) {
                 output_buffer = [];

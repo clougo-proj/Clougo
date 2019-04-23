@@ -188,8 +188,12 @@ $classObj.create = function(logo, sys) {
     function primitiveButfirst(primitiveName, thing) {
         logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(thing)) {
+            if (typeof thing === "boolean") {
+                return thing ? "rue" : "alse";
+            }
+
             if (typeof thing === "number") {
-                thing = thing.toString();
+                thing = logo.type.toString(thing);
             }
 
             logo.type.checkInputNonEmptyWord(thing);

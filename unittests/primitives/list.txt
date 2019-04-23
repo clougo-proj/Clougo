@@ -22,6 +22,7 @@ last_err runl execl
 remainder run exec
 emptyp run exec
 butfirst run exec
+butfirst_err runl execl
 array run exec
 sqrt run exec
 sum run exec

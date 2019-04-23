@@ -204,6 +204,25 @@ $classObj.create = function(logo, sys) {
         return logo.type.listButFirst(thing);
     }
 
+    function primitiveButlast(primitiveName, thing) {
+        logo.env.setPrimitiveName(primitiveName);
+        if (logo.type.isLogoWord(thing)) {
+            if (typeof thing === "boolean") {
+                return thing ? "tru" : "fals";
+            }
+
+            if (typeof thing === "number") {
+                thing = logo.type.toString(thing);
+            }
+
+            logo.type.checkInputNonEmptyWord(thing);
+            return thing.substring(0, thing.length - 1);
+        }
+
+        logo.type.checkInputNonEmptyList(thing);
+        return logo.type.listButLast(thing);
+    }
+
     function primitiveFput(primitiveName, thing, list) {
         logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(list)) {
@@ -722,6 +741,9 @@ $classObj.create = function(logo, sys) {
 
         "butfirst": primitiveButfirst,
         "bf": primitiveButfirst,
+
+        "butlast": primitiveButlast,
+        "bl": primitiveButlast,
 
         "fput": primitiveFput,
 

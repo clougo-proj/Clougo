@@ -23,6 +23,8 @@ remainder run exec
 emptyp run exec
 butfirst run exec
 butfirst_err runl execl
+butlast run exec
+butlast_err runl execl
 array run exec
 sqrt run exec
 sum run exec

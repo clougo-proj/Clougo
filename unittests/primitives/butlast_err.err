@@ -1,0 +1,8 @@
+butlast doesn't like  as input
+    at 1,1
+bl doesn't like [] as input
+    at 2,1
+Not enough inputs to bl
+    at 3,2
+butlast doesn't like {0} as input
+    at 4,1

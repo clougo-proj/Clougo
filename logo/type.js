@@ -305,6 +305,11 @@ $classObj.create = function(logo, sys) {
     }
     type.listButFirst = listButFirst;
 
+    function listButLast(list) {
+        return makeLogoList(list.slice(1, list.length - 1));
+    }
+    type.listButLast = listButLast;
+
     function listMaxIndex(list) {
         return list.length - 1;
     }

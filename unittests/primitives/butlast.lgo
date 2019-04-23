@@ -1,0 +1,10 @@
+show bl "abc
+show bl 321
+show bl [1 2 3]
+show bl [a b c]
+show bl "true
+show bl "false
+show bl not "false
+show bl not "true
+show bl [{}]
+show bl pi

@@ -1,0 +1,4 @@
+butlast " ; empty word
+Bl [] ; empty list
+(BL) ; not enough input
+butLast {0} ; cannot be array

@@ -1,18 +1,10 @@
-
-to test_throw_on_empty_word
-  type "test_throw_on_empty_word:
-  catch "error [output butfirst "]
-  pr "ok
-end
-
-to test_throw_on_empty_list
-  type "test_throw_on_empty_list:
-  catch "error [output butfirst []]
-  pr "ok
-end
-
-test_throw_on_empty_word
-test_throw_on_empty_list
-pr butfirst "abc
-pr butfirst 321
-pr butfirst [{}]
+show bf "abc
+show bf 321
+show bf [1 2 3]
+show bf [a b c]
+show bf "true
+show bf "false
+show bf not "false
+show bf not "true
+show bf [{}]
+show bf pi

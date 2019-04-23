@@ -1,5 +1,10 @@
-test_throw_on_empty_word:ok
-test_throw_on_empty_list:ok
 bc
 21
-
+[2 3]
+[b c]
+rue
+alse
+rue
+alse
+[]
+.14159265358979

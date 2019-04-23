@@ -1,0 +1,8 @@
+butfirst doesn't like  as input
+    at 1,1
+bf doesn't like [] as input
+    at 2,1
+Not enough inputs to bf
+    at 3,2
+butfirst doesn't like {0} as input
+    at 4,1

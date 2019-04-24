@@ -1,2 +1,4 @@
 pr (word "a "b "c)
 pr (word 1 (word "de "f 18))
+pr (word "true "false)
+pr (word not "true not "false not "true)

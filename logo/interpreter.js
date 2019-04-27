@@ -163,7 +163,7 @@ $classObj.create = function(logo, sys) {
         }
 
         const paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
-        const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName); // eslint-disable-line no-unused-vars
+        const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
         const paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
 
         let srcmap = evxContext.getSrcmap();
@@ -186,6 +186,8 @@ $classObj.create = function(logo, sys) {
                 if  ((!isInParen || ((0 < paramListMaxLength || paramListMaxLength == -1) &&
                         isInParen && evxContext.peekNextToken() != ")" )) && evxContext.next()) {
                     forLoopBody(0);
+                } else if (0 < paramListMinLength) {
+                    throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap(), Error().stack);
                 }
             } else {
                 let forLoopBody = function(j) {

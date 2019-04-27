@@ -491,6 +491,11 @@ $classObj.create = function(logo, sys) {
     }
     type.checkInputInteger = checkInputInteger;
 
+    function checkInputNonNegInteger(value) {
+        checkAndThrow(!isNonNegInteger(value), "INVALID_INPUT", value);
+    }
+    type.checkInputNonNegInteger = checkInputNonNegInteger;
+
     function checkInputNumber(value) {
         checkAndThrow(!logo.type.isLogoNumber(value), "INVALID_INPUT", value);
     }

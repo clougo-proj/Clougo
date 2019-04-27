@@ -63,10 +63,12 @@ $classObj.create = function(logo, sys) {
 
     function primitiveArray(primitiveName, size, origin) {
         logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNonNegInteger(size);
         if (sys.isUndefined(origin)) {
             origin = 1;
         }
 
+        logo.type.checkInputInteger(origin);
         return logo.type.makeLogoArrayBySize(size, origin);
     }
 

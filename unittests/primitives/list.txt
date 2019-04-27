@@ -26,6 +26,7 @@ butfirst_err runl execl
 butlast run exec
 butlast_err runl execl
 array run exec
+array_err runl execl
 sqrt run exec
 sum run exec
 array_with_origin run exec

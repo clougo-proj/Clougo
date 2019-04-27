@@ -63,8 +63,7 @@ $classObj.create = function logoInWeb(Logo, sys) {
     }
 
     function webTest() {
-        let unittests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
-        Logo.runTests(unittests, undefined, ext);
+        Logo.testRunner.runTests(Logo.getUnitTests(), undefined, ext);
         postMessage(["ready"]);
     }
 
@@ -75,6 +74,11 @@ $classObj.create = function logoInWeb(Logo, sys) {
 
     function webExec(src, srcidx) {
         logo.env.exec(src, true, srcidx);
+        postMessage([logo.env.getEnvState()]);
+    }
+
+    function webRunSingleTest(testName, testMethod) {
+        Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
         postMessage([logo.env.getEnvState()]);
     }
 
@@ -127,6 +131,7 @@ $classObj.create = function logoInWeb(Logo, sys) {
         return {
             "entry": {
                 "exec": webExec,
+                "runSingleTest": webRunSingleTest
             },
             "io": {
                 "stdout": webStdout,

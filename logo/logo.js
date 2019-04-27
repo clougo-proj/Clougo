@@ -21,6 +21,17 @@ const sys = classFromJs("./sys.js").create(isNodeJsEnvFlag, util);
 const Logo = {};
 const testRunner = classFromJs("./testrunner.js").create(Logo, sys);
 
+Logo.getUnitTests = (function() {
+    let unitTests = undefined;
+    return function() {
+        if (unitTests === undefined) {
+            unitTests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
+        }
+
+        return unitTests;
+    };
+})();
+
 Logo.create = function(ext) {
 
     const logo = {};
@@ -55,7 +66,7 @@ Logo.mode = {
     CODEGEN: "codegen"
 };
 
-Logo.runTests = testRunner.runTests;
+Logo.testRunner = testRunner;
 
 if (isNodeJsEnvFlag) {
     classFromJs("./logoInNode.js").create(Logo, sys);

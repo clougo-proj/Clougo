@@ -1,0 +1,13 @@
+pr count "abc
+pr count 321
+pr count [1 2 3]
+pr count [a b c]
+pr count "true
+pr count "false
+pr count not "false
+pr count not "true
+pr count "
+pr count []
+pr count {}
+pr count [{}]
+pr count pi

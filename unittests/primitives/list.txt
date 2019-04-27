@@ -48,3 +48,5 @@ power_err runl execl
 equalp run exec
 notequalp run exec
 wordp run exec
+count run exec
+count_err runl execl

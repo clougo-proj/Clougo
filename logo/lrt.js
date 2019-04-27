@@ -223,6 +223,28 @@ $classObj.create = function(logo, sys) {
         return logo.type.listButLast(thing);
     }
 
+    function primitiveCount(primitiveName, thing) {
+        logo.env.setPrimitiveName(primitiveName);
+        if (logo.type.isLogoWord(thing)) {
+            if (typeof thing === "boolean") {
+                return thing ? 4 : 5;
+            }
+
+            if (typeof thing === "number") {
+                thing = logo.type.toString(thing);
+            }
+
+            return thing.length;
+        }
+
+        if (logo.type.isLogoList(thing)) {
+            return logo.type.listLength(thing);
+        }
+
+        logo.type.checkInputArray(thing);
+        return logo.type.arrayLength(thing);
+    }
+
     function primitiveFput(primitiveName, thing, list) {
         logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(list)) {
@@ -744,6 +766,8 @@ $classObj.create = function(logo, sys) {
 
         "butlast": primitiveButlast,
         "bl": primitiveButlast,
+
+        "count": primitiveCount,
 
         "fput": primitiveFput,
 

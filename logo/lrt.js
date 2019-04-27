@@ -557,6 +557,10 @@ $classObj.create = function(logo, sys) {
         };
     })();
 
+    function dotTest(primitiveName, testName, testMethod) {
+        logo.entry.runSingleTest(testName, testMethod);
+    }
+
     let primitive = {
         "pi": primitivePi,
 
@@ -787,7 +791,9 @@ $classObj.create = function(logo, sys) {
 
         "wait": primitiveWait,
 
-        "demo": primitiveDemo
+        "demo": primitiveDemo,
+
+        ".test": dotTest
     };
     lrt.primitive = primitive;
 

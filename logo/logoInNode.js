@@ -47,8 +47,7 @@ $classObj.create = function logoInNode(Logo, sys) {
     }
 
     if (cmd.op == "test") {
-        let unittests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
-        Logo.runTests(unittests, "test" in cmd.options ? cmd.options.test : [], ext);
+        Logo.testRunner.runTests(Logo.getUnitTests(), "test" in cmd.options ? cmd.options.test : [], ext);
         process.exit();
     }
 
@@ -134,7 +133,10 @@ $classObj.create = function logoInNode(Logo, sys) {
     function makeLogoDependencies() {
         return  {
             "entry": {
-                "exec": function(logoSrc) { logo.env.exec(logoSrc, true, 1); }
+                "exec": function(logoSrc) { logo.env.exec(logoSrc, true, 1); },
+                "runSingleTest": function(testName, testMethod) {
+                    Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod);
+                }
             },
             "io": {
                 "stdout": console.log,  // eslint-disable-line no-console

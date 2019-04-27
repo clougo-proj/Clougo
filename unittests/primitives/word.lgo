@@ -1,4 +1,6 @@
-pr (word "a "b "c)
-pr (word 1 (word "de "f 18))
-pr (word "true "false)
-pr (word not "true not "false not "true)
+show count (word)
+show count (list (word))
+show (word "a "b "c)
+show (word 1 (word "de "f 18))
+show word "true "false
+show (word not "true not "false not "true)

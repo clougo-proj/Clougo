@@ -818,7 +818,7 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.se =
     primitiveParamCount.sentence =
     primitiveParamCount.list =
-    primitiveParamCount.word = [2, 1, -1];
+    primitiveParamCount.word = [2, 0, -1];
 
     primitiveParamCount.and =
     primitiveParamCount.or = [2, 0, -1];

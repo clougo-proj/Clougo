@@ -1,0 +1,2 @@
+(arrayp)
+(array? "1.2e10 "def)

@@ -1,0 +1,32 @@
+pr "numbers
+show numberp 0
+show number? -0.01
+show numberp 3+1e-7
+show number? "-100
+show numberp (word "- 1)
+show number? 3-"1e-12
+show numberp pi
+
+pr " pr [words not numbers]
+show numberp "abc
+show numberp "true
+show number? "false
+show numberp not "True
+show number? not "FALSE
+show numberp "100-1
+
+pr "
+pr [not numbers]
+show numberp []
+show number? {}
+show numberp [abc]
+show number? [12]
+show numberp [true]
+show number? [false]
+show numberp (list)
+show number? list 1 2
+show numberp (se)
+show number? se [abc def] [100]
+show numberp array 10
+show number? (array 20 -1000)
+show numberp mdarray [10 10]

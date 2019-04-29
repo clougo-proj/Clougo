@@ -51,3 +51,9 @@ notequalp run exec
 wordp run exec
 count run exec
 count_err runl execl
+numberp run exec
+numberp_err runl execl
+listp run exec
+listp_err runl execl
+arrayp run exec
+arrayp_err runl execl

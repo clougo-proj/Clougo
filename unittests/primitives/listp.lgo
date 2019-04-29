@@ -1,0 +1,37 @@
+pr "\[lists\]
+show listp []
+show list? [0]
+show listp [abc]
+show list? [1 2]
+show listp [true]
+show list? [false]
+show listp (list)
+show list? (list 0)
+show listp (list "abc)
+show list? (list "abc 1 "true not "true {})
+show listp (se)
+show listp (se [1 2] [3 4])
+
+pr " pr "\[words\]
+show listp 0
+show list? -0.01
+show listp 3+1e-7
+show list? 3-"1e-12
+show list? pi
+show listp "abc
+show listp "true
+show list? "false
+show listp not "True
+show list? not "FALSE
+show listp word "ab 1.2
+
+pr " pr "\[arrays\]
+show list? {}
+show listp {abc}
+show list? {12}
+show listp {true}
+show list? {false}
+show listp array 0
+show list? array 10
+show listp (array 10 -10)
+show listp (mdarray [0])

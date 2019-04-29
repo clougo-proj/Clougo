@@ -1,0 +1,7 @@
+(listToArray)
+(listToArray [1 2] 1 1)
+listtoarray 0.1
+listtoarray "abc
+listtoarray not "true
+listtoarray {}
+(listToArray [1 2 3] 1.1)

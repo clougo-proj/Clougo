@@ -1,0 +1,15 @@
+pr[**basic cases**]
+show listtoarray []
+show listtoarray [abc]
+show listToArray [1 2 3]
+show listtoarray (list)
+show listtoarray list "One "Two
+show listToArray sentence [Hello] [Logo World]
+
+pr " pr [**listToArray with origin**]
+make "a (listToArray [1 2 3] -10)
+show :a
+show count :a
+show item -10 :a
+show item -9 :a
+show item -8 :a

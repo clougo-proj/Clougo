@@ -1,0 +1,7 @@
+pr[**basic cases**]
+show arraytolist {}
+show arrayToList {abc}
+show arraytolist {1 2 3}
+show arrayToList (array 0)
+show arrayToList (array 1)
+show arraytolist (mdarray [3 2])

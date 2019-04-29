@@ -443,6 +443,21 @@ $classObj.create = function(logo, sys) {
     }
     type.isLogoArray = isLogoArray;
 
+    function arrayToList(array) {
+        let value = array.slice(2);
+        value.unshift(OBJTYPE.LIST);
+        return value;
+    }
+    type.arrayToList = arrayToList;
+
+    function listToArray(list, origin) {
+        let value = list.slice(1);
+        value.unshift(origin);
+        value.unshift(OBJTYPE.ARRAY);
+        return value;
+    }
+    type.listToArray = listToArray;
+
     function makeLogoProc(val) {
         return makeObject(OBJTYPE.PROC, val);
     }

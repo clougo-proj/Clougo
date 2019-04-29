@@ -57,3 +57,7 @@ listp run exec
 listp_err runl execl
 arrayp run exec
 arrayp_err runl execl
+listtoarray run exec
+listtoarray_err runl execl
+arraytolist run exec
+arraytolist_err runl execl

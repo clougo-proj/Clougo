@@ -72,6 +72,23 @@ $classObj.create = function(logo, sys) {
         return logo.type.makeLogoArrayBySize(size, origin);
     }
 
+    function primitiveListToArray(primitiveName, value, origin) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputList(value);
+        if (origin === undefined) {
+            origin = 1;
+        }
+
+        logo.type.checkInputInteger(origin);
+        return logo.type.listToArray(value, origin);
+    }
+
+    function primitiveArrayToList(primitiveName, value) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputArray(value);
+        return logo.type.arrayToList(value);
+    }
+
     function mdarrayHelper(sizeList, index, maxIndex, origin) {
         let size = logo.type.listItem(index, sizeList);
         let ret = logo.type.makeLogoArrayBySize(size, origin);
@@ -787,6 +804,10 @@ $classObj.create = function(logo, sys) {
 
         "mdarray": primitiveMdarray,
 
+        "listtoarray": primitiveListToArray,
+
+        "arraytolist": primitiveArrayToList,
+
         "first": primitiveFirst,
 
         "last": primitiveLast,
@@ -847,6 +868,7 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.and =
     primitiveParamCount.or = [2, 0, -1];
 
+    primitiveParamCount.listtoarray =
     primitiveParamCount.mdarray =
     primitiveParamCount.throw =
     primitiveParamCount.array = [1, 1, 2];

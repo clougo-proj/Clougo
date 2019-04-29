@@ -1,0 +1,6 @@
+(arrayToList)
+(arrayToList {1 2} 1)
+arraytolist 0.1
+arrayToList "abc
+arraytolist not "true
+arrayToList []

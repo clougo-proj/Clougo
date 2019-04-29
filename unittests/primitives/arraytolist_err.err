@@ -1,0 +1,12 @@
+Not enough inputs to arraytolist
+    at 1,2
+Too much inside ()'s
+    at 2,20
+arraytolist doesn't like 0.1 as input
+    at 3,1
+arraytolist doesn't like abc as input
+    at 4,1
+arraytolist doesn't like false as input
+    at 5,1
+arraytolist doesn't like [] as input
+    at 6,1

@@ -1,0 +1,7 @@
+(ascii)
+(ascii "a "b)
+ascii 100
+ascii "abc
+ascii "true
+ascii "false
+ascii "β ; code out of range

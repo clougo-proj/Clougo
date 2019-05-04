@@ -1,0 +1,14 @@
+Not enough inputs to ascii
+    at 1,2
+Too much inside ()'s
+    at 2,11
+ascii doesn't like 100 as input
+    at 3,1
+ascii doesn't like abc as input
+    at 4,1
+ascii doesn't like true as input
+    at 5,1
+ascii doesn't like false as input
+    at 6,1
+ascii doesn't like β as input
+    at 7,1

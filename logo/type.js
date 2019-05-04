@@ -458,6 +458,13 @@ $classObj.create = function(logo, sys) {
     }
     type.listToArray = listToArray;
 
+    function charToAscii(word) {
+        let charCode = (typeof word === "string") ? word.charCodeAt(0) : 48 + word; // typeof word === "number"
+        checkAndThrow(!(charCode >= 0 && charCode <= 255), "INVALID_INPUT", word);
+        return charCode;
+    }
+    type.charToAscii = charToAscii;
+
     function makeLogoProc(val) {
         return makeObject(OBJTYPE.PROC, val);
     }
@@ -500,6 +507,11 @@ $classObj.create = function(logo, sys) {
         checkAndThrow(!logo.type.isLogoWord(value), "INVALID_INPUT", value);
     }
     type.checkInputWord = checkInputWord;
+
+    function checkInputCharacter(value) {
+        checkAndThrow(!logo.type.isLogoCharacter(value), "INVALID_INPUT", value);
+    }
+    type.checkInputCharacter = checkInputCharacter;
 
     function checkInputInteger(value) {
         checkAndThrow(!sys.isInteger(value), "INVALID_INPUT", value);
@@ -611,6 +623,12 @@ $classObj.create = function(logo, sys) {
         return typeof v === "string" || typeof v === "number" || typeof v === "boolean";
     }
     type.isLogoWord = isLogoWord;
+
+    function isLogoCharacter(v){
+        return (typeof v === "string" && v.length === 1) ||
+            (sys.isInteger(v) && v >= 0 && v <= 9);
+    }
+    type.isLogoCharacter = isLogoCharacter;
 
     function wordGetItem(index, word) {
         return word[index - 1];

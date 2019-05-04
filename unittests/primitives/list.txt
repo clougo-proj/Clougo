@@ -61,3 +61,5 @@ listtoarray run exec
 listtoarray_err runl execl
 arraytolist run exec
 arraytolist_err runl execl
+ascii run exec
+ascii_err runl execl

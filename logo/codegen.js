@@ -465,11 +465,11 @@ $classObj.create = function(logo, sys) {
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
 
-        while ((!stopAtLineEnd && curToken == "\\n") && !sys.isUndefined(curToken) && evxContext.next()) {
+        while ((!stopAtLineEnd && curToken === "\n") && !sys.isUndefined(curToken) && evxContext.next()) {
             curToken = evxContext.getToken();
         }
 
-        if (sys.isUndefined(curToken) || curToken == "\\n") {
+        if (sys.isUndefined(curToken) || curToken === "\n") {
             return CODEGEN_CONSTANTS.NOP; //"undefined;"; // add undefined to make sure eval() returns undefined
         }
 
@@ -509,8 +509,7 @@ $classObj.create = function(logo, sys) {
                 code.push("$ret=");
             }
 
-            code.push(CodeWithSrcmap.create(curToken, srcmap));
-            code.push("\"");
+            code.push(CodeWithSrcmap.create(logo.type.quotedLogoWordToJsStringLiteral(curToken), srcmap));
             evxContext.retExpr = markRetExpr;
         } else if (logo.type.isLogoVarRef(curToken)) {
             if (markRetExpr) {

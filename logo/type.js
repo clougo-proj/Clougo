@@ -622,23 +622,26 @@ $classObj.create = function(logo, sys) {
     }
     type.isLogoNumber = isLogoNumber;
 
-    const isQuotedLogoWord = (function(){
-        const reIsWord = /^"\S*$/;
-        return function(v) {
-            return typeof v !== "object" && reIsWord.test(v);
-        };
-    })();
+    function isQuotedLogoWord(v){
+        return typeof v === "string" && v.charAt(0) === "\"";
+    }
     type.isQuotedLogoWord = isQuotedLogoWord;
 
     function unquoteLogoWord(v) {
-        return v.substring(1).replace(/\\/g, "");
+        return v.substring(1).replace(/\\([\(\)\[\]\{\}])/g, "$1"); // eslint-disable-line no-useless-escape
     }
     type.unquoteLogoWord = unquoteLogoWord;
 
-    function isStringLiteral(token) {
-        return (typeof token == "string" && token.charAt(0) == "\"" && !isLogoBoolean(token));
+    function quotedLogoWordToJsStringLiteral(str) {
+        return "\"" + str.substring(1)
+            .replace(/\\([^\(\)\[\]\{\}])/, "\\\\$1") // eslint-disable-line no-useless-escape
+            .replace(/\\$/, "\\\\")
+            .replace(/\n/g, "\\n")
+            .replace(/\t/g, "\\t")
+            .replace(/'/, "\\'")
+            .replace(/"/g, "\\\"") + "\"";
     }
-    type.isStringLiteral = isStringLiteral;
+    type.quotedLogoWordToJsStringLiteral = quotedLogoWordToJsStringLiteral;
 
     function isLogoBoolean(token) {
         return typeof token === "boolean" || sys.equalToken(token, "true") || sys.equalToken(token, "false");

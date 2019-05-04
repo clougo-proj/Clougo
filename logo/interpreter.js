@@ -45,7 +45,7 @@ $classObj.create = function(logo, sys) {
                     logo.lrt.util.isBinaryOperator(this.body[this.ptr + 1]);
             },
             isTokenEndOfStatement: function(token) {
-                return sys.isUndefined(token) || token == "\\n";
+                return sys.isUndefined(token) || token === "\n";
             },
             peekNextToken : function() {
                 if (this.ptr + 1 >= this.body.length) {
@@ -251,7 +251,7 @@ $classObj.create = function(logo, sys) {
 
             let curToken = evxContext.getToken();
 
-            while ((!stopAtLineEnd && curToken == "\\n") && !sys.isUndefined(curToken) && evxContext.next()) {
+            while ((!stopAtLineEnd && curToken === "\n") && !sys.isUndefined(curToken) && evxContext.next()) {
                 curToken = evxContext.getToken();
             }
 

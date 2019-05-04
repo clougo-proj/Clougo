@@ -1,0 +1,22 @@
+to testAsciiOfSingleDigitNumbers
+  pr [\nASCII of single-digit numbers]
+  for[i 0 9][
+    pr(list (word "< :i ">) ascii :i)
+  ]
+end
+
+to testAsciiTable
+  pr [\nASCII Table]
+  localmake "asciiCharacters "\ !"#$%&'\(\)*+,-./0123456789:\;<=>?@~
+ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]^_`abcdefghijklmnopqrstuvwxyz\{\|\}\~
+
+  localmake "length count :asciiCharacters
+
+  for[i 1 :length][
+    localmake "char item :i :asciiCharacters
+    pr (list (word "< :char ">) ascii :char)
+  ]
+end
+
+testAsciiOfSingleDigitNumbers
+testAsciiTable

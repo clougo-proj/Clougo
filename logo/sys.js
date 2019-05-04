@@ -156,7 +156,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     sys.Config = Config;
 
     function toNumberIfApplicable(s) {
-        if (typeof s === "object") {
+        if (typeof s === "object" || s === "\n") {
             return s;
         }
 

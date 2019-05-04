@@ -131,6 +131,22 @@ $classObj.create = function(logo, sys) {
         return [_parseSource, _parseWordLine + 1, _parseWordCol + 1];
     }
 
+    function getEscapeChar(c) {
+        const escapeChar = {
+            "n": "\n",
+            "t": "\t",
+            "(": "\\(",
+            ")": "\\)",
+            "[": "\\[",
+            "]": "\\]",
+            "{": "\\{",
+            "}": "\\}",
+            "\\": "\\"
+        };
+
+        return (c in escapeChar) ? escapeChar[c] : c;
+    }
+
     // parse a block; return the result
     // tokenization: escape character, parentheses, operators
     parse.parseBlock = function(comp) {
@@ -337,7 +353,7 @@ $classObj.create = function(logo, sys) {
                 convertFormalParam();
                 _parseLastTo = -1;
             } else if (_parseStack.length == 0) {
-                insertParseWord("\\n", s.length);
+                insertParseWord("\n", s.length);
             }
 
             _parseWordLine = _parseLine + 1;
@@ -377,9 +393,7 @@ $classObj.create = function(logo, sys) {
                     break; // ignores trailing "\"
                 }
 
-                _parseWord += c;
-                _parseCol++;
-                _parseWord += s.charAt(_parseCol);
+                _parseWord += getEscapeChar(s.charAt(++_parseCol));
 
                 if (isSecondLastChar) {
                     terminateLine();

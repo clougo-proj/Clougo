@@ -16,9 +16,50 @@ $classObj.create = function(logo, sys) {
     };
 
     let _funcName = "";
-    let _localVarStack = [];
-    let _nonGlobalVar = {};
-    let _repeatVarCount = {};
+
+    const _varScopes = (function() {
+        let self = {};
+
+        let localVarStack = [];
+        let nonGlobalVar = {};
+
+        function enter() {
+            localVarStack.push({});
+        }
+        self.enter = enter;
+
+        function exit() {
+            localVarStack.pop();
+        }
+        self.exit = exit;
+
+        function addVar(varName) {
+            scope()[varName] = 1;
+            nonGlobalVar[varName] = 1;
+        }
+        self.addVar = addVar;
+
+        function isLocalVar(varName) {
+            return varName in scope();
+        }
+        self.isLocalVar = isLocalVar;
+
+        function isGlobalVar(varName) {
+            return !(varName in nonGlobalVar);
+        }
+        self.isGlobalVar = isGlobalVar;
+
+        function localVars() {
+            return Object.keys(scope());
+        }
+        self.localVars = localVars;
+
+        function scope() {
+            return localVarStack[localVarStack.length - 1];
+        }
+
+        return self;
+    })();
 
     const CodeWithSrcmap = (function() {
         let CodeWithSrcmap = {};
@@ -54,18 +95,6 @@ $classObj.create = function(logo, sys) {
         "pi": [genPi, true],
     };
 
-    function getRepeatVarIndex() {
-        if (!(_funcName in _repeatVarCount)) {
-            _repeatVarCount[_funcName] = 0;
-        }
-
-        return _repeatVarCount[_funcName]++;
-    }
-
-    function putRepeatVarIndex() {
-        _repeatVarCount[_funcName]--;
-    }
-
     function getGenNativeJsOutput(name) {
         return (name in genNativeJs) && genNativeJs[name][1];
     }
@@ -76,23 +105,6 @@ $classObj.create = function(logo, sys) {
 
     function getGenNativeJsNoSemicolon(name) {
         return (name in genNativeJs) && genNativeJs[name][3];
-    }
-
-    function addLocalVar(varName) {
-        _localVarStack[_localVarStack.length-1][varName] = 1;
-        _nonGlobalVar[varName] = 1;
-    }
-
-    function isLocalVar(varName) {
-        return (_localVarStack.length > 0) && (varName in _localVarStack[_localVarStack.length-1]);
-    }
-
-    function isGlobalVar(varName) {
-        return !(varName in _nonGlobalVar);
-    }
-
-    function getLocalVars() {
-        return _localVarStack[_localVarStack.length-1];
     }
 
     function genPi() {
@@ -107,7 +119,7 @@ $classObj.create = function(logo, sys) {
         let code = [];
         let srcmap = evxContext.getSrcmap();
 
-        code.push(CodeWithSrcmap.create("var ", srcmap));
+        code.push(CodeWithSrcmap.create("let ", srcmap));
 
         let expectedParams = 1;
         let generatedParams = 0;
@@ -122,7 +134,7 @@ $classObj.create = function(logo, sys) {
 
             sys.assert(logo.type.isQuotedLogoWord(varName));  // TODO: throw Logo exception
             varName = logo.type.unquoteLogoWord(varName).toLowerCase();
-            addLocalVar(varName);
+            _varScopes.addVar(varName);
             code.push(varName);
 
             generatedParams++;
@@ -254,10 +266,10 @@ $classObj.create = function(logo, sys) {
         let code = [];
 
         evxContext.next();
-        code.push("for (var ");
+        code.push("for (let ");
 
         let repeatCount = genToken(evxContext, 0);
-        let repeatVarName = "$i" + getRepeatVarIndex();
+        let repeatVarName = "$i";
 
         code.push(repeatVarName, "=0;", repeatVarName, "<", repeatCount, ";", repeatVarName, "++) {\n");
         evxContext.next();
@@ -272,7 +284,6 @@ $classObj.create = function(logo, sys) {
         }
 
         code.push("}");
-        putRepeatVarIndex();
         return code;
     }
 
@@ -338,9 +349,8 @@ $classObj.create = function(logo, sys) {
         evxContext.next();
 
         let varName = logo.env.extractVarName(evxContext.getToken());
-        addLocalVar(varName);
-
-        code.push("var ");
+        _varScopes.addVar(varName);
+        code.push("let ");
 
         Array.prototype.push.apply(code, genLogoVarLref(varName, evxContext.getSrcmap()));
 
@@ -353,14 +363,14 @@ $classObj.create = function(logo, sys) {
 
     function genLogoVarRef(curToken, srcmap) {
         let varName = logo.env.extractVarName(curToken);
-        return isLocalVar(varName) ?  [CodeWithSrcmap.create("logo.lrt.util.logoVar(", srcmap), varName, ", \"", varName, "\")"] :
-            isGlobalVar(varName) ? [CodeWithSrcmap.create("logo.lrt.util.logoVar(_globalScope[", srcmap), "\"" + varName+ "\"" , "], \"", varName, "\")"] :
+        return _varScopes.isLocalVar(varName) ?  [CodeWithSrcmap.create("logo.lrt.util.logoVar(", srcmap), varName, ", \"", varName, "\")"] :
+            _varScopes.isGlobalVar(varName) ? [CodeWithSrcmap.create("logo.lrt.util.logoVar(_globalScope[", srcmap), "\"" + varName+ "\"" , "], \"", varName, "\")"] :
                 [CodeWithSrcmap.create("logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", srcmap), varName, "\", $scopeCache)[\"", varName, "\"", "], \"", varName, "\")"];
     }
 
     function genLogoVarLref(varName, srcmap) {
-        return isLocalVar(varName) ? [CodeWithSrcmap.create(varName, srcmap)] :
-            isGlobalVar(varName) ? ["_globalScope[", CodeWithSrcmap.create("'" + varName + "'", srcmap), "]"] :
+        return _varScopes.isLocalVar(varName) ? [CodeWithSrcmap.create(varName, srcmap)] :
+            _varScopes.isGlobalVar(varName) ? ["_globalScope[", CodeWithSrcmap.create("'" + varName + "'", srcmap), "]"] :
                 ["logo.env.findLogoVarScope(", CodeWithSrcmap.create("'" + varName + "', $scopeCache)['" + varName + "'", srcmap), "]"];
     }
 
@@ -537,11 +547,10 @@ $classObj.create = function(logo, sys) {
             } else if (curToken in logo.env._ws) {
                 code.push("(");
 
-                let localVars = getLocalVars();
                 if (sys.Config.get("dynamicScope")) {
-                    for (let varName in localVars) {
+                    _varScopes.localVars().forEach(function(varName) {
                         code.push("($scope['", varName, "']=", varName, "),");
-                    }
+                    });
                 }
 
                 code.push(CodeWithSrcmap.create("$ret=(logo.env._user[", srcmap), "\"" + curToken + "\"", "](");
@@ -549,9 +558,9 @@ $classObj.create = function(logo, sys) {
                 code.push(")),");
 
                 if (sys.Config.get("dynamicScope")) {
-                    for (let varName in localVars) {
+                    _varScopes.localVars().forEach(function(varName) {
                         code.push("(", varName, "=$scope['", varName, "']),");
-                    }
+                    });
                 }
 
                 if (sys.Config.get("dynamicScope")) {
@@ -690,11 +699,15 @@ $classObj.create = function(logo, sys) {
         let oldFuncName = _funcName;
         _funcName = "";
         let evxContext = logo.interpreter.makeEvalContext(p, srcmap);
+
+        _varScopes.enter();
         let code = mergeCode(genBody(evxContext, true));
+        _varScopes.exit();
+
         let ret = "// " + JSON.stringify(p) + "\n" +
                 "//" + JSON.stringify(srcmap) + "\n" +
                 "logo.generatedCodeSrcmap = " + JSON.stringify(logo.generatedCodeSrcmap) + ";$scopeCache={};\n" +
-                code;
+                "{" + code + "}";
 
         sys.trace(JSON.stringify(logo.generatedCodeSrcmap), "codegen");
         _funcName = oldFuncName;
@@ -723,18 +736,18 @@ $classObj.create = function(logo, sys) {
         code.push(insertDelimiters(params.map(function(v, n) { return CodeWithSrcmap.create(v, paramSrcmaps[n]); } ) , ",") );
         code.push(")");
         code.push("{\n");
-        code.push("var $ret, $scopeStackLength;\n");
+        code.push("let $ret, $scopeStackLength;\n");
 
         if (sys.Config.get("dynamicScope")) {
-            code.push("var $scope = {}, $scopeCache = {};\n");
+            code.push("let $scope = {}, $scopeCache = {};\n");
             code.push("logo.env._scopeStack.push($scope);\n$scopeStackLength = logo.env._scopeStack.length;\n");
         }
 
-        let localVars = {};
-        params.forEach(function(v) { localVars[v]=1; _nonGlobalVar[v]=1; });
-        _localVarStack.push(localVars);
+        _varScopes.enter();
+        params.forEach(function(v) { _varScopes.addVar(v); });
         code.push(genBody(evxContext, true));
-        _localVarStack.pop();
+        _varScopes.exit();
+
         code.push("logo.env._scopeStack.pop();\n");
         code.push("}\n");
 

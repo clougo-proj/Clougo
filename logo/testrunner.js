@@ -139,6 +139,7 @@ $classObj.create = function(Logo, sys) {
             }
         };
 
+        extForTest.entry = ext.entry;
         return extForTest;
     }
 
@@ -216,8 +217,8 @@ $classObj.create = function(Logo, sys) {
         Logo.io.stdout("\t\tfailed");
         if (singleTestMode) {
             outputIfDifferent("out", outActual, getTestOutBase(test));
-            outputIfDifferent("out", errActual, getTestErrBase(test));
-            outputIfDifferent("out", drawActual, getTestDrawBase(test));
+            outputIfDifferent("err", errActual, getTestErrBase(test));
+            outputIfDifferent("draw", drawActual, getTestDrawBase(test));
         }
 
         failCount++;

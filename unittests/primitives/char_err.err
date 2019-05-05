@@ -1,0 +1,20 @@
+Not enough inputs to char
+    at 1,2
+Too much inside ()'s
+    at 2,10
+char doesn't like -1 as input
+    at 3,1
+char doesn't like 256 as input
+    at 4,1
+char doesn't like 1.2 as input
+    at 5,1
+char doesn't like abc as input
+    at 6,1
+char doesn't like true as input
+    at 7,1
+char doesn't like false as input
+    at 8,1
+char doesn't like [] as input
+    at 9,1
+char doesn't like {} as input
+    at 10,1

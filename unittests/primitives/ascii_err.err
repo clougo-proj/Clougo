@@ -12,3 +12,7 @@ ascii doesn't like false as input
     at 6,1
 ascii doesn't like β as input
     at 7,1
+ascii doesn't like [] as input
+    at 8,1
+ascii doesn't like {} as input
+    at 9,1

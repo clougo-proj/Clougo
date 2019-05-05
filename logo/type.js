@@ -238,19 +238,20 @@ $classObj.create = function(logo, sys) {
     }
     type.isLogoList = isLogoList;
 
+    function isByteValue(value) {
+        return sys.isInteger(value) && value >= 0 && value <= 255;
+    }
+    type.isByteValue = isByteValue;
+
     function isRGB(rgb) {
         return Array.isArray(rgb) && rgb.length == 3 &&
-                sys.isInteger(rgb[0]) && rgb[0] >= 0 && rgb[0] <= 255 &&
-                sys.isInteger(rgb[1]) && rgb[1] >= 0 && rgb[1] <= 255 &&
-                sys.isInteger(rgb[2]) && rgb[2] >= 0 && rgb[2] <= 255;
+            isByteValue(rgb[0]) && isByteValue(rgb[1]) && isByteValue(rgb[2]);
     }
     type.isRGB = isRGB;
 
     function isRGBList(val) {
         return isLogoList(val) && listLength(val) == 3 &&
-                sys.isInteger(listItem(1, val)) && listItem(1, val) >= 0 && listItem(1, val) <= 255 &&
-                sys.isInteger(listItem(2, val)) && listItem(1, val) >= 0 && listItem(2, val) <= 255 &&
-                sys.isInteger(listItem(3, val)) && listItem(1, val) >= 0 && listItem(3, val) <= 255;
+            isByteValue(listItem(1, val)) && isByteValue(listItem(2, val)) && isByteValue(listItem(3, val));
     }
     type.isRGBList = isRGBList;
 
@@ -460,11 +461,17 @@ $classObj.create = function(logo, sys) {
 
     function charToAscii(word) {
         let charCode = (typeof word === "string") ? word.charCodeAt(0) : 48 + word; // typeof word === "number"
-        checkAndThrow(!(charCode >= 0 && charCode <= 255), "INVALID_INPUT", word);
+        ifTrueThenThrow(!isByteValue(charCode), "INVALID_INPUT", word);
         return charCode;
     }
     type.charToAscii = charToAscii;
 
+    function asciiToChar(code) {
+        return String.fromCharCode(code);
+    }
+    type.asciiToChar = asciiToChar;
+
+    type.charToAscii = charToAscii;
     function makeLogoProc(val) {
         return makeObject(OBJTYPE.PROC, val);
     }
@@ -485,115 +492,120 @@ $classObj.create = function(logo, sys) {
     }
     type.isLogoBlock = isLogoBlock;
 
-    function checkAndThrow(predicate, exception, value) {
+    function ifTrueThenThrow(predicate, exception, value) {
         if (predicate) {
             throw logo.type.LogoException.create(exception, [logo.env.getPrimitiveName(), logo.type.toString(value, true)], null, Error().stack);
         }
     }
-    type.checkAndThrow = checkAndThrow;
+    type.ifTrueThenThrow = ifTrueThenThrow;
 
     function checkMinInputCount(value) {
-        checkAndThrow(!(value >= logo.lrt.util.getPrimitiveParamMinCount(logo.env.getPrimitiveName())),
+        ifTrueThenThrow(!(value >= logo.lrt.util.getPrimitiveParamMinCount(logo.env.getPrimitiveName())),
             "NOT_ENOUGH_INPUTS", value);
     }
     type.checkMinInputCount = checkMinInputCount;
 
     function checkInputBoolean(value) {
-        checkAndThrow(!logo.type.isLogoBoolean(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoBoolean(value), "INVALID_INPUT", value);
     }
     type.checkInputBoolean = checkInputBoolean;
 
     function checkInputWord(value) {
-        checkAndThrow(!logo.type.isLogoWord(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoWord(value), "INVALID_INPUT", value);
     }
     type.checkInputWord = checkInputWord;
 
     function checkInputCharacter(value) {
-        checkAndThrow(!logo.type.isLogoCharacter(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoCharacter(value), "INVALID_INPUT", value);
     }
     type.checkInputCharacter = checkInputCharacter;
 
     function checkInputInteger(value) {
-        checkAndThrow(!sys.isInteger(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!sys.isInteger(value), "INVALID_INPUT", value);
     }
     type.checkInputInteger = checkInputInteger;
 
     function checkInputNonNegInteger(value) {
-        checkAndThrow(!isNonNegInteger(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!isNonNegInteger(value), "INVALID_INPUT", value);
     }
     type.checkInputNonNegInteger = checkInputNonNegInteger;
 
     function checkInputNumber(value) {
-        checkAndThrow(!logo.type.isLogoNumber(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoNumber(value), "INVALID_INPUT", value);
     }
     type.checkInputNumber = checkInputNumber;
 
     function checkInputNonNegNumber(value) {
-        checkAndThrow(!(logo.type.isLogoNumber(value) && value >= 0), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value >= 0), "INVALID_INPUT", value);
     }
     type.checkInputNonNegNumber = checkInputNonNegNumber;
 
     function checkInputPosNumber(value) {
-        checkAndThrow(!(logo.type.isLogoNumber(value) && value > 0), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value > 0), "INVALID_INPUT", value);
     }
     type.checkInputPosNumber = checkInputPosNumber;
 
     function checkInputNonEmptyWord(value) {
-        checkAndThrow(!(logo.type.isLogoWord(value) && value.length >= 1), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoWord(value) && value.length >= 1), "INVALID_INPUT", value);
     }
     type.checkInputNonEmptyWord = checkInputNonEmptyWord;
 
     function checkInputOneLetterWord(value) {
-        checkAndThrow(!(logo.type.isLogoWord(value) && value.length == 1), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoWord(value) && value.length == 1), "INVALID_INPUT", value);
     }
     type.checkInputOneLetterWord = checkInputOneLetterWord;
 
     function checkIndexWithinWordRange(index, word) {
-        checkAndThrow(index < 1 || index > word.length, "INVALID_INPUT", index);
+        ifTrueThenThrow(index < 1 || index > word.length, "INVALID_INPUT", index);
     }
     type.checkIndexWithinWordRange = checkIndexWithinWordRange;
 
     function checkInputList(value) {
-        checkAndThrow(!logo.type.isLogoList(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoList(value), "INVALID_INPUT", value);
     }
     type.checkInputList = checkInputList;
 
     function checkInputNonEmptyList(value) {
-        checkAndThrow(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1), "INVALID_INPUT", value);
     }
     type.checkInputNonEmptyList = checkInputNonEmptyList;
 
     function checkInputColor(value) {
-        checkAndThrow(!logo.type.isColor(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isColor(value), "INVALID_INPUT", value);
     }
     type.checkInputColor = checkInputColor;
 
     function checkInputPensize(value) {
-        checkAndThrow(!((sys.isInteger(value) && value > 0) || (logo.type.isLogoList(value) &&
+        ifTrueThenThrow(!((sys.isInteger(value) && value > 0) || (logo.type.isLogoList(value) &&
             logo.type.length(value) == 2 && listItem(1, value) > 0 && listItem(2, value) > 0)),
         "INVALID_INPUT", value);
     }
     type.checkInputPensize = checkInputPensize;
 
     function checkInput2DCartesianCoordinate(value) {
-        checkAndThrow(!(logo.type.isLogoList(value) && logo.type.length(value) == 2 && logo.type.isLogoNumber(
+        ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) == 2 && logo.type.isLogoNumber(
             logo.type.listItem(1, value)) && logo.type.isLogoNumber(logo.type.listItem(2, value))),
         "INVALID_INPUT", value);
     }
     type.checkInput2DCartesianCoordinate = checkInput2DCartesianCoordinate;
 
     function checkIndexWithinListRange(index, list) {
-        checkAndThrow(!logo.type.listIndexWithinRange(index, list), "INVALID_INPUT", index);
+        ifTrueThenThrow(!logo.type.listIndexWithinRange(index, list), "INVALID_INPUT", index);
     }
     type.checkIndexWithinListRange = checkIndexWithinListRange;
 
     function checkInputArray(value) {
-        checkAndThrow(!logo.type.isLogoArray(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoArray(value), "INVALID_INPUT", value);
     }
     type.checkInputArray = checkInputArray;
 
+    function checkInputIsByteValue(value) {
+        ifTrueThenThrow(!logo.type.isByteValue(value), "INVALID_INPUT", value);
+    }
+    type.checkInputIsByteValue = checkInputIsByteValue;
+
     function checkIndexWithinArrayRange(index, array) {
-        checkAndThrow(!logo.type.arrayIndexWithinRange(index, array), "INVALID_INPUT", index);
+        ifTrueThenThrow(!logo.type.arrayIndexWithinRange(index, array), "INVALID_INPUT", index);
     }
     type.checkIndexWithinArrayRange = checkIndexWithinArrayRange;
 

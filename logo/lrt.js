@@ -95,6 +95,12 @@ $classObj.create = function(logo, sys) {
         return logo.type.charToAscii(value);
     }
 
+    function primitiveChar(primitiveName, value) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputIsByteValue(value);
+        return logo.type.asciiToChar(value);
+    }
+
     function mdarrayHelper(sizeList, index, maxIndex, origin) {
         let size = logo.type.listItem(index, sizeList);
         let ret = logo.type.makeLogoArrayBySize(size, origin);
@@ -815,6 +821,8 @@ $classObj.create = function(logo, sys) {
         "arraytolist": primitiveArrayToList,
 
         "ascii": primitiveAscii,
+
+        "char": primitiveChar,
 
         "first": primitiveFirst,
 

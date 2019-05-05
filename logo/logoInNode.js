@@ -135,7 +135,7 @@ $classObj.create = function logoInNode(Logo, sys) {
             "entry": {
                 "exec": function(logoSrc) { logo.env.exec(logoSrc, true, 1); },
                 "runSingleTest": function(testName, testMethod) {
-                    Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod);
+                    Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
                 }
             },
             "io": {

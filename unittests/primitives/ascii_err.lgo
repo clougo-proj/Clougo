@@ -5,3 +5,5 @@ ascii "abc
 ascii "true
 ascii "false
 ascii "β ; code out of range
+ascii []
+ascii {}

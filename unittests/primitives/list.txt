@@ -87,3 +87,4 @@ apply_output_in_lambda run exec
 text run exec
 define run exec
 text_define run exec
+mouse_queries runl execl

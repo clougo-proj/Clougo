@@ -462,6 +462,8 @@ $classObj.create = function(logo, sys, ext) {
                     let line = src[i];
                     if (isInterpretedCommand(line)) {
                         ret = await logoExecHelper(line.substring(2), false, srcidx, i);
+                    } else if (isTurtleCanvasMouseEvent(line)) {
+                        logo.turtle.onMouseEvent(mockEventFromLine(line));
                     } else {
                         ret = await logoExecHelper(line, genjs, srcidx, i);
                     }
@@ -475,6 +477,16 @@ $classObj.create = function(logo, sys, ext) {
 
     function isInterpretedCommand(line) {
         return line.length >= 2 && line.charAt(0) === ";" && line.charAt(1) === "?";
+    }
+
+    function isTurtleCanvasMouseEvent(line) {
+        const pattern = ";turtle mouse ";
+        return line.length > pattern.length && line.substring(0, pattern.length) == pattern;
+    }
+
+    function mockEventFromLine(line) {
+        const eventStart = 2;
+        return line.trim().split(" ").slice(eventStart).map(sys.toNumberIfApplicable);
     }
 
     function throwRuntimeLogoException(name, srcmap, value) { // eslint-disable-line no-unused-vars

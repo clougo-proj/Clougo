@@ -30,6 +30,12 @@ $classObj.create = function(logo, sys) {
     let _bgColor = logo.type.getPaletteRGB(15);
     let _penSize = originalPenSize;
 
+    let _mouseX = originX;
+    let _mouseY = originY;
+    let _mouseClickX = originX;
+    let _mouseClickY = originY;
+    let _mouseDown = false;
+
     function primitiveReset() {
         _turtleX = originX;
         _turtleY = originY;
@@ -159,7 +165,7 @@ $classObj.create = function(logo, sys) {
     turtle.setxy = primitiveSetxy;
 
     function primitivePos() {
-        return logo.type.makeLogoList([_turtleX, _turtleY]);
+        return logo.type.makeLogoList([sys.logoFround6(_turtleX), sys.logoFround6(_turtleY)]);
     }
     turtle.pos = primitivePos;
 
@@ -518,6 +524,56 @@ $classObj.create = function(logo, sys) {
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
     turtle.right = primitiveRight;
+
+    function primitiveMousepos() {
+        return logo.type.makeLogoList([_mouseX, _mouseY]);
+    }
+    turtle.mousepos = primitiveMousepos;
+
+    function primitiveClickpos() {
+        return logo.type.makeLogoList([_mouseClickX, _mouseClickY]);
+    }
+    turtle.clickpos = primitiveClickpos;
+
+    function primitiveButtonp() {
+        return _mouseDown;
+    }
+    turtle.buttonpp = primitiveButtonp;
+
+    function getMsgType(msg) {
+        return msg[0];
+    }
+
+    function getMsgPosX(msg) {
+        return msg[1];
+    }
+
+    function getMsgPosY(msg) {
+        return msg[2];
+    }
+
+    function onMouseEvent(msg) {
+        const mouseEventHandler = {
+            "move": () => {
+                _mouseX = getMsgPosX(msg);
+                _mouseY = getMsgPosY(msg);
+            },
+            "click": () => {
+                _mouseClickX = getMsgPosX(msg);
+                _mouseClickY = getMsgPosY(msg);
+            },
+            "down": () => {
+                _mouseDown = true;
+            },
+            "up": () => {
+                _mouseDown = false;
+            }
+        };
+
+        sys.assert(getMsgType(msg) in mouseEventHandler);
+        mouseEventHandler[getMsgType(msg)](msg);
+    }
+    turtle.onMouseEvent = onMouseEvent;
 
     function moduloDeg(deg) {
         return deg >= 0 ? deg % 360 : (deg % 360) +360;

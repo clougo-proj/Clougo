@@ -25,8 +25,6 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
     const ext = makeLogoDependencies();
     const logo = Logo.create(ext);
 
-    return;
-
     function webStdout(text) {
         postMessage(["out", text]);
     }
@@ -62,17 +60,8 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
         postMessage([envState]);
     }
 
-    async function webTest() {
-        await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, ext);
-        postMessage(["ready"]);
-    }
-
-    async function webRun(src, srcidx) {
-        await logo.env.exec(src, false, srcidx);
-        postMessage([logo.env.getEnvState()]);
-    }
-
     async function webExec(src, srcidx) {
+        postMessage(["busy"]);
         await logo.env.exec(src, true, srcidx);
         postMessage([logo.env.getEnvState()]);
     }
@@ -82,48 +71,55 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
         postMessage([logo.env.getEnvState()]);
     }
 
-    async function webOnConsole(data, logoUserInputListener) {
-        logo.env.setInteractiveMode();
-        await logoUserInputListener(data + logo.type.NEWLINE);  // needs new line to be treated as completed command
-        postMessage([logo.env.getEnvState()]);
-    }
-
-    function webClearWorkspace() {
-        logo.env.clearWorkspace();
-        logo.turtle.draw();
-        postMessage(["ready"]);
-    }
-
     function registerEventHandler(logoUserInputListener) {
+        const webMsgHandler = {
+            "test": async () => {
+                postMessage(["busy"]);
+                await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, ext);
+                postMessage(["ready"]);
+            },
+            "run": async (e) => {
+                postMessage(["busy"]);
+                await logo.env.exec(getMsgBody(e), false, getMsgId(e));
+                postMessage([logo.env.getEnvState()]);
+            },
+            "exec": async (e) => webExec(getMsgBody(e), getMsgId(e)),
+            "console": async (e) => {
+                postMessage(["busy"]);
+                logo.env.setInteractiveMode();
+                await logoUserInputListener(getMsgBody(e) + logo.type.NEWLINE);  // needs new line to be treated as completed command
+                postMessage([logo.env.getEnvState()]);
+            },
+            "clearWorkspace": async () => {
+                postMessage(["busy"]);
+                logo.env.clearWorkspace();
+                logo.turtle.draw();
+                postMessage(["ready"]);
+            },
+            "mouseEvent": async (e) => {
+                logo.turtle.onMouseEvent(getMsgBody(e));
+            }
+        };
+
         self.addEventListener("message",
             async function(e) {
-                let op = e.data[0];
-                let data = e.data[1];
-                let srcidx = e.data[2];
                 logo.env.setEnvState("ready");
-
-                postMessage(["busy"]);
-                switch(op) {
-                case "test":
-                    await webTest();
-                    break;
-                case "run":
-                    await webRun(data, srcidx);
-                    break;
-                case "exec":
-                    await webExec(data, srcidx);
-                    break;
-                case "console":
-                    await webOnConsole(data, logoUserInputListener);
-                    break;
-                case "clearWorkspace":
-                    webClearWorkspace();
-                    break;
-                default:
-                }
-
+                sys.assert(getMsgType(e) in webMsgHandler);
+                await webMsgHandler[getMsgType(e)](e);
                 ext.canvas.flush();
             }, false);
+    }
+
+    function getMsgType(e) {
+        return e.data[0];
+    }
+
+    function getMsgBody(e) {
+        return e.data[1];
+    }
+
+    function getMsgId(e) {
+        return e.data[2];
     }
 
     function makeLogoDependencies() {

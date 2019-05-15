@@ -1,0 +1,15 @@
+(sin)
+(sin 0 0)
+sin []
+sin {}
+sin "abc
+sin not "true
+sin not "false
+
+(cos)
+(cos 0 0)
+cos []
+cos {}
+cos "abc
+cos not "true
+cos not "false

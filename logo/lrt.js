@@ -498,6 +498,33 @@ $classObj.create = function(logo, sys) {
         return Math.log10(opnd);
     }
 
+    function primitiveSin(primitiveName, deg) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNumber(deg);
+        return Math.sin(logo.type.degToRad(normalizeDegree(deg)));
+    }
+
+    function primitiveCos(primitiveName, deg) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNumber(deg);
+        return Math.sin(logo.type.degToRad(normalizeDegree(deg + 90)));
+    }
+
+    function normalizeDegree(deg) {
+        let degAbs = Math.abs(deg) % 360;
+        let degSign = Math.sign(deg);
+        if (degAbs > 180) {
+            degAbs -= 180;
+            degSign = -degSign;
+        }
+
+        if (degAbs > 90) {
+            degAbs = 180 - degAbs;
+        }
+
+        return degSign * degAbs;
+    }
+
     function primitiveRound(primitiveName, opnd) {
         logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(opnd);
@@ -746,6 +773,10 @@ $classObj.create = function(logo, sys) {
         "power": primitivePower,
 
         "log10": primitiveLog10,
+
+        "sin": primitiveSin,
+
+        "cos": primitiveCos,
 
         "round": primitiveRound,
 

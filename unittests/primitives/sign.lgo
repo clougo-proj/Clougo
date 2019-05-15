@@ -1,0 +1,16 @@
+show sign 0
+show sign 1
+show sign 100
+show sign 1e-100
+show sign -0
+show sign -1
+show sign -100
+show sign -1e-100
+
+; errors
+(sign)
+(sign 0 0)
+sign []
+sign {}
+sign not "true
+sign not "false

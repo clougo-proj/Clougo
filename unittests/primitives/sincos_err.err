@@ -1,0 +1,28 @@
+Not enough inputs to sin
+    at 1,2
+Too much inside ()'s
+    at 2,8
+sin doesn't like [] as input
+    at 3,1
+sin doesn't like {} as input
+    at 4,1
+sin doesn't like abc as input
+    at 5,1
+sin doesn't like false as input
+    at 6,1
+sin doesn't like true as input
+    at 7,1
+Not enough inputs to cos
+    at 9,2
+Too much inside ()'s
+    at 10,8
+cos doesn't like [] as input
+    at 11,1
+cos doesn't like {} as input
+    at 12,1
+cos doesn't like abc as input
+    at 13,1
+cos doesn't like false as input
+    at 14,1
+cos doesn't like true as input
+    at 15,1

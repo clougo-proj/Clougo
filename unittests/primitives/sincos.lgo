@@ -1,0 +1,9 @@
+pr "sin
+for[angle -360 360 30][
+  show sin :angle
+]
+
+pr "\ncos
+for[angle -360 360 30][
+  show cos :angle
+]

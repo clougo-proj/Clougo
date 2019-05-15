@@ -212,6 +212,16 @@ $classObj.create = function(logo, sys) {
     }
     type.annotateSrcmap = annotateSrcmap;
 
+    function degToRad(deg) {
+        return deg * Math.PI / 180;
+    }
+    type.degToRad = degToRad;
+
+    function radToDeg(rad) {
+        return rad / Math.PI * 180;
+    }
+    type.radToDeg = radToDeg;
+
     function makeCompound(val) {
         return makeObject(OBJTYPE.COMPOUND, val);
     }

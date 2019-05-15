@@ -30,14 +30,6 @@ $classObj.create = function(logo, sys) {
     let _bgColor = logo.type.getPaletteRGB(15);
     let _penSize = originalPenSize;
 
-    function d2r(deg) {
-        return deg * Math.PI / 180;
-    }
-
-    function r2d(rad) {
-        return rad / Math.PI * 180;
-    }
-
     function primitiveReset() {
         _turtleX = originX;
         _turtleY = originY;
@@ -112,8 +104,8 @@ $classObj.create = function(logo, sys) {
     function primitiveForward(primitiveName, distance) {
         logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(distance);
-        _turtleX += Math.sin(d2r(_turtleHeading)) * distance;
-        _turtleY += Math.cos(d2r(_turtleHeading)) * distance;
+        _turtleX += Math.sin(logo.type.degToRad(_turtleHeading)) * distance;
+        _turtleY += Math.cos(logo.type.degToRad(_turtleHeading)) * distance;
         logo.ext.canvas.sendCmd(
             _penDown ? "drawto" : "moveto",
             [_turtleX, _turtleY, _turtleHeading]
@@ -124,8 +116,8 @@ $classObj.create = function(logo, sys) {
     function primitiveBack(primitiveName, distance) {
         logo.env.setPrimitiveName(primitiveName);
         logo.type.checkInputNumber(distance);
-        _turtleX -= Math.sin(d2r(_turtleHeading)) * distance;
-        _turtleY -= Math.cos(d2r(_turtleHeading)) * distance;
+        _turtleX -= Math.sin(logo.type.degToRad(_turtleHeading)) * distance;
+        _turtleY -= Math.cos(logo.type.degToRad(_turtleHeading)) * distance;
         logo.ext.canvas.sendCmd(
             _penDown ? "drawto" : "moveto",
             [_turtleX, _turtleY, _turtleHeading]
@@ -236,7 +228,7 @@ $classObj.create = function(logo, sys) {
             return (dX < 0) ? 270 : 90;
         }
 
-        let deg = r2d(Math.atan2(dX, dY));
+        let deg = logo.type.radToDeg(Math.atan2(dX, dY));
         return (deg < 0) ? deg + 360 : deg;
     }
     turtle.towards = primitiveTowards;
@@ -303,8 +295,8 @@ $classObj.create = function(logo, sys) {
         logo.type.checkInputNonNegNumber(radius);
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [
-                _turtleX + Math.cos(d2r(_turtleHeading)) * radius,
-                _turtleY - Math.sin(d2r(_turtleHeading)) * radius,
+                _turtleX + Math.cos(logo.type.degToRad(_turtleHeading)) * radius,
+                _turtleY - Math.sin(logo.type.degToRad(_turtleHeading)) * radius,
                 radius,
                 0,
                 360,
@@ -348,16 +340,16 @@ $classObj.create = function(logo, sys) {
 
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [
-                _turtleX + Math.cos(d2r(_turtleHeading)) * radius,
-                _turtleY - Math.sin(d2r(_turtleHeading)) * radius,
+                _turtleX + Math.cos(logo.type.degToRad(_turtleHeading)) * radius,
+                _turtleY - Math.sin(logo.type.degToRad(_turtleHeading)) * radius,
                 radius,
                 sAngle,
                 sAngle + deg,
                 deg < 0]);
         }
 
-        _turtleX += (Math.cos(d2r(_turtleHeading))  - Math.cos(d2r(_turtleHeading + deg))) * radius;  // BEACH: moveto
-        _turtleY -= (Math.sin(d2r(_turtleHeading))  - Math.sin(d2r(_turtleHeading + deg))) * radius;
+        _turtleX += (Math.cos(logo.type.degToRad(_turtleHeading))  - Math.cos(logo.type.degToRad(_turtleHeading + deg))) * radius;  // BEACH: moveto
+        _turtleY -= (Math.sin(logo.type.degToRad(_turtleHeading))  - Math.sin(logo.type.degToRad(_turtleHeading + deg))) * radius;
         _turtleHeading += deg;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
@@ -387,8 +379,8 @@ $classObj.create = function(logo, sys) {
         logo.type.checkInputNonNegNumber(radiusY);
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
-                _turtleX + Math.cos(d2r(_turtleHeading)) * radiusY,
-                _turtleY - Math.sin(d2r(_turtleHeading)) * radiusY,
+                _turtleX + Math.cos(logo.type.degToRad(_turtleHeading)) * radiusY,
+                _turtleY - Math.sin(logo.type.degToRad(_turtleHeading)) * radiusY,
                 radiusY,
                 radiusX,
                 _turtleHeading,
@@ -432,7 +424,7 @@ $classObj.create = function(logo, sys) {
 
         let endDeg = startDeg + deg;
         let osOriginHeading = Math.PI * 0.5; // os = "Old School", original heading pi/2
-        let osTurtleHeading = Math.PI * 0.5 - d2r(_turtleHeading);
+        let osTurtleHeading = Math.PI * 0.5 - logo.type.degToRad(_turtleHeading);
         let rad = osOriginHeading - osTurtleHeading;
         let sAngle = Math.PI * (1 + startDeg / 180);
         let eAngle = Math.PI * (1 + endDeg / 180);
@@ -456,9 +448,9 @@ $classObj.create = function(logo, sys) {
                 centerY,
                 radiusY,
                 radiusX,
-                r2d(osOriginHeading - osTurtleHeading - tangentStartAngle),
-                r2d(sAngle),
-                r2d(eAngle),
+                logo.type.radToDeg(osOriginHeading - osTurtleHeading - tangentStartAngle),
+                logo.type.radToDeg(sAngle),
+                logo.type.radToDeg(eAngle),
                 deg < 0]);
         }
 
@@ -474,7 +466,7 @@ $classObj.create = function(logo, sys) {
         _turtleX += dtxo * Math.cos(rad) - dtyo * Math.sin(rad);
         _turtleY -= dtxo * Math.sin(rad) + dtyo * Math.cos(rad);
         osTurtleHeading += Math.PI - calcTangentAngle(eAngle, radiusX, radiusY) + tangentStartAngle;
-        _turtleHeading = r2d(Math.PI * 0.5 - osTurtleHeading) % 360;
+        _turtleHeading = logo.type.radToDeg(Math.PI * 0.5 - osTurtleHeading) % 360;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
 
         function arcctg(x) {

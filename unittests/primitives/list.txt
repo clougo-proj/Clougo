@@ -65,3 +65,5 @@ ascii run exec
 ascii_err runl execl
 char run exec
 char_err runl execl
+sincos run exec
+sincos_err runl execl

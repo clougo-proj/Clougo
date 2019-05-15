@@ -549,6 +549,12 @@ $classObj.create = function(logo, sys) {
         return Math.abs(opnd);
     }
 
+    function primitiveSign(primitiveName, opnd) {
+        logo.env.setPrimitiveName(primitiveName);
+        logo.type.checkInputNumber(opnd);
+        return Math.sign(opnd);
+    }
+
     function primitiveRandom(primitiveName, range) {
         logo.env.setPrimitiveName(primitiveName);
         return Math.floor(Math.random() * Math.floor(range));
@@ -783,6 +789,8 @@ $classObj.create = function(logo, sys) {
         "int": primitiveInt,
 
         "abs": primitiveAbs,
+
+        "sign": primitiveSign,
 
         "random": primitiveRandom,
 

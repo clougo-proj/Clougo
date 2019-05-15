@@ -1,0 +1,14 @@
+;turtle mouse click 100 200
+;turtle mouse move -101 99
+show clickpos
+show mousepos
+;turtle mouse move 0 1
+show clickpos
+show mousepos
+;turtle mouse click 2 4
+show clickpos
+show mousepos
+;turtle mouse down
+show buttonp
+;turtle mouse down
+show buttonp

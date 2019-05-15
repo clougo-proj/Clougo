@@ -711,6 +711,12 @@ $classObj.create = function(logo, sys) {
 
         "floodcolor": logo.turtle.floodcolor,
 
+        "mousepos": logo.turtle.mousepos,
+
+        "clickpos": logo.turtle.clickpos,
+
+        "buttonp": logo.turtle.buttonpp,
+
         " -": primitiveMinus,  // unary minus operator in ambiguous context
 
         "-": primitiveMinus,

@@ -10,6 +10,10 @@
 
 /* global jQuery, $, ace, createTurtleCanvas */
 
+const TURTLE_CANVAS_SIZE = 1000;
+
+const TURTLE_CANVAS_OFFSET = -500;
+
 function assert(cond, msg) {
     if (!cond) {
         throw Error(msg);
@@ -343,6 +347,9 @@ function createLogoWorker(eventHandler) {
         },
         "clearWorkspace": function() {
             worker.postMessage(["clearWorkspace"]);
+        },
+        "onMouseEvent": function(event) {
+            worker.postMessage(["mouseEvent", event]);
         }
     };
 }
@@ -389,6 +396,42 @@ const turtleCanvas = createTurtleCanvas("turtleCanvas", {
     },
     "assert": assert
 });
+
+function onMouseMove(e) { // eslint-disable-line no-unused-vars
+    logoWorker.onMouseEvent(createMouseMsg(e, "move"));
+}
+
+function onMouseClick(e) { // eslint-disable-line no-unused-vars
+    logoWorker.onMouseEvent(createMouseMsg(e, "click"));
+}
+
+function onMouseDown(e) { // eslint-disable-line no-unused-vars
+    logoWorker.onMouseEvent(createMouseMsg(e, "down"));
+}
+
+function onMouseUp(e) { // eslint-disable-line no-unused-vars
+    logoWorker.onMouseEvent(createMouseMsg(e, "up"));
+}
+
+function createMouseMsg(e, msgType) {
+    let canvasPane = $("#canvasPane");
+    let position = canvasPane.position();
+    let x0 = position.left;
+    let y0 = position.top;
+    let x = canvasPane.scrollLeft();
+    let y = canvasPane.scrollTop();
+    let w = canvasPane[0].scrollWidth;
+    let h = canvasPane[0].scrollHeight;
+
+    let posX = toTurtleCoord(e.clientX, x0 + (w - h) * 0.5, x, h, TURTLE_CANVAS_SIZE, TURTLE_CANVAS_OFFSET);
+    let posY = -toTurtleCoord(e.clientY, y0, y, h, TURTLE_CANVAS_SIZE, TURTLE_CANVAS_OFFSET);
+
+    return [msgType, posX, posY];
+}
+
+function toTurtleCoord(pixPos, edge, scrollPos, pixRange, logicRange, logicOffset) {
+    return Math.round((pixPos - edge + scrollPos) * logicRange / pixRange + logicOffset);
+}
 
 if (getUrlParams("mode") == "beta") {
     $("#menubar").append("<li><a onclick=\"runLogoTest()\" data-toggle=\"tab\"><span class=\"glyphicon glyphicon-wrench\"></span></a></li>");

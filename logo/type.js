@@ -780,7 +780,7 @@ $classObj.create = function(logo, sys) {
     type.wordToString = wordToString;
 
     function isLogoNumber(s) {
-        return (typeof s === "number") || (typeof s=== "string" && !isNaN(Number(s)));
+        return (typeof s === "number") || (typeof s === "string" && !isNaN(Number(s)));
     }
     type.isLogoNumber = isLogoNumber;
 

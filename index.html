@@ -36,7 +36,11 @@
             <li><a onclick="runProgram(true)" data-toggle="tab"><span class="glyphicon glyphicon-play"></span></a></li>
           </ul>
     <div id="topPane" class="col span12">
-      <div id="canvasPane" class="col span12 collapse in" style="overflow:auto;">
+      <div id="canvasPane" class="col span12 collapse in" style="overflow:auto;"
+          onmousemove=onMouseMove(event)
+          onmousedown=onMouseDown(event)
+          onmouseup=onMouseUp(event)
+          onclick=onMouseClick(event)>
         <canvas id="turtleCanvas" width="2000px" height="2000px">
         Your browser does not support the HTML5 canvas tag.
         </canvas>

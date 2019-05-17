@@ -758,6 +758,24 @@ $classObj.create = function(logo, sys) {
     }
     type.equal = equal;
 
+    function hideRoundingError(num) {
+        const digits = 15;
+        const errDigits = 2;
+        const margin = 3;
+
+        let actual = (+(num.toPrecision(digits))).toString();
+        if (actual.length + errDigits < digits ) {
+            return actual;
+        }
+
+        let approx = (+(num.toPrecision(digits - errDigits))).toString();
+        if (approx.length + errDigits + margin < actual.length) {
+            return approx;
+        }
+
+        return actual;
+    }
+
     function toString(v, outterBracket) {
         if (sys.isUndefined(outterBracket)) {
             outterBracket = false;
@@ -776,7 +794,7 @@ $classObj.create = function(logo, sys) {
         }
 
         if (sys.isNumber(v)) {
-            return (+(v.toPrecision(15))).toString();
+            return hideRoundingError(v);
         }
 
         if (!(isLogoList(v) || isLogoArray(v))) {

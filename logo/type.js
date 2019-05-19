@@ -657,6 +657,45 @@ $classObj.create = function(logo, sys) {
     }
     type.wordGetItem = wordGetItem;
 
+    function wordFindItem(char, word) {
+        return wordToString(word).indexOf(char);
+    }
+    type.wordFindItem = wordFindItem;
+
+    function listFindItem(item, list) {
+        let maxIndex = listMaxIndex(list);
+        for(let i = type.LIST_ORIGIN; i <= maxIndex; i++) {
+            if (equal(item, listItem(i, list))) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    type.listFindItem = listFindItem;
+
+    function arrayFindItem(item, array) {
+        let maxIndex = arrayMaxIndex(array);
+        for(let i = type.arrayOrigin(array); i <= maxIndex; i++) {
+            if (equal(item, arrayItem(i, array))) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    type.arrayFindItem = arrayFindItem;
+
+    function wordToString(word) {
+        switch (typeof word) {
+        case "string": return word;
+        case "number": return numberToString(word);
+        case "boolean": return word ? "true" : "false";
+        default: return "";
+        }
+    }
+    type.wordToString = wordToString;
+
     function isLogoNumber(s) {
         return (typeof s === "number") || (typeof s=== "string" && !isNaN(Number(s)));
     }
@@ -758,7 +797,7 @@ $classObj.create = function(logo, sys) {
     }
     type.equal = equal;
 
-    function hideRoundingError(num) {
+    function numberToString(num) {
         const digits = 15;
         const errDigits = 2;
         const margin = 3;
@@ -789,12 +828,12 @@ $classObj.create = function(logo, sys) {
             return unquoteLogoWord(v);
         }
 
-        if (sys.isNull(v)) {
+        if (v === null) {
             return outterBracket ? "[]" : "";
         }
 
-        if (sys.isNumber(v)) {
-            return hideRoundingError(v);
+        if (typeof v === "number") {
+            return numberToString(v);
         }
 
         if (!(isLogoList(v) || isLogoArray(v))) {
@@ -804,7 +843,7 @@ $classObj.create = function(logo, sys) {
         function toStringHelper(v) {
             return type.isLogoList(v) ? "[" +  v.slice(1).map(toStringHelper).join(" ") + "]" :
                 type.isLogoArray(v) ? "{" +  v.slice(2, v.length).map(toStringHelper).join(" ") + "}" :
-                    sys.isNull(v) ? "[]" : v;
+                    v === null ? "[]" : v;
         }
 
         return type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) ? toStringHelper(v) :

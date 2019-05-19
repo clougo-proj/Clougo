@@ -26,16 +26,6 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     }
     sys.isUndefined = isUndefined;
 
-    function isNull(v) {
-        return v === null;
-    }
-    sys.isNull = isNull;
-
-    function isNumber(s) {
-        return typeof s === "number";
-    }
-    sys.isNumber = isNumber;
-
     sys.isInteger = Number.isInteger || function isInteger(x) {
         return (typeof x === "number") && (x % 1 === 0);
     };

@@ -1,0 +1,23 @@
+show member? 1 "100
+show member? 9 19
+show member? 2 50 * 4
+
+show memberp ". pi
+show member? "r not "false
+show memberp "r not "true
+
+pr "
+show memberp "abc [abc]
+show memberp "abc [1 2 abc]
+show memberp "true [true 1 2]
+show memberp not "false [1 2 true]
+
+pr "
+show memberp "abc {abc}
+show memberp "abc {1 2 abc}
+show memberp "true {true 1 2}
+show memberp not "false {1 2 true}
+
+(memberp)
+(memberp "a)
+member? 12 120

@@ -231,6 +231,21 @@ $classObj.create = function(logo, sys) {
         return logo.type.isLogoArray(thing);
     }
 
+    function primitiveMemberp(primitiveName, candidate, group) {
+        logo.env.setPrimitiveName(primitiveName);
+        if (logo.type.isLogoWord(group)) {
+            logo.type.checkInputCharacter(candidate);
+            return logo.type.wordFindItem(candidate, group) != -1;
+        }
+
+        if (logo.type.isLogoList(group)) {
+            return logo.type.listFindItem(candidate, group) != -1;
+        }
+
+        logo.type.checkInputArray(group);
+        return logo.type.arrayFindItem(candidate, group) != -1;
+    }
+
     function primitiveButfirst(primitiveName, thing) {
         logo.env.setPrimitiveName(primitiveName);
         if (logo.type.isLogoWord(thing)) {
@@ -822,6 +837,9 @@ $classObj.create = function(logo, sys) {
 
         "arrayp": primitiveArrayp,
         "array?": primitiveArrayp,
+
+        "memberp": primitiveMemberp,
+        "member?": primitiveMemberp,
 
         "show": primitiveShow,
 

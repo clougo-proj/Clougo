@@ -37,18 +37,25 @@ $classObj.create = function logoInNode(Logo, sys) {
         const startTime = new Date();
 
         sys.trace(startTime.toLocaleString(), "time");
-        srcRunner[cmd.op](logoSrc);
-
-        if (logo.env.asyncCompleted()) {
-            process.exit();
-        }
+        srcRunner[cmd.op](logoSrc)
+            .then(() => process.exit())
+            .catch(e => {
+                stderr(e);
+                process.exit(-1);
+            });
 
         return;
     }
 
     if (cmd.op == "test") {
-        Logo.testRunner.runTests(Logo.getUnitTests(), "test" in cmd.options ? cmd.options.test : [], ext);
-        process.exit();
+        Logo.testRunner.runTests(Logo.getUnitTests(), "test" in cmd.options ? cmd.options.test : [], ext)
+            .then(() => process.exit())
+            .catch(e => {
+                stderr(e);
+                process.exit(-1);
+            });
+
+        return;
     }
 
     if (cmd.op == "console") {
@@ -113,16 +120,16 @@ $classObj.create = function logoInNode(Logo, sys) {
     function makeSrcRunner() {
         const srcRunner = {};
 
-        srcRunner[Logo.mode.RUN] = function(src) { logo.env.exec(src, false, 1); };
-        srcRunner[Logo.mode.RUNL] = function(src) { logo.env.execByLine(src, false, 1); };
-        srcRunner[Logo.mode.EXEC] = function(src) { logo.env.exec(src, true, 1); };
-        srcRunner[Logo.mode.EXECL] = function(src) { logo.env.execByLine(src, false, 1); };
-        srcRunner[Logo.mode.EXECJS] = function(src) { logo.env.evalLogoJsTimed(src); };
-        srcRunner[Logo.mode.PARSE] = function(src) {
+        srcRunner[Logo.mode.RUN] = async function(src) { await logo.env.exec(src, false, 1); };
+        srcRunner[Logo.mode.RUNL] = async function(src) { await logo.env.execByLine(src, false, 1); };
+        srcRunner[Logo.mode.EXEC] = async function(src) { await logo.env.exec(src, true, 1); };
+        srcRunner[Logo.mode.EXECL] = async function(src) { await logo.env.execByLine(src, false, 1); };
+        srcRunner[Logo.mode.EXECJS] = async function(src) { await logo.env.evalLogoJsTimed(src); };
+        srcRunner[Logo.mode.PARSE] = async function(src) {
             stdout(JSON.stringify(logo.parse.parseSrc(src, 1)));
         };
 
-        srcRunner[Logo.mode.CODEGEN] = function(src) {
+        srcRunner[Logo.mode.CODEGEN] = async function(src) {
             let ir = logo.parse.parseSrc(src, 1);
             stdout(logo.codegen(ir[0], ir[1]));
         };
@@ -133,9 +140,9 @@ $classObj.create = function logoInNode(Logo, sys) {
     function makeLogoDependencies() {
         return  {
             "entry": {
-                "exec": function(logoSrc) { logo.env.exec(logoSrc, true, 1); },
-                "runSingleTest": function(testName, testMethod) {
-                    Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
+                "exec": async function(logoSrc) { await logo.env.exec(logoSrc, true, 1); },
+                "runSingleTest": async function(testName, testMethod) {
+                    await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
                 }
             },
             "io": {
@@ -146,9 +153,7 @@ $classObj.create = function logoInNode(Logo, sys) {
                 "drawflush": function() {},
                 "editorload": function() {},
                 "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
-                "ready": function() {
-                    process.stdout.write("? ");
-                },
+                "envstate": function() {},
                 "exit": function(batchMode) {
                     if (!batchMode) {
                         console.log("Thank you for using Logo. Bye!");  // eslint-disable-line no-console
@@ -159,18 +164,19 @@ $classObj.create = function logoInNode(Logo, sys) {
                 "onstdin": function(logoUserInputListener, getEnvState) {
                     const sysstdin = process.openStdin();
                     sysstdin.addListener("data", function(d) {
-                        logoUserInputListener(d);
+                        logoUserInputListener(d).then(() => {
 
-                        let envState = getEnvState();
+                            let envState = getEnvState();
 
-                        if (envState == "exit") {
-                            process.exit();
-                        }
+                            if (envState == "exit") {
+                                process.exit();
+                            }
 
-                        let prompt = envState == "ready" ? "? " :
-                            envState == "multiline" ? "> " : "";
+                            let prompt = envState == "ready" ? "? " :
+                                envState == "multiline" ? "> " : "";
 
-                        process.stdout.write(prompt);
+                            process.stdout.write(prompt);
+                        });
                     });
                 }
             },

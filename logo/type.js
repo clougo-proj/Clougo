@@ -16,7 +16,6 @@ $classObj.create = function(logo, sys) {
         ARRAY: 2,
         PROC: 3,
         BLOCK: 4,
-        ASYNC_RETURN: 7,
         MAX_VALUE: 7
     };
 
@@ -619,28 +618,6 @@ $classObj.create = function(logo, sys) {
     }
     type.checkIndexWithinArrayRange = checkIndexWithinArrayRange;
 
-    function makeLogoAsyncReturn(val) {
-        return makeObject(OBJTYPE.ASYNC_RETURN, val);
-    }
-    type.makeLogoAsyncReturn = makeLogoAsyncReturn;
-
-    function isLogoAsyncReturn(obj) {
-        return (obj instanceof Array && obj[0] == OBJTYPE.ASYNC_RETURN);
-    }
-    type.isLogoAsyncReturn = isLogoAsyncReturn;
-
-    function getLogoAsyncReturnValue(obj) {
-        sys.assert(isLogoAsyncReturn(obj));
-        return obj[1];
-    }
-    type.getLogoAsyncReturnValue = getLogoAsyncReturnValue;
-
-    function setLogoAsyncReturnValue(obj, val) {
-        sys.assert(isLogoAsyncReturn(obj));
-        obj[1] = val;
-    }
-    type.setLogoAsyncReturnValue = setLogoAsyncReturnValue;
-
     function isLogoWord(v){
         return typeof v === "string" || typeof v === "number" || typeof v === "boolean";
     }
@@ -864,7 +841,6 @@ $classObj.create = function(logo, sys) {
             "LAST_ERROR_CODE"       : 1024,
             "STOP"                  : 65535,
             "OUTPUT"                : 65534,
-            "YIELD"                 : 65533,
             "CUSTOM"                : 65532
         };
 

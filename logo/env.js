@@ -17,9 +17,25 @@ $classObj.create = function(logo, sys, ext) {
     };
 
     let _logoMode = LogoMode.BATCH;
-    let _globalScope, _envState, _runTime,  _userInput, _retVal;
+    let _globalScope, _envState, _runTime,  _userInput, _resolveUserInput;
 
     let $ret, $primitiveName, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
+
+    function registerUserInputResolver(resolve) {
+        _resolveUserInput = resolve;
+        ext.io.envstate("continue");
+    }
+    env.registerUserInputResolver = registerUserInputResolver;
+
+    function isPendingUserInput() {
+        return _resolveUserInput !== undefined;
+    }
+
+    function resolveUserInput() {
+        let resolve = _resolveUserInput;
+        _resolveUserInput = undefined;
+        resolve();
+    }
 
     function setPrimitiveName(primitiveName) {
         $primitiveName = primitiveName;
@@ -100,34 +116,23 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.setInteractiveMode = setInteractiveMode;
 
+    function prepareToBeBlocked() {
+        ext.io.drawflush();
+    }
+    env.prepareToBeBlocked = prepareToBeBlocked;
+
     function registerOnStdinCallback() {
         if ("io" in ext && "onstdin" in ext.io && typeof ext.io.onstdin == "function") {
-            ext.io.onstdin(function(d){ // logoUserInputListener
+            ext.io.onstdin(async function(d){ // logoUserInputListener
                 setUserInput(d.toString());
 
-                // read from redirected input stream
-                if (batchMode()) {
-                    if (!asyncCompleted()) {
-                        asyncExec();
-                        if (asyncCompleted()) {
-                            return; // exit
-                        }
-                    }
-
-                    return; // pending user input
-                }
-
-                // interactive mode
-                if (_envState == "timeout") {
+                if (isPendingUserInput()) {
+                    resolveUserInput();
                     return;
                 }
 
-                if (!asyncCompleted()) {
-                    asyncExec();
-                }
-
-                if (!asyncCompleted() && !hasUserInput()) {
-                    return; // pending user input
+                if (batchMode()) {
+                    return; // don't exit while running tests
                 }
 
                 while (hasUserInput()) {
@@ -140,7 +145,7 @@ $classObj.create = function(logo, sys, ext) {
                         return; // exit
                     }
 
-                    let ret = exec(userInput, sys.Config.get("genCommand"), 0);
+                    let ret = await exec(userInput, sys.Config.get("genCommand"), 0);
                     if (!sys.isUndefined(ret)) {
                         logo.io.stdout("Result:" + logo.type.toString(ret));
                     }
@@ -153,7 +158,7 @@ $classObj.create = function(logo, sys, ext) {
 
     function setUserInput(val) {
         Array.prototype.push.apply(_userInput, val.split(/\r?\n/));
-        _userInput.splice(-1, 1);
+        _userInput.splice(-1, 1); // remove the trailing empty string
     }
     env.setUserInput = setUserInput;
 
@@ -166,103 +171,6 @@ $classObj.create = function(logo, sys, ext) {
         return _userInput.shift();
     }
     env.getUserInput = getUserInput;
-
-    function asyncCompleted() {
-        return env._execFuncStack.length == 0;
-    }
-    env.asyncCompleted = asyncCompleted;
-
-    function asyncExec() {
-        while (env._execFuncStack.length > 0) {
-            let func = env._execFuncStack.pop();
-            if (!Array.isArray(func)) { // not a catch block
-                try {
-                    func();
-                    setEnvState("ready");
-                } catch(e) {
-                    if (logo.type.LogoException.is(e) && e.codeEquals("YIELD")) {
-                        // halt execution pending user input or time-out
-                        setEnvState(e.getValue()[0]);
-                        ext.io.drawflush();
-                        break;
-                    }
-
-                    handleCatch(e);
-                }
-            }
-
-            // skip catch blocks
-        }
-    }
-    env.asyncExec = asyncExec;
-
-    function resumeAfterWait() {
-        asyncExec();
-        ext.io.drawflush();
-
-        if (asyncCompleted()) {
-            if (batchMode()) {
-                ext.io.exit(true);
-            }
-
-            ext.io.ready();
-        }
-    }
-    env.resumeAfterWait = resumeAfterWait;
-
-    function handleCatch(e) {
-        outerLoop:
-        while (env._execFuncStack.length > 0 && !sys.isUndefined(e)) {
-            let func;
-            while (!Array.isArray(func = env._execFuncStack.pop())) {
-                if (env._execFuncStack.length == 0) {
-                    break outerLoop;
-                }
-            }
-
-            // func is array: [catchBlock]
-            sys.trace(JSON.stringify(e), "tmp");
-            e = func[0](e);
-        }
-
-        if (!sys.isUndefined(e)) {
-            if (!logo.type.LogoException.is(e)) {
-                throw e;
-            } else {
-                logo.io.stderr(e.formatMessage());
-
-                let errStack = e.getStack();
-                if (Array.isArray(errStack) && errStack.length > 0) {
-                    let stackDump = convertToStackDump(errStack);
-                    if (stackDump.length > 0) {
-                        logo.io.stderr(stackDump);
-                    }
-                }
-
-                env._callstack.push([env._curProc, e.getSrcmap()]);
-                logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
-            }
-        }
-    }
-
-    function asyncReset() {
-        env._execFuncStack = [];
-    }
-
-    function async() {
-        Array.prototype.push.apply(env._execFuncStack, Array.prototype.reverse.call(arguments));
-    }
-    env.async = async;
-
-    function asyncTry(tryBlock) {
-        return tryBlock;
-    }
-    env.asyncTry = asyncTry;
-
-    function asyncCatch(catchBlock) {
-        return [catchBlock];
-    }
-    env.asyncCatch = asyncCatch;
 
     function initLogoEnv() {
         clearWorkspace();
@@ -282,9 +190,9 @@ $classObj.create = function(logo, sys, ext) {
         env._curProc = undefined;
         logo.turtle.reset();
         _userInput = [];
+        _resolveUserInput = undefined;
 
         $ret = undefined;
-        asyncReset();
     }
     env.clearWorkspace = clearWorkspace;
 
@@ -313,26 +221,30 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.getRunTime = getRunTime;
 
-    function logoExecHelper(command, genjs, srcidx, srcLine) {
+    async function logoExecHelper(command, genjs, srcidx, srcLine) {
         resetInterpreterCallStack();
 
         let parsedCode = logo.parse.parseSrc(command, srcidx, srcLine);
         sys.trace(parsedCode, "parse.result");
         setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
 
-        return genjs && canTranspile(command) ? evalLogoGen.apply(null, parsedCode) : evalLogo.apply(null, parsedCode);
+        if (genjs && canTranspile(command)) {
+            await evalLogoGen.apply(null, parsedCode);
+        } else {
+            await evalLogo.apply(null, parsedCode);
+        }
     }
 
     function canTranspile(logosrc) {
         return !logosrc.match(/\s(wait|readword)\s/i);
     }
 
-    function timedExec(f) {
+    async function timedExec(f) {
         let startTime = new Date();
 
         sys.trace(startTime.toLocaleString(), "time");
 
-        let ret = f();
+        let ret = await f();
         let endTime = new Date();
         sys.trace(endTime.toLocaleString(), "time");
 
@@ -343,22 +255,24 @@ $classObj.create = function(logo, sys, ext) {
         return ret;
     }
 
-    function exec(logoSrc, genjs, srcidx) {
-        return timedExec(
-            function() {
-                return logoExecHelper(logoSrc, genjs, srcidx);
+    async function exec(logoSrc, genjs, srcidx) {
+        return await timedExec(
+            async function() {
+                return await logoExecHelper(logoSrc, genjs, srcidx);
             }
         );
     }
     env.exec = exec;
 
-    function execByLine(logoSrc, genjs, srcidx) {
-        return timedExec(
-            function() {
+    async function execByLine(logoSrc, genjs, srcidx) {
+        return await timedExec(
+            async function() {
                 let ret;
-                logoSrc.split(/\n/).forEach(function(line, lineNum) {
-                    ret = logoExecHelper(line, genjs, srcidx, lineNum);
-                });
+                let src = logoSrc.split(/\n/);
+                for (let i = 0; i < src.length; i++) {
+                    let line = src[i];
+                    ret = await logoExecHelper(line, genjs, srcidx, i);
+                }
 
                 return ret;
             }
@@ -376,13 +290,29 @@ $classObj.create = function(logo, sys, ext) {
         }
     }
 
-    function evalLogo(parsedCommand, srcmap) {
+    async function evalLogo(parsedCommand, srcmap) {
         if (!sys.isUndefined(parsedCommand)) {
-            logo.interpreter.evxBody(parsedCommand, srcmap);
-            asyncExec();
-        }
+            try {
+                await logo.interpreter.evxBody(parsedCommand, srcmap);
+            } catch(e) {
+                if (!logo.type.LogoException.is(e)) {
+                    throw e;
+                } else {
+                    logo.io.stderr(e.formatMessage());
 
-        return _retVal;
+                    let errStack = e.getStack();
+                    if (Array.isArray(errStack) && errStack.length > 0) {
+                        let stackDump = convertToStackDump(errStack);
+                        if (stackDump.length > 0) {
+                            logo.io.stderr(stackDump);
+                        }
+                    }
+
+                    env._callstack.push([env._curProc, e.getSrcmap()]);
+                    logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
+                }
+            }
+        }
     }
     env.evalLogo = evalLogo;
 
@@ -449,10 +379,11 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.getLogoStack = getLogoStack;
 
-    function evalLogoJs(logoJsSrc) {
+    async function evalLogoJs(logoJsSrc) {
         try {
             sys.trace("evalLogoJs" + logoJsSrc, "evalJs");
-            let retVal = eval(logoJsSrc);
+            eval(logoJsSrc);
+            let retVal = await logo.env._user.$();
             _envState = "continue";
             return retVal;
         } catch(e) {

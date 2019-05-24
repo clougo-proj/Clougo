@@ -58,33 +58,33 @@ $classObj.create = function logoInWeb(Logo, sys) {
         }
     }
 
-    function webReady() {
+    function webEnvState(envState) {
+        postMessage([envState]);
+    }
+
+    async function webTest() {
+        await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, ext);
         postMessage(["ready"]);
     }
 
-    function webTest() {
-        Logo.testRunner.runTests(Logo.getUnitTests(), undefined, ext);
-        postMessage(["ready"]);
-    }
-
-    function webRun(src, srcidx) {
-        logo.env.exec(src, false, srcidx);
+    async function webRun(src, srcidx) {
+        await logo.env.exec(src, false, srcidx);
         postMessage([logo.env.getEnvState()]);
     }
 
-    function webExec(src, srcidx) {
-        logo.env.exec(src, true, srcidx);
+    async function webExec(src, srcidx) {
+        await logo.env.exec(src, true, srcidx);
         postMessage([logo.env.getEnvState()]);
     }
 
-    function webRunSingleTest(testName, testMethod) {
-        Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
+    async function webRunSingleTest(testName, testMethod) {
+        await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
         postMessage([logo.env.getEnvState()]);
     }
 
-    function webOnConsole(data, logoUserInputListener) {
+    async function webOnConsole(data, logoUserInputListener) {
         logo.env.setInteractiveMode();
-        logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
+        await logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
         postMessage([logo.env.getEnvState()]);
     }
 
@@ -96,7 +96,7 @@ $classObj.create = function logoInWeb(Logo, sys) {
 
     function registerEventHandler(logoUserInputListener) {
         self.addEventListener("message",
-            function(e) {
+            async function(e) {
                 let op = e.data[0];
                 let data = e.data[1];
                 let srcidx = e.data[2];
@@ -105,16 +105,16 @@ $classObj.create = function logoInWeb(Logo, sys) {
                 postMessage(["busy"]);
                 switch(op) {
                 case "test":
-                    webTest();
+                    await webTest();
                     break;
                 case "run":
-                    webRun(data, srcidx);
+                    await webRun(data, srcidx);
                     break;
                 case "exec":
-                    webExec(data, srcidx);
+                    await webExec(data, srcidx);
                     break;
                 case "console":
-                    webOnConsole(data, logoUserInputListener);
+                    await webOnConsole(data, logoUserInputListener);
                     break;
                 case "clearWorkspace":
                     webClearWorkspace();
@@ -140,9 +140,11 @@ $classObj.create = function logoInWeb(Logo, sys) {
                 "stderrn": webStderrn,
                 "cleartext": webCleartext,
                 "editorload": webEditorLoad,
-                "drawflush": function() { ext.canvas.flush(); },
+                "drawflush": function() {
+                    ext.canvas.flush();
+                },
                 "exit": webExit,
-                "ready": webReady,
+                "envstate": webEnvState,
                 "onstdin": registerEventHandler
             },
             "canvas": canvas

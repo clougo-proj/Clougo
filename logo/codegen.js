@@ -706,8 +706,8 @@ $classObj.create = function(logo, sys) {
 
         let ret = "// " + JSON.stringify(p) + "\n" +
                 "//" + JSON.stringify(srcmap) + "\n" +
-                "logo.generatedCodeSrcmap = " + JSON.stringify(logo.generatedCodeSrcmap) + ";$scopeCache={};\n" +
-                "{" + code + "}";
+                "logo.generatedCodeSrcmap = " + JSON.stringify(logo.generatedCodeSrcmap) + ";$scopeCache={};" +
+                "logo.env._user.$ = async function(){\n" + code + "}";
 
         sys.trace(JSON.stringify(logo.generatedCodeSrcmap), "codegen");
         _funcName = oldFuncName;

@@ -580,44 +580,38 @@ $classObj.create = function(logo, sys) {
         throw logo.type.LogoException.create("CUSTOM", [tag, value], null, Error().stack);
     }
 
-    function primitiveReadword() {
+    async function primitiveReadword() {
         if (logo.env.hasUserInput()) {
             return logo.env.getUserInput();
         }
 
-        let ret = logo.type.makeLogoAsyncReturn();
-        function doWhileLoopBody() {
-            logo.env.async(function() {
-                throw logo.type.LogoException.create("YIELD", ["continue"]);
-            }, function() {
-                if (!logo.env.hasUserInput()) {
-                    doWhileLoopBody();
-                }
+        logo.env.prepareToBeBlocked();
+        let oldEnvState = logo.env.getEnvState();
+        logo.env.setEnvState("continue");
+        do {
+            await new Promise((resolve) => {
+                logo.env.registerUserInputResolver(resolve);
             });
-        }
+        } while (!logo.env.hasUserInput());
 
-        logo.env.async(function() {
-            doWhileLoopBody();
-        }, function() {
-            let userInput = logo.env.getUserInput();
-            sys.trace(JSON.stringify(userInput), "tmp");
-            logo.type.setLogoAsyncReturnValue(ret, userInput);
-        });
-
-        return ret;
+        logo.env.setEnvState(oldEnvState);
+        return logo.env.getUserInput();
     }
 
     function primitiveTimeMilli() {
         return new Date().getTime();
     }
 
-    function primitiveWait(primitiveName, delay) {
+    async function primitiveWait(primitiveName, delay) {
         logo.env.setPrimitiveName(primitiveName);
-        setTimeout(logo.env.resumeAfterWait, 50 / 3 * delay);
-        logo.env.setEnvState("timeout");
-        logo.env.async(function() {
-            throw logo.type.LogoException.create("YIELD", ["timeout"]);
+        logo.env.prepareToBeBlocked();
+        await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 50 / 3 * delay);
         });
+
+        return;
     }
 
     const primitiveDemo = (function() {
@@ -651,8 +645,8 @@ $classObj.create = function(logo, sys) {
         };
     })();
 
-    function dotTest(primitiveName, testName, testMethod) {
-        logo.entry.runSingleTest(testName, testMethod);
+    async function dotTest(primitiveName, testName, testMethod) {
+        await logo.entry.runSingleTest(testName, testMethod);
     }
 
     let primitive = {

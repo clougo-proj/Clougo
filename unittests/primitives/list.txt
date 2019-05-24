@@ -69,3 +69,4 @@ sincos run exec
 sincos_err runl execl
 sign runl execl
 memberp runl execl
+wait run exec

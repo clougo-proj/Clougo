@@ -193,7 +193,12 @@ $classObj.create = function(logo, sys) {
         evxContext.next();
 
         let label = genToken(evxContext, 0);
-        code.push("($ret = (function() {");
+        if (logo.env.getAsyncFunctionCall()) {
+            code.push("($ret=await (async function() {");
+        } else {
+            code.push("($ret=(function() {");
+        }
+
         code.push("try {\n");
         evxContext.next();
 
@@ -540,9 +545,16 @@ $classObj.create = function(logo, sys) {
                 noSemicolon = getGenNativeJsNoSemicolon(curToken);
                 evxContext.retExpr = getGenNativeJsOutput(curToken);
             } else if (curToken in logo.lrt.primitive) {
-                code.push("logo.lrt.primitive['");
+                if (logo.env.getAsyncFunctionCall()) {
+                    code.push("(await logo.lrt.primitive['");
+                } else {
+                    code.push("(logo.lrt.primitive['");
+                }
+
                 code.push(CodeWithSrcmap.create(curToken, srcmap));
-                code.push("'](\"", curToken, "\", ", genPrimitiveCallParam(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken), isInParen), ")");
+                code.push("'](\"", curToken, "\", ", genPrimitiveCallParam(evxContext, curToken,
+                    logo.lrt.util.getPrimitivePrecedence(curToken), isInParen), "))");
+
                 evxContext.retExpr = markRetExpr;
             } else if (curToken in logo.env._ws) {
                 code.push("(");
@@ -553,7 +565,14 @@ $classObj.create = function(logo, sys) {
                     });
                 }
 
-                code.push(CodeWithSrcmap.create("$ret=(logo.env._user[", srcmap), "\"" + curToken + "\"", "](");
+                if (logo.env.getAsyncFunctionCall()) {
+                    code.push(CodeWithSrcmap.create("$ret=(await logo.env._user[", srcmap), "\"" +
+                        curToken + "\"", "](");
+                } else {
+                    code.push(CodeWithSrcmap.create("$ret=(logo.env._user[", srcmap), "\"" + curToken +
+                        "\"", "](");
+                }
+
                 code.push(genProcCallParam(evxContext, logo.env._ws[curToken].formal.length));
                 code.push(")),");
 
@@ -570,7 +589,9 @@ $classObj.create = function(logo, sys) {
                 code.push("$ret)");
                 evxContext.retExpr = markRetExpr;
             } else {
-                code.push(CodeWithSrcmap.create("throwRuntimeLogoException('UNKNOWN_PROC', ", srcmap), "[\"" + curToken + "\"],  Error().stack)");
+                code.push(CodeWithSrcmap.create("throwRuntimeLogoException('UNKNOWN_PROC', ", srcmap), "[\"" +
+                    curToken + "\"],  Error().stack)");
+
                 evxContext.retExpr = markRetExpr;
             }
         }
@@ -641,11 +662,11 @@ $classObj.create = function(logo, sys) {
 
         if (evxContext.getToken() != ")") {
             code.push(
-                CodeWithSrcmap.create("(throwRuntimeLogoException(", logo.lrt.util.getSrcmapFirstLeaf(evxContext.getSrcmap())),
+                CodeWithSrcmap.create("(throwRuntimeLogoException(",
+                    logo.lrt.util.getSrcmapFirstLeaf(evxContext.getSrcmap())),
                 "\"TOO_MUCH_INSIDE_PAREN\", ",
                 "undefined, ",
-                "Error().stack))"
-            );
+                "Error().stack))");
         }
 
         if (!isStatement) {
@@ -716,7 +737,7 @@ $classObj.create = function(logo, sys) {
     }
 
     function genProc(p, srcmap) {
-        let code = ["function "];
+        let code = logo.env.getAsyncFunctionCall() ? ["async function "] : ["function "];
 
         if(!logo.type.isLogoProc(p)) {
             return;

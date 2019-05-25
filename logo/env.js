@@ -18,6 +18,7 @@ $classObj.create = function(logo, sys, ext) {
 
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime,  _userInput, _resolveUserInput;
+    let _asyncFunctionCall;
 
     let $ret, $primitiveName, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
 
@@ -121,6 +122,16 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.prepareToBeBlocked = prepareToBeBlocked;
 
+    function setAsyncFunctionCall(val) {
+        _asyncFunctionCall = val;
+    }
+    env.setAsyncFunctionCall = setAsyncFunctionCall;
+
+    function getAsyncFunctionCall() {
+        return !!_asyncFunctionCall;
+    }
+    env.getAsyncFunctionCall = getAsyncFunctionCall;
+
     function registerOnStdinCallback() {
         if ("io" in ext && "onstdin" in ext.io && typeof ext.io.onstdin == "function") {
             ext.io.onstdin(async function(d){ // logoUserInputListener
@@ -221,22 +232,23 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.getRunTime = getRunTime;
 
-    async function logoExecHelper(command, genjs, srcidx, srcLine) {
+    async function logoExecHelper(logosrc, genjs, srcidx, srcLine) {
         resetInterpreterCallStack();
 
-        let parsedCode = logo.parse.parseSrc(command, srcidx, srcLine);
+        let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
         sys.trace(parsedCode, "parse.result");
         setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
+        setAsyncFunctionCall(asyncFunctionCall(logosrc));
 
-        if (genjs && canTranspile(command)) {
+        if (genjs) {
             await evalLogoGen.apply(null, parsedCode);
         } else {
             await evalLogo.apply(null, parsedCode);
         }
     }
 
-    function canTranspile(logosrc) {
-        return !logosrc.match(/\s(wait|readword)\s/i);
+    function asyncFunctionCall(logosrc) {
+        return (/\b(wait|readword)\b/i).test(logosrc);
     }
 
     async function timedExec(f) {
@@ -359,7 +371,9 @@ $classObj.create = function(logo, sys, ext) {
             }
 
             if (parsedStack[i][1] == "eval") {
-                if (i<parsedStack.length-1 && (parsedStack[i+1][0]=="evalLogoJs" || parsedStack[i+1][0]=="Object.evalLogoJs")) {
+                if (i<parsedStack.length - 1 && (parsedStack[i][0] == "logo.env._user.$" ||
+                    parsedStack[i][0] == "Object.logo.env._user.$")) {
+
                     let srcmap = lookupGeneratedCodeSrcmap(parsedStack[i][2], parsedStack[i][3]);
                     ret.push([undefined, srcmap]);
                     break;
@@ -410,8 +424,9 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.evalLogoJsTimed = evalLogoJsTimed;
 
-    function evalLogoGen(parsedCommand, srcmap) {
-        const ret = sys.isUndefined(parsedCommand) ? undefined : evalLogoJs(logo.codegen(parsedCommand, srcmap));
+    async function evalLogoGen(parsedCommand, srcmap) {
+        const ret = sys.isUndefined(parsedCommand) ? undefined :
+            await evalLogoJs(logo.codegen(parsedCommand, srcmap));
         setEnvState("ready");
         return ret;
     }

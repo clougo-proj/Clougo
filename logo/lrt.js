@@ -35,8 +35,8 @@ $classObj.create = function(logo, sys) {
             }
 
             logo.type.checkInputList(item);
-            for (let j = 1; j < item.length; j++) {
-                sentence.push(item[j]);
+            for (let j = logo.type.LIST_ORIGIN; j <= logo.type.listMaxIndex(item); j++) {
+                sentence.push(logo.type.listItem(j, item));
             }
         }
 
@@ -54,22 +54,14 @@ $classObj.create = function(logo, sys) {
         return word;
     }
 
-    function primitiveArray(size, origin) {
+    function primitiveArray(size, origin = logo.type.ARRAY_DEFAULT_ORIGIN) {
         logo.type.checkInputNonNegInteger(size);
-        if (sys.isUndefined(origin)) {
-            origin = 1;
-        }
-
         logo.type.checkInputInteger(origin);
         return logo.type.makeLogoArrayBySize(size, origin);
     }
 
-    function primitiveListToArray(value, origin) {
+    function primitiveListToArray(value, origin = logo.type.ARRAY_DEFAULT_ORIGIN) {
         logo.type.checkInputList(value);
-        if (origin === undefined) {
-            origin = 1;
-        }
-
         logo.type.checkInputInteger(origin);
         return logo.type.listToArray(value, origin);
     }
@@ -101,13 +93,9 @@ $classObj.create = function(logo, sys) {
         return ret;
     }
 
-    function primitiveMdarray(sizeList, origin) {
-        if (sys.isUndefined(origin)) {
-            origin = 1;
-        }
-
+    function primitiveMdarray(sizeList, origin = logo.type.ARRAY_DEFAULT_ORIGIN) {
         logo.type.checkInputNonEmptyList(sizeList);
-        return mdarrayHelper(sizeList, logo.type.LIST_ORIGIN, logo.type.listMaxIndex(sizeList), origin);
+        return mdarrayHelper(sizeList, logo.type.ARRAY_DEFAULT_ORIGIN, logo.type.listMaxIndex(sizeList), origin);
     }
 
     function primitiveMdsetitem(indexList, array, value) {
@@ -287,7 +275,7 @@ $classObj.create = function(logo, sys) {
 
         logo.type.checkInputList(list);
         let newlist = list.slice(0);
-        newlist.splice(1, 0, thing);
+        newlist.splice(logo.type.LIST_ORIGIN, 0, thing);
         return newlist;
     }
 

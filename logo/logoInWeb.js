@@ -157,11 +157,7 @@ $classObj.create = function logoInWeb(Logo, sys) {
         let tqCacheArray = new Float32Array(tqCacheSize);
         let tqCachePtr = 0;
 
-        canvas.sendCmd = function(cmd, args) {
-            if (sys.isUndefined(args)) {
-                args = [];
-            }
-
+        canvas.sendCmd = function(cmd, args = []) {
             let code = CanvasCommon.getPrimitiveCode(cmd);
             if (code in CanvasCommon.primitivecode) {
                 if (tqCachePtr + args.length >= tqCacheSize - 1) {
@@ -175,11 +171,7 @@ $classObj.create = function logoInWeb(Logo, sys) {
             }
         };
 
-        canvas.sendCmdAsString = function(cmd, args) {
-            if (sys.isUndefined(args)) {
-                args = [];
-            }
-
+        canvas.sendCmdAsString = function(cmd, args = []) {
             let code = CanvasCommon.getPrimitiveCode(cmd);
             if (code in CanvasCommon.primitivecode) {
                 let length = args.length + 2;

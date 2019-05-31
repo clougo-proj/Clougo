@@ -90,10 +90,7 @@ $classObj.create = function(logo, sys) {
         return ["Math.PI"];
     }
 
-    function genLocal(evxContext, isInParen) {
-        if (sys.isUndefined(isInParen)) {
-            isInParen = false;
-        }
+    function genLocal(evxContext, isInParen = false) {
 
         let code = [];
 
@@ -385,17 +382,8 @@ $classObj.create = function(logo, sys) {
         return insertDelimiters(param, ",");
     }
 
-    function genPrimitiveCallParam(evxContext, primitiveName, precedence, isInParen) {
+    function genPrimitiveCallParam(evxContext, primitiveName, precedence = 0, isInParen = false) {
         let param = [];
-
-        if (sys.isUndefined(precedence)) {
-            precedence = 0;
-        }
-
-        if (sys.isUndefined(isInParen)) {
-            isInParen = false;
-        }
-
         let paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
         let paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
         let paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
@@ -437,29 +425,10 @@ $classObj.create = function(logo, sys) {
         return JSON.stringify(obj.map(sys.toNumberIfApplicable));
     }
 
-    function genToken(evxContext, precedence, isStatement, markRetExpr, isInParen, stopAtLineEnd) {
+    function genToken(evxContext, precedence = 0, isStatement = false, markRetExpr = false, isInParen = false,
+        stopAtLineEnd = false) {
+
         let code = [];
-
-        if (sys.isUndefined(precedence)) {
-            precedence = 0;
-        }
-
-        if (sys.isUndefined(isStatement)) {
-            isStatement = false;
-        }
-
-        if (sys.isUndefined(markRetExpr)) {
-            markRetExpr = false;
-        }
-
-        if (sys.isUndefined(isInParen)) {
-            isInParen = false;
-        }
-
-        if (sys.isUndefined(stopAtLineEnd)) {
-            stopAtLineEnd = false;
-        }
-
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
 

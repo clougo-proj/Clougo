@@ -71,11 +71,7 @@ $classObj.create = function(logo, sys) {
     }
     interpreter.makeEvalContext = makeEvalContext;
 
-    async function evxProcCallParam(evxContext, paramListLength, nextActualParam, precedence) {
-        if (sys.isUndefined(precedence)) {
-            precedence = 0;
-        }
-
+    async function evxProcCallParam(evxContext, paramListLength, nextActualParam, precedence = 0) {
         for (let j = 0; j < paramListLength; j++) {
             evxContext.next();
             await evxToken(evxContext, precedence);
@@ -83,15 +79,7 @@ $classObj.create = function(logo, sys) {
         }
     }
 
-    async function evxCtrlParam(evxContext, ctrlName, nextActualParam, precedence, isInParen) {
-        if (sys.isUndefined(precedence)) {
-            precedence = 0;
-        }
-
-        if (sys.isUndefined(isInParen)) {
-            isInParen = false;
-        }
-
+    async function evxCtrlParam(evxContext, ctrlName, nextActualParam, precedence = 0) {
         const paramListLength = ctrl[ctrlName].length;
 
         for (let j = 0; j < paramListLength; j++) {
@@ -102,7 +90,8 @@ $classObj.create = function(logo, sys) {
             }
 
             let retVal = evxContext.retVal;
-            nextActualParam.push(logo.type.isLogoList(retVal) ? logo.type.makeCompound([retVal, evxContext.getSrcmap()]) : retVal);
+            nextActualParam.push(logo.type.isLogoList(retVal) ?
+                logo.type.makeCompound([retVal, evxContext.getSrcmap()]) : retVal);
         }
 
         // if pred [list1] else [list2]
@@ -125,14 +114,8 @@ $classObj.create = function(logo, sys) {
         evxContext.retVal = await ctrl[ctrlName].apply(undefined, nextActualParam);
     }
 
-    async function evxPrimitiveCallParam(evxContext, primitiveName, nextActualParam, precedence, isInParen) {
-        if (sys.isUndefined(precedence)) {
-            precedence = 0;
-        }
-
-        if (sys.isUndefined(isInParen)) {
-            isInParen = false;
-        }
+    async function evxPrimitiveCallParam(evxContext, primitiveName, nextActualParam, precedence = 0,
+        isInParen = false) {
 
         const paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
         const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
@@ -180,20 +163,8 @@ $classObj.create = function(logo, sys) {
         }
     }
 
-    async function evxToken(evxContext, precedence, isInParen, stopAtLineEnd) {
+    async function evxToken(evxContext, precedence = 0, isInParen = false, stopAtLineEnd = false) {
         evxContext.retVal = undefined;
-        if (sys.isUndefined(precedence)) {
-            precedence = 0;
-        }
-
-        if (sys.isUndefined(isInParen)) {
-            isInParen = false;
-        }
-
-        if (sys.isUndefined(stopAtLineEnd)) {
-            stopAtLineEnd = false;
-        }
-
         let curToken = evxContext.getToken();
 
         while ((!stopAtLineEnd && curToken === "\n") && !sys.isUndefined(curToken) && evxContext.next()) {
@@ -233,7 +204,7 @@ $classObj.create = function(logo, sys) {
         } else if (logo.type.isLogoVarRef(curToken)) {
             evxContext.retVal = logo.type.getVarValue(logo.env.extractVarName(curToken), curSrcmap);
         } else {
-            await evxCtrlCallProc(evxContext, curToken, curSrcmap, precedence, isInParen);
+            await evxCtrlCallProc(evxContext, curToken, curSrcmap, isInParen);
         }
 
         while(evxContext.isNextTokenBinaryOperator()) {
@@ -249,14 +220,10 @@ $classObj.create = function(logo, sys) {
         }
     }
 
-    async function evxCtrlCallProc(evxContext, curToken, curSrcmap, precedence, isInParen) {
-        if (sys.isUndefined(precedence)) {
-            precedence = 0;
-        }
-
+    async function evxCtrlCallProc(evxContext, curToken, curSrcmap, isInParen) {
         const nextActualParam = [];
         if (curToken in ctrl) {
-            await evxCtrlParam(evxContext, curToken, nextActualParam, 0, isInParen);
+            await evxCtrlParam(evxContext, curToken, nextActualParam, 0);
         } else if (curToken in logo.lrt.primitive) {
             nextActualParam.push(curToken, curSrcmap);
             await evxPrimitiveCallParam(evxContext, curToken, nextActualParam,

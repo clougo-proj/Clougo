@@ -67,10 +67,7 @@ $classObj.create = function(logo, sys) {
             return (definition[c][0] & SP_MULTICHAR) !=  0;
         };
 
-        Delimiter.getOperatorDef = function getOperatorDef(c, def) {
-            if (sys.isUndefined(def)) {
-                def = definition;
-            }
+        Delimiter.getOperatorDef = function getOperatorDef(c, def = definition) {
             return def[c][1];
         };
 

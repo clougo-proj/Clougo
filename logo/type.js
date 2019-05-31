@@ -312,6 +312,7 @@ $classObj.create = function(logo, sys) {
     type.getRGB = getRGB;
 
     type.LIST_ORIGIN = 1;
+    type.ARRAY_DEFAULT_ORIGIN = 1;
 
     function listButFirst(list) {
         return makeLogoList(list.slice(2));
@@ -433,18 +434,14 @@ $classObj.create = function(logo, sys) {
     })();
     type.unbox = unbox;
 
-    function makeLogoArray(val, origin) {
-        if (sys.isUndefined(origin)) {
-            origin = 1;
-        }
-
+    function makeLogoArray(val, origin = type.ARRAY_DEFAULT_ORIGIN) {
         let ret = makeObject(OBJTYPE.ARRAY, val);
         ret.splice(1, 0, origin);
         return ret;
     }
     type.makeLogoArray = makeLogoArray;
 
-    function makeLogoArrayBySize(size, origin) {
+    function makeLogoArrayBySize(size, origin = type.ARRAY_DEFAULT_ORIGIN) {
         let ret = makeObject(OBJTYPE.ARRAY, Array.apply(null, Array(size)).map(function() { return null; }));
         ret.splice(1, 0, origin);
         return ret;
@@ -807,11 +804,7 @@ $classObj.create = function(logo, sys) {
         return actual;
     }
 
-    function toString(v, outterBracket) {
-        if (sys.isUndefined(outterBracket)) {
-            outterBracket = false;
-        }
-
+    function toString(v, outterBracket = false) {
         if (isCompound(v)) {
             v = v[1];
         }

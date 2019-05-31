@@ -121,19 +121,11 @@ $classObj.create = function(Logo, sys) {
                     turtleBuffer = "";
                 },
                 "getBuffer": function() { return turtleBuffer; },
-                "sendCmd": function(cmd, args) {
-                    if (sys.isUndefined(args)) {
-                        args = [];
-                    }
-
+                "sendCmd": function(cmd, args = []) {
                     ext.canvas.sendCmd(cmd, args);
                     turtleBuffer += cmd + " " + args.map(sys.logoFround6).join(" ") + "\n";
                 },
-                "sendCmdAsString": function(cmd, args) {
-                    if (sys.isUndefined(args)) {
-                        args = [];
-                    }
-
+                "sendCmdAsString": function(cmd, args = []) {
                     ext.canvas.sendCmdAsString(cmd, args);
                     turtleBuffer += cmd + " " + args.join(" ") + "\n";
                 }

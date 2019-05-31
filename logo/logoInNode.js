@@ -181,18 +181,10 @@ $classObj.create = function logoInNode(Logo, sys) {
                 }
             },
             "canvas": {
-                "sendCmd": function(cmd, args) {
-                    if (sys.isUndefined(args)) {
-                        args = [];
-                    }
-
+                "sendCmd": function(cmd, args = []) {
                     sys.trace(cmd + " " + args.map(sys.logoFround6).join(" "), "draw");
                 },
-                "sendCmdAsString": function(cmd, args) {
-                    if (sys.isUndefined(args)) {
-                        args = [];
-                    }
-
+                "sendCmdAsString": function(cmd, args = []) {
                     sys.trace(cmd + " " + args.join(" "), "draw");
                 }
             }

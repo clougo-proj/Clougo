@@ -9,6 +9,9 @@ var $classObj = {};
 $classObj.create = function(logo, sys) {
     const type = {};
 
+    const LIST_HEAD_SIZE = 1;
+    const ARRAY_HEAD_SIZE = 2;
+
     const OBJTYPE = {
         MIN_VALUE: 0,
         COMPOUND: 0, // [body, srcmap]
@@ -316,12 +319,12 @@ $classObj.create = function(logo, sys) {
     type.listButFirst = listButFirst;
 
     function listButLast(list) {
-        return makeLogoList(list.slice(1, list.length - 1));
+        return makeLogoList(list.slice(LIST_HEAD_SIZE, list.length - 1));
     }
     type.listButLast = listButLast;
 
     function listMaxIndex(list) {
-        return list.length - 1;
+        return list.length - LIST_HEAD_SIZE;
     }
     type.listMaxIndex = listMaxIndex;
 
@@ -341,7 +344,7 @@ $classObj.create = function(logo, sys) {
     type.listItem = listItem;
 
     function listLength(list) {
-        return list.length - 1;
+        return list.length - LIST_HEAD_SIZE;
     }
     type.listLength = listLength;
 
@@ -368,7 +371,7 @@ $classObj.create = function(logo, sys) {
     type.arrayOrigin = arrayOrigin;
 
     function arrayMaxIndex(array) {
-        return arrayOrigin(array) + array.length - 3;
+        return arrayOrigin(array) + array.length - ARRAY_HEAD_SIZE - 1;
     }
     type.arrayMaxIndex = arrayMaxIndex;
 
@@ -388,7 +391,7 @@ $classObj.create = function(logo, sys) {
     type.arrayItem = arrayItem;
 
     function arrayLength(array) {
-        return array.length - 2;
+        return array.length - ARRAY_HEAD_SIZE;
     }
     type.arrayLength = arrayLength;
 
@@ -412,11 +415,11 @@ $classObj.create = function(logo, sys) {
     const unbox = (function() {
         const unboxHelper = {};
 
-        unboxHelper[OBJTYPE.LIST] = function(obj) { return obj.slice(1); };
+        unboxHelper[OBJTYPE.LIST] = function(obj) { return obj.slice(LIST_HEAD_SIZE); };
 
         unboxHelper[OBJTYPE.ARRAY] =
             function(obj) {
-                return obj.slice(1, obj.length - 1);
+                return obj.slice(ARRAY_HEAD_SIZE);
             };
 
         return function(thing) {
@@ -503,7 +506,8 @@ $classObj.create = function(logo, sys) {
 
     function ifTrueThenThrow(predicate, exception, value) {
         if (predicate) {
-            throw logo.type.LogoException.create(exception, [logo.env.getPrimitiveName(), logo.type.toString(value, true)], null, Error().stack);
+            throw logo.type.LogoException.create(exception, [logo.env.getPrimitiveName(),
+                logo.type.toString(value, true)], logo.env.getPrimitiveSrcmap());
         }
     }
     type.ifTrueThenThrow = ifTrueThenThrow;
@@ -725,6 +729,23 @@ $classObj.create = function(logo, sys) {
     }
     type.isNonNegInteger = isNonNegInteger;
 
+    function srcmapToJs(srcmap) {
+        return isCompositeSrcmap(srcmap) ? compositeSrcmapToJs(srcmap) : simpleSrcmapToJs(srcmap);
+    }
+    type.srcmapToJs = srcmapToJs;
+
+    function compositeSrcmapToJs(srcmap) {
+        return simpleSrcmapToJs(srcmap[0]);
+    }
+
+    function simpleSrcmapToJs(srcmap) {
+        while (srcmap.length > 1 && Array.isArray(srcmap[1])) {
+            srcmap = srcmap[1];
+        }
+
+        return JSON.stringify(srcmap);
+    }
+
     function srcmapToString(srcmap) {
         return isCompositeSrcmap(srcmap) ? compositeSrcmapToString(srcmap) : simpleSrcmapToString(srcmap);
     }
@@ -734,12 +755,6 @@ $classObj.create = function(logo, sys) {
         return Array.isArray(value) && value.length > 0 && Array.isArray(value[0]);
     }
     type.isCompositeSrcmap = isCompositeSrcmap;
-
-    function isSimpleSrcmap(value) {
-        return Array.isArray(value) && value.length == 3 &&
-            isNonNegInteger(value[0]) && isNonNegInteger(value[1]) && isNonNegInteger(value[2]);
-    }
-    type.isSimpleSrcmap = isSimpleSrcmap;
 
     function compositeSrcmapToString(srcmap) {
         return simpleSrcmapToString(srcmap[0]);
@@ -754,7 +769,7 @@ $classObj.create = function(logo, sys) {
     function getVarValue(varname, srcmap) {
         const curScope = logo.env.findLogoVarScope(varname);
         if (!(varname in curScope)) {
-            throw logo.type.LogoException.create("VAR_HAS_NO_VALUE", [varname], srcmap, Error().stack);
+            throw logo.type.LogoException.create("VAR_HAS_NO_VALUE", [varname], srcmap);
         }
 
         return curScope[varname];
@@ -875,7 +890,6 @@ $classObj.create = function(logo, sys) {
             getCode: function() { return this._code; },
             getValue: function() { return this._value; },
             getSrcmap: function() { return this._srcmap; },
-            getStack : function() { return this._stack; },
             withSrcmap: function(srcmap) { this._srcmap = srcmap; return this; },
             formatMessage: function() {
                 const msg = getMessage(this._code);
@@ -897,13 +911,12 @@ $classObj.create = function(logo, sys) {
             }
         };
 
-        LogoException.create = function(name, value, srcmap, stack) {
+        LogoException.create = function(name, value, srcmap) {
             const obj = Object.create(LogoException.prototype);
             sys.assert(name in codemap);
             obj._code = getCode(name);
             obj._value = value;
             obj._srcmap = srcmap;
-            obj._stack = sys.isUndefined(stack) ? undefined : logo.env.getLogoStack(stack);
             return obj;
         };
 

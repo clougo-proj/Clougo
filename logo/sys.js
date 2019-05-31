@@ -59,12 +59,6 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     }
     sys.assert = assert;
 
-    function assertEqual(a, b, msg) { // eslint-disable-line no-unused-vars
-        if (a != b) {
-            throw Error("Expected:<" + a + "> Actual:<" + b + "> " + msg);
-        }
-    }
-
     function logoFround6(num) {
         return Math.round(num * 1e6) / 1e6;
     }

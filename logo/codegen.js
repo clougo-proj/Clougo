@@ -61,27 +61,6 @@ $classObj.create = function(logo, sys) {
         return self;
     })();
 
-    const CodeWithSrcmap = (function() {
-        let CodeWithSrcmap = {};
-        CodeWithSrcmap.prototype = {
-            getCode: function() { return this._code; },
-            getSrcmap: function() { return this._srcmap; }
-        };
-
-        CodeWithSrcmap.create = function(code, srcmap) {
-            let obj = Object.create(CodeWithSrcmap.prototype);
-            obj._code = code;
-            obj._srcmap = srcmap;
-            return obj;
-        };
-
-        CodeWithSrcmap.is = function(obj) {
-            return obj.__proto__ == CodeWithSrcmap.prototype;
-        };
-
-        return CodeWithSrcmap;
-    })();
-
     const genNativeJs = {
         // token: [func, output, noOperator, noSemicolon]
         "if": [genIf, false, true, true],
@@ -117,9 +96,8 @@ $classObj.create = function(logo, sys) {
         }
 
         let code = [];
-        let srcmap = evxContext.getSrcmap();
 
-        code.push(CodeWithSrcmap.create("let ", srcmap));
+        code.push("let ");
 
         let expectedParams = 1;
         let generatedParams = 0;
@@ -159,7 +137,8 @@ $classObj.create = function(logo, sys) {
         let srcmap = evxContext.getSrcmap();
 
         if (!logo.type.isLogoList(curToken)) {
-            code.push(CodeWithSrcmap.create("throwRuntimeLogoException('INVALID_INPUT', ", srcmap), "[\"if\", \"" + curToken + "\"],  Error().stack)");
+            code.push("throwRuntimeLogoException('INVALID_INPUT',", logo.type.srcmapToJs(srcmap),
+                ",[\"if\", \"" + curToken + "\"])");
         } else {
             let comp = logo.parse.parseBlock([curToken, srcmap]);
             code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
@@ -206,7 +185,8 @@ $classObj.create = function(logo, sys) {
         let srcmap = evxContext.getSrcmap();
 
         if (!logo.type.isLogoList(curToken)) {
-            code.push(CodeWithSrcmap.create("throwRuntimeLogoException('INVALID_INPUT', ", srcmap), "[\"catch\", \"" + curToken + "\"],  Error().stack)");
+            code.push("throwRuntimeLogoException('INVALID_INPUT',",
+                logo.type.srcmapToJs(srcmap), ",[\"catch\", \"" + curToken + "\"])");
         } else {
             let comp = logo.parse.parseBlock([curToken, srcmap]);
             code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
@@ -243,7 +223,8 @@ $classObj.create = function(logo, sys) {
         let srcmap = evxContext.getSrcmap();
 
         if (!logo.type.isLogoList(curToken)) {
-            code.push(CodeWithSrcmap.create("throwRuntimeLogoException('INVALID_INPUT', ", srcmap), "[\"ifelse\", \"" + curToken + "\"],  Error().stack)");
+            code.push("throwRuntimeLogoException('INVALID_INPUT',",
+                logo.type.srcmapToJs(srcmap), ",[\"ifelse\", \"" + curToken + "\"])");
         } else {
             let comp = logo.parse.parseBlock([curToken, srcmap]);
             code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
@@ -256,7 +237,8 @@ $classObj.create = function(logo, sys) {
         srcmap = evxContext.getSrcmap();
 
         if (!logo.type.isLogoList(curToken)) {
-            code.push(CodeWithSrcmap.create("throwRuntimeLogoException('INVALID_INPUT', ", srcmap), "[\"ifelse\", \"" + curToken + "\"],  Error().stack)");
+            code.push("throwRuntimeLogoException('INVALID_INPUT',",
+                logo.type.srcmapToJs(srcmap), ",[\"ifelse\", \"" + curToken + "\"])");
         } else {
             let comp = logo.parse.parseBlock([curToken, srcmap]);
             code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
@@ -282,7 +264,8 @@ $classObj.create = function(logo, sys) {
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
         if (evxContext.isTokenEndOfStatement(curToken)) {
-            code.push(CodeWithSrcmap.create("throwRuntimeLogoException('NOT_ENOUGH_INPUTS', ", srcmap), "[\"repeat\"],  Error().stack)");
+            code.push("throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
+                logo.type.srcmapToJs(srcmap), ",[\"repeat\"])");
         } else {
             let bodycomp = logo.parse.parseBlock([curToken, srcmap]);
             code.push(genBody(logo.interpreter.makeEvalContext(bodycomp[0], bodycomp[1]), true));
@@ -304,7 +287,7 @@ $classObj.create = function(logo, sys) {
 
         let comp = logo.parse.parseBlock([token, srcmap]);
         let forLoopCtrl = logo.interpreter.makeEvalContext(comp[0], comp[1]);
-        let forVarName = genLogoVarLref(forLoopCtrl.getToken(), forLoopCtrl.getSrcmap());
+        let forVarName = genLogoVarLref(forLoopCtrl.getToken());
 
         forLoopCtrl.next();
 
@@ -339,7 +322,7 @@ $classObj.create = function(logo, sys) {
 
         let varName = logo.env.extractVarName(evxContext.getToken());
 
-        Array.prototype.push.apply(code, genLogoVarLref(varName, evxContext.getSrcmap()));
+        Array.prototype.push.apply(code, genLogoVarLref(varName));
 
         evxContext.next();
         code.push("=");
@@ -357,7 +340,7 @@ $classObj.create = function(logo, sys) {
         _varScopes.addVar(varName);
         code.push("let ");
 
-        Array.prototype.push.apply(code, genLogoVarLref(varName, evxContext.getSrcmap()));
+        Array.prototype.push.apply(code, genLogoVarLref(varName));
 
         evxContext.next();
         code.push("=");
@@ -368,15 +351,15 @@ $classObj.create = function(logo, sys) {
 
     function genLogoVarRef(curToken, srcmap) {
         let varName = logo.env.extractVarName(curToken);
-        return _varScopes.isLocalVar(varName) ?  [CodeWithSrcmap.create("logo.lrt.util.logoVar(", srcmap), varName, ", \"", varName, "\")"] :
-            _varScopes.isGlobalVar(varName) ? [CodeWithSrcmap.create("logo.lrt.util.logoVar(_globalScope[", srcmap), "\"" + varName+ "\"" , "], \"", varName, "\")"] :
-                [CodeWithSrcmap.create("logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", srcmap), varName, "\", $scopeCache)[\"", varName, "\"", "], \"", varName, "\")"];
+        return _varScopes.isLocalVar(varName) ?  ["logo.lrt.util.logoVar(", varName, ", \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")"] :
+            _varScopes.isGlobalVar(varName) ? ["logo.lrt.util.logoVar(_globalScope[\"", varName, "\"" , "], \"", varName, "\",",  logo.type.srcmapToJs(srcmap), ")"] :
+                ["logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"", varName, "\"", "], \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")"];
     }
 
-    function genLogoVarLref(varName, srcmap) {
-        return _varScopes.isLocalVar(varName) ? [CodeWithSrcmap.create(varName, srcmap)] :
-            _varScopes.isGlobalVar(varName) ? ["_globalScope[", CodeWithSrcmap.create("'" + varName + "'", srcmap), "]"] :
-                ["logo.env.findLogoVarScope(", CodeWithSrcmap.create("'" + varName + "', $scopeCache)['" + varName + "'", srcmap), "]"];
+    function genLogoVarLref(varName) {
+        return _varScopes.isLocalVar(varName) ? [varName] :
+            _varScopes.isGlobalVar(varName) ? ["_globalScope['" + varName + "']"] :
+                ["logo.env.findLogoVarScope('" + varName + "', $scopeCache)['" + varName + "']"];
     }
 
     function insertDelimiters(param, delimiter) {
@@ -428,8 +411,8 @@ $classObj.create = function(logo, sys) {
                 evxContext.next();
                 let generatedParam = genToken(evxContext, precedence, false, true, isInParen, true);
                 if (generatedParam == CODEGEN_CONSTANTS.NOP) {
-                    generatedParam = [CodeWithSrcmap.create("throwRuntimeLogoException('NOT_ENOUGH_INPUTS', ", evxContext.getSrcmap()),
-                        "[ \"" + primitiveName + "\"],  Error().stack)"];
+                    generatedParam = ["throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
+                        logo.type.srcmapToJs(evxContext.getSrcmap()), ",[ \"" + primitiveName + "\"])"];
                 }
 
                 param.push(generatedParam);
@@ -437,8 +420,8 @@ $classObj.create = function(logo, sys) {
         }
 
         if (j < paramListMinLength) {
-            param.push([CodeWithSrcmap.create("throwRuntimeLogoException('NOT_ENOUGH_INPUTS', ", evxContext.getSrcmap()),
-                "[ \"" + primitiveName + "\"],  Error().stack)"]);
+            param.push(["throwRuntimeLogoException('NOT_ENOUGH_INPUTS',", logo.type.srcmapToJs(evxContext.getSrcmap()),
+                ",[ \"" + primitiveName + "\"])"]);
         }
 
         return insertDelimiters(param, ",");
@@ -499,7 +482,7 @@ $classObj.create = function(logo, sys) {
                 code.push("$ret=");
             }
 
-            code.push(CodeWithSrcmap.create(tmp, srcmap));
+            code.push(tmp);
             evxContext.retExpr = markRetExpr;
         } else if (sys.equalToken(curToken, "stop")) {
             code.push("return");
@@ -511,12 +494,12 @@ $classObj.create = function(logo, sys) {
             code.push(genParen(evxContext, evxContext.peekNextToken() == "local"));
         } else if (typeof curToken == "object") {
             if (markRetExpr && !logo.type.isLogoProc(curToken)) {
-                code.push(CodeWithSrcmap.create("$ret=", srcmap));
+                code.push("$ret=");
             }
 
             code.push(logo.type.isLogoProc(curToken) ? genProc(curToken, srcmap) :
                 logo.type.isLogoArray(curToken) ?  genArray(curToken, srcmap) :
-                    CodeWithSrcmap.create(genLogoList(curToken, srcmap), srcmap));
+                    genLogoList(curToken, srcmap));
 
             evxContext.retExpr = markRetExpr;
         } else if (logo.type.isQuotedLogoWord(curToken)) {
@@ -524,7 +507,7 @@ $classObj.create = function(logo, sys) {
                 code.push("$ret=");
             }
 
-            code.push(CodeWithSrcmap.create(logo.type.quotedLogoWordToJsStringLiteral(curToken), srcmap));
+            code.push(logo.type.quotedLogoWordToJsStringLiteral(curToken));
             evxContext.retExpr = markRetExpr;
         } else if (logo.type.isLogoVarRef(curToken)) {
             if (markRetExpr) {
@@ -546,14 +529,14 @@ $classObj.create = function(logo, sys) {
                 evxContext.retExpr = getGenNativeJsOutput(curToken);
             } else if (curToken in logo.lrt.primitive) {
                 if (logo.env.getAsyncFunctionCall()) {
-                    code.push("(await logo.lrt.primitive['");
+                    code.push("(await logo.env.callPrimitiveAsync(\"");
                 } else {
-                    code.push("(logo.lrt.primitive['");
+                    code.push("(logo.env.callPrimitive(\"");
                 }
 
-                code.push(CodeWithSrcmap.create(curToken, srcmap));
-                code.push("'](\"", curToken, "\", ", genPrimitiveCallParam(evxContext, curToken,
-                    logo.lrt.util.getPrimitivePrecedence(curToken), isInParen), "))");
+                code.push(curToken, "\", ", logo.type.srcmapToJs(srcmap), ",",
+                    genPrimitiveCallParam(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
+                        isInParen), "))");
 
                 evxContext.retExpr = markRetExpr;
             } else if (curToken in logo.env._ws) {
@@ -565,16 +548,21 @@ $classObj.create = function(logo, sys) {
                     });
                 }
 
+                code.push("logo.env._callstack.push([logo.env._curProc," + logo.type.srcmapToJs(srcmap) + "]),");
+                code.push("logo.env._curProc=\"" + curToken + "\",\n");
+
                 if (logo.env.getAsyncFunctionCall()) {
-                    code.push(CodeWithSrcmap.create("$ret=(await logo.env._user[", srcmap), "\"" +
+                    code.push("$ret=(await logo.env._user[", "\"" +
                         curToken + "\"", "](");
                 } else {
-                    code.push(CodeWithSrcmap.create("$ret=(logo.env._user[", srcmap), "\"" + curToken +
+                    code.push("$ret=(logo.env._user[\"" + curToken +
                         "\"", "](");
                 }
 
                 code.push(genProcCallParam(evxContext, logo.env._ws[curToken].formal.length));
                 code.push(")),");
+
+                code.push("logo.env._curProc=logo.env._callstack.pop()[0],");
 
                 if (sys.Config.get("dynamicScope")) {
                     _varScopes.localVars().forEach(function(varName) {
@@ -589,8 +577,8 @@ $classObj.create = function(logo, sys) {
                 code.push("$ret)");
                 evxContext.retExpr = markRetExpr;
             } else {
-                code.push(CodeWithSrcmap.create("throwRuntimeLogoException('UNKNOWN_PROC', ", srcmap), "[\"" +
-                    curToken + "\"],  Error().stack)");
+                code.push("throwRuntimeLogoException('UNKNOWN_PROC',", logo.type.srcmapToJs(srcmap), ",[\"" +
+                    curToken + "\"])");
 
                 evxContext.retExpr = markRetExpr;
             }
@@ -608,19 +596,15 @@ $classObj.create = function(logo, sys) {
             evxContext.next();
 
             let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
-            let primitiveName = logo.lrt.util.getBinaryOperatorPrimitiveName(nextOp);
-            if (primitiveName !== undefined) {
-                code.splice(0, 0, "logo.lrt.primitive['", CodeWithSrcmap.create(primitiveName, nextOpSrcmap),
-                    "'](\"", primitiveName, "\", ");
-
-                code.push(",");
-                code.push(genProcCallParam(evxContext, callTarget.length - 2, nextPrec));
-                code.push(")");
+            if (logo.env.getAsyncFunctionCall()) {
+                code.splice(0, 0, "($ret=await logo.env.callPrimitiveOperatorAsync(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",");
             } else {
-                code.push(CodeWithSrcmap.create(nextOp, nextOpSrcmap));
-                code.push(genProcCallParam(evxContext, callTarget.length - 2, nextPrec));
+                code.splice(0, 0, "($ret=logo.env.callPrimitiveOperator(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",");
             }
 
+            code.push(",");
+            code.push(genProcCallParam(evxContext, callTarget.length - 1, nextPrec));
+            code.push("))");
 
             evxContext.retExpr = markRetExpr;
         }
@@ -639,7 +623,7 @@ $classObj.create = function(logo, sys) {
         do {
             code.push(genToken(evxContext, 0, isStatement, true));
             if (evxContext.retExpr && sys.Config.get("unactionableDatum")) {
-                code.push(CodeWithSrcmap.create("checkUnactionableDatum($ret);\n", evxContext.getSrcmap()));
+                code.push("checkUnactionableDatum($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
             }
         } while (evxContext.next());
 
@@ -662,11 +646,10 @@ $classObj.create = function(logo, sys) {
 
         if (evxContext.getToken() != ")") {
             code.push(
-                CodeWithSrcmap.create("(throwRuntimeLogoException(",
-                    logo.lrt.util.getSrcmapFirstLeaf(evxContext.getSrcmap())),
-                "\"TOO_MUCH_INSIDE_PAREN\", ",
-                "undefined, ",
-                "Error().stack))");
+                "(throwRuntimeLogoException(",
+                "\"TOO_MUCH_INSIDE_PAREN\",",
+                logo.type.srcmapToJs(evxContext.getSrcmap()),
+                "))");
         }
 
         if (!isStatement) {
@@ -677,42 +660,8 @@ $classObj.create = function(logo, sys) {
     }
 
     function mergeCode(code) {
-
-        let line = 3, col = 0; // line 0: src, line 1: srcmap, line 2: generatedSrcmap, line 3 and after: code
-
-        logo.generatedCodeSrcmap = [];
-
-        function assembleCode(code, srcmap) {
-            if (typeof code !== "string") {
-                code = code.toString();
-            }
-
-            if (!sys.isUndefined(srcmap)) {
-                if (!(line in logo.generatedCodeSrcmap)) {
-                    logo.generatedCodeSrcmap[line] = [];
-                }
-
-                logo.generatedCodeSrcmap[line].push([col + 1, srcmap]);
-            }
-
-            let lines = code.split(/\n/);
-            line += lines.length - 1;
-            col = (lines.length > 1) ? lines[lines.length - 1].length : col + lines[0].length;
-
-            return code;
-        }
-
-        return (function mergeCodeHelper(code) {
-
-            if (Array.isArray(code)) {
-                return code.map(mergeCodeHelper).join("");
-            } else if (CodeWithSrcmap.is(code)) {
-                return assembleCode(code.getCode(), code.getSrcmap());
-            } else {
-                return assembleCode(code);
-            }
-
-        })(code);
+        return Array.isArray(code) ? code.map(mergeCode).join("") :
+            typeof code !== "string" ? code.toString() : code;
     }
 
     function genCode(p, srcmap) {
@@ -727,12 +676,10 @@ $classObj.create = function(logo, sys) {
 
         let ret = "// " + JSON.stringify(p) + "\n" +
                 "//" + JSON.stringify(srcmap) + "\n" +
-                "logo.generatedCodeSrcmap = " + JSON.stringify(logo.generatedCodeSrcmap) + ";$scopeCache={};" +
+                "$scopeCache={};" +
                 "logo.env._user.$ = async function(){\n" + code + "}";
 
-        sys.trace(JSON.stringify(logo.generatedCodeSrcmap), "codegen");
         _funcName = oldFuncName;
-
         return ret;
     }
 
@@ -746,15 +693,12 @@ $classObj.create = function(logo, sys) {
         let oldFuncName = _funcName;
         _funcName = p[1];
 
-        let funcNameSrcmap = srcmap[1];
-
         let evxContext = logo.interpreter.makeEvalContext(p[3], srcmap[3]);
         code.push(_funcName, "(");
 
         let params = p[2];
-        let paramSrcmaps = srcmap[2];
 
-        code.push(insertDelimiters(params.map(function(v, n) { return CodeWithSrcmap.create(v, paramSrcmaps[n]); } ) , ",") );
+        code.push(insertDelimiters(params, ",") );
         code.push(")");
         code.push("{\n");
         code.push("let $ret, $scopeStackLength;\n");
@@ -772,7 +716,7 @@ $classObj.create = function(logo, sys) {
         code.push("logo.env._scopeStack.pop();\n");
         code.push("}\n");
 
-        code.splice(0, 0, CodeWithSrcmap.create("logo.env._user[", funcNameSrcmap), "\"" + _funcName + "\"", "]=");
+        code.splice(0, 0, "logo.env._user[\"" + _funcName + "\"]=");
         code.push("undefined;\n");
 
         _funcName = oldFuncName;

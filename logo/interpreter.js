@@ -98,7 +98,7 @@ $classObj.create = function(logo, sys) {
             evxContext.next();
             await evxToken(evxContext, precedence, false, true);
             if (sys.isUndefined(evxContext.retVal)) {
-                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [ctrlName], evxContext.getSrcmap(), Error().stack);
+                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [ctrlName], evxContext.getSrcmap());
             }
 
             let retVal = evxContext.retVal;
@@ -149,7 +149,7 @@ $classObj.create = function(logo, sys) {
             }
 
             if (j < paramListMinLength) {
-                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap(), Error().stack);
+                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap());
             }
         } else {
             let j = 0;
@@ -157,7 +157,7 @@ $classObj.create = function(logo, sys) {
                 evxContext.next();
                 await evxToken(evxContext, precedence, false, true);
                 if (sys.isUndefined(evxContext.retVal)) {
-                    throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap(), Error().stack);
+                    throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap());
                 }
 
                 let retVal = evxContext.retVal;
@@ -165,12 +165,12 @@ $classObj.create = function(logo, sys) {
             }
 
             if (j < paramListMinLength) {
-                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap(), Error().stack);
+                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap());
             }
         }
 
         try {
-            evxContext.retVal = await logo.lrt.util.getPrimitiveCallTarget(primitiveName).apply(undefined, nextActualParam);
+            evxContext.retVal = await logo.env.callPrimitive.apply(undefined, nextActualParam);
         } catch (e) {
             if (!logo.type.LogoException.is(e)) {
                 throw e;
@@ -238,13 +238,14 @@ $classObj.create = function(logo, sys) {
 
         while(evxContext.isNextTokenBinaryOperator()) {
             let nextOp = evxContext.getNextOperator();
+            let nextOpSrcmap = evxContext.getNextOperatorSrcmap();
             let nextPrec = logo.lrt.util.getBinaryOperatorPrecedence(nextOp);
 
             if (precedence >= nextPrec) {
                 return;
             }
 
-            await evxCtrlInfixOperator(evxContext, nextOp, nextPrec);
+            await evxCtrlInfixOperator(evxContext, nextOp, nextOpSrcmap, nextPrec);
         }
     }
 
@@ -257,7 +258,7 @@ $classObj.create = function(logo, sys) {
         if (curToken in ctrl) {
             await evxCtrlParam(evxContext, curToken, nextActualParam, 0, isInParen);
         } else if (curToken in logo.lrt.primitive) {
-            nextActualParam.push(curToken);
+            nextActualParam.push(curToken, curSrcmap);
             await evxPrimitiveCallParam(evxContext, curToken, nextActualParam,
                 logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
         } else if (curToken in logo.env._user) {
@@ -273,14 +274,14 @@ $classObj.create = function(logo, sys) {
         }
     }
 
-    async function evxCtrlInfixOperator(evxContext, nextOp, nextPrec) {
+    async function evxCtrlInfixOperator(evxContext, nextOp, nextOpSrcmap, nextPrec) {
         let nextActualParam = [];
         evxContext.next();
 
         let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
-        nextActualParam = [nextOp, evxContext.retVal];
-        await evxProcCallParam(evxContext, callTarget.length - 2, nextActualParam, nextPrec);
-        evxContext.retVal = callTarget.apply(undefined, nextActualParam);
+        nextActualParam = [nextOp, nextOpSrcmap, evxContext.retVal];
+        await evxProcCallParam(evxContext, callTarget.length - 1, nextActualParam, nextPrec);
+        evxContext.retVal = await logo.env.callPrimitiveOperatorAsync.apply(undefined, nextActualParam);
     }
 
     async function evxBody(body, srcmap) {
@@ -289,7 +290,7 @@ $classObj.create = function(logo, sys) {
         do {
             await evxToken(evxContext);
             if (!sys.isUndefined(evxContext.retVal) && sys.Config.get("unactionableDatum")) {
-                throw logo.type.LogoException.create("UNACTIONABLE_DATUM", [evxContext.retVal], evxContext.getSrcmap(), Error().stack);
+                throw logo.type.LogoException.create("UNACTIONABLE_DATUM", [evxContext.retVal], evxContext.getSrcmap());
             }
         } while (evxContext.next());
     }
@@ -418,7 +419,7 @@ $classObj.create = function(logo, sys) {
             let bodySrcmap = comp[1];
 
             if (!logo.type.isLogoBlock(body)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["if", body], bodySrcmap, Error().stack);
+                throw logo.type.LogoException.create("INVALID_INPUT", ["if", body], bodySrcmap);
             }
 
             await evxBody(body, bodySrcmap);
@@ -433,7 +434,7 @@ $classObj.create = function(logo, sys) {
         let bodySrcmap = comp[1];
 
         if (!logo.type.isLogoBlock(body)) {
-            throw logo.type.LogoException.create("INVALID_INPUT", ["catch", body], bodySrcmap, Error().stack);
+            throw logo.type.LogoException.create("INVALID_INPUT", ["catch", body], bodySrcmap);
         }
 
         try {
@@ -470,7 +471,7 @@ $classObj.create = function(logo, sys) {
             let body = comp[0];
             let bodySrcmap = comp[1];
             if (!logo.type.isLogoBlock(body)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["if", body], bodySrcmap, Error().stack);
+                throw logo.type.LogoException.create("INVALID_INPUT", ["if", body], bodySrcmap);
             }
 
             await evxBody(body, bodySrcmap);
@@ -479,7 +480,7 @@ $classObj.create = function(logo, sys) {
             let body = comp[0];
             let bodySrcmap = comp[1];
             if (!logo.type.isLogoBlock(body)) {
-                throw logo.type.LogoException.create("INVALID_INPUT", ["if", body], bodySrcmap, Error().stack);
+                throw logo.type.LogoException.create("INVALID_INPUT", ["if", body], bodySrcmap);
             }
 
             await evxBody(body, bodySrcmap);

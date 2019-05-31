@@ -20,7 +20,7 @@ $classObj.create = function(logo, sys, ext) {
     let _globalScope, _envState, _runTime,  _userInput, _resolveUserInput;
     let _asyncFunctionCall;
 
-    let $ret, $primitiveName, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
+    let $ret, $primitiveName, $primitiveSrcmap, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
 
     function registerUserInputResolver(resolve) {
         _resolveUserInput = resolve;
@@ -47,6 +47,44 @@ $classObj.create = function(logo, sys, ext) {
         return $primitiveName;
     }
     env.getPrimitiveName = getPrimitiveName;
+
+    function setPrimitiveSrcmap(primitiveSrcmap) {
+        $primitiveSrcmap = primitiveSrcmap;
+    }
+    env.setPrimitiveSrcmap = setPrimitiveSrcmap;
+
+    function getPrimitiveSrcmap() {
+        return $primitiveSrcmap;
+    }
+    env.getPrimitiveSrcmap = getPrimitiveSrcmap;
+
+    function callPrimitive(name, srcmap, ...args) {
+        setPrimitiveName(name);
+        setPrimitiveSrcmap(srcmap);
+        return logo.lrt.primitive[name].apply(undefined, args);
+    }
+    env.callPrimitive = callPrimitive;
+
+    async function callPrimitiveAsync(name, srcmap, ...args) {
+        setPrimitiveName(name);
+        setPrimitiveSrcmap(srcmap);
+        return await logo.lrt.primitive[name].apply(undefined, args);
+    }
+    env.callPrimitiveAsync = callPrimitiveAsync;
+
+    function callPrimitiveOperator(name, srcmap, ...args) {
+        setPrimitiveName(name);
+        setPrimitiveSrcmap(srcmap);
+        return logo.lrt.util.getBinaryOperatorRuntimeFunc(name).apply(undefined, args);
+    }
+    env.callPrimitiveOperator = callPrimitiveOperator;
+
+    async function callPrimitiveOperatorAsync(name, srcmap, ...args) {
+        setPrimitiveName(name);
+        setPrimitiveSrcmap(srcmap);
+        return logo.lrt.util.getBinaryOperatorRuntimeFunc(name).apply(undefined, args);
+    }
+    env.callPrimitiveOperatorAsync = callPrimitiveOperatorAsync;
 
     function isReservedWordTthen(v) {
         return sys.equalToken(v, "then");
@@ -77,30 +115,6 @@ $classObj.create = function(logo, sys, ext) {
         return scope;
     }
     env.findLogoVarScope = findLogoVarScope;
-
-    function lookupGeneratedCodeSrcmap(line, col) {
-        if (!Array.isArray(logo.generatedCodeSrcmap) || logo.generatedCodeSrcmap.length < line) {
-            return undefined;
-        }
-
-        line--;
-
-        let lineEntry = logo.generatedCodeSrcmap[line];
-        if (!Array.isArray(lineEntry)) {
-            return undefined;
-        }
-
-        let retVal = (Array.isArray(lineEntry[0]) && (0 in lineEntry[0])) ? lineEntry[0][1] : undefined;
-        lineEntry.forEach(function(colMap){
-            if (!Array.isArray(colMap) || colMap[0] > col) {
-                return retVal;
-            }
-
-            retVal = colMap[1];
-        });
-
-        return retVal;
-    }
 
     function batchMode() {
         return _logoMode == LogoMode.BATCH;
@@ -292,13 +306,13 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.execByLine = execByLine;
 
-    function throwRuntimeLogoException(type, funcName, stack) { // eslint-disable-line no-unused-vars
-        throw logo.type.LogoException.create(type, [funcName], undefined, stack);
+    function throwRuntimeLogoException(name, srcmap, value) { // eslint-disable-line no-unused-vars
+        throw logo.type.LogoException.create(name, value, srcmap);
     }
 
-    function checkUnactionableDatum(ret) { // eslint-disable-line no-unused-vars
+    function checkUnactionableDatum(ret, srcmap) { // eslint-disable-line no-unused-vars
         if (ret != undefined) {
-            throw logo.type.LogoException.create("UNACTIONABLE_DATUM", [ret], undefined, Error().stack);
+            throw logo.type.LogoException.create("UNACTIONABLE_DATUM", [ret], srcmap);
         }
     }
 
@@ -311,15 +325,6 @@ $classObj.create = function(logo, sys, ext) {
                     throw e;
                 } else {
                     logo.io.stderr(e.formatMessage());
-
-                    let errStack = e.getStack();
-                    if (Array.isArray(errStack) && errStack.length > 0) {
-                        let stackDump = convertToStackDump(errStack);
-                        if (stackDump.length > 0) {
-                            logo.io.stderr(stackDump);
-                        }
-                    }
-
                     env._callstack.push([env._curProc, e.getSrcmap()]);
                     logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
                 }
@@ -339,77 +344,17 @@ $classObj.create = function(logo, sys, ext) {
                 .join("\n");
     }
 
-    function getLogoStack(stack) {
-
-        let ret = [];
-        let lines = stack.split(/\r?\n/);
-        let parsedStack = [];
-
-        for(let i = 0; i < lines.length; i++) {
-            // Mozilla
-            let token = lines[i].match(/^\s*(\w+\/)?(\S+?)?@(.+?)(\beval\b)?:(\d+):(\d+)$/);
-            if (token != null) {
-                parsedStack.push([token[2], token[4], token[5], token[6]]);
-                continue;
-            }
-
-            // IE, Edge, Chrome
-            token = lines[i].match(/^\s*at (.+?) \((\beval\b)?(.+?):(\d+):(\d+)\)$/);
-            if (token != null) {
-                parsedStack.push([token[1], token[2], token[4], token[5]]);
-                continue;
-            }
-        }
-
-        for (let i = 0; i < parsedStack.length; i++) {
-            if (i == 0 && parsedStack.length > 2 && Array.isArray(parsedStack[0]) && parsedStack[0].length > 0 &&
-                    typeof parsedStack[0][0] === "string" && parsedStack[0][0].match(/primitiveThrow/)) {
-                let srcmap = lookupGeneratedCodeSrcmap(parsedStack[1][2], parsedStack[1][3]);
-                ret.push([extractFuncName(parsedStack[2][0]), srcmap]);
-                i += 2;
-                continue;
-            }
-
-            if (parsedStack[i][1] == "eval") {
-                if (i<parsedStack.length - 1 && (parsedStack[i][0] == "logo.env._user.$" ||
-                    parsedStack[i][0] == "Object.logo.env._user.$")) {
-
-                    let srcmap = lookupGeneratedCodeSrcmap(parsedStack[i][2], parsedStack[i][3]);
-                    ret.push([undefined, srcmap]);
-                    break;
-                } else {
-                    let srcmap = lookupGeneratedCodeSrcmap(parsedStack[i][2], parsedStack[i][3]);
-                    ret.push([extractFuncName(parsedStack[i][0]), srcmap]);
-                }
-            }
-        }
-
-        return ret;
-
-        function extractFuncName(funcName) {
-            let token = funcName.match(/^Object\.(.+?)$/);
-            return (token != null) ? token[1] : funcName;
-        }
-    }
-    env.getLogoStack = getLogoStack;
-
     async function evalLogoJs(logoJsSrc) {
         try {
-            sys.trace("evalLogoJs" + logoJsSrc, "evalJs");
             eval(logoJsSrc);
-            let retVal = await logo.env._user.$();
-            _envState = "continue";
-            return retVal;
+            await logo.env._user.$();
         } catch(e) {
             if (!logo.type.LogoException.is(e)) {
-                if (e.stack) {
-                    logo.io.stderr(getLogoStack(e.stack));
-                }
-
-                logo.io.stderr(e.stack);
+                throw e;
             } else {
                 logo.io.stderr(e.formatMessage());
-                logo.io.stderr(convertToStackDump(e.getStack()));
+                env._callstack.push([env._curProc, e.getSrcmap()]);
+                logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
             }
         }
     }

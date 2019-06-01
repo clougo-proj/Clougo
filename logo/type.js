@@ -396,7 +396,7 @@ $classObj.create = function(logo, sys) {
     }
     type.arrayLength = arrayLength;
 
-    const length = (function() {
+    const length = (() => {
         const getLengthHelper = {};
 
         getLengthHelper[OBJTYPE.LIST] = listLength;
@@ -413,7 +413,7 @@ $classObj.create = function(logo, sys) {
     })();
     type.length = length;
 
-    const unbox = (function() {
+    const unbox = (() => {
         const unboxHelper = {};
 
         unboxHelper[OBJTYPE.LIST] = function(obj) { return obj.slice(LIST_HEAD_SIZE); };
@@ -442,7 +442,7 @@ $classObj.create = function(logo, sys) {
     type.makeLogoArray = makeLogoArray;
 
     function makeLogoArrayBySize(size, origin = type.ARRAY_DEFAULT_ORIGIN) {
-        let ret = makeObject(OBJTYPE.ARRAY, Array.apply(null, Array(size)).map(function() { return null; }));
+        let ret = makeObject(OBJTYPE.ARRAY, Array.apply(null, Array(size)).map(() => null));
         ret.splice(1, 0, origin);
         return ret;
     }
@@ -836,7 +836,7 @@ $classObj.create = function(logo, sys) {
     }
     type.toString = toString;
 
-    const LogoException = (function() {
+    const LogoException = (() => {
         const codemap = {
             // name : code
             "NOT_ENOUGH_INPUTS"     : 6,

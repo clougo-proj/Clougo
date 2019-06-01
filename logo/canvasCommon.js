@@ -44,7 +44,7 @@ CanvasCommon.getPrimitiveParamCount = function(code) {
 };
 
 CanvasCommon.primitivecode = {};
-(function() {
+(() => {
     for (let p in CanvasCommon.primitive) {
         let code = CanvasCommon.primitive[p][0];
         let count = CanvasCommon.primitive[p][1];

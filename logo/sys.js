@@ -64,7 +64,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     }
     sys.logoFround6 = logoFround6;
 
-    const Trace = (function() {
+    const Trace = (() => {
         const traceKeys = [
             "parse",
             "parse.result",
@@ -82,12 +82,12 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
         const Trace = {};
 
         const traceTable = {};
-        traceKeys.forEach(function(v) { traceTable[v] = function() {}; });
+        traceKeys.forEach(v => traceTable[v] = () => {});
 
         Trace.setTraceOptions = function(keysOn) {
             const reKeysOn = makeMatchListRegexp(keysOn);
-            traceKeys.filter(function(v) { return v.match(reKeysOn); })
-                .forEach(function(v) { traceTable[v] = console.error; }); // eslint-disable-line no-console
+            traceKeys.filter(v => v.match(reKeysOn))
+                .forEach(v => traceTable[v] = console.error); // eslint-disable-line no-console
         };
 
         Trace.trace = function(text, key) {
@@ -107,7 +107,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     sys.trace = Trace.trace;
     sys.Trace = Trace;
 
-    const Config = (function() {
+    const Config = (() => {
         const Config = {};
         const config = {
             unitTestsJsSrcFile: "../generated/unittests.js",
@@ -130,9 +130,8 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
         };
 
         Config.setConfigs = function(configNames, val) {
-            configNames.forEach(function(configName) {
-                Config.set(configName, val);
-            });
+            configNames.forEach(configName =>
+                Config.set(configName, val));
         };
 
         return Config;

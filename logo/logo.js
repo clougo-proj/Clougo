@@ -21,7 +21,7 @@ const sys = classFromJs("./sys.js").create(isNodeJsEnvFlag, util);
 const Logo = {};
 const testRunner = classFromJs("./testrunner.js").create(Logo, sys);
 
-Logo.getUnitTests = (function() {
+Logo.getUnitTests = (() => {
     let unitTests = undefined;
     return function() {
         if (unitTests === undefined) {

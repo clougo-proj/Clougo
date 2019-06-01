@@ -335,12 +335,11 @@ $classObj.create = function(logo, sys, ext) {
 
     function convertToStackDump(stack) {
         return sys.isUndefined(stack) ? "" :
-            stack.map(function(v) {
-                return !Array.isArray(v[1]) || v[1][0] == 0 ? "" :
-                    typeof v[0] !== "undefined" ?
-                        "    " + v[0] + " at " + logo.type.srcmapToString(v[1]) :
-                        "    at " + logo.type.srcmapToString(v[1]);
-            }).filter(function(v) { return v != ""; })
+            stack.map(v => !Array.isArray(v[1]) || v[1][0] == 0 ? "" :
+                typeof v[0] !== "undefined" ?
+                    "    " + v[0] + " at " + logo.type.srcmapToString(v[1]) :
+                    "    at " + logo.type.srcmapToString(v[1]))
+                .filter(v => v !== "")
                 .join("\n");
     }
 

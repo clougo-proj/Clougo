@@ -17,7 +17,7 @@ $classObj.create = function(logo, sys) {
 
     let _funcName = "";
 
-    const _varScopes = (function() {
+    const _varScopes = (() => {
         let self = {};
 
         let localVarStack = [];
@@ -172,7 +172,7 @@ $classObj.create = function(logo, sys) {
         if (logo.env.getAsyncFunctionCall()) {
             code.push("($ret=await (async function() {");
         } else {
-            code.push("($ret=(function() {");
+            code.push("($ret=(() => {");
         }
 
         code.push("try {\n");
@@ -352,7 +352,6 @@ $classObj.create = function(logo, sys) {
             _varScopes.isGlobalVar(varName) ? ["logo.lrt.util.logoVar(_globalScope[\"", varName, "\"" , "], \"", varName, "\",",  logo.type.srcmapToJs(srcmap), ")"] :
                 ["logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"", varName, "\"", "], \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")"];
     }
-
     function genLogoVarLref(varName) {
         return _varScopes.isLocalVar(varName) ? [varName] :
             _varScopes.isGlobalVar(varName) ? ["_globalScope['" + varName + "']"] :
@@ -360,15 +359,9 @@ $classObj.create = function(logo, sys) {
     }
 
     function insertDelimiters(param, delimiter) {
-        let ret = [];
-
-        param.forEach(function(v, i) {
-            ret[i * 2] = param[i];
-            if (i > 0) {
-                ret[i * 2 - 1] = delimiter;
-            }
-        });
-
+        let ret = param.map(v => [v, delimiter]).reduce((accumulator, currentValue) =>
+            accumulator.concat(currentValue), []);
+        ret.pop();
         return ret;
     }
 
@@ -512,9 +505,8 @@ $classObj.create = function(logo, sys) {
                 code.push("(");
 
                 if (sys.Config.get("dynamicScope")) {
-                    _varScopes.localVars().forEach(function(varName) {
-                        code.push("($scope['", varName, "']=", varName, "),");
-                    });
+                    _varScopes.localVars().forEach((varName) =>
+                        code.push("($scope['", varName, "']=", varName, "),"));
                 }
 
                 code.push("logo.env._callstack.push([logo.env._curProc," + logo.type.srcmapToJs(srcmap) + "]),");
@@ -534,9 +526,8 @@ $classObj.create = function(logo, sys) {
                 code.push("logo.env._curProc=logo.env._callstack.pop()[0],");
 
                 if (sys.Config.get("dynamicScope")) {
-                    _varScopes.localVars().forEach(function(varName) {
-                        code.push("(", varName, "=$scope['", varName, "']),");
-                    });
+                    _varScopes.localVars().forEach(varName =>
+                        code.push("(", varName, "=$scope['", varName, "']),"));
                 }
 
                 if (sys.Config.get("dynamicScope")) {
@@ -678,7 +669,7 @@ $classObj.create = function(logo, sys) {
         }
 
         _varScopes.enter();
-        params.forEach(function(v) { _varScopes.addVar(v); });
+        params.forEach(v => _varScopes.addVar(v));
         code.push(genBody(evxContext, true));
         _varScopes.exit();
 

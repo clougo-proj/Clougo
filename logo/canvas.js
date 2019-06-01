@@ -57,7 +57,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
     _convasContext.fillStyle = "#000000";
     _convasContext.lineCap = "round";
 
-    const tqCacheReader = (function() {
+    const tqCacheReader = (() => {
         let tqcr = {};
         let tqcachearray = [];
         let tqptr = 1;
@@ -126,7 +126,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
         }
     }
 
-    const drawScreen = (function () {
+    const drawScreen = (() => {
 
         let imgData = undefined;
 
@@ -304,9 +304,8 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
         }
     };
 
-    Object.keys(CanvasCommon.primitive).forEach(function(key){
-        _turtleCmd[CanvasCommon.getPrimitiveCode(key)] = _primitive[key];
-    });
+    Object.keys(CanvasCommon.primitive).forEach(key =>
+        _turtleCmd[CanvasCommon.getPrimitiveCode(key)] = _primitive[key]);
 
     backupBeforeTurtle();
     requestAnimationFrame(drawScreen);

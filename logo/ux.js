@@ -41,14 +41,14 @@ function createLogoTerminal(eventHandler) {
 
     function getAllReady() {
         return Object.keys(isReady)
-            .map(function(e){ return isReady[e]; })
+            .map(e => isReady[e])
             .reduce(
                 function(acc, cur) { return acc && cur; }
             );
     }
 
-    jQuery(document).ready(function($) {
-        $("#term").terminal(function(command) {
+    jQuery(document).ready($ => {
+        $("#term").terminal(command => {
             if (getAllReady()) {
                 thisTerm.pause();
                 eventHandler.console(command);
@@ -117,7 +117,7 @@ function writeLogoStorage(key, value) {
 }
 
 // http://localhost:8080/?mode=beta&lpk=unittest
-const getUrlParams = (function() {
+const getUrlParams = (() => {
     let urlParams = typeof URLSearchParams !== "undefined" ? new URLSearchParams(window.location.search) : undefined;
     return function(key) {
         return urlParams && urlParams.get(key);
@@ -166,7 +166,7 @@ function saveEditorContent() {
 window.setInterval(saveEditorContent, 10000);
 
 
-const zoomTurtleCanvas = (function() {  // eslint-disable-line no-unused-vars
+const zoomTurtleCanvas = (() => {  // eslint-disable-line no-unused-vars
     const settingKey = "$settings$turtleCanvasZoom$";
     const turtleCanvasHeight = {
         "fit": "92vh",
@@ -193,7 +193,7 @@ const zoomTurtleCanvas = (function() {  // eslint-disable-line no-unused-vars
     return zoomTurtleCanvas;
 })();
 
-const changeUpperPane = (function() { // eslint-disable-line no-unused-vars
+const changeUpperPane = (() => { // eslint-disable-line no-unused-vars
     const settingKey = "$settings$viewState$";
     const canvasPaneWidth = {
         "turtle": "99vw",
@@ -224,7 +224,7 @@ const changeUpperPane = (function() { // eslint-disable-line no-unused-vars
     return changeUpperPane;
 })();
 
-const adjustTerminal = (function() { // eslint-disable-line no-unused-vars
+const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
     const settingKey = "$settings$terminalState$";
     const topPaneHeight = {
         "full": "0px",

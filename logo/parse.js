@@ -9,7 +9,7 @@ var $classObj = {};
 $classObj.create = function(logo, sys) {
     const parse = {};
 
-    const Delimiter = (function() {
+    const Delimiter = (() => {
         const SP_NONE = 0,
             SP_BASE = 0x1,
             SP_OPEN = 0x2,
@@ -170,10 +170,9 @@ $classObj.create = function(logo, sys) {
 
         function processFormalParam(formal) {
             sys.assert(Array.isArray(formal));
-            return formal.map(function(v) {
-                return logo.type.isLogoVarRef(v) ? logo.env.extractVarName(v) :
-                    (Array.isArray(v) && logo.type.isLogoVarRef(v[0])) ? v.splice(0, 1, logo.env.extractVarName(v)) : v;
-            });
+            return formal.map(v =>
+                logo.type.isLogoVarRef(v) ? logo.env.extractVarName(v) :
+                    (Array.isArray(v) && logo.type.isLogoVarRef(v[0])) ? v.splice(0, 1, logo.env.extractVarName(v)) : v);
         }
 
         function processLine(word, index){
@@ -478,7 +477,7 @@ $classObj.create = function(logo, sys) {
         let lines = s.split(/\r?\n/);
 
         // parse lines
-        lines.forEach(function(line) {
+        lines.forEach(line => {
             parse.line(line);
             _parseLine++;
             _parseCol = 0;

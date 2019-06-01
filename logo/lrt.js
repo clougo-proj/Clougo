@@ -297,12 +297,12 @@ $classObj.create = function(logo, sys) {
 
     function primitiveAnd(...args) {
         args.forEach(logo.type.checkInputBoolean);
-        return args.reduce(function(accumulator, currentValue) { return accumulator && logo.type.asLogoBoolean(currentValue); }, true);
+        return args.reduce((accumulator, currentValue) => accumulator && logo.type.asLogoBoolean(currentValue), true);
     }
 
     function primitiveOr(...args) {
         args.forEach(logo.type.checkInputBoolean);
-        return args.reduce(function(accumulator, currentValue) { return accumulator || logo.type.asLogoBoolean(currentValue); }, false);
+        return args.reduce((accumulator, currentValue) => accumulator || logo.type.asLogoBoolean(currentValue), false);
     }
 
     function primitiveNot(value) {
@@ -313,9 +313,8 @@ $classObj.create = function(logo, sys) {
     function primitiveLocal(...args) {
         let ptr = logo.env._scopeStack.length - 1;
 
-        args.forEach(function(varname){
-            logo.env._scopeStack[ptr][varname.toLowerCase()] = undefined;
-        });
+        args.forEach(varname =>
+            logo.env._scopeStack[ptr][varname.toLowerCase()] = undefined);
     }
 
     function primitiveLocalmake(varname, val) {
@@ -347,15 +346,15 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitivePrint(...args) {
-        logo.io.stdout(args.map(function(v) { return logo.type.toString(v);}).join(" "));
+        logo.io.stdout(args.map(v => logo.type.toString(v)).join(" "));
     }
 
     function primitiveShow(...args) {
-        logo.io.stdout(args.map(function(v){ return logo.type.toString(v, true);}).join(" "));
+        logo.io.stdout(args.map(v => logo.type.toString(v, true)).join(" "));
     }
 
     function primitiveType(...args) {
-        logo.io.stdoutn(args.map(function(v) { return logo.type.toString(v);}).join(""));
+        logo.io.stdoutn(args.map(v => logo.type.toString(v)).join(""));
     }
 
     function primitiveReadlist() {  // eslint-disable-line no-unused-vars
@@ -534,7 +533,7 @@ $classObj.create = function(logo, sys) {
         return;
     }
 
-    const primitiveDemo = (function() {
+    const primitiveDemo = (() => {
         let demo = undefined;
         return function(name) {
             if (demo === undefined) {

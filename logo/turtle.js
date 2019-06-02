@@ -258,7 +258,7 @@ $classObj.create = function(logo, sys) {
 
     function primitiveSetpensize(size) {
         logo.type.checkInputPensize(size);
-        let actualSize = sys.isInteger(size) ? size : Math.floor(size[2]);
+        let actualSize = sys.isInteger(size) ? size : Math.floor(logo.type.listItem(2, size));
         _penSize = logo.type.makeLogoList([actualSize, actualSize]);
         logo.ext.canvas.sendCmd("pensize", [actualSize]);
     }

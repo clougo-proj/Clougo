@@ -255,9 +255,9 @@ $classObj.create = function(logo, sys, ext) {
         setAsyncFunctionCall(asyncFunctionCall(logosrc));
 
         if (genjs) {
-            await evalLogoGen.apply(null, parsedCode);
+            await evalLogoGen(parsedCode);
         } else {
-            await evalLogo.apply(null, parsedCode);
+            await evalLogo(parsedCode);
         }
     }
 
@@ -316,10 +316,10 @@ $classObj.create = function(logo, sys, ext) {
         }
     }
 
-    async function evalLogo(parsedCommand, srcmap) {
+    async function evalLogo(parsedCommand) {
         if (!sys.isUndefined(parsedCommand)) {
             try {
-                await logo.interpreter.evxBody(parsedCommand, srcmap);
+                await logo.interpreter.evxBody(parsedCommand);
             } catch(e) {
                 if (!logo.type.LogoException.is(e)) {
                     throw e;
@@ -368,9 +368,9 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.evalLogoJsTimed = evalLogoJsTimed;
 
-    async function evalLogoGen(parsedCommand, srcmap) {
+    async function evalLogoGen(parsedCommand) {
         const ret = sys.isUndefined(parsedCommand) ? undefined :
-            await evalLogoJs(logo.codegen(parsedCommand, srcmap));
+            await evalLogoJs(logo.codegen(parsedCommand));
         setEnvState("ready");
         return ret;
     }

@@ -137,8 +137,8 @@ $classObj.create = function(logo, sys) {
             code.push("throwRuntimeLogoException('INVALID_INPUT',", logo.type.srcmapToJs(srcmap),
                 ",[\"if\", \"" + curToken + "\"])");
         } else {
-            let comp = logo.parse.parseBlock([curToken, srcmap]);
-            code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
+            let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
+            code.push(genBody(logo.interpreter.makeEvalContext(comp), true));
         }
 
         code.push("}");
@@ -155,8 +155,8 @@ $classObj.create = function(logo, sys) {
             code.push(" else {");
             srcmap = evxContext.getSrcmap();
 
-            let comp = logo.parse.parseBlock([curToken, srcmap]);
-            code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
+            let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
+            code.push(genBody(logo.interpreter.makeEvalContext(comp), true));
             code.push("}");
         }
 
@@ -185,8 +185,8 @@ $classObj.create = function(logo, sys) {
             code.push("throwRuntimeLogoException('INVALID_INPUT',",
                 logo.type.srcmapToJs(srcmap), ",[\"catch\", \"" + curToken + "\"])");
         } else {
-            let comp = logo.parse.parseBlock([curToken, srcmap]);
-            code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
+            let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
+            code.push(genBody(logo.interpreter.makeEvalContext(comp), true));
         }
 
         code.push("} catch (e) {\n");
@@ -223,8 +223,8 @@ $classObj.create = function(logo, sys) {
             code.push("throwRuntimeLogoException('INVALID_INPUT',",
                 logo.type.srcmapToJs(srcmap), ",[\"ifelse\", \"" + curToken + "\"])");
         } else {
-            let comp = logo.parse.parseBlock([curToken, srcmap]);
-            code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
+            let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
+            code.push(genBody(logo.interpreter.makeEvalContext(comp), true));
         }
 
         code.push("} else {\n");
@@ -237,8 +237,8 @@ $classObj.create = function(logo, sys) {
             code.push("throwRuntimeLogoException('INVALID_INPUT',",
                 logo.type.srcmapToJs(srcmap), ",[\"ifelse\", \"" + curToken + "\"])");
         } else {
-            let comp = logo.parse.parseBlock([curToken, srcmap]);
-            code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
+            let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
+            code.push(genBody(logo.interpreter.makeEvalContext(comp), true));
         }
 
         code.push("}");
@@ -264,8 +264,8 @@ $classObj.create = function(logo, sys) {
             code.push("throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
                 logo.type.srcmapToJs(srcmap), ",[\"repeat\"])");
         } else {
-            let bodycomp = logo.parse.parseBlock([curToken, srcmap]);
-            code.push(genBody(logo.interpreter.makeEvalContext(bodycomp[0], bodycomp[1]), true));
+            let bodycomp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
+            code.push(genBody(logo.interpreter.makeEvalContext(bodycomp), true));
         }
 
         code.push("}");
@@ -282,8 +282,8 @@ $classObj.create = function(logo, sys) {
 
         token = token.map(sys.toNumberIfApplicable);
 
-        let comp = logo.parse.parseBlock([token, srcmap]);
-        let forLoopCtrl = logo.interpreter.makeEvalContext(comp[0], comp[1]);
+        let comp = logo.parse.parseBlock(logo.type.embedSrcmap(token, srcmap));
+        let forLoopCtrl = logo.interpreter.makeEvalContext(comp);
         let forVarName = genLogoVarLref(forLoopCtrl.getToken());
 
         forLoopCtrl.next();
@@ -305,8 +305,8 @@ $classObj.create = function(logo, sys) {
 
         evxContext.next();
 
-        comp = logo.parse.parseBlock([evxContext.getToken(), evxContext.getSrcmap()]);
-        code.push(genBody(logo.interpreter.makeEvalContext(comp[0], comp[1]), true));
+        comp = logo.parse.parseBlock(logo.type.embedSrcmap(evxContext.getToken(), evxContext.getSrcmap()));
+        code.push(genBody(logo.interpreter.makeEvalContext(comp), true));
         code.push("}}");
 
         return code;
@@ -624,18 +624,18 @@ $classObj.create = function(logo, sys) {
             typeof code !== "string" ? code.toString() : code;
     }
 
-    function genCode(p, srcmap) {
+    function genCode(p) {
 
         let oldFuncName = _funcName;
         _funcName = "";
-        let evxContext = logo.interpreter.makeEvalContext(p, srcmap);
+
+        let evxContext = logo.interpreter.makeEvalContext(p);
 
         _varScopes.enter();
         let code = mergeCode(genBody(evxContext, true));
         _varScopes.exit();
 
         let ret = "// " + JSON.stringify(p) + "\n" +
-                "//" + JSON.stringify(srcmap) + "\n" +
                 "$scopeCache={};" +
                 "logo.env._user.$ = async function(){\n" + code + "}";
 
@@ -653,7 +653,7 @@ $classObj.create = function(logo, sys) {
         let oldFuncName = _funcName;
         _funcName = p[1];
 
-        let evxContext = logo.interpreter.makeEvalContext(p[3], srcmap[3]);
+        let evxContext = logo.interpreter.makeEvalContext(logo.type.embedSrcmap(p[3], srcmap[3]));
         code.push(_funcName, "(");
 
         let params = p[2];

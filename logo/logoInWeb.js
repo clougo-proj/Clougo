@@ -11,7 +11,7 @@
 /* global importScripts, Float32Array, CanvasCommon */
 
 var $classObj = {};
-$classObj.create = function logoInWeb(Logo, sys) {
+$classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-vars
 
     importScripts("CanvasCommon.js");
 

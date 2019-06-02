@@ -13,3 +13,4 @@ newline_in_block run exec
 paren run exec
 catch run exec
 localmake run exec
+block_indirect run

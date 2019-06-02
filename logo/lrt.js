@@ -275,7 +275,7 @@ $classObj.create = function(logo, sys) {
 
         logo.type.checkInputList(list);
         let newlist = list.slice(0);
-        newlist.splice(logo.type.LIST_ORIGIN, 0, thing);
+        newlist.splice(logo.type.LIST_HEAD_SIZE, 0, thing);
         return newlist;
     }
 

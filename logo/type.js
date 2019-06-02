@@ -9,16 +9,22 @@ var $classObj = {};
 $classObj.create = function(logo, sys) {
     const type = {};
 
-    const LIST_HEAD_SIZE = 1;
+    const LIST_HEAD_SIZE = 2;
     const ARRAY_HEAD_SIZE = 2;
+    const SRCMAP_NULL = 0;
+    const LIST_ORIGIN = 1;
+    const ARRAY_DEFAULT_ORIGIN = 1;
+
+    type.LIST_HEAD_SIZE = LIST_HEAD_SIZE;
+    type.ARRAY_HEAD_SIZE = ARRAY_HEAD_SIZE;
+    type.LIST_ORIGIN = LIST_ORIGIN;
+    type.ARRAY_DEFAULT_ORIGIN = ARRAY_DEFAULT_ORIGIN;
 
     const OBJTYPE = {
         MIN_VALUE: 0,
-        COMPOUND: 0, // [body, srcmap]
         LIST: 1,
         ARRAY: 2,
         PROC: 3,
-        BLOCK: 4,
         MAX_VALUE: 7
     };
 
@@ -224,20 +230,23 @@ $classObj.create = function(logo, sys) {
     }
     type.radToDeg = radToDeg;
 
-    function makeCompound(val) {
-        return makeObject(OBJTYPE.COMPOUND, val);
-    }
-    type.makeCompound = makeCompound;
-
-    function isCompound(token) {
-        return (token instanceof Array && token[0] == OBJTYPE.COMPOUND);
-    }
-    type.isCompound = isCompound;
-
-    function makeLogoList(val) {
-        return makeObject(OBJTYPE.LIST, val);
+    function makeLogoList(val, srcmap = SRCMAP_NULL) {
+        let ret = makeObject(OBJTYPE.LIST, val);
+        ret.splice(1, 0, srcmap);
+        return ret;
     }
     type.makeLogoList = makeLogoList;
+
+    function embedSrcmap(list, srcmap) {
+        list[1] = srcmap;
+        return list;
+    }
+    type.embedSrcmap = embedSrcmap;
+
+    function getEmbeddedSrcmap(list) {
+        return list[1];
+    }
+    type.getEmbeddedSrcmap = getEmbeddedSrcmap;
 
     function isLogoObj(val) {
         return Array.isArray(val) && val.length > 0 &&
@@ -311,11 +320,8 @@ $classObj.create = function(logo, sys) {
     }
     type.getRGB = getRGB;
 
-    type.LIST_ORIGIN = 1;
-    type.ARRAY_DEFAULT_ORIGIN = 1;
-
     function listButFirst(list) {
-        return makeLogoList(list.slice(2));
+        return makeLogoList(list.slice(LIST_HEAD_SIZE + 1));
     }
     type.listButFirst = listButFirst;
 
@@ -335,12 +341,12 @@ $classObj.create = function(logo, sys) {
     type.listIndexWithinRange = listIndexWithinRange;
 
     function listSetItem(index, list, val) {
-        list[index] = val;
+        list[index + LIST_HEAD_SIZE - LIST_ORIGIN] = val;
     }
     type.listSetItem = listSetItem;
 
     function listItem(index, list) {
-        return list[index];
+        return list[index + LIST_HEAD_SIZE - LIST_ORIGIN];
     }
     type.listItem = listItem;
 
@@ -350,8 +356,12 @@ $classObj.create = function(logo, sys) {
     type.listLength = listLength;
 
     function listEqual(a, b) {
-        let length = listLength(a);
-        for (let i = 0; i < length; i++) {
+        let maxIndex = listMaxIndex(a);
+        if (maxIndex !== listMaxIndex(b)) {
+            return false;
+        }
+
+        for (let i = LIST_ORIGIN; i <= maxIndex; i++) {
             if (!equal(listItem(i, a), listItem(i, b))) {
                 return false;
             }
@@ -454,14 +464,15 @@ $classObj.create = function(logo, sys) {
     type.isLogoArray = isLogoArray;
 
     function arrayToList(array) {
-        let value = array.slice(2);
+        let value = array.slice(ARRAY_HEAD_SIZE);
+        value.unshift(SRCMAP_NULL);
         value.unshift(OBJTYPE.LIST);
         return value;
     }
     type.arrayToList = arrayToList;
 
     function listToArray(list, origin) {
-        let value = list.slice(1);
+        let value = list.slice(LIST_HEAD_SIZE);
         value.unshift(origin);
         value.unshift(OBJTYPE.ARRAY);
         return value;
@@ -480,7 +491,6 @@ $classObj.create = function(logo, sys) {
     }
     type.asciiToChar = asciiToChar;
 
-    type.charToAscii = charToAscii;
     function makeLogoProc(val) {
         return makeObject(OBJTYPE.PROC, val);
     }
@@ -490,16 +500,6 @@ $classObj.create = function(logo, sys) {
         return (token instanceof Array && token[0] == OBJTYPE.PROC);
     }
     type.isLogoProc = isLogoProc;
-
-    function makeLogoBlock(val) {
-        return makeObject(OBJTYPE.BLOCK, val);
-    }
-    type.makeLogoBlock = makeLogoBlock;
-
-    function isLogoBlock(token) {
-        return (token instanceof Array && token[0] == OBJTYPE.BLOCK);
-    }
-    type.isLogoBlock = isLogoBlock;
 
     function ifTrueThenThrow(predicate, exception, value) {
         if (predicate) {
@@ -805,10 +805,6 @@ $classObj.create = function(logo, sys) {
     }
 
     function toString(v, outterBracket = false) {
-        if (isCompound(v)) {
-            v = v[1];
-        }
-
         if (isQuotedLogoWord(v)) {
             return unquoteLogoWord(v);
         }
@@ -826,13 +822,13 @@ $classObj.create = function(logo, sys) {
         }
 
         function toStringHelper(v) {
-            return type.isLogoList(v) ? "[" +  v.slice(1).map(toStringHelper).join(" ") + "]" :
-                type.isLogoArray(v) ? "{" +  v.slice(2, v.length).map(toStringHelper).join(" ") + "}" :
+            return type.isLogoList(v) ? "[" +  v.slice(LIST_HEAD_SIZE).map(toStringHelper).join(" ") + "]" :
+                type.isLogoArray(v) ? "{" +  v.slice(ARRAY_HEAD_SIZE, v.length).map(toStringHelper).join(" ") + "}" :
                     v === null ? "[]" : v;
         }
 
         return type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) ? toStringHelper(v) :
-            v.slice(1).map(toStringHelper).join(" ");
+            v.slice(LIST_HEAD_SIZE).map(toStringHelper).join(" ");
     }
     type.toString = toString;
 

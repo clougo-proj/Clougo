@@ -147,20 +147,19 @@ $classObj.create = function(logo, sys) {
     // parse a block; return the result
     // tokenization: escape character, parentheses, operators
     parse.parseBlock = function(comp) {
-        let list = comp[0].slice();
-        let srcmap = comp[1].slice();
+        sys.assert(logo.type.isLogoList(comp));
 
-        sys.assert(logo.type.isLogoList(list));
+        let list = comp.slice(logo.type.LIST_HEAD_SIZE);
+        let srcmap = logo.type.getEmbeddedSrcmap(comp).slice(logo.type.LIST_HEAD_SIZE);
 
-        let ret = logo.type.makeLogoBlock();
-        let retsrcmap = logo.type.makeLogoBlock();
+        let retsrcmap = logo.type.makeLogoList();
+        let ret = logo.type.makeLogoList(undefined, retsrcmap);
+
         let lastto = -1;
 
-        list.shift();
-        srcmap.shift();
         list.forEach(processLine);
 
-        return [ret, retsrcmap];
+        return ret;
 
         function addSrcmapOffset(origSrcmap, offset) {
             let newSrcmap = origSrcmap.slice(0);
@@ -190,12 +189,12 @@ $classObj.create = function(logo, sys) {
                 let proc = logo.type.makeLogoProc([
                     ret[lastto + 1],
                     ret[lastto + 2],
-                    logo.type.makeLogoBlock(ret.slice(lastto + 3))]);
+                    logo.type.makeLogoList(ret.slice(lastto + 3))]);
 
                 let procsrcmap = logo.type.makeLogoProc([
                     retsrcmap[lastto + 1],
                     retsrcmap[lastto + 2],
-                    logo.type.makeLogoBlock(retsrcmap.slice(lastto + 3))]);
+                    logo.type.makeLogoList(retsrcmap.slice(lastto + 3))]);
 
                 proc[2] = processFormalParam(proc[2]);
 
@@ -340,7 +339,6 @@ $classObj.create = function(logo, sys) {
 
         function terminateLine() {
             if (_parseWord != "") {
-                //sys.trace("TOKEN="+_parseWord, "parse");
                 sys.trace("TOKEN2="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
                 insertParseWord();
             }
@@ -489,9 +487,10 @@ $classObj.create = function(logo, sys) {
 
         sys.trace("DATA="+JSON.stringify(_parseData), "parse");
         sys.trace("SRCM="+JSON.stringify(_parseSrcmap), "parse");
+        sys.assert(logo.type.isLogoList(_parseData), "expecting list!");
 
         // parse top-level as a block; deploy procs to ws
-        let comp = parse.parseBlock([_parseData, _parseSrcmap]);
+        let comp = parse.parseBlock(logo.type.embedSrcmap(_parseData, _parseSrcmap));
         _parseData = comp[0];
         _parseSrcmap = comp[1];
 

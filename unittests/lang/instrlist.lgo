@@ -1,0 +1,9 @@
+localmake "msg "Hello\ World!
+localmake "statement [pr :msg]
+repeat 3 :statement
+pr "
+for[i 1 3] :statement
+pr "
+if "true :statement
+ifelse "false [] :statement
+if "false [] else :statement

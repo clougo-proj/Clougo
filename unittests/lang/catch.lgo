@@ -20,8 +20,14 @@ to catch_test2
   output "ok
 end
 
+to catch_instrlist
+  type "test_instrlist:
+  localmake "instrList [throw "mytag output "error]
+  catch "mytag :instrlist
+  output "ok
+end
+
 pr catch_test0
 pr catch_test1
 pr catch_test2
-
-
+pr catch_instrlist

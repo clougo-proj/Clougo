@@ -1,0 +1,11 @@
+to test1 :code
+  if "true :code
+  pr :abc
+end
+
+make "defineLocalVar [
+  localmake "abc "local
+]
+
+
+test1 :defineLocalVar

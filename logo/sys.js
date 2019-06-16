@@ -115,6 +115,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
             unactionableDatum : true,  // raise runtime exception for unactionable datum
             genCommand : false,        // use codegen for interactive commands
             dynamicScope: true,
+            verbose: false,
             trace: true
         };
 

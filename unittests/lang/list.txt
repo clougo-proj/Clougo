@@ -14,3 +14,7 @@ paren run exec
 catch run exec
 localmake run exec
 block_indirect run
+instrlist run exec
+instrlist_scope run exec
+instrlist_err runl execl
+instrlist_cache exec

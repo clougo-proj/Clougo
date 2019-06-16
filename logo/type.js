@@ -17,6 +17,7 @@ $classObj.create = function(logo, sys) {
 
     type.LIST_HEAD_SIZE = LIST_HEAD_SIZE;
     type.ARRAY_HEAD_SIZE = ARRAY_HEAD_SIZE;
+    type.SRCMAP_NULL = SRCMAP_NULL;
     type.LIST_ORIGIN = LIST_ORIGIN;
     type.ARRAY_DEFAULT_ORIGIN = ARRAY_DEFAULT_ORIGIN;
 
@@ -247,6 +248,25 @@ $classObj.create = function(logo, sys) {
         return list[1];
     }
     type.getEmbeddedSrcmap = getEmbeddedSrcmap;
+
+    function embedReferenceSrcmap(list, srcmap) {
+        if (list[1] !== srcmap) {
+            list[1][1] = srcmap;
+        }
+
+        return list;
+    }
+    type.embedReferenceSrcmap = embedReferenceSrcmap;
+
+    function getReferenceSrcmap(list) {
+        return list[1][1];
+    }
+    type.getReferenceSrcmap = getReferenceSrcmap;
+
+    function isLogoListLiteral(value) {
+        return isLogoList(value) && getEmbeddedSrcmap(value) !== SRCMAP_NULL;
+    }
+    type.isLogoListLiteral = isLogoListLiteral;
 
     function isLogoObj(val) {
         return Array.isArray(val) && val.length > 0 &&
@@ -736,6 +756,10 @@ $classObj.create = function(logo, sys) {
     }
 
     function simpleSrcmapToJs(srcmap) {
+        if (srcmap === SRCMAP_NULL || srcmap === undefined) {
+            return SRCMAP_NULL;
+        }
+
         while (srcmap.length > 1 && Array.isArray(srcmap[1])) {
             srcmap = srcmap[1];
         }

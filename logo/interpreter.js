@@ -89,8 +89,11 @@ $classObj.create = function(logo, sys) {
                 throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [ctrlName], evxContext.getSrcmap());
             }
 
-            nextActualParam.push(evxContext.retVal);
+            let param = logo.type.isLogoList(evxContext.retVal) ?
+                logo.type.embedReferenceSrcmap(evxContext.retVal, evxContext.getSrcmap()) :
+                evxContext.retVal;
 
+            nextActualParam.push(param);
         }
 
         // if pred [list1] else [list2]
@@ -98,7 +101,11 @@ $classObj.create = function(logo, sys) {
             evxContext.next();
             evxContext.next();
             await evxToken(evxContext, precedence, false, true);
-            nextActualParam.push(evxContext.retVal);
+            let param = logo.type.isLogoList(evxContext.retVal) ?
+                logo.type.embedReferenceSrcmap(evxContext.retVal, evxContext.getSrcmap()) :
+                evxContext.retVal;
+
+            nextActualParam.push(param);
             ctrlName = "ifelse";
         }
 
@@ -302,23 +309,32 @@ $classObj.create = function(logo, sys) {
         return retVal;
     }
 
-    async function evxCtrlRepeat(count, bodyComp) {
+    async function evxInstrList(bodyComp) {
+        let refSrcmap = logo.type.getReferenceSrcmap(bodyComp);
         if (logo.type.isLogoList(bodyComp)) {
             bodyComp = logo.parse.parseBlock(bodyComp);
         }
 
-        for (let i = 0; i < count; i++) {
+        if (refSrcmap == logo.type.SRCMAP_NULL) {
             await evxBody(bodyComp);
+            return;
+        }
+
+        logo.env._callstack.push([logo.env._curProc, refSrcmap]);
+        logo.env._curProc = "[]";
+        await evxBody(bodyComp);
+        logo.env._curProc = logo.env._callstack.pop()[0];
+    }
+
+    async function evxCtrlRepeat(count, bodyComp) {
+        for (let i = 0; i < count; i++) {
+            await evxInstrList(bodyComp);
         }
     }
 
     async function evxCtrlFor(forCtrlComp, bodyComp) {
         if (logo.type.isLogoList(forCtrlComp)) {
             forCtrlComp = logo.parse.parseBlock(forCtrlComp);
-        }
-
-        if (logo.type.isLogoList(bodyComp)) {
-            bodyComp = logo.parse.parseBlock(bodyComp);
         }
 
         let evxContext = makeEvalContext(forCtrlComp);
@@ -348,19 +364,19 @@ $classObj.create = function(logo, sys) {
         for (curScope[forVarName] = forBegin;
             (!isDecrease && curScope[forVarName] <= forEnd) || (isDecrease && curScope[forVarName] >= forEnd);
             curScope[forVarName] += forStep) {
-            await evxBody(bodyComp);
+            await evxInstrList(bodyComp);
         }
     }
 
     async function evxCtrlIf(predicate, bodyComp) {
         if (logo.type.isNotLogoFalse(predicate)) {
-            await evxBody(logo.parse.parseBlock(bodyComp));
+            await evxInstrList(bodyComp);
         }
     }
 
     async function evxCtrlCatch(label, bodyComp) {
         try {
-            await evxBody(logo.parse.parseBlock(bodyComp));
+            await evxInstrList(bodyComp);
         } catch(e) {
             if (logo.type.LogoException.is(e) && e.isCustom()) {
                 if (sys.equalToken(label, e.getValue()[0])) {
@@ -381,9 +397,9 @@ $classObj.create = function(logo, sys) {
 
     async function evxCtrlIfElse(predicate, trueBodyComp, falseBodyComp) {
         if (logo.type.isNotLogoFalse(predicate)) {
-            await evxBody(logo.parse.parseBlock(trueBodyComp));
+            await evxInstrList(trueBodyComp);
         } else {
-            await evxBody(logo.parse.parseBlock(falseBodyComp));
+            await evxInstrList(falseBodyComp);
         }
     }
 

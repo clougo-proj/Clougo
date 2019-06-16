@@ -150,9 +150,12 @@ $classObj.create = function(logo, sys) {
         sys.assert(logo.type.isLogoList(comp));
 
         let list = comp.slice(logo.type.LIST_HEAD_SIZE);
-        let srcmap = logo.type.getEmbeddedSrcmap(comp).slice(logo.type.LIST_HEAD_SIZE);
+        let blockHasSrcmap = logo.type.isLogoListLiteral(comp);
+        let srcmap = blockHasSrcmap ?
+            logo.type.getEmbeddedSrcmap(comp).slice(logo.type.LIST_HEAD_SIZE) :
+            logo.type.SRCMAP_NULL;
 
-        let retsrcmap = logo.type.makeLogoList();
+        let retsrcmap = blockHasSrcmap ? logo.type.makeLogoList() : logo.type.SRCMAP_NULL;
         let ret = logo.type.makeLogoList(undefined, retsrcmap);
 
         let lastto = -1;
@@ -177,7 +180,10 @@ $classObj.create = function(logo, sys) {
         function processLine(word, index){
             if (typeof word != "string" || word.length == 0) {
                 ret.push(word);
-                retsrcmap.push(srcmap[index]);
+                if (blockHasSrcmap) {
+                    retsrcmap.push(srcmap[index]);
+                }
+
                 return;
             }
 
@@ -191,19 +197,7 @@ $classObj.create = function(logo, sys) {
                     ret[lastto + 2],
                     logo.type.makeLogoList(ret.slice(lastto + 3))]);
 
-                let procsrcmap = logo.type.makeLogoProc([
-                    retsrcmap[lastto + 1],
-                    retsrcmap[lastto + 2],
-                    logo.type.makeLogoList(retsrcmap.slice(lastto + 3))]);
-
                 proc[2] = processFormalParam(proc[2]);
-
-                logo.env._ws[proc[1]] = {
-                    "formal" : proc[2],
-                    "formalsrcmap" : procsrcmap[2],
-                    "body" : proc[3],
-                    "bodySrcmap" : procsrcmap[3]
-                };
 
                 // invalidate generated JS code
                 if (proc[1] in logo.env._user) {
@@ -211,7 +205,23 @@ $classObj.create = function(logo, sys) {
                 }
 
                 ret.splice(lastto, ret.length - lastto, proc);
-                retsrcmap.splice(lastto, retsrcmap.length - lastto, procsrcmap);
+
+                if (blockHasSrcmap) {
+                    let procsrcmap = logo.type.makeLogoProc([
+                        retsrcmap[lastto + 1],
+                        retsrcmap[lastto + 2],
+                        logo.type.makeLogoList(retsrcmap.slice(lastto + 3))]);
+
+                    logo.env._ws[proc[1]] = {
+                        "formal" : proc[2],
+                        "formalsrcmap" : procsrcmap[2],
+                        "body" : proc[3],
+                        "bodySrcmap" : procsrcmap[3]
+                    };
+
+                    retsrcmap.splice(lastto, retsrcmap.length - lastto, procsrcmap);
+                }
+
                 lastto = -1;
                 return;
             }
@@ -295,7 +305,9 @@ $classObj.create = function(logo, sys) {
 
             function captureToken(token, offset) {
                 ret.push(isStringLiteral ? token : token.toLowerCase());
-                retsrcmap.push(addSrcmapOffset(srcmap[index], offset));
+                if (blockHasSrcmap) {
+                    retsrcmap.push(addSrcmapOffset(srcmap[index], offset));
+                }
             }
         }
 

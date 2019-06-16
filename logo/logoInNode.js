@@ -34,9 +34,7 @@ $classObj.create = function logoInNode(Logo, sys) {
 
     if (cmd.op in srcRunner) {
         const logoSrc = fs.readFileSync(cmd.file, "utf8"); // logo source file (.lgo)
-        const startTime = new Date();
 
-        sys.trace(startTime.toLocaleString(), "time");
         srcRunner[cmd.op](logoSrc)
             .then(() => process.exit())
             .catch(e => {
@@ -123,7 +121,7 @@ $classObj.create = function logoInNode(Logo, sys) {
         srcRunner[Logo.mode.RUN] = async function(src) { await logo.env.exec(src, false, 1); };
         srcRunner[Logo.mode.RUNL] = async function(src) { await logo.env.execByLine(src, false, 1); };
         srcRunner[Logo.mode.EXEC] = async function(src) { await logo.env.exec(src, true, 1); };
-        srcRunner[Logo.mode.EXECL] = async function(src) { await logo.env.execByLine(src, false, 1); };
+        srcRunner[Logo.mode.EXECL] = async function(src) { await logo.env.execByLine(src, true, 1); };
         srcRunner[Logo.mode.EXECJS] = async function(src) { await logo.env.evalLogoJsTimed(src); };
         srcRunner[Logo.mode.PARSE] = async function(src) {
             stdout(JSON.stringify(logo.parse.parseSrc(src, 1)));
@@ -131,7 +129,7 @@ $classObj.create = function logoInNode(Logo, sys) {
 
         srcRunner[Logo.mode.CODEGEN] = async function(src) {
             let ir = logo.parse.parseSrc(src, 1);
-            stdout(logo.codegen(ir));
+            stdout(logo.codegen.genTopLevelCode(ir));
         };
 
         return srcRunner;
@@ -156,7 +154,7 @@ $classObj.create = function logoInNode(Logo, sys) {
                 "envstate": function() {},
                 "exit": function(batchMode) {
                     if (!batchMode) {
-                        console.log("Thank you for using Logo. Bye!");  // eslint-disable-line no-console
+                        stdout("Thank you for using Logo. Bye!");  // eslint-disable-line no-console
                     }
 
                     process.exit();

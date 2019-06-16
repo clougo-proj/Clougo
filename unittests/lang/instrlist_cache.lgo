@@ -1,0 +1,4 @@
+localmake "statement (list "make "\"m ":m+1)
+localmake "m 0
+repeat 3000000 :statement
+pr :m

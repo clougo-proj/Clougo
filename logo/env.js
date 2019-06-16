@@ -19,8 +19,7 @@ $classObj.create = function(logo, sys, ext) {
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime,  _userInput, _resolveUserInput;
     let _asyncFunctionCall;
-
-    let $ret, $primitiveName, $primitiveSrcmap, $scopeCache, $scopeStackLength; // eslint-disable-line no-unused-vars
+    let $ret, $primitiveName, $primitiveSrcmap, $scopeCache; // eslint-disable-line no-unused-vars
 
     function registerUserInputResolver(resolve) {
         _resolveUserInput = resolve;
@@ -97,6 +96,10 @@ $classObj.create = function(logo, sys, ext) {
     env.extractVarName = extractVarName;
 
     function findLogoVarScope(varname, scopeCache) {
+        if (env._scopeStack.length === 0) {
+            return _globalScope;
+        }
+
         let ptr = env._scopeStack.length - 1;
 
         if (typeof scopeCache == "object" && varname in scopeCache) {
@@ -211,6 +214,7 @@ $classObj.create = function(logo, sys, ext) {
         env._scopeStack = [_globalScope];
         env._ws = {};
         env._user = {};
+        env._userBlock = new WeakMap();
         env._callstack = [];
         env._curProc = undefined;
         logo.turtle.reset();
@@ -245,6 +249,23 @@ $classObj.create = function(logo, sys, ext) {
         return _runTime;
     }
     env.getRunTime = getRunTime;
+
+    function callLogoInstrList(block) { // eslint-disable-line no-unused-vars
+        justInTimeTranspile(block);
+        env._userBlock.get(block)();
+    }
+
+    async function callLogoInstrListAsync(block) { // eslint-disable-line no-unused-vars
+        justInTimeTranspile(block);
+        await env._userBlock.get(block)();
+    }
+
+    function justInTimeTranspile(block) {
+        if (!env._userBlock.has(block)) {
+            let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(block));
+            env._userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext, block)));
+        }
+    }
 
     async function logoExecHelper(logosrc, genjs, srcidx, srcLine) {
         resetInterpreterCallStack();
@@ -370,7 +391,7 @@ $classObj.create = function(logo, sys, ext) {
 
     async function evalLogoGen(parsedCommand) {
         const ret = sys.isUndefined(parsedCommand) ? undefined :
-            await evalLogoJs(logo.codegen(parsedCommand));
+            await evalLogoJs(logo.codegen.genTopLevelCode(parsedCommand));
         setEnvState("ready");
         return ret;
     }

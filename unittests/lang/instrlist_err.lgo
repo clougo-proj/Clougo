@@ -1,0 +1,8 @@
+; TODO- push call sites of instrlist to call stack
+make "instr [3]
+
+repeat 1 :instr
+for[i 1 1] :instr
+if "true :instr
+ifelse "false [] :instr
+if "false [] else :instr

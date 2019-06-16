@@ -15,7 +15,7 @@ $classObj.create = function(Logo, sys) {
     let singleTestMode = false;
 
     async function runTests(unitTests, options, ext) {
-        singleTestMode = false;
+        singleTestMode = sys.Config.get("verbose");
         initializeTestEnv(ext);
 
         // make regex for filtering unit tests by their full names

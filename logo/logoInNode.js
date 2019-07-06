@@ -154,7 +154,7 @@ $classObj.create = function logoInNode(Logo, sys) {
                 "envstate": function() {},
                 "exit": function(batchMode) {
                     if (!batchMode) {
-                        stdout("Thank you for using Logo. Bye!");  // eslint-disable-line no-console
+                        stdout("Thank you for using Logo. Bye!");
                     }
 
                     process.exit();

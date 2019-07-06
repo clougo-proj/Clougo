@@ -30,6 +30,9 @@ $classObj.create = function(logo, sys) {
                     return false;
                 }
             },
+            hasNext: function() {
+                return this.ptr + 1 < this.body.length;
+            },
             getToken: function() {
                 return (sys.isUndefined(this.body)) ? undefined :
                     !this.eol ? this.body[this.ptr] : undefined;
@@ -71,16 +74,20 @@ $classObj.create = function(logo, sys) {
     }
     interpreter.makeEvalContext = makeEvalContext;
 
-    async function evxProcCallParam(evxContext, paramListLength, nextActualParam, precedence = 0) {
+    async function evxProcCallParam(evxContext, paramListLength, precedence = 0) {
+        let nextActualParam = [];
         for (let j = 0; j < paramListLength; j++) {
             evxContext.next();
             await evxToken(evxContext, precedence);
             nextActualParam.push(evxContext.retVal);
         }
+
+        return nextActualParam;
     }
 
-    async function evxCtrlParam(evxContext, ctrlName, nextActualParam, precedence = 0) {
-        const paramListLength = ctrl[ctrlName].length;
+    async function evxCtrl(evxContext, ctrlName, precedence = 0) {
+        const paramListLength = ctrl[ctrlName].length - 1;
+        let nextActualParam = [];
 
         for (let j = 0; j < paramListLength; j++) {
             evxContext.next();
@@ -109,20 +116,21 @@ $classObj.create = function(logo, sys) {
             ctrlName = "ifelse";
         }
 
+        nextActualParam.splice(0, 0, evxContext.getSrcmap());
         evxContext.retVal = await ctrl[ctrlName].apply(null, nextActualParam);
     }
 
-    async function evxPrimitiveCallParam(evxContext, primitiveName, nextActualParam, precedence = 0,
-        isInParen = false) {
+    async function evxPrimitiveCallParam(evxContext, primitiveName, srcmap, precedence, isInParen) {
 
         const paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
         const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
         const paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
 
-        let srcmap = evxContext.getSrcmap();
+        let nextActualParam = [primitiveName, srcmap];
+
         if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength == -1)) {
             let j = 0;
-            for (;  ((!isInParen || ((j < paramListMaxLength || paramListMaxLength == -1) &&
+            for (; ((!isInParen || ((j < paramListMaxLength || paramListMaxLength == -1) &&
                 isInParen && evxContext.peekNextToken() != ")" )) && evxContext.next()); j++) {
                 await evxToken(evxContext, precedence);
                 let retVal = evxContext.retVal;
@@ -150,15 +158,7 @@ $classObj.create = function(logo, sys) {
             }
         }
 
-        try {
-            evxContext.retVal = await logo.env.callPrimitive.apply(undefined, nextActualParam);
-        } catch (e) {
-            if (!logo.type.LogoException.is(e)) {
-                throw e;
-            }
-
-            throw e.withSrcmap(srcmap);
-        }
+        return nextActualParam;
     }
 
     async function evxToken(evxContext, precedence = 0, isInParen = false, stopAtLineEnd = false) {
@@ -204,8 +204,16 @@ $classObj.create = function(logo, sys) {
             evxContext.retVal = logo.type.unquoteLogoWord(curToken);
         } else if (logo.type.isLogoVarRef(curToken)) {
             evxContext.retVal = logo.type.getVarValue(logo.env.extractVarName(curToken), curSrcmap);
+        } else if (logo.type.isLogoSlot(curToken)) {
+            evxContext.retVal = logo.env.callPrimitive("?", curSrcmap, logo.env.extractSlotNum(curToken));
+        } else if (curToken in ctrl) {
+            await evxCtrl(evxContext, curToken, 0);
+        } else if (curToken in logo.lrt.primitive) {
+            evxContext.retVal = await logo.env.callPrimitiveAsync.apply(undefined,
+                await evxPrimitiveCallParam(evxContext, curToken, curSrcmap,
+                    logo.lrt.util.getPrimitivePrecedence(curToken), isInParen));
         } else {
-            await evxCtrlCallProc(evxContext, curToken, curSrcmap, isInParen);
+            await evxCallProc(evxContext, curToken, curSrcmap);
         }
 
         while(evxContext.isNextTokenBinaryOperator()) {
@@ -221,46 +229,44 @@ $classObj.create = function(logo, sys) {
         }
     }
 
-    async function evxCtrlCallProc(evxContext, curToken, curSrcmap, isInParen) {
-        const nextActualParam = [];
-        if (curToken in ctrl) {
-            await evxCtrlParam(evxContext, curToken, nextActualParam, 0);
-        } else if (curToken in logo.lrt.primitive) {
-            nextActualParam.push(curToken, curSrcmap);
-            await evxPrimitiveCallParam(evxContext, curToken, nextActualParam,
-                logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
-        } else if (curToken in logo.env._user) {
+    async function evxCallProc(evxContext, curToken, curSrcmap) {
+        if (curToken in logo.env._user) {
             let callTarget = logo.env._user[curToken];
-            await evxProcCallParam(evxContext, callTarget.length, nextActualParam);
-            evxContext.retVal = callTarget.apply(undefined, nextActualParam);
+            logo.env.prepareCallProc(curToken, curSrcmap);
+            evxContext.retVal = callTarget.apply(undefined, await evxProcCallParam(evxContext, callTarget.length));
         } else if (curToken in logo.env._ws) {
             let callTarget = logo.env._ws[curToken];
-            await evxProcCallParam(evxContext, callTarget.formal.length, nextActualParam);
-            evxContext.retVal = await evxProc(callTarget, nextActualParam, curToken, curSrcmap);  // proc, parentScope, [actualParam]
+            logo.env.prepareCallProc(curToken, curSrcmap);
+            evxContext.retVal = await evxProc(callTarget,
+                await evxProcCallParam(evxContext, callTarget.formal.length));
         } else {
             throw logo.type.LogoException.create("UNKNOWN_PROC", [curToken], curSrcmap);
         }
+
+        logo.env.completeCallProc();
     }
 
     async function evxCtrlInfixOperator(evxContext, nextOp, nextOpSrcmap, nextPrec) {
-        let nextActualParam = [];
         evxContext.next();
-
         let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
-        nextActualParam = [nextOp, nextOpSrcmap, evxContext.retVal];
-        await evxProcCallParam(evxContext, callTarget.length - 1, nextActualParam, nextPrec);
+        let retVal = evxContext.retVal;
+        let nextActualParam = await evxProcCallParam(evxContext, callTarget.length - 1, nextPrec);
+        nextActualParam.splice(0, 0, nextOp, nextOpSrcmap, retVal);
         evxContext.retVal = await logo.env.callPrimitiveOperatorAsync.apply(undefined, nextActualParam);
     }
 
-    async function evxBody(body) {
+    async function evxBody(body, allowRetVal = false) {
         let evxContext = makeEvalContext(body);
 
         do {
             await evxToken(evxContext);
-            if (!sys.isUndefined(evxContext.retVal) && sys.Config.get("unactionableDatum")) {
-                throw logo.type.LogoException.create("UNACTIONABLE_DATUM", [evxContext.retVal], evxContext.getSrcmap());
+            if (sys.Config.get("unactionableDatum") && (!allowRetVal || evxContext.hasNext())) {
+                logo.env.checkUnactionableDatum(evxContext.retVal, evxContext.getSrcmap());
             }
+
         } while (evxContext.next());
+
+        return evxContext.retVal;
     }
     interpreter.evxBody = evxBody;
 
@@ -274,7 +280,7 @@ $classObj.create = function(logo, sys) {
         }
     }
 
-    async function evxProc(proc, actualParam, procName, srcmap) {
+    async function evxProc(proc, actualParam) {
         const formalParam = proc.formal;
         let retVal = undefined;
         let curScope = {};
@@ -286,11 +292,6 @@ $classObj.create = function(logo, sys) {
             let formalParamName = formalParam[i];
             curScope[formalParamName] = actualParam[i];
         }
-
-        sys.trace("evxProc "+procName+" token:"+JSON.stringify(proc.body), "evx");
-        sys.trace("evxProc "+procName+" srcmap:"+JSON.stringify(proc.srcmap), "evx");
-        logo.env._callstack.push([logo.env._curProc, srcmap]);
-        logo.env._curProc = procName;
 
         try {
             await evxBody(logo.type.embedSrcmap(proc.body, proc.bodySrcmap));
@@ -304,35 +305,35 @@ $classObj.create = function(logo, sys) {
             }
         }
 
-        logo.env._curProc = logo.env._callstack.pop()[0];
         logo.env._scopeStack.pop();
+
         return retVal;
     }
+    interpreter.evxProc = evxProc;
 
-    async function evxInstrList(bodyComp) {
-        let refSrcmap = logo.type.getReferenceSrcmap(bodyComp);
-        if (logo.type.isLogoList(bodyComp)) {
-            bodyComp = logo.parse.parseBlock(bodyComp);
+    async function evxInstrList(bodyComp, param) {
+        let parsedBlock = logo.parse.parseBlock(bodyComp);
+        if (!logo.type.hasReferenceSrcmap(bodyComp)) {
+            return await evxBody(parsedBlock);
         }
 
-        if (refSrcmap == logo.type.SRCMAP_NULL) {
-            await evxBody(bodyComp);
-            return;
-        }
-
-        logo.env._callstack.push([logo.env._curProc, refSrcmap]);
-        logo.env._curProc = "[]";
-        await evxBody(bodyComp);
-        logo.env._curProc = logo.env._callstack.pop()[0];
+        logo.env.prepareCallProc("[]", logo.type.getReferenceSrcmap(bodyComp), param);
+        let retVal = await evxBody(parsedBlock, true);
+        logo.env.completeCallProc();
+        return retVal;
     }
+    interpreter.evxInstrList = evxInstrList;
 
-    async function evxCtrlRepeat(count, bodyComp) {
+    async function evxCtrlRepeat(srcmap, count, bodyComp) {
         for (let i = 0; i < count; i++) {
-            await evxInstrList(bodyComp);
+            let retVal = await evxInstrList(bodyComp);
+            if (sys.Config.get("unactionableDatum")) {
+                logo.env.checkUnactionableDatum(retVal, srcmap);
+            }
         }
     }
 
-    async function evxCtrlFor(forCtrlComp, bodyComp) {
+    async function evxCtrlFor(srcmap, forCtrlComp, bodyComp) {
         if (logo.type.isLogoList(forCtrlComp)) {
             forCtrlComp = logo.parse.parseBlock(forCtrlComp);
         }
@@ -364,19 +365,28 @@ $classObj.create = function(logo, sys) {
         for (curScope[forVarName] = forBegin;
             (!isDecrease && curScope[forVarName] <= forEnd) || (isDecrease && curScope[forVarName] >= forEnd);
             curScope[forVarName] += forStep) {
-            await evxInstrList(bodyComp);
+            let retVal = await evxInstrList(bodyComp);
+            if (sys.Config.get("unactionableDatum")) {
+                logo.env.checkUnactionableDatum(retVal, srcmap);
+            }
         }
     }
 
-    async function evxCtrlIf(predicate, bodyComp) {
+    async function evxCtrlIf(srcmap, predicate, bodyComp) {
         if (logo.type.isNotLogoFalse(predicate)) {
-            await evxInstrList(bodyComp);
+            let retVal = await evxInstrList(bodyComp);
+            if (sys.Config.get("unactionableDatum")) {
+                logo.env.checkUnactionableDatum(retVal, srcmap);
+            }
         }
     }
 
-    async function evxCtrlCatch(label, bodyComp) {
+    async function evxCtrlCatch(srcmap, label, bodyComp) {
         try {
-            await evxInstrList(bodyComp);
+            let retVal = await evxInstrList(bodyComp);
+            if (sys.Config.get("unactionableDatum")) {
+                logo.env.checkUnactionableDatum(retVal, srcmap);
+            }
         } catch(e) {
             if (logo.type.LogoException.is(e) && e.isCustom()) {
                 if (sys.equalToken(label, e.getValue()[0])) {
@@ -395,11 +405,19 @@ $classObj.create = function(logo, sys) {
         }
     }
 
-    async function evxCtrlIfElse(predicate, trueBodyComp, falseBodyComp) {
+    async function evxCtrlIfElse(srcmap, predicate, trueBodyComp, falseBodyComp) {
         if (logo.type.isNotLogoFalse(predicate)) {
-            await evxInstrList(trueBodyComp);
+            let retVal = await evxInstrList(trueBodyComp);
+            if (sys.Config.get("unactionableDatum")) {
+                logo.env.checkUnactionableDatum(retVal, srcmap);
+            }
+
         } else {
-            await evxInstrList(falseBodyComp);
+            let retVal = await evxInstrList(falseBodyComp);
+            if (sys.Config.get("unactionableDatum")) {
+                logo.env.checkUnactionableDatum(retVal, srcmap);
+            }
+
         }
     }
 

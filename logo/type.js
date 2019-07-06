@@ -258,6 +258,11 @@ $classObj.create = function(logo, sys) {
     }
     type.embedReferenceSrcmap = embedReferenceSrcmap;
 
+    function hasReferenceSrcmap(list) {
+        return list[1][1] !== SRCMAP_NULL;
+    }
+    type.hasReferenceSrcmap = hasReferenceSrcmap;
+
     function getReferenceSrcmap(list) {
         return list[1][1];
     }
@@ -454,7 +459,7 @@ $classObj.create = function(logo, sys) {
             };
 
         return function(thing) {
-            if (isLogoWord(thing)) {
+            if (thing === undefined || isLogoWord(thing)) {
                 return thing;
             }
 
@@ -735,6 +740,11 @@ $classObj.create = function(logo, sys) {
         return (typeof token == "string" && token.charAt(0) == ":");
     }
     type.isLogoVarRef = isLogoVarRef;
+
+    function isLogoSlot(token) {
+        return typeof token == "string" && token.match(/^\?(\d+)$/);
+    }
+    type.isLogoSlot = isLogoSlot;
 
     function isNotLogoFalse(val) {
         return val != false && val != "false";

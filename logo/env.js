@@ -19,6 +19,7 @@ $classObj.create = function(logo, sys, ext) {
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime,  _userInput, _resolveUserInput;
     let _asyncFunctionCall;
+    let _genJs;
     let $ret, $primitiveName, $primitiveSrcmap, $scopeCache; // eslint-disable-line no-unused-vars
 
     function registerUserInputResolver(resolve) {
@@ -57,6 +58,16 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.getPrimitiveSrcmap = getPrimitiveSrcmap;
 
+    function setGenJs(genJs) {
+        _genJs = genJs;
+    }
+    env.setGenJs = setGenJs;
+
+    function getGenJs() {
+        return _genJs;
+    }
+    env.getGenJs = getGenJs;
+
     function callPrimitive(name, srcmap, ...args) {
         setPrimitiveName(name);
         setPrimitiveSrcmap(srcmap);
@@ -94,6 +105,17 @@ $classObj.create = function(logo, sys, ext) {
         return varname.substring(1).toLowerCase();
     }
     env.extractVarName = extractVarName;
+
+    function extractSlotNum(slotRef) {
+        return Number(slotRef.substring(1));
+    }
+    env.extractSlotNum = extractSlotNum;
+
+    function getSlotValue(slotNum) {
+        logo.type.ifTrueThenThrow(slotNum > env._curSlot.length, "INVALID_INPUT", slotNum);
+        return env._curSlot[slotNum - 1];
+    }
+    env.getSlotValue = getSlotValue;
 
     function findLogoVarScope(varname, scopeCache) {
         if (env._scopeStack.length === 0) {
@@ -217,6 +239,7 @@ $classObj.create = function(logo, sys, ext) {
         env._userBlock = new WeakMap();
         env._callstack = [];
         env._curProc = undefined;
+        env._curSlot = undefined;
         logo.turtle.reset();
         _userInput = [];
         _resolveUserInput = undefined;
@@ -228,6 +251,7 @@ $classObj.create = function(logo, sys, ext) {
     function resetInterpreterCallStack() {
         env._callstack = [];
         env._curProc = undefined;
+        env._curSlot = undefined;
     }
     env.resetInterpreterCallStack = resetInterpreterCallStack;
 
@@ -252,13 +276,28 @@ $classObj.create = function(logo, sys, ext) {
 
     function callLogoInstrList(block) { // eslint-disable-line no-unused-vars
         justInTimeTranspile(block);
-        env._userBlock.get(block)();
+        return env._userBlock.get(block)();
     }
 
-    async function callLogoInstrListAsync(block) { // eslint-disable-line no-unused-vars
-        justInTimeTranspile(block);
-        await env._userBlock.get(block)();
+    function prepareCallProc(curToken, curSrcmap, curSlot) {
+        env._callstack.push([env._curProc, curSrcmap, env._curSlot]);
+        env._curProc = curToken;
+        env._curSlot = curSlot;
     }
+    env.prepareCallProc = prepareCallProc;
+
+    function completeCallProc() {
+        let callStackPop = env._callstack.pop();
+        env._curProc = callStackPop[0];
+        env._curSlot = callStackPop[2];
+    }
+    env.completeCallProc = completeCallProc;
+
+    async function callLogoInstrListAsync(block) {
+        justInTimeTranspile(block);
+        return await env._userBlock.get(block)();
+    }
+    env.callLogoInstrListAsync = callLogoInstrListAsync;
 
     function justInTimeTranspile(block) {
         if (!env._userBlock.has(block)) {
@@ -274,6 +313,7 @@ $classObj.create = function(logo, sys, ext) {
         sys.trace(parsedCode, "parse.result");
         setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
         setAsyncFunctionCall(asyncFunctionCall(logosrc));
+        setGenJs(genjs);
 
         if (genjs) {
             await evalLogoGen(parsedCode);
@@ -283,7 +323,7 @@ $classObj.create = function(logo, sys, ext) {
     }
 
     function asyncFunctionCall(logosrc) {
-        return (/\b(wait|readword)\b/i).test(logosrc);
+        return (/\b(wait|readword|apply)\b/i).test(logosrc);
     }
 
     async function timedExec(f) {
@@ -331,11 +371,12 @@ $classObj.create = function(logo, sys, ext) {
         throw logo.type.LogoException.create(name, value, srcmap);
     }
 
-    function checkUnactionableDatum(ret, srcmap) { // eslint-disable-line no-unused-vars
-        if (ret != undefined) {
+    function checkUnactionableDatum(ret, srcmap) {
+        if (ret !== undefined) {
             throw logo.type.LogoException.create("UNACTIONABLE_DATUM", [ret], srcmap);
         }
     }
+    env.checkUnactionableDatum = checkUnactionableDatum;
 
     async function evalLogo(parsedCommand) {
         if (!sys.isUndefined(parsedCommand)) {
@@ -396,6 +437,58 @@ $classObj.create = function(logo, sys, ext) {
         return ret;
     }
     env.evalLogoGen = evalLogoGen;
+
+    async function applyTemplate(template, srcmap, param) {
+        if (logo.env.getGenJs()) {
+            logo.env.prepareCallProc("[]", srcmap, param);
+            let retVal = await logo.env.callLogoInstrListAsync(template);
+            logo.env.completeCallProc();
+            return retVal;
+        }
+
+        return await logo.interpreter.evxInstrList(logo.type.embedReferenceSrcmap(template, srcmap), param);
+    }
+    env.applyTemplate = applyTemplate;
+
+    async function applyNamedProcedure(template, srcmap, param, inputListSrcmap) {
+        if (template in logo.lrt.primitive) {
+            const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(template);
+            const paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(template);
+
+            checkSlotLength(template, param, inputListSrcmap, paramListMinLength, paramListMaxLength);
+            param.splice(0, 0, template, srcmap);
+            return await logo.env.callPrimitiveAsync.apply(undefined, param);
+        } else if (template in logo.env._user) {
+            let callTarget = logo.env._user[template];
+            checkSlotLength(template, param, inputListSrcmap, callTarget.length);
+            logo.env.prepareCallProc("[]", srcmap);
+            let retVal = logo.env.getAsyncFunctionCall() ?
+                await callTarget.apply(undefined, param) : callTarget.apply(undefined, param);
+
+            logo.env.completeCallProc();
+            return retVal;
+        } else if (template in logo.env._ws) {
+            let callTarget = logo.env._ws[template];
+            checkSlotLength(template, param, inputListSrcmap, callTarget.formal.length);
+            logo.env.prepareCallProc("[]", srcmap);
+            let retVal = await logo.interpreter.evxProc(callTarget, param);
+            logo.env.completeCallProc();
+            return retVal;
+        } else {
+            throw logo.type.LogoException.create("UNKNOWN_PROC", [template], srcmap);
+        }
+    }
+    env.applyNamedProcedure = applyNamedProcedure;
+
+    function checkSlotLength(template, slot, srcmap, length, maxLength) {
+        if (slot.length < length) {
+            throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [template], srcmap);
+        }
+
+        if (maxLength !== -1 && (slot.length > length || (maxLength !== undefined && slot.length > maxLength))) {
+            throw logo.type.LogoException.create("TOO_MUCH_INSIDE_PAREN", undefined, srcmap);
+        }
+    }
 
     return env;
 };

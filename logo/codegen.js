@@ -123,7 +123,7 @@ $classObj.create = function(logo, sys) {
         return code;
     }
 
-    function genInstrList(evxContext, primitiveName) {
+    function genInstrList(evxContext, primitiveName, generateCheckUnactionableDatum = true) {
         let code = [];
 
         let curToken = evxContext.getToken();
@@ -139,6 +139,10 @@ $classObj.create = function(logo, sys) {
             code.push(genInstrListCall(curToken, srcmap));
         }
 
+        if (generateCheckUnactionableDatum && sys.Config.get("unactionableDatum")) {
+            code.push(";checkUnactionableDatum($ret,", logo.type.srcmapToJs(srcmap), ");\n");
+        }
+
         return code;
     }
 
@@ -149,8 +153,8 @@ $classObj.create = function(logo, sys) {
         evxContext.next();
         code.push(genToken(evxContext,0));
         code.push(")) {\n");
-        evxContext.next();
 
+        evxContext.next();
         code.push(genInstrList(evxContext, "if"));
         code.push("}");
 
@@ -161,6 +165,8 @@ $classObj.create = function(logo, sys) {
             code.push(genInstrList(evxContext, "if"));
             code.push("}");
         }
+
+        code.push("\n;$ret=undefined;");
 
         return code;
     }
@@ -180,7 +186,7 @@ $classObj.create = function(logo, sys) {
         code.push("try {\n");
         evxContext.next();
 
-        code.push(genInstrList(evxContext, "catch"));
+        code.push(genInstrList(evxContext, "catch", false));
         code.push("} catch (e) {\n");
 
         code.push("if (e.isCustom()) {\n");
@@ -206,12 +212,16 @@ $classObj.create = function(logo, sys) {
         evxContext.next();
         code.push(genToken(evxContext,0));
         code.push(")) {\n");
+
         evxContext.next();
         code.push(genInstrList(evxContext, "ifelse"));
+
         code.push("} else {\n");
         evxContext.next();
         code.push(genInstrList(evxContext, "ifelse"));
+
         code.push("}");
+        code.push("\n;$ret=undefined;");
 
         return code;
     }
@@ -228,7 +238,10 @@ $classObj.create = function(logo, sys) {
         code.push(repeatVarName, "=0;", repeatVarName, "<", repeatCount, ";", repeatVarName, "++) {\n");
         evxContext.next();
         code.push(genInstrList(evxContext, "repeat"));
+
         code.push("}");
+        code.push("\n;$ret=undefined;");
+
         return code;
     }
 
@@ -265,7 +278,9 @@ $classObj.create = function(logo, sys) {
 
         evxContext.next();
         code.push(genInstrList(evxContext, "for"));
+
         code.push("}}");
+        code.push("\n;$ret=undefined;");
 
         return code;
     }
@@ -282,7 +297,7 @@ $classObj.create = function(logo, sys) {
         evxContext.next();
         code.push("=");
         code.push(genToken(evxContext,0));
-        code.push(";undefined");
+        code.push(";$ret=undefined;");
         return code;
     }
 
@@ -300,7 +315,7 @@ $classObj.create = function(logo, sys) {
         evxContext.next();
         code.push("=");
         code.push(genToken(evxContext,0));
-        code.push(";undefined");
+        code.push(";$ret=undefined");
         return code;
     }
 
@@ -315,6 +330,11 @@ $classObj.create = function(logo, sys) {
             ["logo.env.findLogoVarScope('" + varName + "', $scopeCache)['" + varName + "']"];
     }
 
+    function genLogoSlotRef(curToken, srcmap) {
+        let slotNum = logo.env.extractSlotNum(curToken);
+        return ["logo.env.callPrimitive(\"?\",", logo.type.srcmapToJs(srcmap), ",", slotNum, ")"];
+    }
+
     function genInstrListCall(curToken, srcmap) {
         let code = [];
 
@@ -322,6 +342,7 @@ $classObj.create = function(logo, sys) {
         code.push(genPrepareCall("[]", srcmap));
         code.push("$ret);\n");
 
+        code.push("$ret=");
         code.push(logo.env.getAsyncFunctionCall() ? "await callLogoInstrListAsync(" : "callLogoInstrList(");
         code.push(genLogoVarRef(curToken, srcmap));
         code.push(");");
@@ -429,7 +450,8 @@ $classObj.create = function(logo, sys) {
             code.push(genToken(evxContext, 0, false, true));
             code.push(";return $ret");
         } else if (curToken == "(") {
-            code.push(genParen(evxContext, evxContext.peekNextToken() == "local"));
+            code.push(genParen(evxContext, evxContext.peekNextToken() == "local", true));
+            evxContext.retExpr = markRetExpr;
         } else if (typeof curToken == "object") {
             if (markRetExpr && !logo.type.isLogoProc(curToken)) {
                 code.push("$ret=");
@@ -455,6 +477,14 @@ $classObj.create = function(logo, sys) {
             Array.prototype.push.apply(code, genLogoVarRef(curToken, srcmap));
 
             evxContext.retExpr = markRetExpr;
+        } else if (logo.type.isLogoSlot(curToken)) {
+            if (markRetExpr) {
+                code.push("$ret=");
+            }
+
+            Array.prototype.push.apply(code, genLogoSlotRef(curToken, srcmap));
+
+            evxContext.retExpr = markRetExpr;
         } else { // call
             if (markRetExpr && (!(curToken in genNativeJs) || getGenNativeJsOutput(curToken))) {
                 code.push("$ret=");
@@ -467,9 +497,9 @@ $classObj.create = function(logo, sys) {
                 evxContext.retExpr = getGenNativeJsOutput(curToken);
             } else if (curToken in logo.lrt.primitive) {
                 if (logo.env.getAsyncFunctionCall()) {
-                    code.push("(await logo.env.callPrimitiveAsync(\"");
+                    code.push("($ret=await logo.env.callPrimitiveAsync(\"");
                 } else {
-                    code.push("(logo.env.callPrimitive(\"");
+                    code.push("($ret=logo.env.callPrimitive(\"");
                 }
 
                 code.push(curToken, "\", ", logo.type.srcmapToJs(srcmap), ",",
@@ -535,12 +565,12 @@ $classObj.create = function(logo, sys) {
         return code;
     }
 
-    function genBody(evxContext, isStatement) {
+    function genBody(evxContext, isStatement, isInstrList) {
         let code = [];
 
         do {
             code.push(genToken(evxContext, 0, isStatement, true));
-            if (evxContext.retExpr && sys.Config.get("unactionableDatum")) {
+            if (evxContext.retExpr && sys.Config.get("unactionableDatum") && (!isInstrList || evxContext.hasNext())) {
                 code.push("checkUnactionableDatum($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
             }
         } while (evxContext.next());
@@ -554,19 +584,25 @@ $classObj.create = function(logo, sys) {
         let code = [];
         code.push(logo.env.getAsyncFunctionCall() ? "(async()=>{" : "(()=>{");
         code.push("let $scope = logo.env._scopeStack[logo.env._scopeStack.length - 1];\n");
-        code.push(genBody(evxContext, true));
+        code.push(genBody(evxContext, true, true));
 
         code.push("(");
         code.push(genStashLocalVars());
         code.push("$ret);");
 
+        code.push("return $ret;");
+
         code.push("})");
         _varScopes.exit();
-        return mergeCode(code);
+        let mergedCode = mergeCode(code);
+        sys.trace(mergedCode, "codegen.lambda");
+        sys.Config.get("verbose");
+
+        return mergedCode;
     }
     codegen.genInstrListLambdaDeclCode = genInstrListLambdaDeclCode;
 
-    function genParen(evxContext, isStatement) {
+    function genParen(evxContext, isStatement, markRetExpr) {
         let code = [];
 
         if (!isStatement) {
@@ -575,8 +611,7 @@ $classObj.create = function(logo, sys) {
 
         evxContext.next();
 
-        let codeFromToken = genToken(evxContext, 0, isStatement, false, true);
-
+        let codeFromToken = genToken(evxContext, 0, isStatement, false, markRetExpr);
         code.push(codeFromToken);
         evxContext.next();
 

@@ -72,6 +72,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
             "evalJs",
             "codegen",
             "codegen.genLocal",
+            "codegen.lambda",
             "console",
             "lrt",
             "time",

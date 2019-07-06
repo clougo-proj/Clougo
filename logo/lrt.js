@@ -71,6 +71,10 @@ $classObj.create = function(logo, sys) {
         return logo.type.arrayToList(value);
     }
 
+    function primitiveQuestionMark(slotNum = 1) {
+        return logo.env.getSlotValue(slotNum);
+    }
+
     function primitiveAscii(value) {
         logo.type.checkInputCharacter(value);
         return logo.type.charToAscii(value);
@@ -518,6 +522,25 @@ $classObj.create = function(logo, sys) {
         return logo.env.getUserInput();
     }
 
+    async function primitiveApply(template, inputList) {
+        logo.type.checkInputList(inputList);
+
+        let unboxedInputList = logo.type.unbox(inputList);
+        let srcmap = logo.env.getPrimitiveSrcmap();
+
+        let inputListSrcmap = logo.type.getEmbeddedSrcmap(inputList);
+        if (inputListSrcmap === logo.type.SRCMAP_NULL) {
+            inputListSrcmap = srcmap;
+        }
+
+        if (logo.type.isLogoWord(template)) {
+            return await logo.env.applyNamedProcedure(template, srcmap, unboxedInputList, inputListSrcmap);
+        }
+
+        logo.type.checkInputList(template);
+        return await logo.env.applyTemplate(template, srcmap, unboxedInputList);
+    }
+
     function primitiveTimeMilli() {
         return new Date().getTime();
     }
@@ -788,6 +811,8 @@ $classObj.create = function(logo, sys) {
 
         "arraytolist": primitiveArrayToList,
 
+        "?": primitiveQuestionMark,
+
         "ascii": primitiveAscii,
 
         "char": primitiveChar,
@@ -815,6 +840,8 @@ $classObj.create = function(logo, sys) {
         "not": primitiveNot,
 
         "readword": primitiveReadword,
+
+        "apply": primitiveApply,
 
         "timemilli": primitiveTimeMilli,
 
@@ -856,6 +883,8 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.mdarray =
     primitiveParamCount.throw =
     primitiveParamCount.array = [1, 1, 2];
+
+    primitiveParamCount["?"] = [0, 0, 1];
 
     lrt.primitiveParamCount = primitiveParamCount;
 

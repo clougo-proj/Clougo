@@ -311,6 +311,19 @@ $classObj.create = function(logo, sys) {
     }
     interpreter.evxProc = evxProc;
 
+    async function evxInstrListWithFormalParam(bodyComp, formalParam, param) {
+        let curScope = {};
+        logo.env._scopeStack.push(curScope);
+        for (let i = 0; i < formalParam.length; i++) {
+            curScope[formalParam[i]] = param[i];
+        }
+
+        let retVal = await evxInstrList(bodyComp, param);
+        logo.env._scopeStack.pop();
+        return retVal;
+    }
+    interpreter.evxInstrListWithFormalParam = evxInstrListWithFormalParam;
+
     async function evxInstrList(bodyComp, param) {
         let parsedBlock = logo.parse.parseBlock(bodyComp);
         if (!logo.type.hasReferenceSrcmap(bodyComp)) {

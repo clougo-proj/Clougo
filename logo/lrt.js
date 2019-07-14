@@ -154,7 +154,7 @@ $classObj.create = function(logo, sys) {
 
         if (logo.type.isLogoList(thing)) {
             logo.type.checkInputNonEmptyList(thing);
-            return logo.type.listItem(logo.type.LIST_ORIGIN, thing);
+            return logo.type.listFirst(thing);
         }
 
         logo.type.checkInputArray(thing);
@@ -538,7 +538,7 @@ $classObj.create = function(logo, sys) {
         }
 
         logo.type.checkInputList(template);
-        return await logo.env.applyTemplate(template, srcmap, unboxedInputList);
+        return await logo.env.applyInstrList(template, srcmap, unboxedInputList);
     }
 
     function primitiveTimeMilli() {

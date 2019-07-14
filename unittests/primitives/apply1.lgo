@@ -1,0 +1,13 @@
+to abc :x :y
+  op word :y :x
+end
+
+; Named procedure
+show apply "word [1 2 3]
+show apply "abc [1 2]
+
+pr "
+
+; Named procedure - indirect
+make "template "word show apply :template [1 2 3]
+make "template "abc show apply :template [1 2]

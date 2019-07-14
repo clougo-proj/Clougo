@@ -293,16 +293,23 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.completeCallProc = completeCallProc;
 
-    async function callLogoInstrListAsync(block) {
+    async function callLogoInstrListAsync(block, param) {
         justInTimeTranspile(block);
-        return await env._userBlock.get(block)();
+        return await env._userBlock.get(block).apply(undefined, param);
     }
     env.callLogoInstrListAsync = callLogoInstrListAsync;
 
     function justInTimeTranspile(block) {
         if (!env._userBlock.has(block)) {
-            let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(block));
-            env._userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext, block)));
+            let blockComp = logo.parse.parseBlock(block);
+            let formalParam = getInstrListFormalParam(blockComp);
+            if (formalParam === undefined) {
+                let evxContext = logo.interpreter.makeEvalContext(blockComp);
+                env._userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext)));
+            } else {
+                let evxContext = logo.interpreter.makeEvalContext(logo.type.listButFirst(blockComp));
+                env._userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext, formalParam)));
+            }
         }
     }
 
@@ -379,6 +386,8 @@ $classObj.create = function(logo, sys, ext) {
     env.checkUnactionableDatum = checkUnactionableDatum;
 
     async function evalLogo(parsedCommand) {
+        let scopeStackLength = env._scopeStack.length;
+
         if (!sys.isUndefined(parsedCommand)) {
             try {
                 await logo.interpreter.evxBody(parsedCommand);
@@ -392,6 +401,8 @@ $classObj.create = function(logo, sys, ext) {
                 }
             }
         }
+
+        env._scopeStack.splice(scopeStackLength);
     }
     env.evalLogo = evalLogo;
 
@@ -406,6 +417,8 @@ $classObj.create = function(logo, sys, ext) {
     }
 
     async function evalLogoJs(logoJsSrc) {
+        let scopeStackLength = env._scopeStack.length;
+
         try {
             eval(logoJsSrc);
             await logo.env._user.$();
@@ -418,13 +431,15 @@ $classObj.create = function(logo, sys, ext) {
                 logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
             }
         }
+
+        env._scopeStack.splice(scopeStackLength);
     }
     env.evalLogoJs = evalLogoJs;
 
-    function evalLogoJsTimed(logoJsSrc) {
-        return timedExec(
-            function() {
-                return evalLogoJs(logoJsSrc);
+    async function evalLogoJsTimed(logoJsSrc) {
+        return await timedExec(
+            async function() {
+                return await evalLogoJs(logoJsSrc);
             }
         );
     }
@@ -438,17 +453,45 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.evalLogoGen = evalLogoGen;
 
-    async function applyTemplate(template, srcmap, param) {
-        if (logo.env.getGenJs()) {
-            logo.env.prepareCallProc("[]", srcmap, param);
-            let retVal = await logo.env.callLogoInstrListAsync(template);
-            logo.env.completeCallProc();
+    async function codegenOnly(src) {
+        let ir = logo.parse.parseSrc(src, 1);
+        setAsyncFunctionCall(asyncFunctionCall(src));
+        return logo.codegen.genTopLevelCode(ir);
+    }
+    env.codegenOnly = codegenOnly;
+
+    async function applyInstrList(template, srcmap, param) {
+        let formalParam = getInstrListFormalParam(template);
+
+        if (formalParam !== undefined) {
+            logo.env.checkSlotLength("[]", param, srcmap, formalParam.length);
+        }
+
+        if (getGenJs()) {
+            prepareCallProc("[]", srcmap, param);
+            let retVal = await callLogoInstrListAsync(template, param);
+            completeCallProc();
             return retVal;
         }
 
-        return await logo.interpreter.evxInstrList(logo.type.embedReferenceSrcmap(template, srcmap), param);
+        let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
+        if (formalParam === undefined) {
+            return await logo.interpreter.evxInstrList(bodyComp, param);
+        }
+
+        return await logo.interpreter.evxInstrListWithFormalParam(
+            logo.type.listButFirst(bodyComp), formalParam, param);
     }
-    env.applyTemplate = applyTemplate;
+    env.applyInstrList = applyInstrList;
+
+    function getInstrListFormalParam(template) {
+        let firstItem = logo.type.listFirst(template);
+        if (!logo.type.isLogoList(firstItem)) {
+            return undefined;
+        }
+
+        return logo.type.unbox(firstItem);
+    }
 
     async function applyNamedProcedure(template, srcmap, param, inputListSrcmap) {
         if (template in logo.lrt.primitive) {
@@ -489,6 +532,7 @@ $classObj.create = function(logo, sys, ext) {
             throw logo.type.LogoException.create("TOO_MUCH_INSIDE_PAREN", undefined, srcmap);
         }
     }
+    env.checkSlotLength = checkSlotLength;
 
     return env;
 };

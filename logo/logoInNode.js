@@ -128,8 +128,7 @@ $classObj.create = function logoInNode(Logo, sys) {
         };
 
         srcRunner[Logo.mode.CODEGEN] = async function(src) {
-            let ir = logo.parse.parseSrc(src, 1);
-            stdout(logo.codegen.genTopLevelCode(ir));
+            stdout(await logo.env.codegenOnly(src));
         };
 
         return srcRunner;

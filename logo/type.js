@@ -345,8 +345,23 @@ $classObj.create = function(logo, sys) {
     }
     type.getRGB = getRGB;
 
+    function listFirst(list) {
+        return listItem(LIST_ORIGIN, list);
+    }
+    type.listFirst = listFirst;
+
     function listButFirst(list) {
-        return makeLogoList(list.slice(LIST_HEAD_SIZE + 1));
+        let ret = list.slice(0);
+        let embeddedSrcmap = getEmbeddedSrcmap(list);
+
+        ret.splice(LIST_HEAD_SIZE, 1);
+        if (embeddedSrcmap === SRCMAP_NULL) {
+            return ret;
+        }
+
+        embeddedSrcmap = embeddedSrcmap.slice(0);
+        embeddedSrcmap.splice(LIST_HEAD_SIZE, 1);
+        return embedSrcmap(ret, embeddedSrcmap);
     }
     type.listButFirst = listButFirst;
 
@@ -877,9 +892,9 @@ $classObj.create = function(logo, sys) {
             "UNKNOWN_PROC"          : 13,
             "CANT_OPEN_FILE"        : 40,
             "LAST_ERROR_CODE"       : 1024,
-            "STOP"                  : 65535,
+            "CUSTOM"                : 65532,
             "OUTPUT"                : 65534,
-            "CUSTOM"                : 65532
+            "STOP"                  : 65535
         };
 
         const msgmap = {
@@ -891,7 +906,9 @@ $classObj.create = function(logo, sys) {
             11 : "{0} has no value",
             13 : "I don't know how to {0}",
             40 : "I can't open file {0}",
-            65532 : "Can't find catch tag for {0}"
+            65532 : "Can't find catch tag for {0}",
+            65534 : "Can only use output inside a procedure",
+            65535 : "Can only use stop inside a procedure"
         };
 
         const LogoException = {};

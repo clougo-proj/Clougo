@@ -76,6 +76,10 @@ $classObj.create = function(logo, sys) {
         "pi": [genPi, true],
     };
 
+    const genLambda = {
+        "apply": 1
+    };
+
     function getGenNativeJsOutput(name) {
         return (name in genNativeJs) && genNativeJs[name][1];
     }
@@ -496,6 +500,11 @@ $classObj.create = function(logo, sys) {
                 noSemicolon = getGenNativeJsNoSemicolon(curToken);
                 evxContext.retExpr = getGenNativeJsOutput(curToken);
             } else if (curToken in logo.lrt.primitive) {
+                code.push("(");
+                if  (curToken in genLambda) {
+                    code.push(genStashLocalVars());
+                }
+
                 if (logo.env.getAsyncFunctionCall()) {
                     code.push("($ret=await logo.env.callPrimitiveAsync(\"");
                 } else {
@@ -506,6 +515,13 @@ $classObj.create = function(logo, sys) {
                     genPrimitiveCallParam(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
                         isInParen), "))");
 
+                if (curToken in genLambda) {
+                    code.push(",");
+                    code.push(genApplyLocalVars());
+                    code.push("$ret");
+                }
+
+                code.push(")");
                 evxContext.retExpr = markRetExpr;
             } else if (curToken in logo.env._ws) {
                 code.push("(");
@@ -579,16 +595,35 @@ $classObj.create = function(logo, sys) {
     }
     codegen.genBody = genBody;
 
-    function genInstrListLambdaDeclCode(evxContext) {
+    function genInstrListLambdaDeclCode(evxContext, param) {
         _varScopes.enter();
         let code = [];
-        code.push(logo.env.getAsyncFunctionCall() ? "(async()=>{" : "(()=>{");
-        code.push("let $scope = logo.env._scopeStack[logo.env._scopeStack.length - 1];\n");
+        code.push(logo.env.getAsyncFunctionCall() ? "(async(" : "((");
+
+        if (param !== undefined) {
+            code.push(insertDelimiters(param, ","));
+            param.forEach(v => _varScopes.addVar(v));
+        }
+
+        code.push(")=>{");
+
+        code.push("let $scopeCache = {};\n");
+
+        if (param !== undefined) {
+            code.push("let $scope = {}; logo.env._scopeStack.push($scope);\n");
+        } else {
+            code.push("let $scope = logo.env._scopeStack[logo.env._scopeStack.length - 1];\n");
+        }
+
         code.push(genBody(evxContext, true, true));
 
         code.push("(");
         code.push(genStashLocalVars());
         code.push("$ret);");
+
+        if (param !== undefined) {
+            code.push("logo.env._scopeStack.pop();\n");
+        }
 
         code.push("return $ret;");
 
@@ -711,7 +746,7 @@ $classObj.create = function(logo, sys) {
 
         let params = p[2];
 
-        code.push(insertDelimiters(params, ",") );
+        code.push(insertDelimiters(params, ","));
         code.push(")");
         code.push("{\n");
         code.push("let $ret;\n");

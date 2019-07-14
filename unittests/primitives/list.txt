@@ -70,5 +70,10 @@ sincos_err runl execl
 sign runl execl
 memberp runl execl
 wait run exec
-apply run exec
-apply_err runl execl
+apply1 run exec
+apply2 run exec
+apply3 run exec
+apply1_err runl execl
+apply2_err runl execl
+apply3_err runl execl
+apply_mixed run exec

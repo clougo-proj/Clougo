@@ -74,11 +74,15 @@ $classObj.create = function(logo, sys) {
     }
     interpreter.makeEvalContext = makeEvalContext;
 
-    async function evxProcCallParam(evxContext, paramListLength, precedence = 0) {
+    async function evxProcCallParam(evxContext, procName, paramListLength, precedence = 0) {
         let nextActualParam = [];
         for (let j = 0; j < paramListLength; j++) {
             evxContext.next();
             await evxToken(evxContext, precedence);
+            if (sys.isUndefined(evxContext.retVal)) {
+                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [procName], evxContext.getSrcmap());
+            }
+
             nextActualParam.push(evxContext.retVal);
         }
 
@@ -233,12 +237,13 @@ $classObj.create = function(logo, sys) {
         if (curToken in logo.env._user) {
             let callTarget = logo.env._user[curToken];
             logo.env.prepareCallProc(curToken, curSrcmap);
-            evxContext.retVal = callTarget.apply(undefined, await evxProcCallParam(evxContext, callTarget.length));
+            evxContext.retVal = callTarget.apply(undefined,
+                await evxProcCallParam(evxContext, curToken, callTarget.length));
         } else if (curToken in logo.env._ws) {
             let callTarget = logo.env._ws[curToken];
             logo.env.prepareCallProc(curToken, curSrcmap);
             evxContext.retVal = await evxProc(callTarget,
-                await evxProcCallParam(evxContext, callTarget.formal.length));
+                await evxProcCallParam(evxContext, curToken, callTarget.formal.length));
         } else {
             throw logo.type.LogoException.create("UNKNOWN_PROC", [curToken], curSrcmap);
         }
@@ -248,9 +253,8 @@ $classObj.create = function(logo, sys) {
 
     async function evxCtrlInfixOperator(evxContext, nextOp, nextOpSrcmap, nextPrec) {
         evxContext.next();
-        let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
         let retVal = evxContext.retVal;
-        let nextActualParam = await evxProcCallParam(evxContext, callTarget.length - 1, nextPrec);
+        let nextActualParam = await evxProcCallParam(evxContext, nextOp, 1, nextPrec);
         nextActualParam.splice(0, 0, nextOp, nextOpSrcmap, retVal);
         evxContext.retVal = await logo.env.callPrimitiveOperatorAsync.apply(undefined, nextActualParam);
     }

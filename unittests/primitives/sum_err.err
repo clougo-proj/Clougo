@@ -1,0 +1,46 @@
+sum doesn't like abc as input
+    at 1,2
+sum doesn't like true as input
+    at 2,2
+sum doesn't like false as input
+    at 3,2
+sum doesn't like [] as input
+    at 4,2
+sum doesn't like {} as input
+    at 5,2
+sum doesn't like true as input
+    at 6,1
+sum doesn't like abc as input
+    at 7,1
+sum doesn't like true as input
+    at 8,1
+sum doesn't like false as input
+    at 9,1
+sum doesn't like true as input
+    at 10,1
+sum doesn't like false as input
+    at 11,1
+sum doesn't like [] as input
+    at 12,1
+sum doesn't like {} as input
+    at 13,1
++ doesn't like true as input
+    at 14,7
++ doesn't like false as input
+    at 15,2
++ doesn't like true as input
+    at 16,2
++ doesn't like [] as input
+    at 17,2
++ doesn't like [] as input
+    at 18,4
++ doesn't like false as input
+    at 19,2
++ doesn't like false as input
+    at 20,4
++ doesn't like [] as input
+    at 21,3
++ doesn't like {} as input
+    at 22,3
+Not enough inputs to +
+    at 23,3

@@ -1,1 +1,28 @@
-pr sum 2 4
+show (sum)
+(pr)
+show (sum "1)
+show (sum "-1)
+show (sum sum last "abc9 first 900)
+(pr)
+show sum 2 3
+show sum -10 -11
+show sum "2 "3
+show sum "-10 "-11
+show sum last "abc9 first 900
+(pr)
+show 2+3
+show -10 + -11
+show -10+-11
+show "2 +"3
+show "-10 +"-11
+show (last "abc9)+first 900
+(pr)
+show (sum 1 2 3 4)
+show (sum "1 "2 "3 "4)
+show (sum "1 2 "3 4)
+show (sum 1 "2 3 "4)
+(pr)
+show 1+2+3+4
+show "1 + "2 + "3 + "4
+show "1 +2+"3 + 4
+show 1+"2 +3+"4

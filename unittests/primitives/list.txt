@@ -29,6 +29,7 @@ array run exec
 array_err runl execl
 sqrt run exec
 sum run exec
+sum_err runl execl
 array_with_origin run exec
 minus run exec
 cleartext run exec

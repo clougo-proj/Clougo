@@ -1,0 +1,23 @@
+(sum "abc)
+(sum "true)
+(sum "false)
+(sum [])
+(sum {})
+sum "true "false
+sum "abc 1
+sum 1 "true
+sum 1 "false
+sum "1 "true
+sum "1 "false
+sum [] 1
+sum {} 1
+"true + "false
+1+"false
+1+"true
+1+[]
+"1 +[]
+1+"false
+"1 + "false
+[]+1
+{}+1
+1+

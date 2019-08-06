@@ -365,11 +365,17 @@ $classObj.create = function(logo, sys) {
         return ret;
     }
 
-    function genProcCallParam(evxContext, paramListLength, precedence) {
+    function genProcCallParam(evxContext, procName, paramListLength, precedence) {
         let param = [];
         for (let j = 0; j < paramListLength; j++) { // push actual parameters
             evxContext.next();
-            param.push(genToken(evxContext, precedence));
+            let generatedParam = genToken(evxContext, precedence);
+            if (generatedParam == CODEGEN_CONSTANTS.NOP) {
+                generatedParam = ["throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
+                    logo.type.srcmapToJs(evxContext.getSrcmap()), ",[ \"" + procName + "\"])"];
+            }
+
+            param.push(generatedParam);
         }
 
         return insertDelimiters(param, ",");
@@ -535,7 +541,7 @@ $classObj.create = function(logo, sys) {
                         "\"", "](");
                 }
 
-                code.push(genProcCallParam(evxContext, logo.env._ws[curToken].formal.length));
+                code.push(genProcCallParam(evxContext, curToken, logo.env._ws[curToken].formal.length));
                 code.push(")),");
                 code.push(genCompleteCall());
                 code.push("$ret)");
@@ -559,7 +565,6 @@ $classObj.create = function(logo, sys) {
 
             evxContext.next();
 
-            let callTarget = logo.lrt.util.getBinaryOperatorRuntimeFunc(nextOp);
             if (logo.env.getAsyncFunctionCall()) {
                 code.splice(0, 0, "($ret=await logo.env.callPrimitiveOperatorAsync(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",");
             } else {
@@ -567,7 +572,7 @@ $classObj.create = function(logo, sys) {
             }
 
             code.push(",");
-            code.push(genProcCallParam(evxContext, callTarget.length - 1, nextPrec));
+            code.push(genProcCallParam(evxContext, nextOp, 1, nextPrec));
             code.push("))");
 
             evxContext.retExpr = markRetExpr;

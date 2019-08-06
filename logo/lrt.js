@@ -414,10 +414,10 @@ $classObj.create = function(logo, sys) {
         return opnd1 % opnd2;
     }
 
-    function primitiveSum(opnd1, opnd2) {
-        logo.type.checkInputNumber(opnd1);
-        logo.type.checkInputNumber(opnd2);
-        return opnd1 + opnd2;
+    function primitiveSum(...args) {
+        args.forEach(logo.type.checkInputNumber);
+        return args.reduce((accumulator, currentValue) =>
+            accumulator + sys.toNumberIfApplicable(currentValue), 0);
     }
 
     function primitiveDifference(opnd1, opnd2) {
@@ -876,6 +876,7 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.list =
     primitiveParamCount.word = [2, 0, -1];
 
+    primitiveParamCount.sum =
     primitiveParamCount.and =
     primitiveParamCount.or = [2, 0, -1];
 

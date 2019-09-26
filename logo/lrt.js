@@ -34,7 +34,7 @@ $classObj.create = function(logo, sys) {
                 continue;
             }
 
-            logo.type.checkInputList(item);
+            logo.type.validateInputList(item);
             for (let j = logo.type.LIST_ORIGIN; j <= logo.type.listMaxIndex(item); j++) {
                 sentence.push(logo.type.listItem(j, item));
             }
@@ -47,7 +47,7 @@ $classObj.create = function(logo, sys) {
         let word = "";
         for (let i in args) {
             let item = args[i];
-            logo.type.checkInputWord(item);
+            logo.type.validateInputWord(item);
             word += item;
         }
 
@@ -55,19 +55,19 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveArray(size, origin = logo.type.ARRAY_DEFAULT_ORIGIN) {
-        logo.type.checkInputNonNegInteger(size);
-        logo.type.checkInputInteger(origin);
+        logo.type.validateInputNonNegInteger(size);
+        logo.type.validateInputInteger(origin);
         return logo.type.makeLogoArrayBySize(size, origin);
     }
 
     function primitiveListToArray(value, origin = logo.type.ARRAY_DEFAULT_ORIGIN) {
-        logo.type.checkInputList(value);
-        logo.type.checkInputInteger(origin);
+        logo.type.validateInputList(value);
+        logo.type.validateInputInteger(origin);
         return logo.type.listToArray(value, origin);
     }
 
     function primitiveArrayToList(value) {
-        logo.type.checkInputArray(value);
+        logo.type.validateInputArray(value);
         return logo.type.arrayToList(value);
     }
 
@@ -76,12 +76,12 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveAscii(value) {
-        logo.type.checkInputCharacter(value);
+        logo.type.validateInputCharacter(value);
         return logo.type.charToAscii(value);
     }
 
     function primitiveChar(value) {
-        logo.type.checkInputIsByteValue(value);
+        logo.type.validateInputByte(value);
         return logo.type.asciiToChar(value);
     }
 
@@ -98,40 +98,40 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveMdarray(sizeList, origin = logo.type.ARRAY_DEFAULT_ORIGIN) {
-        logo.type.checkInputNonEmptyList(sizeList);
+        logo.type.validateInputNonEmptyList(sizeList);
         return mdarrayHelper(sizeList, logo.type.ARRAY_DEFAULT_ORIGIN, logo.type.listMaxIndex(sizeList), origin);
     }
 
     function primitiveMdsetitem(indexList, array, value) {
-        logo.type.checkInputNonEmptyList(indexList);
-        logo.type.checkInputArray(array);
+        logo.type.validateInputNonEmptyList(indexList);
+        logo.type.validateInputArray(array);
 
         let currentItem = array;
         let sizeListMaxIndex = logo.type.listMaxIndex(indexList);
         for (let i = logo.type.LIST_ORIGIN; i < sizeListMaxIndex; i++) {
             let index = logo.type.listItem(i, indexList);
-            logo.type.checkInputArray(currentItem);
-            logo.type.checkIndexWithinArrayRange(index, currentItem);
+            logo.type.validateInputArray(currentItem);
+            logo.type.validateIndexWithinArrayRange(index, currentItem);
             currentItem = logo.type.arrayItem(index, currentItem);
         }
 
         let index = logo.type.listItem(sizeListMaxIndex, indexList);
-        logo.type.checkInputArray(currentItem);
-        logo.type.checkIndexWithinArrayRange(index, currentItem);
+        logo.type.validateInputArray(currentItem);
+        logo.type.validateIndexWithinArrayRange(index, currentItem);
         logo.type.arraySetItem(index, currentItem, value);
     }
 
     function primitiveMditem(indexList, array) {
-        logo.type.checkInputNonEmptyList(indexList);
-        logo.type.checkInputArray(array);
+        logo.type.validateInputNonEmptyList(indexList);
+        logo.type.validateInputArray(array);
 
         let currentItem = array;
         let origin = logo.type.arrayOrigin(array);
         let sizeListMaxIndex = logo.type.listMaxIndex(indexList);
         for (let i = logo.type.LIST_ORIGIN; i <= sizeListMaxIndex; i++) {
             let index = logo.type.listItem(i, indexList);
-            logo.type.checkInputArray(currentItem);
-            logo.type.checkIndexWithinArrayRange(index, currentItem);
+            logo.type.validateInputArray(currentItem);
+            logo.type.validateIndexWithinArrayRange(index, currentItem);
             currentItem = logo.type.arrayItem(index, currentItem, origin);
         }
 
@@ -148,16 +148,16 @@ $classObj.create = function(logo, sys) {
                 thing = logo.type.toString(thing);
             }
 
-            logo.type.checkInputNonEmptyWord(thing);
+            logo.type.validateInputNonEmptyWord(thing);
             return thing.substring(0, 1);
         }
 
         if (logo.type.isLogoList(thing)) {
-            logo.type.checkInputNonEmptyList(thing);
+            logo.type.validateInputNonEmptyList(thing);
             return logo.type.listFirst(thing);
         }
 
-        logo.type.checkInputArray(thing);
+        logo.type.validateInputArray(thing);
         return logo.type.arrayOrigin(thing);
     }
 
@@ -171,12 +171,12 @@ $classObj.create = function(logo, sys) {
                 thing = logo.type.toString(thing);
             }
 
-            logo.type.checkInputNonEmptyWord(thing);
+            logo.type.validateInputNonEmptyWord(thing);
             let length = thing.length;
             return thing.substring(length - 1, length);
         }
 
-        logo.type.checkInputNonEmptyList(thing);
+        logo.type.validateInputNonEmptyList(thing);
         return logo.type.listItem(logo.type.listLength(thing), thing);
     }
 
@@ -202,7 +202,7 @@ $classObj.create = function(logo, sys) {
 
     function primitiveMemberp(candidate, group) {
         if (logo.type.isLogoWord(group)) {
-            logo.type.checkInputCharacter(candidate);
+            logo.type.validateInputCharacter(candidate);
             return logo.type.wordFindItem(candidate, group) != -1;
         }
 
@@ -210,7 +210,7 @@ $classObj.create = function(logo, sys) {
             return logo.type.listFindItem(candidate, group) != -1;
         }
 
-        logo.type.checkInputArray(group);
+        logo.type.validateInputArray(group);
         return logo.type.arrayFindItem(candidate, group) != -1;
     }
 
@@ -224,11 +224,11 @@ $classObj.create = function(logo, sys) {
                 thing = logo.type.toString(thing);
             }
 
-            logo.type.checkInputNonEmptyWord(thing);
+            logo.type.validateInputNonEmptyWord(thing);
             return thing.substring(1);
         }
 
-        logo.type.checkInputNonEmptyList(thing);
+        logo.type.validateInputNonEmptyList(thing);
         return logo.type.listButFirst(thing);
     }
 
@@ -242,11 +242,11 @@ $classObj.create = function(logo, sys) {
                 thing = logo.type.toString(thing);
             }
 
-            logo.type.checkInputNonEmptyWord(thing);
+            logo.type.validateInputNonEmptyWord(thing);
             return thing.substring(0, thing.length - 1);
         }
 
-        logo.type.checkInputNonEmptyList(thing);
+        logo.type.validateInputNonEmptyList(thing);
         return logo.type.listButLast(thing);
     }
 
@@ -267,17 +267,17 @@ $classObj.create = function(logo, sys) {
             return logo.type.listLength(thing);
         }
 
-        logo.type.checkInputArray(thing);
+        logo.type.validateInputArray(thing);
         return logo.type.arrayLength(thing);
     }
 
     function primitiveFput(thing, list) {
         if (logo.type.isLogoWord(list)) {
-            logo.type.checkInputOneLetterWord(thing);
+            logo.type.validateInputCharacter(thing);
             return thing.concat(list);
         }
 
-        logo.type.checkInputList(list);
+        logo.type.validateInputList(list);
         let newlist = list.slice(0);
         newlist.splice(logo.type.LIST_HEAD_SIZE, 0, thing);
         return newlist;
@@ -285,11 +285,11 @@ $classObj.create = function(logo, sys) {
 
     function primitiveLput(thing, list) {
         if (logo.type.isLogoWord(list)) {
-            logo.type.checkInputOneLetterWord(thing);
+            logo.type.validateInputCharacter(thing);
             return list.concat(thing);
         }
 
-        logo.type.checkInputList(list);
+        logo.type.validateInputList(list);
         let newlist = list.slice(0);
         newlist.push(thing);
         return newlist;
@@ -300,17 +300,17 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveAnd(...args) {
-        args.forEach(logo.type.checkInputBoolean);
+        args.forEach(logo.type.validateInputBoolean);
         return args.reduce((accumulator, currentValue) => accumulator && logo.type.asLogoBoolean(currentValue), true);
     }
 
     function primitiveOr(...args) {
-        args.forEach(logo.type.checkInputBoolean);
+        args.forEach(logo.type.validateInputBoolean);
         return args.reduce((accumulator, currentValue) => accumulator || logo.type.asLogoBoolean(currentValue), false);
     }
 
     function primitiveNot(value) {
-        logo.type.checkInputBoolean(value);
+        logo.type.validateInputBoolean(value);
         return !logo.type.asLogoBoolean(value);
     }
 
@@ -327,25 +327,25 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveSetitem(index, array, val) {
-        logo.type.checkInputArray(array);
-        logo.type.checkInputInteger(index);
-        logo.type.checkIndexWithinArrayRange(index, array);
+        logo.type.validateInputArray(array);
+        logo.type.validateInputInteger(index);
+        logo.type.validateIndexWithinArrayRange(index, array);
         logo.type.arraySetItem(index, array, val);
     }
 
     function primitiveItem(index, thing) {
         if (logo.type.isLogoList(thing)) {
-            logo.type.checkIndexWithinListRange(index, thing);
+            logo.type.validateIndexWithinListRange(index, thing);
             return logo.type.listItem(index, thing);
         }
 
         if (logo.type.isLogoWord(thing)) {
-            logo.type.checkIndexWithinWordRange(index, thing);
+            logo.type.validateIndexWithinWordRange(index, thing);
             return logo.type.wordGetItem(index, thing);
         }
 
-        logo.type.checkInputArray(thing);
-        logo.type.checkIndexWithinArrayRange(index, thing);
+        logo.type.validateInputArray(thing);
+        logo.type.validateIndexWithinArrayRange(index, thing);
         return logo.type.arrayItem(index, thing);
     }
 
@@ -405,8 +405,8 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveProduct(opnd1, opnd2) {
-        logo.type.checkInputNumber(opnd1);
-        logo.type.checkInputNumber(opnd2);
+        logo.type.validateInputNumber(opnd1);
+        logo.type.validateInputNumber(opnd2);
         return opnd1 * opnd2;
     }
 
@@ -415,7 +415,7 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveSum(...args) {
-        args.forEach(logo.type.checkInputNumber);
+        args.forEach(logo.type.validateInputNumber);
         return args.reduce((accumulator, currentValue) =>
             accumulator + sys.toNumberIfApplicable(currentValue), 0);
     }
@@ -425,33 +425,33 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveSqrt(opnd) {
-        logo.type.checkInputNonNegNumber(opnd);
+        logo.type.validateInputNonNegNumber(opnd);
         return Math.sqrt(opnd);
     }
 
     function primitivePower(base, exp) {
-        logo.type.checkInputNumber(base);
+        logo.type.validateInputNumber(base);
         if (base < 0) {
-            logo.type.checkInputInteger(exp);
+            logo.type.validateInputInteger(exp);
         } else {
-            logo.type.checkInputNumber(exp);
+            logo.type.validateInputNumber(exp);
         }
 
         return Math.pow(base, exp);
     }
 
     function primitiveLog10(opnd) {
-        logo.type.checkInputPosNumber(opnd);
+        logo.type.validateInputPosNumber(opnd);
         return Math.log10(opnd);
     }
 
     function primitiveSin(deg) {
-        logo.type.checkInputNumber(deg);
+        logo.type.validateInputNumber(deg);
         return Math.sin(logo.type.degToRad(normalizeDegree(deg)));
     }
 
     function primitiveCos(deg) {
-        logo.type.checkInputNumber(deg);
+        logo.type.validateInputNumber(deg);
         return Math.sin(logo.type.degToRad(normalizeDegree(deg + 90)));
     }
 
@@ -471,7 +471,7 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveRound(opnd) {
-        logo.type.checkInputNumber(opnd);
+        logo.type.validateInputNumber(opnd);
         let sign = Math.sign(opnd);
         return sign == 0 ? 0 :
             sign > 0 ? Math.round(opnd) :
@@ -479,7 +479,7 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveInt(opnd) {
-        logo.type.checkInputNumber(opnd);
+        logo.type.validateInputNumber(opnd);
         let sign = Math.sign(opnd);
         return sign == 0 ? 0 :
             sign > 0 ? Math.floor(opnd) :
@@ -487,12 +487,12 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveAbs(opnd) {
-        logo.type.checkInputNumber(opnd);
+        logo.type.validateInputNumber(opnd);
         return Math.abs(opnd);
     }
 
     function primitiveSign(opnd) {
-        logo.type.checkInputNumber(opnd);
+        logo.type.validateInputNumber(opnd);
         return Math.sign(opnd);
     }
 
@@ -523,7 +523,7 @@ $classObj.create = function(logo, sys) {
     }
 
     async function primitiveApply(template, inputList) {
-        logo.type.checkInputList(inputList);
+        logo.type.validateInputList(inputList);
 
         let unboxedInputList = logo.type.unbox(inputList);
         let srcmap = logo.env.getPrimitiveSrcmap();
@@ -537,7 +537,7 @@ $classObj.create = function(logo, sys) {
             return await logo.env.applyNamedProcedure(template, srcmap, unboxedInputList, inputListSrcmap);
         }
 
-        logo.type.checkInputList(template);
+        logo.type.validateInputList(template);
         return await logo.env.applyInstrList(template, srcmap, unboxedInputList);
     }
 

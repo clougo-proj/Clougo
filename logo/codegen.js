@@ -11,11 +11,9 @@
 var $classObj = {};
 $classObj.create = function(logo, sys) {
 
-    const codegen = {};
+    const defaultInstrListName = "[]";
 
-    const CODEGEN_CONSTANTS = {
-        NOP : "undefined;"
-    };
+    const codegen = {};
 
     let _funcName = "";
 
@@ -64,197 +62,278 @@ $classObj.create = function(logo, sys) {
     })();
 
     const genNativeJs = {
-        // token: [func, output, noOperator, noSemicolon]
-        "if": [genIf, false, true, true],
-        "catch": [genCatch, false, true, true],
-        "ifelse": [genIfElse, false, true, true],
-        "make": [genMake],
-        "localmake": [genLocalmake],
-        "local": [genLocal],
-        "repeat": [genRepeat, false, true, true],
-        "for": [genFor, false, true, true],
-        "pi": [genPi, true],
+        "if": genIf,
+        "catch": genCatch,
+        "ifelse": genIfElse,
+        "make": genMake,
+        "localmake": genLocalmake,
+        "local": genLocal,
+        "repeat": genRepeat,
+        "for": genFor,
+        "pi": genPi
     };
 
     const genLambda = {
         "apply": 1
     };
 
-    function getGenNativeJsOutput(name) {
-        return (name in genNativeJs) && genNativeJs[name][1];
+    const CODE_TYPE = {
+        EXPR: 0,
+        STMT: 1
+    };
+
+    class Code {
+        constructor(rawCodeArray, codeType) {
+            this._code = rawCodeArray.slice(0);
+            this._codeType = codeType;
+            this._postFix = false;
+        }
+
+        static expr(...rawCode) {
+            return new Code(rawCode, CODE_TYPE.EXPR);
+        }
+
+        static stmt(...rawCode) {
+            return new Code(rawCode, CODE_TYPE.STMT);
+        }
+
+        append(...args) {
+            Array.prototype.push.apply(this._code, args);
+            if (containsPostFix(args)) {
+                this._postFix = true;
+            }
+
+            return this;
+        }
+
+        prepend(...args) {
+            args.splice(0, 0, 0, 0);
+            Array.prototype.splice.apply(this._code, args);
+            if (containsPostFix(args)) {
+                this._postFix = true;
+            }
+
+            return this;
+        }
+
+        captureRetVal() {
+            return this.prepend("$ret=");
+        }
+
+        length() {
+            return this._code.length;
+        }
+
+        isExpr() {
+            return this._codeType === CODE_TYPE.EXPR;
+        }
+
+        postFix() {
+            return this._postFix;
+        }
+
+        merge() {
+            return this._code.map((v) => (v instanceof Code) ? v.merge() :
+                typeof v !== "string" ? JSON.stringify(v) : v).join("");
+        }
+
+        withPostFix(postFix) {
+            this._postFix = postFix;
+            return this;
+        }
+
+        last() {
+            return this._code.length > 0 ? this._code[this._code.length - 1] : undefined;
+        }
+
+        appendBinaryOperatorExprs(evxContext, precedence) {
+            while (evxContext.isNextTokenBinaryOperator() &&
+                precedence < logo.lrt.util.getBinaryOperatorPrecedence(evxContext.getNextOperator())) {
+
+                this.appendNextBinaryOperatorExpr(evxContext);
+            }
+
+            return this;
+        }
+
+        appendNextBinaryOperatorExpr(evxContext) {
+            let nextOp = evxContext.getNextOperator();
+            let nextOpSrcmap = evxContext.getNextOperatorSrcmap();
+            let nextPrec = logo.lrt.util.getBinaryOperatorPrecedence(nextOp);
+
+            let nextOpnd = genProcInput(evxContext.next().next(), nextPrec, false, nextOp);
+            let lastOpnd = this.last();
+            let postfix = sys.Config.get("postfix") ||
+                ((lastOpnd instanceof Code) && lastOpnd.postFix()) || nextOpnd.postFix();
+
+            return !postfix ? this.appendInfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) :
+                this.appendPostfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap);
+        }
+
+        appendInfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) {
+            return this.prepend("(\"", nextOp,  "\",", logo.type.srcmapToJs(nextOpSrcmap), ",")
+                .prepend(genCallPrimitiveOperator())
+                .prepend("($ret=")
+                .append(",")
+                .append(nextOpnd)
+                .append("))");
+        }
+
+        appendPostfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) {
+            return this.withPostFix(true)
+                .prepend("$param.begin([\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), "]);\n")
+                .append(";\n$param.add($ret);\n")
+                .append(nextOpnd)
+                .append(";\n$param.add($ret);\n")
+                .append("$ret=")
+                .append(genCallPrimitiveOperator())
+                .append(".apply(undefined,$param.end());\n");
+        }
     }
 
-    function getGenNativeJsNoOperator(name) {
-        return (name in genNativeJs) && genNativeJs[name][2];
-    }
-
-    function getGenNativeJsNoSemicolon(name) {
-        return (name in genNativeJs) && genNativeJs[name][3];
-    }
+    const CODEGEN_CONSTANTS = {
+        NOP: Code.stmt("undefined;")
+    };
 
     function genPi() {
-        return ["Math.PI"];
+        return Code.expr("Math.PI");
     }
 
     function genLocal(evxContext, isInParen = false) {
 
-        let code = [];
+        let code = Code.stmt();
 
-        code.push("let ");
+        code.append("let ");
 
         let expectedParams = 1;
         let generatedParams = 0;
         let varName;
 
-        while ((generatedParams < expectedParams || isInParen) && evxContext.peekNextToken() != ")" && evxContext.next()) {
-            varName = evxContext.getToken();
+        while ((generatedParams < expectedParams || isInParen) && evxContext.peekNextToken() != ")" &&
+            evxContext.hasNext()) {
 
+            varName = evxContext.next().getToken();
             if (generatedParams > 0) {
-                code.push(",");
+                code.append(",");
             }
 
             sys.assert(logo.type.isQuotedLogoWord(varName));  // TODO: throw Logo exception
             varName = logo.type.unquoteLogoWord(varName).toLowerCase();
             _varScopes.addVar(varName);
-            code.push(varName);
+            code.append(varName);
 
             generatedParams++;
         }
 
-        code.push(";");
+        code.append(";");
         sys.trace("VARNAME=" + varName, "codegen.genLocal");
 
         return code;
     }
 
     function genInstrList(evxContext, primitiveName, generateCheckUnactionableDatum = true) {
-        let code = [];
+        let code = Code.expr();
 
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
 
         if (evxContext.isTokenEndOfStatement(curToken)) {
-            code.push("throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
-                logo.type.srcmapToJs(srcmap), ",[\"", primitiveName, "\"])");
+            code.append(genThrowNotEnoughInputs(evxContext.getSrcmap(), primitiveName));
         } else if (logo.type.isLogoList(curToken)) {
             let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
-            code.push(genBody(logo.interpreter.makeEvalContext(comp), true));
+            code.append(genBody(logo.interpreter.makeEvalContext(comp)));
         } else {
-            code.push(genInstrListCall(curToken, srcmap));
+            code.append(genInstrListCall(curToken, srcmap));
         }
 
         if (generateCheckUnactionableDatum && sys.Config.get("unactionableDatum")) {
-            code.push(";checkUnactionableDatum($ret,", logo.type.srcmapToJs(srcmap), ");\n");
+            code.append(";checkUnactionableDatum($ret,", logo.type.srcmapToJs(srcmap), ");\n");
         }
 
         return code;
     }
 
     function genIf(evxContext) {
-        let code = [];
+        let code = Code.stmt();
 
-        code.push("if (logo.type.isNotLogoFalse(");
-        evxContext.next();
-        code.push(genToken(evxContext,0));
-        code.push(")) {\n");
+        code.append(genToken(evxContext.next()));
+        code.append(";\n");
+        code.append("if (logo.type.isNotLogoFalse($ret)) {\n");
 
-        evxContext.next();
-        code.push(genInstrList(evxContext, "if"));
-        code.push("}");
+        code.append(genInstrList(evxContext.next(), "if"));
+        code.append("}");
 
         if (evxContext.peekNextToken() === "else") {
-            evxContext.next();
-            evxContext.next();
-            code.push(" else {");
-            code.push(genInstrList(evxContext, "if"));
-            code.push("}");
+            code.append(" else {");
+            code.append(genInstrList(evxContext.next().next(), "if"));
+            code.append("}");
         }
 
-        code.push("\n;$ret=undefined;");
+        code.append("\n;$ret=undefined;");
 
         return code;
     }
 
     function genCatch(evxContext) {
-        let code = [];
+        let code = Code.stmt();
+        let label = genToken(evxContext.next());
 
-        evxContext.next();
+        code.append("try {\n");
 
-        let label = genToken(evxContext, 0);
-        if (logo.env.getAsyncFunctionCall()) {
-            code.push("($ret=await (async function() {");
-        } else {
-            code.push("($ret=(() => {");
-        }
+        code.append(genInstrList(evxContext.next(), "catch", false));
+        code.append("} catch (e) {\n");
 
-        code.push("try {\n");
-        evxContext.next();
+        code.append("if (e.isCustom()) {\n");
+        code.append("if (sys.equalToken(");
+        code.append(label);
+        code.append(", e.getValue()[0])){$ret=e.getValue()[1];}\n");
+        code.append("else { throw e;} }\n");
 
-        code.push(genInstrList(evxContext, "catch", false));
-        code.push("} catch (e) {\n");
+        code.append("else if (!logo.type.LogoException.is(e) || (e.isError() && !sys.equalToken(");
+        code.append(label);
+        code.append(", 'error'))) {\n");
+        code.append("throw e;}else{$ret=undefined;}}\n");
 
-        code.push("if (e.isCustom()) {\n");
-        code.push("if (sys.equalToken(");
-        code.push(label);
-        code.push(", e.getValue()[0])) {return e.getValue()[1];}");
-        code.push("throw e;}\n");
-
-        code.push("if (!logo.type.LogoException.is(e) || (e.isError() && !sys.equalToken(");
-        code.push(label);
-        code.push(", 'error'))) {\n");
-        code.push("throw e;\n");
-
-        code.push("}}})(),$ret)\nif($ret !== undefined) return $ret\n");
+        code.append("if($ret !== undefined) return $ret\n");
 
         return code;
     }
 
     function genIfElse(evxContext) {
-        let code = [];
+        let code = Code.stmt();
 
-        code.push("if (logo.type.isNotLogoFalse(");
-        evxContext.next();
-        code.push(genToken(evxContext,0));
-        code.push(")) {\n");
+        code.append(genToken(evxContext.next()));
+        code.append(";\n");
+        code.append("if (logo.type.isNotLogoFalse($ret)) {\n");
+        code.append(genInstrList(evxContext.next(), "ifelse"));
+        code.append("} else {\n");
+        code.append(genInstrList(evxContext.next(), "ifelse"));
 
-        evxContext.next();
-        code.push(genInstrList(evxContext, "ifelse"));
-
-        code.push("} else {\n");
-        evxContext.next();
-        code.push(genInstrList(evxContext, "ifelse"));
-
-        code.push("}");
-        code.push("\n;$ret=undefined;");
+        code.append("}");
+        code.append("\n;$ret=undefined;");
 
         return code;
     }
 
     function genRepeat(evxContext) {
-        let code = [];
-
-        evxContext.next();
-        code.push("for (let ");
-
-        let repeatCount = genToken(evxContext, 0);
+        let code = Code.stmt();
         let repeatVarName = "$i";
 
-        code.push(repeatVarName, "=0;", repeatVarName, "<", repeatCount, ";", repeatVarName, "++) {\n");
-        evxContext.next();
-        code.push(genInstrList(evxContext, "repeat"));
-
-        code.push("}");
-        code.push("\n;$ret=undefined;");
+        code.append(genToken(evxContext.next()));
+        code.append(";const $repeatEnd=$ret;\n");
+        code.append("for (let ");
+        code.append(repeatVarName, "=0;", repeatVarName, "<$repeatEnd;", repeatVarName, "++) {\n");
+        code.append(genInstrList(evxContext.next(), "repeat"));
+        code.append("}");
+        code.append("\n;$ret=undefined;");
 
         return code;
     }
 
     function genFor(evxContext) {
-        let code = [];
+        let code = Code.stmt();
 
-        evxContext.next();
-
-        let token = evxContext.getToken();
+        let token = evxContext.next().getToken();
         let srcmap = evxContext.getSrcmap();
 
         token = token.map(sys.toNumberIfApplicable);
@@ -263,99 +342,85 @@ $classObj.create = function(logo, sys) {
         let forLoopCtrl = logo.interpreter.makeEvalContext(comp);
         let forVarName = genLogoVarLref(forLoopCtrl.getToken());
 
-        forLoopCtrl.next();
+        code.append("{");
+        code.append(genToken(forLoopCtrl.next()));
+        code.append(";const $forBegin=$ret;\n");
 
-        let forBegin = genToken(forLoopCtrl, 0);
-        code.push("{const $forBegin = ", forBegin, ";\n");
+        code.append(genToken(forLoopCtrl.next()));
+        code.append(";const $forEnd=$ret;\n");
 
-        forLoopCtrl.next();
+        code.append("const $forDecrease = $forEnd < $forBegin;\n");
 
-        let forEnd = genToken(forLoopCtrl, 0);
-        code.push("const $forEnd = ", forEnd, ";\n");
-        code.push("const $forDecrease = $forEnd < $forBegin;\n");
+        let forStep = forLoopCtrl.hasNext() ? genToken(forLoopCtrl.next()) : "$forDecrease ? -1 : 1";
+        code.append("const $forStep = ", forStep, ";\n");
 
-        let forStep = forLoopCtrl.next() ? genToken(forLoopCtrl, 0) : "$forDecrease ? -1 : 1";
-        code.push("const $forStep = ", forStep, ";\n");
+        code.append("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n");
+        code.append("for(", forVarName, "=$forBegin; ($forDecrease && ", forVarName, ">=$forEnd) || (!$forDecrease &&",
+            forVarName, "<=$forEnd); ", forVarName, "+=$forStep) {\n");
 
-        code.push("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n");
-        code.push("for(", forVarName, "=$forBegin; ($forDecrease && ", forVarName, ">=$forEnd) || (!$forDecrease &&", forVarName, "<=$forEnd); ", forVarName, "+=$forStep) {\n");
+        code.append(genInstrList(evxContext.next(), "for"));
 
-        evxContext.next();
-        code.push(genInstrList(evxContext, "for"));
-
-        code.push("}}");
-        code.push("\n;$ret=undefined;");
+        code.append("}}");
+        code.append("\n;$ret=undefined;");
 
         return code;
     }
 
     function genMake(evxContext) {
-        let code = [];
+        let code = Code.stmt();
+        let varName = logo.env.extractVarName(evxContext.next().getToken());
 
-        evxContext.next();
+        code.append(genToken(evxContext.next()));
+        code.append(";\n");
+        code.append(genLogoVarLref(varName));
+        code.append("=$ret;$ret=undefined;");
 
-        let varName = logo.env.extractVarName(evxContext.getToken());
-
-        Array.prototype.push.apply(code, genLogoVarLref(varName));
-
-        evxContext.next();
-        code.push("=");
-        code.push(genToken(evxContext,0));
-        code.push(";$ret=undefined;");
         return code;
     }
 
     function genLocalmake(evxContext) {
-        let code = [];
-
-        evxContext.next();
-
-        let varName = logo.env.extractVarName(evxContext.getToken());
+        let varName = logo.env.extractVarName(evxContext.next().getToken());
         _varScopes.addVar(varName);
-        code.push("let ");
 
-        Array.prototype.push.apply(code, genLogoVarLref(varName));
-
-        evxContext.next();
-        code.push("=");
-        code.push(genToken(evxContext,0));
-        code.push(";$ret=undefined");
-        return code;
+        return Code.stmt()
+            .append(genToken(evxContext.next()))
+            .append(";\n")
+            .append("let ")
+            .append(genLogoVarLref(varName))
+            .append("=$ret;$ret=undefined;");
     }
 
     function genLogoVarRef(curToken, srcmap) {
         let varName = logo.env.extractVarName(curToken);
-        return _varScopes.isLocalVar(varName) ?  ["logo.lrt.util.logoVar(", varName, ", \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")"] :
-            ["logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"", varName, "\"", "], \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")"];
+        return _varScopes.isLocalVar(varName) ?
+            Code.expr("logo.lrt.util.logoVar(", varName, ", \"", varName, "\",", logo.type.srcmapToJs(srcmap),
+                ")") :
+            Code.expr("logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"",
+                varName, "\"", "], \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")");
     }
 
     function genLogoVarLref(varName) {
-        return _varScopes.isLocalVar(varName) ? [varName] :
-            ["logo.env.findLogoVarScope('" + varName + "', $scopeCache)['" + varName + "']"];
+        return _varScopes.isLocalVar(varName) ? Code.expr(varName) :
+            Code.expr("logo.env.findLogoVarScope('" + varName + "', $scopeCache)['" + varName + "']");
     }
 
     function genLogoSlotRef(curToken, srcmap) {
         let slotNum = logo.env.extractSlotNum(curToken);
-        return ["logo.env.callPrimitive(\"?\",", logo.type.srcmapToJs(srcmap), ",", slotNum, ")"];
+        return Code.expr("logo.env.callPrimitive(\"?\",", logo.type.srcmapToJs(srcmap), ",", slotNum, ")");
     }
 
     function genInstrListCall(curToken, srcmap) {
-        let code = [];
-
-        code.push("(");
-        code.push(genPrepareCall("[]", srcmap));
-        code.push("$ret);\n");
-
-        code.push("$ret=");
-        code.push(logo.env.getAsyncFunctionCall() ? "await callLogoInstrListAsync(" : "callLogoInstrList(");
-        code.push(genLogoVarRef(curToken, srcmap));
-        code.push(");");
-
-        code.push("(");
-        code.push(genCompleteCall());
-        code.push("$ret);\n");
-
-        return code;
+        return Code.expr()
+            .append("(")
+            .append(genPrepareCall(defaultInstrListName, srcmap))
+            .append("$ret);\n")
+            .append("$ret=")
+            .append(genCallLogoInstrList())
+            .append(genLogoVarRef(curToken, srcmap))
+            .append(");")
+            .append("(")
+            .append(genCompleteCall())
+            .append("$ret);\n");
     }
 
     function insertDelimiters(param, delimiter) {
@@ -365,53 +430,151 @@ $classObj.create = function(logo, sys) {
         return ret;
     }
 
-    function genProcCallParam(evxContext, procName, paramListLength, precedence) {
+    function containsPostFix(codeArray) {
+        return codeArray.map(p => (p instanceof Code) && p.postFix())
+            .reduce((acc, cur) => acc || cur, false);
+    }
+
+    function genUserProcCall(evxContext, curToken, srcmap) {
+        let param = genUserProcCallParams(evxContext, curToken, logo.env._ws[curToken].formal.length);
+        let postfix = sys.Config.get("postfix") || containsPostFix(param);
+        return !postfix ? genInfixUserProcCall(curToken, srcmap, param) :
+            genPostfixUserProcCall(curToken, srcmap, param);
+    }
+
+    function genInfixUserProcCall(curToken, srcmap, param) {
+        return Code.expr()
+            .append("(")
+            .append(genPrepareCall(curToken, srcmap))
+            .append("$ret=(", genAwait(), "logo.env._user[\"", curToken, "\"](")
+            .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
+            .append(")),")
+            .append(genCompleteCall())
+            .append("$ret)");
+    }
+
+    function genPostfixUserProcCall(curToken, srcmap, param) {
+        let code = Code.expr();
+
+        code.withPostFix(true);
+        code.append("$param.begin([]);\n");
+
+        param.map((p) => {
+            code.append(p);
+            code.append(";\n$param.add($ret);\n");
+        });
+
+        code.append(genPrepareCall(curToken, srcmap));
+        code.append("$ret;\n");
+
+        code.append("$ret=", genAwait(), "logo.env._user[", "\"" + curToken + "\"",
+            "].apply(undefined,$param.end());\n");
+
+        code.append(genCompleteCall());
+        code.append("$ret;\n");
+
+        return code;
+    }
+
+    function genUserProcCallParams(evxContext, procName, paramListLength, precedence) {
         let param = [];
         for (let j = 0; j < paramListLength; j++) { // push actual parameters
             evxContext.next();
-            let generatedParam = genToken(evxContext, precedence);
-            if (generatedParam == CODEGEN_CONSTANTS.NOP) {
-                generatedParam = ["throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
-                    logo.type.srcmapToJs(evxContext.getSrcmap()), ",[ \"" + procName + "\"])"];
-            }
-
-            param.push(generatedParam);
+            param.push(genProcInput(evxContext, precedence, false, procName));
         }
 
-        return insertDelimiters(param, ",");
+        return param;
     }
 
-    function genPrimitiveCallParam(evxContext, primitiveName, precedence = 0, isInParen = false) {
+    function genPrimitiveCall(evxContext, curToken, srcmap, isInParen) {
+        let param = genPrimitiveCallParams(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
+            isInParen);
+
+        let postfix = sys.Config.get("postfix") || containsPostFix(param);
+
+        return !postfix ? genInfixPrimitiveCall(curToken, srcmap, param) :
+            genPostfixPrimitiveCall(curToken, srcmap, param);
+    }
+
+    function genInfixPrimitiveCall(curToken, srcmap, param) {
+        let code = Code.expr();
+
+        code.append("(");
+        if  (curToken in genLambda) {
+            code.append(genStashLocalVars());
+        }
+
+        code.append("($ret=");
+        code.append(genCallPrimitive());
+        code.append("(\"");
+
+        code.append(curToken, "\", ", logo.type.srcmapToJs(srcmap), ",");
+        code.append(Code.expr.apply(undefined, insertDelimiters(param, ",")));
+        code.append("))");
+
+        if (curToken in genLambda) {
+            code.append(",");
+            code.append(genApplyLocalVars());
+            code.append("$ret");
+        }
+
+        code.append(")");
+
+        return code;
+    }
+
+    function genPostfixPrimitiveCall(curToken, srcmap, param) {
+        let code = Code.expr();
+
+        code.withPostFix(true);
+        if  (curToken in genLambda) {
+            code.append(genStashLocalVars());
+        }
+
+        code.append("$param.begin([\"", curToken, "\",", logo.type.srcmapToJs(srcmap), "]);\n");
+
+        param.map((p) => {
+            code.append(p);
+            code.append(";\n$param.add($ret);\n");
+        });
+
+        code.append("$ret=");
+        code.append(genCallPrimitive());
+        code.append(".apply(undefined,$param.end());\n");
+
+        if (curToken in genLambda) {
+
+            code.append(genApplyLocalVars());
+            code.append("$ret;");
+        }
+
+        return code;
+    }
+
+    function genPrimitiveCallParams(evxContext, primitiveName, precedence = 0, isInParen = false) {
         let param = [];
         let paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
         let paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
         let paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
         let j = 0;
 
-        if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength==-1)) {
+        if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength == -1)) {
             for (; (j < paramListMaxLength || paramListMaxLength == -1) &&
                     (isInParen && evxContext.peekNextToken() != ")" ) && evxContext.next(); j++) {
-                param.push(genToken(evxContext));
+                param.push(genToken(evxContext, precedence));
             }
         } else {
-            for (; j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen) ; j++) { // push actual parameters
-                evxContext.next();
-                let generatedParam = genToken(evxContext, precedence, false, true, isInParen, true);
-                if (generatedParam == CODEGEN_CONSTANTS.NOP) {
-                    generatedParam = ["throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
-                        logo.type.srcmapToJs(evxContext.getSrcmap()), ",[ \"" + primitiveName + "\"])"];
-                }
-
-                param.push(generatedParam);
+            for (; j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen) &&
+                    evxContext.next(); j++) { // push actual parameters
+                param.push(genProcInput(evxContext, precedence, false, primitiveName));
             }
         }
 
         if (j < paramListMinLength) {
-            param.push(["throwRuntimeLogoException('NOT_ENOUGH_INPUTS',", logo.type.srcmapToJs(evxContext.getSrcmap()),
-                ",[ \"" + primitiveName + "\"])"]);
+            param.push(genThrowNotEnoughInputs(evxContext.getSrcmap(), primitiveName));
         }
 
-        return insertDelimiters(param, ",");
+        return param;
     }
 
     function genArray(obj) {
@@ -425,254 +588,120 @@ $classObj.create = function(logo, sys) {
         return JSON.stringify(comp.map(sys.toNumberIfApplicable));
     }
 
-    function genToken(evxContext, precedence = 0, isStatement = false, markRetExpr = false, isInParen = false,
-        stopAtLineEnd = false) {
+    function genToken(evxContext, precedence = 0, isInParen = false) {
+        return genTokenHelper(evxContext, isInParen).appendBinaryOperatorExprs(evxContext, precedence);
+    }
 
-        let code = [];
+    function genTokenHelper(evxContext, isInParen) {
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
 
-        while ((!stopAtLineEnd && curToken === "\n") && !sys.isUndefined(curToken) && evxContext.next()) {
-            curToken = evxContext.getToken();
-        }
-
         if (sys.isUndefined(curToken) || curToken === "\n") {
-            return CODEGEN_CONSTANTS.NOP; //"undefined;"; // add undefined to make sure eval() returns undefined
+            return CODEGEN_CONSTANTS.NOP; // make sure eval() returns undefined
         }
 
-        srcmap = evxContext.getSrcmap();
-
-        let noOperator = false;
-        let noSemicolon = false;
-
-        let tmp = NaN;
-        if (typeof curToken !== "object" && !isNaN(tmp = Number(curToken))) {
-            if (markRetExpr) {
-                code.push("$ret=");
-            }
-
-            code.push(tmp);
-            evxContext.retExpr = markRetExpr;
-        } else if (sys.equalToken(curToken, "stop")) {
-            code.push("return");
-        } else if (sys.equalToken(curToken, "output") || sys.equalToken(curToken, "op")) {
+        if (logo.type.isNumericConstant(curToken)) {
+            return Code.expr(Number(curToken)).captureRetVal();
+        } else if (logo.type.isStopStmt(curToken)) {
+            return Code.expr("return");
+        } else if (logo.type.isOutputStmt(curToken)) {
             evxContext.next();
-            code.push(genToken(evxContext, 0, false, true));
-            code.push(";return $ret");
-        } else if (curToken == "(") {
-            code.push(genParen(evxContext, evxContext.peekNextToken() == "local", true));
-            evxContext.retExpr = markRetExpr;
-        } else if (typeof curToken == "object") {
-            if (markRetExpr && !logo.type.isLogoProc(curToken)) {
-                code.push("$ret=");
-            }
-
-            code.push(logo.type.isLogoProc(curToken) ? genProc(curToken, srcmap) :
-                logo.type.isLogoArray(curToken) ?  genArray(curToken, srcmap) :
-                    genLogoList(curToken, srcmap));
-
-            evxContext.retExpr = markRetExpr;
+            return Code.expr(genToken(evxContext)).append(";return $ret");
+        } else if (logo.type.isOpenParen(curToken)) {
+            return Code.expr(genParen(evxContext));
+        } else if (logo.type.isCompoundObj(curToken)) {
+            return genCompoundObj(curToken, srcmap);
         } else if (logo.type.isQuotedLogoWord(curToken)) {
-            if (markRetExpr) {
-                code.push("$ret=");
-            }
-
-            code.push(logo.type.quotedLogoWordToJsStringLiteral(curToken));
-            evxContext.retExpr = markRetExpr;
+            return Code.expr(logo.type.quotedLogoWordToJsStringLiteral(curToken)).captureRetVal();
         } else if (logo.type.isLogoVarRef(curToken)) {
-            if (markRetExpr) {
-                code.push("$ret=");
-            }
-
-            Array.prototype.push.apply(code, genLogoVarRef(curToken, srcmap));
-
-            evxContext.retExpr = markRetExpr;
+            return Code.expr(genLogoVarRef(curToken, srcmap)).captureRetVal();
         } else if (logo.type.isLogoSlot(curToken)) {
-            if (markRetExpr) {
-                code.push("$ret=");
-            }
-
-            Array.prototype.push.apply(code, genLogoSlotRef(curToken, srcmap));
-
-            evxContext.retExpr = markRetExpr;
+            return Code.expr(genLogoSlotRef(curToken, srcmap)).captureRetVal();
         } else { // call
-            if (markRetExpr && (!(curToken in genNativeJs) || getGenNativeJsOutput(curToken))) {
-                code.push("$ret=");
-            }
-
-            if (curToken in genNativeJs) {
-                code.push(genNativeJs[curToken][0](evxContext, isInParen));
-                noOperator = getGenNativeJsNoOperator(curToken);
-                noSemicolon = getGenNativeJsNoSemicolon(curToken);
-                evxContext.retExpr = getGenNativeJsOutput(curToken);
-            } else if (curToken in logo.lrt.primitive) {
-                code.push("(");
-                if  (curToken in genLambda) {
-                    code.push(genStashLocalVars());
-                }
-
-                if (logo.env.getAsyncFunctionCall()) {
-                    code.push("($ret=await logo.env.callPrimitiveAsync(\"");
-                } else {
-                    code.push("($ret=logo.env.callPrimitive(\"");
-                }
-
-                code.push(curToken, "\", ", logo.type.srcmapToJs(srcmap), ",",
-                    genPrimitiveCallParam(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
-                        isInParen), "))");
-
-                if (curToken in genLambda) {
-                    code.push(",");
-                    code.push(genApplyLocalVars());
-                    code.push("$ret");
-                }
-
-                code.push(")");
-                evxContext.retExpr = markRetExpr;
-            } else if (curToken in logo.env._ws) {
-                code.push("(");
-                code.push(genPrepareCall(curToken, srcmap));
-
-                if (logo.env.getAsyncFunctionCall()) {
-                    code.push("$ret=(await logo.env._user[", "\"" +
-                        curToken + "\"", "](");
-                } else {
-                    code.push("$ret=(logo.env._user[\"" + curToken +
-                        "\"", "](");
-                }
-
-                code.push(genProcCallParam(evxContext, curToken, logo.env._ws[curToken].formal.length));
-                code.push(")),");
-                code.push(genCompleteCall());
-                code.push("$ret)");
-                evxContext.retExpr = markRetExpr;
-            } else {
-                code.push("throwRuntimeLogoException('UNKNOWN_PROC',", logo.type.srcmapToJs(srcmap), ",[\"" +
-                    curToken + "\"])");
-
-                evxContext.retExpr = markRetExpr;
-            }
+            return genCall(evxContext, curToken, srcmap, isInParen);
         }
-
-        while (!noOperator && evxContext.isNextTokenBinaryOperator()) {
-            let nextOp = evxContext.getNextOperator();
-            let nextOpSrcmap = evxContext.getNextOperatorSrcmap();
-            let nextPrec = logo.lrt.util.getBinaryOperatorPrecedence(nextOp);
-
-            if (precedence >= nextPrec) {
-                break;
-            }
-
-            evxContext.next();
-
-            if (logo.env.getAsyncFunctionCall()) {
-                code.splice(0, 0, "($ret=await logo.env.callPrimitiveOperatorAsync(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",");
-            } else {
-                code.splice(0, 0, "($ret=logo.env.callPrimitiveOperator(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",");
-            }
-
-            code.push(",");
-            code.push(genProcCallParam(evxContext, nextOp, 1, nextPrec));
-            code.push("))");
-
-            evxContext.retExpr = markRetExpr;
-        }
-
-        if (isStatement && code.length > 0) {
-            if (!noSemicolon) code.push(";");
-            code.push("\n");
-        }
-
-        return code;
     }
 
-    function genBody(evxContext, isStatement, isInstrList) {
-        let code = [];
+    function genProcInput(evxContext, precedence, isInParen, procName) {
+        let procInput = genToken(evxContext, precedence, isInParen);
+        if (procInput == CODEGEN_CONSTANTS.NOP) {
+            procInput = genThrowNotEnoughInputs(evxContext.getSrcmap(), procName);
+        }
+
+        return procInput;
+    }
+
+    function genBody(evxContext, isInstrList) {
+        let code = Code.expr();
 
         do {
-            code.push(genToken(evxContext, 0, isStatement, true));
-            if (evxContext.retExpr && sys.Config.get("unactionableDatum") && (!isInstrList || evxContext.hasNext())) {
-                code.push("checkUnactionableDatum($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
+            let codeFromToken = genToken(evxContext);
+            code.append(codeFromToken);
+            code.append(";\n");
+            if (codeFromToken.isExpr() && sys.Config.get("unactionableDatum") && (!isInstrList || evxContext.hasNext())) {
+                code.append("checkUnactionableDatum($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
             }
-        } while (evxContext.next());
+
+        } while (!evxContext.next().isEol());
 
         return code;
     }
-    codegen.genBody = genBody;
 
     function genInstrListLambdaDeclCode(evxContext, param) {
         _varScopes.enter();
-        let code = [];
-        code.push(logo.env.getAsyncFunctionCall() ? "(async(" : "((");
+        let code = Code.expr();
+        code.append("(", genAsync(), "(");
 
         if (param !== undefined) {
-            code.push(insertDelimiters(param, ","));
+            code.append(Code.expr.apply(undefined, insertDelimiters(param, ",")));
             param.forEach(v => _varScopes.addVar(v));
         }
 
-        code.push(")=>{");
+        code.append(")=>{");
 
-        code.push("let $scopeCache = {};\n");
+        code.append("let $scopeCache = {};\n");
 
         if (param !== undefined) {
-            code.push("let $scope = {}; logo.env._scopeStack.push($scope);\n");
+            code.append("let $scope = {}; logo.env._scopeStack.push($scope);\n");
         } else {
-            code.push("let $scope = logo.env._scopeStack[logo.env._scopeStack.length - 1];\n");
+            code.append("let $scope = logo.env._scopeStack[logo.env._scopeStack.length - 1];\n");
         }
 
-        code.push(genBody(evxContext, true, true));
+        code.append(genBody(evxContext, true));
 
-        code.push("(");
-        code.push(genStashLocalVars());
-        code.push("$ret);");
+        code.append("(");
+        code.append(genStashLocalVars());
+        code.append("$ret);");
 
         if (param !== undefined) {
-            code.push("logo.env._scopeStack.pop();\n");
+            code.append("logo.env._scopeStack.pop();\n");
         }
 
-        code.push("return $ret;");
-
-        code.push("})");
+        code.append("return $ret;");
+        code.append("})");
         _varScopes.exit();
-        let mergedCode = mergeCode(code);
-        sys.trace(mergedCode, "codegen.lambda");
-        sys.Config.get("verbose");
 
+        let mergedCode = code.merge();
+        sys.trace(mergedCode, "codegen.lambda");
         return mergedCode;
     }
     codegen.genInstrListLambdaDeclCode = genInstrListLambdaDeclCode;
 
-    function genParen(evxContext, isStatement, markRetExpr) {
-        let code = [];
+    function genParen(evxContext) {
+        let code = Code.expr();
 
-        if (!isStatement) {
-            code.push("(");
-        }
+        let codeFromToken = genToken(evxContext.next(), 0, true);
+        code.append(codeFromToken);
 
-        evxContext.next();
-
-        let codeFromToken = genToken(evxContext, 0, isStatement, false, markRetExpr);
-        code.push(codeFromToken);
-        evxContext.next();
-
-        if (evxContext.getToken() != ")") {
-            code.push(
+        if (evxContext.next().getToken() != ")") {
+            code.append(
                 "(throwRuntimeLogoException(",
                 "\"TOO_MUCH_INSIDE_PAREN\",",
                 logo.type.srcmapToJs(evxContext.getSrcmap()),
                 "))");
         }
 
-        if (!isStatement) {
-            code.push(")");
-        }
-
         return code;
-    }
-
-    function mergeCode(code) {
-        return Array.isArray(code) ? code.map(mergeCode).join("") :
-            typeof code !== "string" ? code.toString() : code;
     }
 
     function genTopLevelCode(p) {
@@ -683,7 +712,7 @@ $classObj.create = function(logo, sys) {
         let evxContext = logo.interpreter.makeEvalContext(p);
 
         _varScopes.enter();
-        let code = mergeCode(genBody(evxContext, true));
+        let code = genBody(evxContext).merge();
         _varScopes.exit();
 
         let ret = "$scopeCache={};" +
@@ -698,46 +727,47 @@ $classObj.create = function(logo, sys) {
     codegen.genTopLevelCode = genTopLevelCode;
 
     function genPrepareCall(target, srcmap) {
-        let code = [];
+        let code = Code.expr();
 
         if (sys.Config.get("dynamicScope")) {
-            code.push(genStashLocalVars());
+            code.append(genStashLocalVars());
         }
 
-        code.push("logo.env._callstack.push([logo.env._curProc," + logo.type.srcmapToJs(srcmap) + "]),");
-        code.push("logo.env._curProc=\"" + target + "\",\n");
+        code.append("logo.env._callstack.push([logo.env._curProc," + logo.type.srcmapToJs(srcmap) + "]),");
+        code.append("logo.env._curProc=\"" + target + "\",\n");
 
         return code;
     }
 
     function genCompleteCall() {
-        let code = [];
-        code.push("logo.env._curProc=logo.env._callstack.pop()[0],");
+        let code = Code.expr();
+        code.append("logo.env._curProc=logo.env._callstack.pop()[0],");
         if (sys.Config.get("dynamicScope")) {
-            code.push(genApplyLocalVars());
+            code.append(genApplyLocalVars());
         }
 
         return code;
     }
 
     function genStashLocalVars() {
-        let code = [];
+        let code = Code.expr();
         _varScopes.localVars().forEach((varName) =>
-            code.push("($scope['", varName, "']=", varName, "),"));
+            code.append("($scope['", varName, "']=", varName, "),"));
 
         return code;
     }
 
     function genApplyLocalVars() {
-        let code = [];
+        let code = Code.expr();
         _varScopes.localVars().forEach(varName =>
-            code.push("(", varName, "=$scope['", varName, "']),"));
+            code.append("(", varName, "=$scope['", varName, "']),"));
 
         return code;
     }
 
     function genProc(p, srcmap) {
-        let code = logo.env.getAsyncFunctionCall() ? ["async function "] : ["function "];
+        let code = Code.expr();
+        code.append(genAsync(), "function ");
 
         if(!logo.type.isLogoProc(p)) {
             return;
@@ -747,33 +777,100 @@ $classObj.create = function(logo, sys) {
         _funcName = p[1];
 
         let evxContext = logo.interpreter.makeEvalContext(logo.type.embedSrcmap(p[3], srcmap[3]));
-        code.push(_funcName, "(");
+        code.append(_funcName, "(");
 
         let params = p[2];
-
-        code.push(insertDelimiters(params, ","));
-        code.push(")");
-        code.push("{\n");
-        code.push("let $ret;\n");
+        code.append(Code.expr.apply(undefined, insertDelimiters(params, ",")));
+        code.append(")");
+        code.append("{\n");
+        code.append("let $ret, $param = logo.env.createParamScope();\n");
 
         if (sys.Config.get("dynamicScope")) {
-            code.push("let $scope = {}, $scopeCache = {};\n");
-            code.push("logo.env._scopeStack.push($scope);\n");
+            code.append("let $scope = {}, $scopeCache = {};\n");
+            code.append("logo.env._scopeStack.push($scope);\n");
         }
 
         _varScopes.enter();
         params.forEach(v => _varScopes.addVar(v));
-        code.push(genBody(evxContext, true));
+        code.append(genBody(evxContext));
         _varScopes.exit();
 
-        code.push("logo.env._scopeStack.pop();\n");
-        code.push("}\n");
+        code.append("logo.env._scopeStack.pop();\n");
+        code.append("}\n");
 
-        code.splice(0, 0, "logo.env._user[\"" + _funcName + "\"]=");
-        code.push("undefined;\n");
+        code.prepend("logo.env._user[\"" + _funcName + "\"]=");
+        code.append("undefined;\n");
 
         _funcName = oldFuncName;
         return code;
+    }
+
+    function genThrowNotEnoughInputs(srcmap, procName) {
+        return Code.expr("throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
+            logo.type.srcmapToJs(srcmap), ",[ \"" + procName + "\"])");
+    }
+
+    function genThrowUnknownProc(srcmap, procName) {
+        return Code.expr("throwRuntimeLogoException('UNKNOWN_PROC',",
+            logo.type.srcmapToJs(srcmap), ",[ \"" + procName + "\"])");
+    }
+
+    function genCompoundObj(curToken, srcmap) {
+        let code = Code.expr();
+        if (!logo.type.isLogoProc(curToken)) {
+            code.append("$ret=");
+        }
+
+        code.append(logo.type.isLogoProc(curToken) ? genProc(curToken, srcmap) :
+            logo.type.isLogoArray(curToken) ?  genArray(curToken, srcmap) :
+                genLogoList(curToken, srcmap));
+
+        return code;
+    }
+
+    function genCall(evxContext, curToken, srcmap, isInParen) {
+        let code = Code.expr();
+
+        if (curToken in genNativeJs) {
+            let nativeJsCode = genNativeJs[curToken](evxContext, isInParen);
+            if (nativeJsCode.isExpr()) {
+                code.append("$ret=");
+            }
+
+            code.append(nativeJsCode);
+        } else if (curToken in logo.lrt.primitive) {
+            code.append("$ret=");
+            code.append(genPrimitiveCall(evxContext, curToken, srcmap, isInParen));
+        } else if (curToken in logo.env._ws) {
+            code.append("$ret=");
+            code.append(genUserProcCall(evxContext, curToken, srcmap));
+        } else {
+            code.append(genThrowUnknownProc(srcmap, curToken));
+        }
+
+        return code;
+    }
+
+    function genAsync() {
+        return logo.env.getAsyncFunctionCall() ? "async " : "";
+    }
+
+    function genAwait() {
+        return logo.env.getAsyncFunctionCall() ? "await " : "";
+    }
+
+    function genCallPrimitive() {
+        return logo.env.getAsyncFunctionCall() ? "await logo.env.callPrimitiveAsync" :
+            "logo.env.callPrimitive";
+    }
+
+    function genCallPrimitiveOperator() {
+        return logo.env.getAsyncFunctionCall() ? "await logo.env.callPrimitiveOperatorAsync" :
+            "logo.env.callPrimitiveOperator";
+    }
+
+    function genCallLogoInstrList() {
+        return logo.env.getAsyncFunctionCall() ? "await callLogoInstrListAsync(" : "callLogoInstrList(";
     }
 
     return codegen;

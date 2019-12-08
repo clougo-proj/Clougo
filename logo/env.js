@@ -16,11 +16,36 @@ $classObj.create = function(logo, sys, ext) {
         "INTERACTIVE": 1
     };
 
+    function createParamScope() {
+        let _stack = [];
+        let obj = {};
+
+        function begin(value) {
+            _stack.push(value);
+        }
+        obj.begin = begin;
+
+        function add(value) {
+            _stack[_stack.length - 1].push(value);
+        }
+        obj.add = add;
+
+        function end() {
+            return _stack.pop();
+        }
+        obj.end = end;
+
+        return obj;
+    }
+    env.createParamScope = createParamScope;
+
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime,  _userInput, _resolveUserInput;
     let _asyncFunctionCall;
     let _genJs;
-    let $ret, $primitiveName, $primitiveSrcmap, $scopeCache; // eslint-disable-line no-unused-vars
+    let $primitiveName, $primitiveSrcmap;
+    let $ret, $scopeCache; // eslint-disable-line no-unused-vars
+    let $param = createParamScope(); // eslint-disable-line no-unused-vars
 
     function registerUserInputResolver(resolve) {
         _resolveUserInput = resolve;

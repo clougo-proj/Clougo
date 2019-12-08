@@ -117,6 +117,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
             genCommand : false,        // use codegen for interactive commands
             dynamicScope: true,
             verbose: false,
+            postfix: false,
             trace: true
         };
 

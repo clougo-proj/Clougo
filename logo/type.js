@@ -766,6 +766,31 @@ $classObj.create = function(logo, sys) {
     }
     type.isNonNegInteger = isNonNegInteger;
 
+    function isNumericConstant(curToken) {
+        return typeof curToken !== "object" && !isNaN(Number(curToken));
+    }
+    type.isNumericConstant = isNumericConstant;
+
+    function isStopStmt(curToken) {
+        return sys.equalToken(curToken, "stop");
+    }
+    type.isStopStmt = isStopStmt;
+
+    function isOutputStmt(curToken) {
+        return sys.equalToken(curToken, "output") || sys.equalToken(curToken, "op");
+    }
+    type.isOutputStmt = isOutputStmt;
+
+    function isOpenParen(curToken) {
+        return curToken === "(";
+    }
+    type.isOpenParen = isOpenParen;
+
+    function isCompoundObj(curToken) {
+        return typeof curToken == "object";
+    }
+    type.isCompoundObj = isCompoundObj;
+
     function srcmapToJs(srcmap) {
         return isCompositeSrcmap(srcmap) ? compositeSrcmapToJs(srcmap) : simpleSrcmapToJs(srcmap);
     }

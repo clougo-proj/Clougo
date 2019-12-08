@@ -24,11 +24,14 @@ $classObj.create = function(logo, sys) {
             next: function() {
                 if (this.ptr + 1 < this.body.length) {
                     this.ptr++;
-                    return true;
                 } else {
                     this.eol = true;
-                    return false;
                 }
+
+                return this;
+            },
+            isEol: function() {
+                return this.eol;
             },
             hasNext: function() {
                 return this.ptr + 1 < this.body.length;
@@ -77,8 +80,7 @@ $classObj.create = function(logo, sys) {
     async function evxProcCallParam(evxContext, procName, paramListLength, precedence = 0) {
         let nextActualParam = [];
         for (let j = 0; j < paramListLength; j++) {
-            evxContext.next();
-            await evxToken(evxContext, precedence);
+            await evxToken(evxContext.next(), precedence);
             if (sys.isUndefined(evxContext.retVal)) {
                 throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [procName], evxContext.getSrcmap());
             }
@@ -94,8 +96,7 @@ $classObj.create = function(logo, sys) {
         let nextActualParam = [];
 
         for (let j = 0; j < paramListLength; j++) {
-            evxContext.next();
-            await evxToken(evxContext, precedence, false, true);
+            await evxToken(evxContext.next(), precedence, false, true);
             if (sys.isUndefined(evxContext.retVal)) {
                 throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [ctrlName], evxContext.getSrcmap());
             }
@@ -109,9 +110,7 @@ $classObj.create = function(logo, sys) {
 
         // if pred [list1] else [list2]
         if (ctrlName === "if" && evxContext.peekNextToken() === "else") {
-            evxContext.next();
-            evxContext.next();
-            await evxToken(evxContext, precedence, false, true);
+            await evxToken(evxContext.next().next(), precedence, false, true);
             let param = logo.type.isLogoList(evxContext.retVal) ?
                 logo.type.embedReferenceSrcmap(evxContext.retVal, evxContext.getSrcmap()) :
                 evxContext.retVal;
@@ -135,8 +134,9 @@ $classObj.create = function(logo, sys) {
         if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength == -1)) {
             let j = 0;
             for (; ((!isInParen || ((j < paramListMaxLength || paramListMaxLength == -1) &&
-                isInParen && evxContext.peekNextToken() != ")" )) && evxContext.next()); j++) {
-                await evxToken(evxContext, precedence);
+                isInParen && evxContext.peekNextToken() != ")" )) && evxContext.hasNext()); j++) {
+
+                await evxToken(evxContext.next(), precedence);
                 let retVal = evxContext.retVal;
                 nextActualParam.push(retVal);
             }
@@ -147,8 +147,7 @@ $classObj.create = function(logo, sys) {
         } else {
             let j = 0;
             for (; (j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen)); j++) {
-                evxContext.next();
-                await evxToken(evxContext, precedence, false, true);
+                await evxToken(evxContext.next(), precedence, false, true);
                 if (sys.isUndefined(evxContext.retVal)) {
                     throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap());
                 }
@@ -169,8 +168,8 @@ $classObj.create = function(logo, sys) {
         evxContext.retVal = undefined;
         let curToken = evxContext.getToken();
 
-        while ((!stopAtLineEnd && curToken === "\n") && !sys.isUndefined(curToken) && evxContext.next()) {
-            curToken = evxContext.getToken();
+        while ((!stopAtLineEnd && curToken === "\n") && !sys.isUndefined(curToken) && evxContext.hasNext()) {
+            curToken = evxContext.next().getToken();
         }
 
         if (evxContext.isTokenEndOfStatement(curToken)) {
@@ -178,22 +177,20 @@ $classObj.create = function(logo, sys) {
         }
 
         let curSrcmap = evxContext.getSrcmap();
-        if (sys.equalToken(curToken, "stop")) {
+        if (logo.type.isStopStmt(curToken)) {
             throw logo.type.LogoException.create("STOP");
         }
 
-        if (sys.equalToken(curToken, "output") || sys.equalToken(curToken, "op")) {
-            evxContext.next();
-            await evxToken(evxContext, 0);
+        if (logo.type.isOutputStmt(curToken)) {
+            await evxToken(evxContext.next(), 0);
             throw logo.type.LogoException.create("OUTPUT", evxContext.retVal);
         }
 
-        let tmp;
-        if (typeof curToken !== "object" && !isNaN(tmp = Number(curToken))) {
-            evxContext.retVal = tmp;
-        } else if (curToken == "(") {
+        if (logo.type.isNumericConstant(curToken)) {
+            evxContext.retVal = Number(curToken);
+        } else if (logo.type.isOpenParen(curToken)) {
             await evxParen(evxContext);
-        } else if (typeof curToken === "object") {
+        } else if (logo.type.isCompoundObj(curToken)) {
             if (logo.type.isLogoProc(curToken)) {
                 // procedure should have been registered to workspace by parser
             } else if (logo.type.isLogoArray(curToken)) {
@@ -252,8 +249,7 @@ $classObj.create = function(logo, sys) {
     }
 
     async function evxCtrlInfixOperator(evxContext, nextOp, nextOpSrcmap, nextPrec) {
-        evxContext.next();
-        let retVal = evxContext.retVal;
+        let retVal = evxContext.next().retVal;
         let nextActualParam = await evxProcCallParam(evxContext, nextOp, 1, nextPrec);
         nextActualParam.splice(0, 0, nextOp, nextOpSrcmap, retVal);
         evxContext.retVal = await logo.env.callPrimitiveOperatorAsync.apply(undefined, nextActualParam);
@@ -268,18 +264,15 @@ $classObj.create = function(logo, sys) {
                 logo.env.checkUnactionableDatum(evxContext.retVal, evxContext.getSrcmap());
             }
 
-        } while (evxContext.next());
+        } while (!evxContext.next().isEol());
 
         return evxContext.retVal;
     }
     interpreter.evxBody = evxBody;
 
     async function evxParen(evxContext) {
-        evxContext.next();
-        await evxToken(evxContext, 0, true);
-
-        evxContext.next();
-        if (evxContext.getToken() != ")") {
+        await evxToken(evxContext.next(), 0, true);
+        if (evxContext.next().getToken() != ")") {
             throw logo.type.LogoException.create("TOO_MUCH_INSIDE_PAREN", undefined, evxContext.getSrcmap());
         }
     }
@@ -357,18 +350,16 @@ $classObj.create = function(logo, sys) {
 
         let evxContext = makeEvalContext(forCtrlComp);
         let forVarName = evxContext.getToken();
-        evxContext.next();
 
         let forBegin, forEnd, forStep;
-        await evxToken(evxContext);
+        await evxToken(evxContext.next());
         forBegin = evxContext.retVal;
-        evxContext.next();
-        await evxToken(evxContext);
+        await evxToken(evxContext.next());
 
         forEnd = evxContext.retVal;
         evxContext.retVal = undefined;
-        if (evxContext.next()) {
-            await evxToken(evxContext);
+        if (evxContext.hasNext()) {
+            await evxToken(evxContext.next());
         }
 
         forStep = evxContext.retVal;

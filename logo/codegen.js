@@ -17,6 +17,8 @@ $classObj.create = function(logo, sys) {
 
     let _funcName = "";
 
+    let _isLambda = false;
+
     const _varScopes = (() => {
         let self = {};
 
@@ -490,10 +492,18 @@ $classObj.create = function(logo, sys) {
         let param = genPrimitiveCallParams(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
             isInParen);
 
-        let postfix = sys.Config.get("postfix") || containsPostFix(param);
+        if (!(curToken in genLambda)) {
+            let postfix = sys.Config.get("postfix") || containsPostFix(param);
 
-        return !postfix ? genInfixPrimitiveCall(curToken, srcmap, param) :
-            genPostfixPrimitiveCall(curToken, srcmap, param);
+            return !postfix ? genInfixPrimitiveCall(curToken, srcmap, param).prepend("$ret=") :
+                genPostfixPrimitiveCall(curToken, srcmap, param).prepend("$ret=");
+        }
+
+        return genPostfixPrimitiveCall(curToken, srcmap, param)
+            .prepend("try {\n$ret=")
+            .append("} catch (e) {\n")
+            .append("if (!logo.type.LogoException.is(e) || !e.isStop()) {throw e;}\n")
+            .append("return;}\n");
     }
 
     function genInfixPrimitiveCall(curToken, srcmap, param) {
@@ -603,7 +613,15 @@ $classObj.create = function(logo, sys) {
         if (logo.type.isNumericConstant(curToken)) {
             return Code.expr(Number(curToken)).captureRetVal();
         } else if (logo.type.isStopStmt(curToken)) {
-            return Code.expr("return");
+            if (!_isLambda) {
+                return Code.expr("return");
+            }
+
+            let code = Code.expr();
+            code.append("throwRuntimeLogoException('STOP',", logo.type.srcmapToJs(srcmap), ",[\"" +
+                curToken + "\"])");
+
+            return code;
         } else if (logo.type.isOutputStmt(curToken)) {
             evxContext.next();
             return Code.expr(genToken(evxContext)).append(";return $ret");
@@ -648,6 +666,7 @@ $classObj.create = function(logo, sys) {
     }
 
     function genInstrListLambdaDeclCode(evxContext, param) {
+        _isLambda = true;
         _varScopes.enter();
         let code = Code.expr();
         code.append("(", genAsync(), "(");
@@ -708,6 +727,7 @@ $classObj.create = function(logo, sys) {
 
         let oldFuncName = _funcName;
         _funcName = "";
+        _isLambda = false;
 
         let evxContext = logo.interpreter.makeEvalContext(p);
 
@@ -839,7 +859,6 @@ $classObj.create = function(logo, sys) {
 
             code.append(nativeJsCode);
         } else if (curToken in logo.lrt.primitive) {
-            code.append("$ret=");
             code.append(genPrimitiveCall(evxContext, curToken, srcmap, isInParen));
         } else if (curToken in logo.env._ws) {
             code.append("$ret=");

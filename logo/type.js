@@ -946,6 +946,7 @@ $classObj.create = function(logo, sys) {
         LogoException.prototype = {
             isError: function() { return this._code < codemap.LAST_ERROR_CODE; },
             isCustom: function() { return this._code == codemap.CUSTOM; },
+            isStop: function() { return this._code == codemap.STOP; },
             codeEquals: function(name) { return this._code == getCode(name); },
             getCode: function() { return this._code; },
             getValue: function() { return this._value; },

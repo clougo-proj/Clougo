@@ -1,0 +1,8 @@
+test_named_slot_infix: 8
+test_named_slot_infix_indirect: 8
+test_named_slot_prefix: 53
+test_named_slot_prefix_indirect: 53
+test_explicit_slot_infix: 8
+test_explicit_slot_infix_indirect: 8
+test_explicit_slot_prefix: 53
+test_explicit_slot_prefix_indirect: 53

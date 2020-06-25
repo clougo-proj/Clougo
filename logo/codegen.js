@@ -502,8 +502,9 @@ $classObj.create = function(logo, sys) {
         return genPostfixPrimitiveCall(curToken, srcmap, param)
             .prepend("try {\n$ret=")
             .append("} catch (e) {\n")
-            .append("if (!logo.type.LogoException.is(e) || !e.isStop()) {throw e;}\n")
-            .append("return;}\n");
+            .append("if(e.isStop()) return;\n")
+            .append("if(e.isOutput()) return e.getValue();\n")
+            .append("throw e;}\n");
     }
 
     function genInfixPrimitiveCall(curToken, srcmap, param) {
@@ -613,18 +614,14 @@ $classObj.create = function(logo, sys) {
         if (logo.type.isNumericConstant(curToken)) {
             return Code.expr(Number(curToken)).captureRetVal();
         } else if (logo.type.isStopStmt(curToken)) {
-            if (!_isLambda) {
-                return Code.expr("return");
-            }
-
-            let code = Code.expr();
-            code.append("throwRuntimeLogoException('STOP',", logo.type.srcmapToJs(srcmap), ",[\"" +
-                curToken + "\"])");
-
-            return code;
+            return (!_isLambda) ? Code.expr("return") :
+                Code.expr("throwRuntimeLogoException('STOP',", logo.type.srcmapToJs(srcmap), ",[\"" +
+                    curToken + "\"])");
         } else if (logo.type.isOutputStmt(curToken)) {
-            evxContext.next();
-            return Code.expr(genToken(evxContext)).append(";return $ret");
+            return (!_isLambda) ? Code.expr(genToken(evxContext.next())).append(";return $ret") :
+                Code.expr("throwRuntimeLogoException('OUTPUT',", logo.type.srcmapToJs(srcmap), ",[")
+                    .append(genToken(evxContext.next()))
+                    .append("])");
         } else if (logo.type.isOpenParen(curToken)) {
             return Code.expr(genParen(evxContext));
         } else if (logo.type.isCompoundObj(curToken)) {

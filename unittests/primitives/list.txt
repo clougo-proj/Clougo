@@ -80,3 +80,4 @@ apply3_err runl execl
 apply_mixed run exec
 apply_stop_in_lambda run exec
 apply_stop_in_lambda_err runl
+apply_output_in_lambda run exec

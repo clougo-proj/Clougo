@@ -7,13 +7,26 @@ trigger:
 - master
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+  vmImage: 'Ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- checkout: self
+  persistCredentials: true
+  clean: true
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: NodeTool@0
+  inputs:
+    versionSpec: '12.x'
+  displayName: 'Install Node.js'
+
+- script: npm install -g eslint
+  displayName: 'Install ESLint'
+
+- script: eslint logo
+  displayName: 'Run ESLint'
+
+- script: node tools/mkut.js unittests > generated/unittests.js
+  displayName: 'Pack unit tests'
+
+- script: cd logo; node logo test; cd ..
+  displayName: 'Run unit tests'

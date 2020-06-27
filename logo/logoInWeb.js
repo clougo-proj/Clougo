@@ -8,7 +8,7 @@
 
 "use strict";
 
-/* global importScripts, Float32Array, CanvasCommon */
+/* global importScripts, CanvasCommon */
 
 var $classObj = {};
 $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-vars

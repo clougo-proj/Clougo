@@ -47,7 +47,7 @@ $classObj.create = function logoInNode(Logo, sys) {
 
     if (cmd.op == "test") {
         Logo.testRunner.runTests(Logo.getUnitTests(), "test" in cmd.options ? cmd.options.test : [], ext)
-            .then(() => process.exit())
+            .then(failCount => process.exit(failCount !== 0))
             .catch(e => {
                 stderr(e);
                 process.exit(-1);

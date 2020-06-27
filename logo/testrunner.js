@@ -25,7 +25,7 @@ $classObj.create = function(Logo, sys) {
 
         await runUnitTestDir(unitTests);
         Logo.io.stdout("Total:" + count + "\tFailed:" + failCount);
-        return;
+        return failCount;
     }
     testRunner.runTests = runTests;
 

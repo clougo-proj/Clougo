@@ -1,4 +1,4 @@
-// usage: node mkut.js <root_dir>
+// usage: node pklgo.js <dir>
 
 const fs = require("fs");
 const { join } = require("path");
@@ -7,7 +7,7 @@ const filetype = ["lgo", "ljs", "in", "out", "err", "eval", "parse", "codegen", 
 let root = process.argv[2];
 
 if (!(fs.existsSync(root) && fs.lstatSync(root).isDirectory())) {
-    process.stderr.write("node mkjson.js <root_dir> --js\n");
+    process.stderr.write("node pklgo.js <dir>\n");
     process.exit();
 }
 

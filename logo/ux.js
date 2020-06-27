@@ -8,7 +8,7 @@
 
 "use strict";
 
-/* global jQuery, $, ArrayBuffer, Float32Array, ace, createTurtleCanvas */
+/* global jQuery, $, ace, createTurtleCanvas */
 
 function assert(cond, msg) {
     if (!cond) {

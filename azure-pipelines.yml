@@ -3,30 +3,62 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+variables:
+  isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+
 trigger:
 - master
 
-pool:
-  vmImage: 'Ubuntu-latest'
+jobs:
+  - job: build
+    timeoutInMinutes: 5
+    pool:
+      vmImage: 'Ubuntu-latest'
 
-steps:
-- checkout: self
-  persistCredentials: true
-  clean: true
+    steps:
+    - checkout: self
+      persistCredentials: true
+      clean: true
 
-- task: NodeTool@0
-  inputs:
-    versionSpec: '12.x'
-  displayName: 'Install Node.js'
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '12.x'
+      displayName: 'Install Node.js'
 
-- script: npm install -g eslint
-  displayName: 'Install ESLint'
+    - script: npm install eslint
+      displayName: 'Install ESLint'
 
-- script: eslint logo
-  displayName: 'Run ESLint'
+    - script: npm run-script eslint
+      displayName: 'Run ESLint'
 
-- script: node tools/mkut.js unittests > generated/unittests.js
-  displayName: 'Pack unit tests'
+    - script: npm run-script pkut
+      displayName: 'Pack unit tests'
 
-- script: cd logo; node logo test; cd ..
-  displayName: 'Run unit tests'
+    - script: npm run-script test
+      displayName: 'Run unit tests'
+
+  - job: deploy
+    dependsOn: build
+    condition: and(succeeded(), eq(variables.isMain, true))
+    pool:
+      vmImage: 'Ubuntu-latest'
+
+    steps:
+    - checkout: self
+      persistCredentials: true
+      clean: true
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '12.x'
+      displayName: 'Install Node.js'
+
+    - script: npm run-script pkut
+      displayName: 'Pack unit tests'
+
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'DeploymentConnection0'
+        appName: 'Clougo2'
+        package: '$(System.DefaultWorkingDirectory)'
+        deploymentMethod: zipDeploy

@@ -20,15 +20,17 @@ jobs:
       persistCredentials: true
       clean: true
 
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '12.x'
-      displayName: 'Install Node.js'
+    # - task: NodeTool@0
+    #   inputs:
+    #     versionSpec: '12.x'
+    #   displayName: 'Install Node.js'
 
-    - script: npm install eslint
-      displayName: 'Install ESLint'
+    # - script: npm install eslint
+    #   displayName: 'Install ESLint'
 
-    - script: npm run-script eslint
+    - script: |
+        npm install
+        npm run-script eslint
       displayName: 'Run ESLint'
 
     - script: npm run-script pkut
@@ -36,6 +38,13 @@ jobs:
 
     - script: npm run-script test
       displayName: 'Run unit tests'
+
+    # - task: PublishBuildArtifacts@1
+    #   inputs:
+    #     pathToPublish: '$(Build.SourcesDirectory)/generated/*'
+    #     artifactName: 'generated'
+    - publish: generated
+      artifact: generated
 
   - job: deploy
     dependsOn: build
@@ -48,17 +57,27 @@ jobs:
       persistCredentials: true
       clean: true
 
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '12.x'
-      displayName: 'Install Node.js'
+    # - task: NodeTool@0
+    #   inputs:
+    #     versionSpec: '12.x'
+    #   displayName: 'Install Node.js'
 
-    - script: npm run-script pkut
-      displayName: 'Pack unit tests'
+    # - script: npm run-script pkut
+    #   displayName: 'Pack unit tests'
 
-    - task: AzureWebApp@1
+    - task: DownloadPipelineArtifact@2
       inputs:
-        azureSubscription: 'DeploymentConnection0'
-        appName: 'Clougo2'
-        package: '$(System.DefaultWorkingDirectory)'
-        deploymentMethod: zipDeploy
+        artifact: 'generated'
+        path: '$(System.DefaultWorkingDirectory)/generated/'
+
+    # - download: current
+    #   artifact: generated
+    #   path: '$(System.DefaultWorkingDirectory)/generated'
+
+    - script: |
+        pwd
+        ls -l
+        ls -l generated
+
+    - script: npm run-script test
+      displayName: 'Run unit tests'

@@ -1,7 +1,10 @@
 {
-    "name": "Clougo",
+    "name": "clougo",
     "version": "0.0.1",
-    "description": "Clougo",
+    "description": "clougo",
+    "devDependencies": {
+        "eslint": "latest"
+    },
     "scripts": {
         "eslint": "eslint logo",
         "pkut": "node tools/pklgo.js unittests > generated/unittests.js",

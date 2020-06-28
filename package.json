@@ -1,10 +1,19 @@
 {
-    "name": "Clougo",
+    "name": "clougo",
     "version": "0.0.1",
-    "description": "Clougo",
+    "description": "clougo",
+    "devDependencies": {
+        "eslint": "latest",
+        "http-server": "latest"
+    },
     "scripts": {
+        "clean": "rm generated/*.js",
         "eslint": "eslint logo",
         "pkut": "node tools/pklgo.js unittests > generated/unittests.js",
-        "test": "node logo/logo test"
+        "pkdemo": "node tools/pklgo.js demo > generated/demo.js",
+        "build": "npm run eslint && npm run pkut && npm run pkdemo",
+        "test": "node logo/logo test",
+        "server": "http-server",
+        "predeploy": "rm -rf unittests && rm -rf demo && rm -rf node_modules"
     }
 }

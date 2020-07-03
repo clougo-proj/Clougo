@@ -37,16 +37,21 @@ stages:
   dependsOn: build
   # condition: and(succeeded(), eq(variables.isMain, true))
   jobs:
-    - job: deploy
-      steps:
-      - checkout: self
-        persistCredentials: true
-        clean: true
+    - deployment: deployQA
+      displayName: deploy QA
+      environment: QA
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - checkout: self
+              persistCredentials: true
+              clean: true
 
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: 'generated'
-          path: '$(System.DefaultWorkingDirectory)/generated/'
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                artifact: 'generated'
+                path: '$(System.DefaultWorkingDirectory)/generated/'
 
-      - script: npm run test
-        displayName: 'Run tests'
+            - script: npm run test
+              displayName: 'Run tests'

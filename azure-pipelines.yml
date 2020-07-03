@@ -20,35 +20,21 @@ jobs:
       persistCredentials: true
       clean: true
 
-    # - task: NodeTool@0
-    #   inputs:
-    #     versionSpec: '12.x'
-    #   displayName: 'Install Node.js'
+    - script: npm install
+      displayName: 'Npm Install'
 
-    # - script: npm install eslint
-    #   displayName: 'Install ESLint'
+    - script: npm run build
+      displayName: 'Run Build'
 
-    - script: |
-        npm install
-        npm run-script eslint
-      displayName: 'Run ESLint'
+    - script: npm run test
+      displayName: 'Run tests'
 
-    - script: npm run-script pkut
-      displayName: 'Pack unit tests'
-
-    - script: npm run-script test
-      displayName: 'Run unit tests'
-
-    # - task: PublishBuildArtifacts@1
-    #   inputs:
-    #     pathToPublish: '$(Build.SourcesDirectory)/generated/*'
-    #     artifactName: 'generated'
     - publish: generated
       artifact: generated
 
   - job: deploy
     dependsOn: build
-    condition: and(succeeded(), eq(variables.isMain, true))
+    # condition: and(succeeded(), eq(variables.isMain, true))
     pool:
       vmImage: 'Ubuntu-latest'
 
@@ -57,27 +43,10 @@ jobs:
       persistCredentials: true
       clean: true
 
-    # - task: NodeTool@0
-    #   inputs:
-    #     versionSpec: '12.x'
-    #   displayName: 'Install Node.js'
-
-    # - script: npm run-script pkut
-    #   displayName: 'Pack unit tests'
-
     - task: DownloadPipelineArtifact@2
       inputs:
         artifact: 'generated'
         path: '$(System.DefaultWorkingDirectory)/generated/'
 
-    # - download: current
-    #   artifact: generated
-    #   path: '$(System.DefaultWorkingDirectory)/generated'
-
-    - script: |
-        pwd
-        ls -l
-        ls -l generated
-
-    - script: npm run-script test
-      displayName: 'Run unit tests'
+    - script: npm run test
+      displayName: 'Run tests'

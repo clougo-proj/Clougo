@@ -9,44 +9,44 @@ variables:
 trigger:
 - master
 
-jobs:
-  - job: build
-    timeoutInMinutes: 5
-    pool:
-      vmImage: 'Ubuntu-latest'
+pool:
+  vmImage: 'Ubuntu-latest'
 
-    steps:
-    - checkout: self
-      persistCredentials: true
-      clean: true
+stages:
+- stage: build
+  jobs:
+    - job: build
+      steps:
+      - checkout: self
+        persistCredentials: true
+        clean: true
 
-    - script: npm install
-      displayName: 'Npm Install'
+      - script: npm install
+        displayName: 'Npm Install'
 
-    - script: npm run build
-      displayName: 'Run Build'
+      - script: npm run build
+        displayName: 'Run Build'
 
-    - script: npm run test
-      displayName: 'Run tests'
+      - script: npm run test
+        displayName: 'Run tests'
 
-    - publish: generated
-      artifact: generated
+      - publish: generated
+        artifact: generated
 
-  - job: deploy
-    dependsOn: build
-    # condition: and(succeeded(), eq(variables.isMain, true))
-    pool:
-      vmImage: 'Ubuntu-latest'
+- stage: deployQA
+  dependsOn: build
+  # condition: and(succeeded(), eq(variables.isMain, true))
+  jobs:
+    - job: deploy
+      steps:
+      - checkout: self
+        persistCredentials: true
+        clean: true
 
-    steps:
-    - checkout: self
-      persistCredentials: true
-      clean: true
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: 'generated'
+          path: '$(System.DefaultWorkingDirectory)/generated/'
 
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        artifact: 'generated'
-        path: '$(System.DefaultWorkingDirectory)/generated/'
-
-    - script: npm run test
-      displayName: 'Run tests'
+      - script: npm run test
+        displayName: 'Run tests'

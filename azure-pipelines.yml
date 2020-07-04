@@ -55,3 +55,10 @@ stages:
 
             - script: npm run test
               displayName: 'Run tests'
+
+            - task: AzureWebApp@1
+              inputs:
+                azureSubscription: 'DeploymentConnection0'
+                appName: 'Clougo2'
+                package: '$(System.DefaultWorkingDirectory)'
+                deploymentMethod: zipDeploy

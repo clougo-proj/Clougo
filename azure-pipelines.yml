@@ -22,16 +22,19 @@ stages:
         clean: true
 
       - script: npm install
-        displayName: 'Npm Install'
+        displayName: 'npm install'
 
       - script: npm run build
-        displayName: 'Run Build'
+        displayName: 'run build'
 
       - script: npm run test
-        displayName: 'Run tests'
+        displayName: 'run test'
 
-      - publish: generated
-        artifact: generated
+      - script: npm run predeploy
+        displayName: 'run predeploy'
+
+      - publish: .
+        artifact: clougoWebApp
 
 - stage: deployQA
   dependsOn: build
@@ -44,21 +47,28 @@ stages:
         runOnce:
           deploy:
             steps:
-            - checkout: self
-              persistCredentials: true
-              clean: true
+            # - checkout: self
+            #   persistCredentials: true
+            #   clean: true
 
-            - task: DownloadPipelineArtifact@2
-              inputs:
-                artifact: 'generated'
-                path: '$(System.DefaultWorkingDirectory)/generated/'
+            # - task: DownloadPipelineArtifact@2
+            #   inputs:
+            #     artifact: 'generated'
+            #     path: '$(System.DefaultWorkingDirectory)/generated/'
 
-            - script: npm run test
-              displayName: 'Run tests'
+            # - script: npm run test
+            #   displayName: 'Run tests'
+            # $(Pipeline.Workspace)/{artifact}
+
+            - script: |
+                echo $(Pipeline.Workspace)/clougoWebApp
+                pwd
+                ls -l
+                ls -l $(Pipeline.Workspace)/clougoWebApp
 
             - task: AzureWebApp@1
               inputs:
                 azureSubscription: 'DeploymentConnection0'
                 appName: 'Clougo2'
-                package: '$(System.DefaultWorkingDirectory)'
+                package: '$(Pipeline.Workspace)/clougoWebApp'
                 deploymentMethod: zipDeploy

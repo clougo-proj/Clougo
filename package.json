@@ -13,6 +13,7 @@
         "pkdemo": "node tools/pklgo.js demo > generated/demo.js",
         "build": "npm run eslint && npm run pkut && npm run pkdemo",
         "test": "node logo/logo test",
-        "server": "http-server"
+        "server": "http-server",
+        "predeploy": "rm -rf unittests && rm -rf demo && rm -rf node_modules"
     }
 }

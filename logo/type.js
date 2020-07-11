@@ -678,26 +678,15 @@ $classObj.create = function(logo, sys) {
     type.wordFindItem = wordFindItem;
 
     function listFindItem(item, list) {
-        let maxIndex = listMaxIndex(list);
-        for(let i = type.LIST_ORIGIN; i <= maxIndex; i++) {
-            if (equal(item, listItem(i, list))) {
-                return i;
-            }
-        }
-
-        return -1;
+        let index = list.findIndex((elem, i) => i >= LIST_HEAD_SIZE && equal(item, elem));
+        return (index === -1) ? -1 : index - LIST_HEAD_SIZE + LIST_ORIGIN;
     }
     type.listFindItem = listFindItem;
 
     function arrayFindItem(item, array) {
-        let maxIndex = arrayMaxIndex(array);
-        for(let i = type.arrayOrigin(array); i <= maxIndex; i++) {
-            if (equal(item, arrayItem(i, array))) {
-                return i;
-            }
-        }
-
-        return -1;
+        let origin = arrayOrigin(array);
+        let index = array.findIndex((elem, i) => i >= origin && equal(item, elem));
+        return (index === -1) ? -1 : index - ARRAY_HEAD_SIZE + origin;
     }
     type.arrayFindItem = arrayFindItem;
 

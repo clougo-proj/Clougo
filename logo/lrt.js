@@ -545,6 +545,10 @@ $classObj.create = function(logo, sys) {
         return new Date().getTime();
     }
 
+    function primitiveText(procname) {
+        return logo.env.getLogoProcText(procname);
+    }
+
     async function primitiveWait(delay) {
         logo.env.prepareToBeBlocked();
         await new Promise((resolve) => {
@@ -844,6 +848,8 @@ $classObj.create = function(logo, sys) {
         "apply": primitiveApply,
 
         "timemilli": primitiveTimeMilli,
+
+        "text": primitiveText,
 
         "throw": primitiveThrow,
 

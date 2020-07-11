@@ -359,7 +359,7 @@ $classObj.create = function(logo, sys) {
                 convertFormalParam();
                 _parseLastTo = -1;
             } else if (_parseStack.length == 0) {
-                insertParseWord("\n", s.length);
+                insertParseWord(logo.type.NEWLINE, s.length);
             }
 
             _parseWordLine = _parseLine + 1;

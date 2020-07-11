@@ -1,0 +1,10 @@
+to t1 :x
+  pr :x
+  repeat 2[
+    pr :x+1
+  ]
+  pr :x+1
+end
+
+show text "t1
+t1 10

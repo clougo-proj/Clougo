@@ -14,12 +14,14 @@ $classObj.create = function(logo, sys) {
     const SRCMAP_NULL = 0;
     const LIST_ORIGIN = 1;
     const ARRAY_DEFAULT_ORIGIN = 1;
+    const NEWLINE = "\n";
 
     type.LIST_HEAD_SIZE = LIST_HEAD_SIZE;
     type.ARRAY_HEAD_SIZE = ARRAY_HEAD_SIZE;
     type.SRCMAP_NULL = SRCMAP_NULL;
     type.LIST_ORIGIN = LIST_ORIGIN;
     type.ARRAY_DEFAULT_ORIGIN = ARRAY_DEFAULT_ORIGIN;
+    type.NEWLINE = NEWLINE;
 
     const OBJTYPE = {
         MIN_VALUE: 0,

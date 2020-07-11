@@ -84,7 +84,7 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
 
     async function webOnConsole(data, logoUserInputListener) {
         logo.env.setInteractiveMode();
-        await logoUserInputListener(data + "\n");  // needs "\n" to be treated as completed command
+        await logoUserInputListener(data + logo.type.NEWLINE);  // needs new line to be treated as completed command
         postMessage([logo.env.getEnvState()]);
     }
 

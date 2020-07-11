@@ -466,6 +466,12 @@ $classObj.create = function(logo, sys) {
 
                 _parseWordLine = _parseLine;
                 _parseWordCol = _parseCol + 1;
+
+                if (isLastChar) {
+                    terminateLine();
+                    break;
+                }
+
                 continue;
             }
 

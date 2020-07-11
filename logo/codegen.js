@@ -607,7 +607,7 @@ $classObj.create = function(logo, sys) {
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
 
-        if (sys.isUndefined(curToken) || curToken === "\n") {
+        if (sys.isUndefined(curToken) || curToken === logo.type.NEWLINE) {
             return CODEGEN_CONSTANTS.NOP; // make sure eval() returns undefined
         }
 

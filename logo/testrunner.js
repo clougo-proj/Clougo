@@ -95,13 +95,13 @@ $classObj.create = function(Logo, sys) {
                 "getStdoutBuffer": function() { return stdoutBuffer; },
                 "getStderrBuffer": function() { return stderrBuffer; },
                 "stdout": function(text) {
-                    stdoutBuffer += text + "\n";
+                    stdoutBuffer += text + logo.type.NEWLINE;
                 },
                 "stdoutn": function(text) {
                     stdoutBuffer += text;
                 },
                 "stderr": function(text) {
-                    stderrBuffer += text + "\n";
+                    stderrBuffer += text + logo.type.NEWLINE;
                 },
                 "stderrn": function(text) {
                     stderrBuffer += text;
@@ -123,11 +123,11 @@ $classObj.create = function(Logo, sys) {
                 "getBuffer": function() { return turtleBuffer; },
                 "sendCmd": function(cmd, args = []) {
                     ext.canvas.sendCmd(cmd, args);
-                    turtleBuffer += cmd + " " + args.map(sys.logoFround6).join(" ") + "\n";
+                    turtleBuffer += cmd + " " + args.map(sys.logoFround6).join(" ") + logo.type.NEWLINE;
                 },
                 "sendCmdAsString": function(cmd, args = []) {
                     ext.canvas.sendCmdAsString(cmd, args);
-                    turtleBuffer += cmd + " " + args.join(" ") + "\n";
+                    turtleBuffer += cmd + " " + args.join(" ") + logo.type.NEWLINE;
                 }
             }
         };
@@ -179,7 +179,7 @@ $classObj.create = function(Logo, sys) {
     function testParse(test) {
         let testSrc = getTestSrc(test);
         let testParseBase = getTestParseBase(test);
-        let parseResult = JSON.stringify(logo.parse.parseSrc(testSrc, 1)) + "\n";
+        let parseResult = JSON.stringify(logo.parse.parseSrc(testSrc, 1)) + logo.type.NEWLINE;
         if (parseResult == testParseBase) {
             Logo.io.stdout("\t\tpassed ");
             return;

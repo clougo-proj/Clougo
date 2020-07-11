@@ -142,6 +142,26 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.getSlotValue = getSlotValue;
 
+    function getLogoProcText(procName) {
+        let formal = env._ws[procName].formal;
+        let body = env._ws[procName].body;
+        let ret = [logo.type.makeLogoList(formal.slice(0))];
+
+        for (let begin = logo.type.LIST_HEAD_SIZE; begin < body.length;) {
+            let end = body.indexOf(logo.type.NEWLINE, begin);
+            let line = (end === -1) ? body.slice(begin) : body.slice(begin, end);
+            ret.push(logo.type.makeLogoList(line));
+            if (end === -1) {
+                break;
+            }
+
+            begin = end + 1;
+        }
+
+        return logo.type.makeLogoList(ret);
+    }
+    env.getLogoProcText = getLogoProcText;
+
     function findLogoVarScope(varname, scopeCache) {
         if (env._scopeStack.length === 0) {
             return _globalScope;
@@ -438,7 +458,7 @@ $classObj.create = function(logo, sys, ext) {
                     "    " + v[0] + " at " + logo.type.srcmapToString(v[1]) :
                     "    at " + logo.type.srcmapToString(v[1]))
                 .filter(v => v !== "")
-                .join("\n");
+                .join(logo.type.NEWLINE);
     }
 
     async function evalLogoJs(logoJsSrc) {

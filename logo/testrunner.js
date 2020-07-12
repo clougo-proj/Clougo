@@ -179,7 +179,7 @@ $classObj.create = function(Logo, sys) {
     function testParse(test) {
         let testSrc = getTestSrc(test);
         let testParseBase = getTestParseBase(test);
-        let parseResult = JSON.stringify(logo.parse.parseSrc(testSrc, 1)) + logo.type.NEWLINE;
+        let parseResult = JSON.stringify(logo.parse.parseBlock(logo.parse.parseSrc(testSrc, 1))) + logo.type.NEWLINE;
         if (parseResult == testParseBase) {
             Logo.io.stdout("\t\tpassed ");
             return;

@@ -293,7 +293,7 @@ $classObj.create = function(logo, sys) {
         }
 
         try {
-            await evxBody(logo.type.embedSrcmap(proc.body, proc.bodySrcmap));
+            await evxBody(logo.parse.parseBlock(logo.type.embedSrcmap(proc.body, proc.bodySrcmap)));
         } catch(e)  {
             if (!logo.type.LogoException.is(e) || e.isError() || e.isCustom()) {
                 throw e;

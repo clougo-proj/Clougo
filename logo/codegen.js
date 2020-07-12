@@ -726,7 +726,7 @@ $classObj.create = function(logo, sys) {
         _funcName = "";
         _isLambda = false;
 
-        let evxContext = logo.interpreter.makeEvalContext(p);
+        let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(p));
 
         _varScopes.enter();
         let code = genBody(evxContext).merge();
@@ -793,7 +793,9 @@ $classObj.create = function(logo, sys) {
         let oldFuncName = _funcName;
         _funcName = p[1];
 
-        let evxContext = logo.interpreter.makeEvalContext(logo.type.embedSrcmap(p[3], srcmap[3]));
+        let evxContext = logo.interpreter.makeEvalContext(
+            logo.parse.parseBlock(logo.type.embedSrcmap(p[3], srcmap[3])));
+
         code.append(_funcName, "(");
 
         let params = p[2];

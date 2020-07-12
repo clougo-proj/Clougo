@@ -344,6 +344,20 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.callLogoInstrListAsync = callLogoInstrListAsync;
 
+    function defineLogoProc(procName, formal, formalSrcmap, body, bodySrcmap) {
+        if (procName in env._user) {
+            delete env._user[procName];
+        }
+
+        env._ws[procName] = {
+            "formal" : formal,
+            "formalSrcmap" : formalSrcmap,
+            "body" : body,
+            "bodySrcmap" : bodySrcmap
+        };
+    }
+    env.defineLogoProc = defineLogoProc;
+
     function justInTimeTranspile(block) {
         if (!env._userBlock.has(block)) {
             let blockComp = logo.parse.parseBlock(block);
@@ -435,7 +449,7 @@ $classObj.create = function(logo, sys, ext) {
 
         if (!sys.isUndefined(parsedCommand)) {
             try {
-                await logo.interpreter.evxBody(parsedCommand);
+                await logo.interpreter.evxBody(logo.parse.parseBlock(parsedCommand));
             } catch(e) {
                 if (!logo.type.LogoException.is(e)) {
                     throw e;

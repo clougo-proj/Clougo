@@ -105,10 +105,9 @@ $classObj.create = function(logo, sys) {
         _parseLastTo, _parseInProc;
 
     function reset() { // initialize parser _parseState
+        resetParseData();
         _parseExpecting = undefined;
         _parseStack = [];
-        _parseData = logo.type.makeLogoList();
-        _parseSrcmap = logo.type.makeLogoList();
         _parseState = "line";
         _parseLine = 0;
         _parseCol = 0;
@@ -119,6 +118,11 @@ $classObj.create = function(logo, sys) {
         _parseInProc = false;
     }
     parse.reset = reset;
+
+    function resetParseData() {
+        _parseData = logo.type.makeLogoList();
+        _parseSrcmap = logo.type.makeLogoList();
+    }
 
     function makeSrcmap() {
         return [_parseSource, _parseLine + 1, _parseCol + 1];
@@ -148,7 +152,6 @@ $classObj.create = function(logo, sys) {
     // tokenization: escape character, parentheses, operators
     parse.parseBlock = function(comp) {
         sys.assert(logo.type.isLogoList(comp));
-
         let list = comp.slice(logo.type.LIST_HEAD_SIZE);
         let blockHasSrcmap = logo.type.isLogoListLiteral(comp);
         let srcmap = blockHasSrcmap ?
@@ -157,8 +160,6 @@ $classObj.create = function(logo, sys) {
 
         let retsrcmap = blockHasSrcmap ? logo.type.makeLogoList() : logo.type.SRCMAP_NULL;
         let ret = logo.type.makeLogoList(undefined, retsrcmap);
-
-        let lastto = -1;
 
         list.forEach(processLine);
 
@@ -170,13 +171,6 @@ $classObj.create = function(logo, sys) {
             return newSrcmap;
         }
 
-        function processFormalParam(formal) {
-            sys.assert(Array.isArray(formal));
-            return formal.map(v =>
-                logo.type.isLogoVarRef(v) ? logo.env.extractVarName(v) :
-                    (Array.isArray(v) && logo.type.isLogoVarRef(v[0])) ? v.splice(0, 1, logo.env.extractVarName(v)) : v);
-        }
-
         function processLine(word, index){
             if (typeof word != "string" || word.length == 0) {
                 ret.push(word);
@@ -184,45 +178,6 @@ $classObj.create = function(logo, sys) {
                     retsrcmap.push(srcmap[index]);
                 }
 
-                return;
-            }
-
-            if (sys.equalToken(word, "to")) {
-                sys.assert(lastto == -1, "Nested to?");
-                lastto = ret.length;
-            } else if (sys.equalToken(word, "end") && lastto != -1) { // ignore end without to
-                sys.assert(lastto != -1, "end without to?");
-                let proc = logo.type.makeLogoProc([
-                    ret[lastto + 1],
-                    ret[lastto + 2],
-                    logo.type.makeLogoList(ret.slice(lastto + 3))]);
-
-                proc[2] = processFormalParam(proc[2]);
-
-                // invalidate generated JS code
-                if (proc[1] in logo.env._user) {
-                    delete logo.env._user[proc[1]];
-                }
-
-                ret.splice(lastto, ret.length - lastto, proc);
-
-                if (blockHasSrcmap) {
-                    let procsrcmap = logo.type.makeLogoProc([
-                        retsrcmap[lastto + 1],
-                        retsrcmap[lastto + 2],
-                        logo.type.makeLogoList(retsrcmap.slice(lastto + 3))]);
-
-                    logo.env._ws[proc[1]] = {
-                        "formal" : proc[2],
-                        "formalsrcmap" : procsrcmap[2],
-                        "body" : proc[3],
-                        "bodySrcmap" : procsrcmap[3]
-                    };
-
-                    retsrcmap.splice(lastto, retsrcmap.length - lastto, procsrcmap);
-                }
-
-                lastto = -1;
                 return;
             }
 
@@ -312,6 +267,61 @@ $classObj.create = function(logo, sys) {
         }
 
     }; // parse.parseBlock
+
+    // parse procedures; return the result
+    parse.parseProc = function(comp) {
+        sys.assert(logo.type.isLogoList(comp));
+        let parseCode = comp.slice(logo.type.LIST_HEAD_SIZE);
+        let srcmap = logo.type.getEmbeddedSrcmap(comp).slice(logo.type.LIST_HEAD_SIZE);
+
+        let retsrcmap = logo.type.makeLogoList();
+        let ret = logo.type.makeLogoList(undefined, retsrcmap);
+
+        let lastto = -1;
+
+        parseCode.forEach((word, index) => {
+            if (sys.equalToken(word, "to")) {
+                sys.assert(lastto == -1, "Nested to?");
+                lastto = ret.length;
+            }
+
+            if (!sys.equalToken(word, "end")) {
+                ret.push(word);
+                retsrcmap.push(srcmap[index]);
+                return;
+            }
+
+            if (lastto != -1) { // ignore end without to
+                defineParsedProc();
+            }
+        });
+
+        return ret;
+
+        function processFormalParam(formal) {
+            sys.assert(Array.isArray(formal));
+            return formal.map(v =>
+                logo.type.isLogoVarRef(v) ? logo.env.extractVarName(v) :
+                    (Array.isArray(v) && logo.type.isLogoVarRef(v[0])) ? v.splice(0, 1, logo.env.extractVarName(v)) : v);
+        }
+
+        function defineParsedProc() {
+            sys.assert(lastto != -1, "end without to?");
+            let procName = ret[lastto + 1].toLowerCase();
+            let formal = processFormalParam(ret[lastto + 2]);
+            let formalSrcmap = retsrcmap[lastto + 2];
+            let body = logo.type.makeLogoList(ret.slice(lastto + 3));
+            let bodySrcmap = logo.type.makeLogoList(retsrcmap.slice(lastto + 3));
+
+            logo.env.defineLogoProc(procName, formal, formalSrcmap, body, bodySrcmap);
+
+            ret.splice(lastto, ret.length - lastto, logo.type.makeLogoProc([procName, formal, body]));
+            retsrcmap.splice(lastto, retsrcmap.length - lastto,
+                logo.type.makeLogoProc([procName, formalSrcmap, bodySrcmap]));
+
+            lastto = -1;
+        }
+    }; // parse.parseProc
 
     // parse a line; result in _parseData/_parseSrcmap
     // tokenization: comments, ~, space, square brackets, curly brackets
@@ -503,23 +513,12 @@ $classObj.create = function(logo, sys) {
             return undefined;
         }
 
-        sys.trace("DATA="+JSON.stringify(_parseData), "parse");
-        sys.trace("SRCM="+JSON.stringify(_parseSrcmap), "parse");
         sys.assert(logo.type.isLogoList(_parseData), "expecting list!");
 
-        // parse top-level as a block; deploy procs to ws
-        let comp = parse.parseBlock(logo.type.embedSrcmap(_parseData, _parseSrcmap));
-        _parseData = comp[0];
-        _parseSrcmap = comp[1];
-
-        sys.trace("DATA="+JSON.stringify(_parseData), "parse");
-        sys.trace("SRCM="+JSON.stringify(_parseSrcmap), "parse");
-
-        // reset
-        _parseData = logo.type.makeLogoList();
-        _parseSrcmap = logo.type.makeLogoList();
-
+        let comp = parse.parseProc(logo.type.embedSrcmap(_parseData, _parseSrcmap));
         sys.trace(JSON.stringify(comp), "parse");
+
+        resetParseData();
         return comp;
     };
 

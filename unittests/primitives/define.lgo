@@ -1,0 +1,8 @@
+to t1 :a :b ;declare proc signature for transpile mode
+end
+
+define "t1 [[a b]
+    [pr :a+:b]
+    [pr :a*:b]]
+
+t1 10 11

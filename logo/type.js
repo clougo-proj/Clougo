@@ -465,15 +465,22 @@ $classObj.create = function(logo, sys) {
     })();
     type.length = length;
 
+    function unboxList(list) {
+        return list.slice(LIST_HEAD_SIZE);
+    }
+    type.unboxList = unboxList;
+
+    function unboxArray(array) {
+        return array.slice(ARRAY_HEAD_SIZE);
+    }
+    type.unboxArray = unboxArray;
+
     const unbox = (() => {
         const unboxHelper = {};
 
-        unboxHelper[OBJTYPE.LIST] = function(obj) { return obj.slice(LIST_HEAD_SIZE); };
+        unboxHelper[OBJTYPE.LIST] = unboxList;
 
-        unboxHelper[OBJTYPE.ARRAY] =
-            function(obj) {
-                return obj.slice(ARRAY_HEAD_SIZE);
-            };
+        unboxHelper[OBJTYPE.ARRAY] = unboxArray;
 
         return function(thing) {
             if (thing === undefined || isLogoWord(thing)) {
@@ -485,6 +492,27 @@ $classObj.create = function(logo, sys) {
         };
     })();
     type.unbox = unbox;
+
+    function flattenList(iterable, separator = undefined) {
+        let ret = [];
+
+        for (let i in iterable) {
+            let item = iterable[i];
+            if (logo.type.isLogoWord(item)) {
+                ret.push(item);
+            } else {
+                logo.type.validateInputList(item);
+                Array.prototype.push.apply(ret, logo.type.unboxList(item));
+            }
+
+            if (separator !== undefined) {
+                ret.push(separator);
+            }
+        }
+
+        return ret;
+    }
+    type.flattenList = flattenList;
 
     function makeLogoArray(val, origin = type.ARRAY_DEFAULT_ORIGIN) {
         let ret = makeObject(OBJTYPE.ARRAY, val);
@@ -506,7 +534,7 @@ $classObj.create = function(logo, sys) {
     type.isLogoArray = isLogoArray;
 
     function arrayToList(array) {
-        let value = array.slice(ARRAY_HEAD_SIZE);
+        let value = unboxArray(array);
         value.unshift(SRCMAP_NULL);
         value.unshift(OBJTYPE.LIST);
         return value;
@@ -514,7 +542,7 @@ $classObj.create = function(logo, sys) {
     type.arrayToList = arrayToList;
 
     function listToArray(list, origin) {
-        let value = list.slice(LIST_HEAD_SIZE);
+        let value = unboxList(list);
         value.unshift(origin);
         value.unshift(OBJTYPE.ARRAY);
         return value;
@@ -882,13 +910,13 @@ $classObj.create = function(logo, sys) {
         }
 
         function toStringHelper(v) {
-            return type.isLogoList(v) ? "[" +  v.slice(LIST_HEAD_SIZE).map(toStringHelper).join(" ") + "]" :
-                type.isLogoArray(v) ? "{" +  v.slice(ARRAY_HEAD_SIZE, v.length).map(toStringHelper).join(" ") + "}" :
+            return type.isLogoList(v) ? "[" +  unboxList(v).map(toStringHelper).join(" ") + "]" :
+                type.isLogoArray(v) ? "{" +  unboxArray(v).map(toStringHelper).join(" ") + "}" :
                     v === null ? "[]" : v;
         }
 
         return type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) ? toStringHelper(v) :
-            v.slice(LIST_HEAD_SIZE).map(toStringHelper).join(" ");
+            unboxList(v).map(toStringHelper).join(" ");
     }
     type.toString = toString;
 

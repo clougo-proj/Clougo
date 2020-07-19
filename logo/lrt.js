@@ -25,22 +25,7 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveSentence(...args) {
-        const sentence = logo.type.makeLogoList();
-
-        for (let i in args) {
-            let item = args[i];
-            if (logo.type.isLogoWord(item)) {
-                sentence.push(item);
-                continue;
-            }
-
-            logo.type.validateInputList(item);
-            for (let j = logo.type.LIST_ORIGIN; j <= logo.type.listMaxIndex(item); j++) {
-                sentence.push(logo.type.listItem(j, item));
-            }
-        }
-
-        return sentence;
+        return logo.type.makeLogoList(logo.type.flattenList(args));
     }
 
     function primitiveWord(...args) {
@@ -545,6 +530,18 @@ $classObj.create = function(logo, sys) {
         return new Date().getTime();
     }
 
+    function primitiveDefine(procname, text) {
+        let formal = logo.type.unboxList(logo.type.listFirst(text));
+        let bodyText = logo.type.unboxList(logo.type.listButFirst(text));
+        let body = logo.type.makeLogoList(logo.type.flattenList(bodyText, logo.type.NEWLINE));
+
+        logo.env.defineLogoProc(procname, formal, logo.type.SRCMAP_NULL, body, logo.type.SRCMAP_NULL);
+        if (logo.env.getGenJs()) {
+            logo.env.transpile(logo.type.makeLogoProc([procname, formal, body]),
+                logo.type.makeLogoProc([procname, logo.type.SRCMAP_NULL, logo.type.SRCMAP_NULL]));
+        }
+    }
+
     function primitiveText(procname) {
         return logo.env.getLogoProcText(procname);
     }
@@ -848,6 +845,8 @@ $classObj.create = function(logo, sys) {
         "apply": primitiveApply,
 
         "timemilli": primitiveTimeMilli,
+
+        "define": primitiveDefine,
 
         "text": primitiveText,
 

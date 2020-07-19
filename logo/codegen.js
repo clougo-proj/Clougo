@@ -823,6 +823,7 @@ $classObj.create = function(logo, sys) {
         _funcName = oldFuncName;
         return code;
     }
+    codegen.genProc = genProc;
 
     function genThrowNotEnoughInputs(srcmap, procName) {
         return Code.expr("throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",

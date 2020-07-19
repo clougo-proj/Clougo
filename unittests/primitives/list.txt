@@ -82,3 +82,5 @@ apply_stop_in_lambda run exec
 apply_stop_in_lambda_err runl
 apply_output_in_lambda run exec
 text run exec
+define run exec
+text_define run exec

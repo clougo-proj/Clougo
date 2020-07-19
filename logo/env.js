@@ -372,6 +372,13 @@ $classObj.create = function(logo, sys, ext) {
         }
     }
 
+    function transpile(proc, procSrcmap) {
+        let code = logo.codegen.genProc(proc, procSrcmap);
+        let mergedCode = code.merge();
+        eval(mergedCode);
+    }
+    env.transpile = transpile;
+
     async function logoExecHelper(logosrc, genjs, srcidx, srcLine) {
         resetInterpreterCallStack();
 
@@ -496,6 +503,7 @@ $classObj.create = function(logo, sys, ext) {
     env.evalLogoJs = evalLogoJs;
 
     async function evalLogoJsTimed(logoJsSrc) {
+        setGenJs(true);
         return await timedExec(
             async function() {
                 return await evalLogoJs(logoJsSrc);
@@ -507,6 +515,7 @@ $classObj.create = function(logo, sys, ext) {
     async function evalLogoGen(parsedCommand) {
         const ret = sys.isUndefined(parsedCommand) ? undefined :
             await evalLogoJs(logo.codegen.genTopLevelCode(parsedCommand));
+
         setEnvState("ready");
         return ret;
     }

@@ -152,10 +152,10 @@ $classObj.create = function(logo, sys) {
     // tokenization: escape character, parentheses, operators
     parse.parseBlock = function(comp) {
         sys.assert(logo.type.isLogoList(comp));
-        let list = comp.slice(logo.type.LIST_HEAD_SIZE);
+        let list = logo.type.unboxList(comp);
         let blockHasSrcmap = logo.type.isLogoListLiteral(comp);
         let srcmap = blockHasSrcmap ?
-            logo.type.getEmbeddedSrcmap(comp).slice(logo.type.LIST_HEAD_SIZE) :
+            logo.type.unboxList(logo.type.getEmbeddedSrcmap(comp)) :
             logo.type.SRCMAP_NULL;
 
         let retsrcmap = blockHasSrcmap ? logo.type.makeLogoList() : logo.type.SRCMAP_NULL;
@@ -271,8 +271,8 @@ $classObj.create = function(logo, sys) {
     // parse procedures; return the result
     parse.parseProc = function(comp) {
         sys.assert(logo.type.isLogoList(comp));
-        let parseCode = comp.slice(logo.type.LIST_HEAD_SIZE);
-        let srcmap = logo.type.getEmbeddedSrcmap(comp).slice(logo.type.LIST_HEAD_SIZE);
+        let parseCode = logo.type.unboxList(comp);
+        let srcmap = logo.type.unboxList(logo.type.getEmbeddedSrcmap(comp));
 
         let retsrcmap = logo.type.makeLogoList();
         let ret = logo.type.makeLogoList(undefined, retsrcmap);
@@ -353,10 +353,10 @@ $classObj.create = function(logo, sys) {
 
         function convertFormalParam() {
             let formal = _parseData.slice(_parseLastTo + 2, _parseData.length);
-            let formalsrcmap = _parseSrcmap.slice(_parseLastTo + 2, _parseSrcmap.length);
+            let formalSrcmap = _parseSrcmap.slice(_parseLastTo + 2, _parseSrcmap.length);
 
             _parseData.splice(_parseLastTo + 2, _parseData.length - _parseLastTo - 2, formal);
-            _parseSrcmap.splice(_parseLastTo + 2, _parseSrcmap.length - _parseLastTo - 2, formalsrcmap);
+            _parseSrcmap.splice(_parseLastTo + 2, _parseSrcmap.length - _parseLastTo - 2, formalSrcmap);
         }
 
         function terminateLine() {

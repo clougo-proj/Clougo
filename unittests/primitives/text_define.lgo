@@ -2,17 +2,19 @@ to t1 :a :b ; declare proc signature for transpile mode
 end
 
 to t2 :a :b
-  pr :a+:b
-  pr :a*:b
+  repeat 2[
+    pr :a+:b
+    pr :a*:b
+  ]
+end
+
+to define_t1
+  define "t1 text "t2
 end
 
 to run_test
   define_t1
   t1 10 11
-end
-
-to define_t1
-  define "t1 text "t2
 end
 
 run_test

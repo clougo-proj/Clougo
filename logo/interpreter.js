@@ -41,8 +41,8 @@ $classObj.create = function(logo, sys) {
                     !this.eol ? this.body[this.ptr] : undefined;
             },
             getSrcmap: function() {
-                return (sys.isUndefined(this.srcmap)) ? undefined :
-                    (this.ptr < this.srcmap.length) ? this.srcmap[this.ptr] : undefined;
+                return (sys.isUndefined(this.srcmap)) ? logo.type.SRCMAP_NULL :
+                    (this.ptr < this.srcmap.length) ? this.srcmap[this.ptr] : logo.type.SRCMAP_NULL;
             },
             isNextTokenBinaryOperator: function() {
                 return (this.ptr + 1 >= this.body.length) ? false :

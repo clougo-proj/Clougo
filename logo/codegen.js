@@ -285,7 +285,7 @@ $classObj.create = function(logo, sys) {
         code.append(genInstrList(evxContext.next(), "catch", false));
         code.append("} catch (e) {\n");
 
-        code.append("if (e.isCustom()) {\n");
+        code.append("if (logo.type.LogoException.is(e) && e.isCustom()) {\n");
         code.append("if (sys.equalToken(");
         code.append(label);
         code.append(", e.getValue()[0])){$ret=e.getValue()[1];}\n");

@@ -1,0 +1,11 @@
+to f
+  pr "pass
+end
+
+to run_test
+  catch "error [f]
+end
+
+;?define "f text "f
+
+;?run_test

@@ -89,7 +89,7 @@ $classObj.create = function(logo, sys, ext) {
     env.setGenJs = setGenJs;
 
     function getGenJs() {
-        return _genJs;
+        return _genJs === true;
     }
     env.getGenJs = getGenJs;
 
@@ -344,11 +344,20 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.callLogoInstrListAsync = callLogoInstrListAsync;
 
-    function defineLogoProc(procName, formal, formalSrcmap, body, bodySrcmap) {
-        if (procName in env._user) {
-            delete env._user[procName];
+    function defineLogoProc(procName, formal, body, formalSrcmap = logo.type.SRCMAP_NULL,
+        bodySrcmap = logo.type.SRCMAP_NULL) {
+
+        defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap);
+
+        if (getGenJs() || isLogoProcJsAvailable(procName)) {
+            defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap);
         }
 
+        return false;
+    }
+    env.defineLogoProc = defineLogoProc;
+
+    function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap) {
         env._ws[procName] = {
             "formal" : formal,
             "formalSrcmap" : formalSrcmap,
@@ -356,7 +365,19 @@ $classObj.create = function(logo, sys, ext) {
             "bodySrcmap" : bodySrcmap
         };
     }
-    env.defineLogoProc = defineLogoProc;
+    env.defineLogoProcCode = defineLogoProcCode;
+
+    function isLogoProcJsAvailable(procName) {
+        return procName in env._user;
+    }
+
+    function defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap) {
+        let code = logo.codegen.genProc(logo.type.makeLogoProc([procName, formal, body]),
+            logo.type.makeLogoProc([procName, formalSrcmap, bodySrcmap]));
+
+        let mergedCode = code.merge();
+        eval(mergedCode);
+    }
 
     function justInTimeTranspile(block) {
         if (!env._userBlock.has(block)) {
@@ -371,13 +392,6 @@ $classObj.create = function(logo, sys, ext) {
             }
         }
     }
-
-    function transpile(proc, procSrcmap) {
-        let code = logo.codegen.genProc(proc, procSrcmap);
-        let mergedCode = code.merge();
-        eval(mergedCode);
-    }
-    env.transpile = transpile;
 
     async function logoExecHelper(logosrc, genjs, srcidx, srcLine) {
         resetInterpreterCallStack();
@@ -431,7 +445,11 @@ $classObj.create = function(logo, sys, ext) {
                 let src = logoSrc.split(/\n/);
                 for (let i = 0; i < src.length; i++) {
                     let line = src[i];
-                    ret = await logoExecHelper(line, genjs, srcidx, i);
+                    if (isInterpretedCommand(line)) {
+                        ret = await logoExecHelper(line.substring(2), false, srcidx, i);
+                    } else {
+                        ret = await logoExecHelper(line, genjs, srcidx, i);
+                    }
                 }
 
                 return ret;
@@ -439,6 +457,10 @@ $classObj.create = function(logo, sys, ext) {
         );
     }
     env.execByLine = execByLine;
+
+    function isInterpretedCommand(line) {
+        return line.length >= 2 && line.charAt(0) === ";" && line.charAt(1) === "?";
+    }
 
     function throwRuntimeLogoException(name, srcmap, value) { // eslint-disable-line no-unused-vars
         throw logo.type.LogoException.create(name, value, srcmap);

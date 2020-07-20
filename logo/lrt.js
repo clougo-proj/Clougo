@@ -535,11 +535,7 @@ $classObj.create = function(logo, sys) {
         let bodyText = logo.type.unboxList(logo.type.listButFirst(text));
         let body = logo.type.makeLogoList(logo.type.flattenList(bodyText, logo.type.NEWLINE));
 
-        logo.env.defineLogoProc(procname, formal, logo.type.SRCMAP_NULL, body, logo.type.SRCMAP_NULL);
-        if (logo.env.getGenJs()) {
-            logo.env.transpile(logo.type.makeLogoProc([procname, formal, body]),
-                logo.type.makeLogoProc([procname, logo.type.SRCMAP_NULL, logo.type.SRCMAP_NULL]));
-        }
+        logo.env.defineLogoProc(procname, formal, body);
     }
 
     function primitiveText(procname) {

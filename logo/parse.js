@@ -313,7 +313,7 @@ $classObj.create = function(logo, sys) {
             let body = logo.type.makeLogoList(ret.slice(lastto + 3));
             let bodySrcmap = logo.type.makeLogoList(retsrcmap.slice(lastto + 3));
 
-            logo.env.defineLogoProc(procName, formal, formalSrcmap, body, bodySrcmap);
+            logo.env.defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap);
 
             ret.splice(lastto, ret.length - lastto, logo.type.makeLogoProc([procName, formal, body]));
             retsrcmap.splice(lastto, retsrcmap.length - lastto,

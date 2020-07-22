@@ -1,1 +1,17 @@
 pr (1+(2-4))
+pr (1+(2-
+    4))
+
+to t
+  show (se
+      (word
+        "x
+        "y
+        "z)
+    "a
+    "b
+    "c)
+end
+
+t
+show text "t

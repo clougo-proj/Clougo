@@ -25,6 +25,8 @@ $classObj.create = function(logo, sys) {
             "\t": [SP_BASE],
             undefined: [SP_NONE],
             ";" : [SP_COMMENT],
+            "(" : [SP_OPEN, ")"],
+            ")" : [SP_CLOSE, "("],
             "[" : [SP_BASE|SP_OPEN, "]", logo.type.makeLogoList],
             "]" : [SP_BASE|SP_CLOSE, "["],
             "{" : [SP_BASE|SP_OPEN, "}", logo.type.makeLogoArray],
@@ -72,11 +74,11 @@ $classObj.create = function(logo, sys) {
         };
 
         Delimiter.isOpening = function isOpening(c) {
-            return (definition[c][0] & SP_OPEN) != 0;
+            return (c in definition && (definition[c][0] & SP_OPEN)) != 0;
         };
 
         Delimiter.isClosing = function isClosing(c) {
-            return (definition[c][0] & SP_CLOSE) != 0;
+            return (c in definition && (definition[c][0] & SP_CLOSE)) != 0;
         };
 
         Delimiter.getExpectedClosing = function getExpectedClosing(c) {
@@ -98,17 +100,16 @@ $classObj.create = function(logo, sys) {
         return _parseCol < s.length ? s.charAt(_parseCol) : undefined;
     }
 
-    let  _parseExpecting, _parseStack, _parseData, _parseSrcmap, _parseState,
+    let _parseExpecting, _parseStack, _parseData, _parseSrcmap,
         _parseLine, _parseCol,
         _parseSource,
         _parseWord, _parseWordLine, _parseWordCol, _parseInvbar, _parseInComment,
         _parseLastTo, _parseInProc;
 
-    function reset() { // initialize parser _parseState
+    function reset() {
         resetParseData();
         _parseExpecting = undefined;
         _parseStack = [];
-        _parseState = "line";
         _parseLine = 0;
         _parseCol = 0;
         _parseWord = "";
@@ -130,6 +131,33 @@ $classObj.create = function(logo, sys) {
 
     function makeWordSrcmap() {
         return [_parseSource, _parseWordLine + 1, _parseWordCol + 1];
+    }
+
+    function pushParseStack(expectedClosing) {
+        _parseStack.push([_parseExpecting]);
+        _parseExpecting = expectedClosing;
+    }
+
+    function popParseStack() {
+        _parseExpecting = _parseStack.pop()[0];
+    }
+
+    function pushParseStackWithData(expectedClosing, makeLiteral) {
+        _parseStack.push([_parseExpecting, _parseData, _parseSrcmap]);
+        _parseExpecting = expectedClosing;
+        _parseData =  makeLiteral();
+        _parseSrcmap =  logo.type.annotateSrcmap(makeLiteral(), makeSrcmap());
+    }
+
+    function popParseStackWithData() {
+        let frame = _parseStack.pop();
+
+        frame[1].push(_parseData);
+        frame[2].push(_parseSrcmap);
+
+        _parseExpecting = frame[0];
+        _parseData = frame[1];
+        _parseSrcmap = frame[2];
     }
 
     function getEscapeChar(c) {
@@ -453,25 +481,13 @@ $classObj.create = function(logo, sys) {
                 }
 
                 if (Delimiter.isOpening(c)) {
-                    _parseStack.push([_parseState, _parseData, _parseExpecting, _parseSrcmap]);
-                    _parseState = "line";
-                    _parseData =  Delimiter.getLiteralFactory(c)();
-                    _parseSrcmap =  logo.type.annotateSrcmap(Delimiter.getLiteralFactory(c)(), makeSrcmap());
-                    _parseExpecting = Delimiter.getExpectedClosing(c);
+                    pushParseStackWithData(Delimiter.getExpectedClosing(c), Delimiter.getLiteralFactory(c));
                 } else if (Delimiter.isClosing(c)) {
-                    if (_parseExpecting != c) {
-                        sys.assert(false, "Expecting " + _parseExpecting);
+                    if (_parseExpecting !== c) {
+                        throw logo.type.LogoException.create("UNEXPECTED_TOKEN", [c],  makeSrcmap());
                     }
 
-                    let frame = _parseStack.pop();
-                    _parseState = frame[0];
-
-                    frame[1].push(_parseData);
-                    frame[3].push(_parseSrcmap);
-
-                    _parseData = frame[1];
-                    _parseSrcmap = frame[3];
-                    _parseExpecting = frame[2];
+                    popParseStackWithData();
                 }
 
                 _parseWordLine = _parseLine;
@@ -485,6 +501,15 @@ $classObj.create = function(logo, sys) {
                 continue;
             }
 
+            if (Delimiter.isOpening(c)) {
+                pushParseStack(Delimiter.getExpectedClosing(c));
+            } else if (Delimiter.isClosing(c)) {
+                if (_parseExpecting !== c) {
+                    throw logo.type.LogoException.create("UNEXPECTED_TOKEN", [c],  makeSrcmap());
+                }
+                popParseStack();
+            }
+
             _parseWord += c;
 
             if (isLastChar) {
@@ -495,19 +520,35 @@ $classObj.create = function(logo, sys) {
     };
 
     parse.parseSrc = function(s, srcidx, srcLine) {
+
+        function parseLines(lines) {
+            lines.forEach(line => {
+                parse.line(line);
+                _parseLine++;
+                _parseCol = 0;
+            });
+        }
+
+        function tryParseLines(lines) {
+            try {
+                parseLines(lines);
+            } catch (e) {
+                if (!logo.type.LogoException.is(e)) {
+                    throw e;
+                } else {
+                    logo.io.stderr(e.formatMessage());
+                    logo.io.stderr("    at " + logo.type.srcmapToString(e.getSrcmap()));
+                    reset();
+                }
+            }
+        }
+
         _parseLine = srcLine === undefined ? 0 : srcLine;
         _parseCol = 0;
         _parseSource = srcidx;
         _parseLastTo = -1;
 
-        let lines = s.split(/\r?\n/);
-
-        // parse lines
-        lines.forEach(line => {
-            parse.line(line);
-            _parseLine++;
-            _parseCol = 0;
-        });
+        tryParseLines(s.split(/\r?\n/));
 
         if (_parseStack.length != 0 || _parseInProc || !logo.type.isLogoList(_parseData)) {
             return undefined;

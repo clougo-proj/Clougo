@@ -1,1 +1,4 @@
 -1
+-1
+[xyz a b c]
+[[] [show (se (word "x "y "z) "a "b "c)]]

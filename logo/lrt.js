@@ -523,6 +523,11 @@ $classObj.create = function(logo, sys) {
         }
 
         logo.type.validateInputList(template);
+
+        if (logo.type.isProcText(template)) {
+            return await logo.env.applyProcText(template, srcmap, unboxedInputList, inputListSrcmap);
+        }
+
         return await logo.env.applyInstrList(template, srcmap, unboxedInputList);
     }
 

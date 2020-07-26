@@ -251,6 +251,11 @@ $classObj.create = function(logo, sys) {
     }
     type.getEmbeddedSrcmap = getEmbeddedSrcmap;
 
+    function hasEmbeddedSrcmap(list) {
+        return list[1] !== SRCMAP_NULL;
+    }
+    type.hasEmbeddedSrcmap = hasEmbeddedSrcmap;
+
     function embedReferenceSrcmap(list, srcmap) {
         if (list[1] !== srcmap) {
             list[1][1] = srcmap;
@@ -501,7 +506,6 @@ $classObj.create = function(logo, sys) {
             if (logo.type.isLogoWord(item)) {
                 ret.push(item);
             } else {
-                logo.type.validateInputList(item);
                 Array.prototype.push.apply(ret, logo.type.unboxList(item));
             }
 
@@ -570,6 +574,34 @@ $classObj.create = function(logo, sys) {
         return (token instanceof Array && token[0] == OBJTYPE.PROC);
     }
     type.isLogoProc = isLogoProc;
+
+    function isProcText(template) {
+        return isLogoList(template) &&
+            unboxList(template).reduce((acc, item) => acc && isLogoList(item), true);
+    }
+    type.isProcText = isProcText;
+
+    function formalFromProcText(template) {
+        return unboxList(listFirst(template));
+    }
+    type.formalFromProcText = formalFromProcText;
+
+    function formalSrcmapFromProcText(template) {
+        return !hasEmbeddedSrcmap(template) ? SRCMAP_NULL :
+            unboxList(listFirst(getEmbeddedSrcmap(template)));
+    }
+    type.formalSrcmapFromProcText = formalSrcmapFromProcText;
+
+    function bodyFromProcText(template) {
+        return makeLogoList(flattenList(unboxList(listButFirst(template)), NEWLINE));
+    }
+    type.bodyFromProcText = bodyFromProcText;
+
+    function bodySrcmapFromProcText(template) {
+        return !hasEmbeddedSrcmap(template) ? SRCMAP_NULL :
+            makeLogoList(flattenList(unboxList(listButFirst(getEmbeddedSrcmap(template))), SRCMAP_NULL));
+    }
+    type.bodySrcmapFromProcText = bodySrcmapFromProcText;
 
     function ifTrueThenThrow(predicate, exception, value) {
         if (predicate) {

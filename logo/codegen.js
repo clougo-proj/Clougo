@@ -502,8 +502,10 @@ $classObj.create = function(logo, sys) {
         return genPostfixPrimitiveCall(curToken, srcmap, param)
             .prepend("try {\n$ret=")
             .append("} catch (e) {\n")
+            .append("if(logo.type.LogoException.is(e)){")
             .append("if(e.isStop()) return;\n")
             .append("if(e.isOutput()) return e.getValue();\n")
+            .append("}\n")
             .append("throw e;}\n");
     }
 

@@ -358,17 +358,21 @@ $classObj.create = function(logo, sys, ext) {
     env.defineLogoProc = defineLogoProc;
 
     function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap) {
-        env._ws[procName] = {
-            "formal" : formal,
-            "formalSrcmap" : formalSrcmap,
-            "body" : body,
-            "bodySrcmap" : bodySrcmap
-        };
+        env._ws[procName] = makeWorkspaceProcedure(formal, formalSrcmap, body, bodySrcmap);
     }
     env.defineLogoProcCode = defineLogoProcCode;
 
     function isLogoProcJsAvailable(procName) {
         return procName in env._user;
+    }
+
+    function makeWorkspaceProcedure(formal, formalSrcmap, body, bodySrcmap) {
+        return {
+            "formal" : formal,
+            "formalSrcmap" : formalSrcmap,
+            "body" : body,
+            "bodySrcmap" : bodySrcmap
+        };
     }
 
     function defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap) {
@@ -612,6 +616,22 @@ $classObj.create = function(logo, sys, ext) {
         }
     }
     env.applyNamedProcedure = applyNamedProcedure;
+
+    async function applyProcText(template, srcmap, param, inputListSrcmap) {
+        let formal = logo.type.formalFromProcText(template);
+        checkSlotLength(template, param, inputListSrcmap, formal.length);
+        prepareCallProc("[]", srcmap);
+        let retVal = await logo.interpreter.evxProc(
+            makeWorkspaceProcedure(formal,
+                logo.type.formalSrcmapFromProcText(template),
+                logo.type.bodyFromProcText(template),
+                logo.type.bodySrcmapFromProcText(template)),
+            param);
+
+        logo.env.completeCallProc();
+        return retVal;
+    }
+    env.applyProcText = applyProcText;
 
     function checkSlotLength(template, slot, srcmap, length, maxLength) {
         if (slot.length < length) {

@@ -194,6 +194,10 @@ $classObj.create = function(logo, sys) {
         return ret;
 
         function addSrcmapOffset(origSrcmap, offset) {
+            if (origSrcmap === logo.type.SRCMAP_NULL) {
+                return logo.type.SRCMAP_NULL;
+            }
+
             let newSrcmap = origSrcmap.slice(0);
             newSrcmap[2] += offset;
             return newSrcmap;

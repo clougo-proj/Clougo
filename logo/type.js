@@ -247,17 +247,21 @@ $classObj.create = function(logo, sys) {
     type.embedSrcmap = embedSrcmap;
 
     function getEmbeddedSrcmap(list) {
-        return list[1];
+        return hasEmbeddedSrcmap(list) ? list[1] : SRCMAP_NULL;
     }
     type.getEmbeddedSrcmap = getEmbeddedSrcmap;
 
     function hasEmbeddedSrcmap(list) {
-        return list[1] !== SRCMAP_NULL;
+        return list[1] !== SRCMAP_NULL && list[1][0] !== SRCMAP_NULL;
     }
     type.hasEmbeddedSrcmap = hasEmbeddedSrcmap;
 
     function embedReferenceSrcmap(list, srcmap) {
-        if (list[1] !== srcmap) {
+        if (list[1] === SRCMAP_NULL) {
+            list[1] = [SRCMAP_NULL];
+        }
+
+        if (Array.isArray(list[1]) && list[1] !== srcmap) {
             list[1][1] = srcmap;
         }
 
@@ -266,7 +270,7 @@ $classObj.create = function(logo, sys) {
     type.embedReferenceSrcmap = embedReferenceSrcmap;
 
     function hasReferenceSrcmap(list) {
-        return list[1][1] !== SRCMAP_NULL;
+        return Array.isArray(list[1]) && list[1][1] !== SRCMAP_NULL;
     }
     type.hasReferenceSrcmap = hasReferenceSrcmap;
 

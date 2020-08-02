@@ -6,3 +6,11 @@ for[i 1 1] :instr
 if "true :instr
 ifelse "false [] :instr
 if "false [] else :instr
+
+make "statement list "pr "msg
+
+repeat 1 :statement
+for[i 1 1] :statement
+if "true :statement
+ifelse "false [] :statement
+if "false [] else :statement

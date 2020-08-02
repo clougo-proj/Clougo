@@ -320,7 +320,7 @@ $classObj.create = function(logo, sys, ext) {
     env.getRunTime = getRunTime;
 
     function callLogoInstrList(block) { // eslint-disable-line no-unused-vars
-        justInTimeTranspile(block);
+        justInTimeTranspileInstrList(block);
         return env._userBlock.get(block)();
     }
 
@@ -339,7 +339,7 @@ $classObj.create = function(logo, sys, ext) {
     env.completeCallProc = completeCallProc;
 
     async function callLogoInstrListAsync(block, param) {
-        justInTimeTranspile(block);
+        justInTimeTranspileInstrList(block);
         return await env._userBlock.get(block).apply(undefined, param);
     }
     env.callLogoInstrListAsync = callLogoInstrListAsync;
@@ -383,7 +383,7 @@ $classObj.create = function(logo, sys, ext) {
         eval(mergedCode);
     }
 
-    function justInTimeTranspile(block) {
+    function justInTimeTranspileInstrList(block) {
         if (!env._userBlock.has(block)) {
             let blockComp = logo.parse.parseBlock(block);
             let formalParam = getInstrListFormalParam(blockComp);
@@ -394,6 +394,12 @@ $classObj.create = function(logo, sys, ext) {
                 let evxContext = logo.interpreter.makeEvalContext(logo.type.listButFirst(blockComp));
                 env._userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext, formalParam)));
             }
+        }
+    }
+
+    function justInTimeTranspileProcText(template) {
+        if (!env._userBlock.has(template)) {
+            env._userBlock.set(template, eval(logo.codegen.genProcText(template).merge()));
         }
     }
 
@@ -602,14 +608,14 @@ $classObj.create = function(logo, sys, ext) {
             let retVal = logo.env.getAsyncFunctionCall() ?
                 await callTarget.apply(undefined, param) : callTarget.apply(undefined, param);
 
-            logo.env.completeCallProc();
+            completeCallProc();
             return retVal;
         } else if (template in logo.env._ws) {
             let callTarget = logo.env._ws[template];
             checkSlotLength(template, param, inputListSrcmap, callTarget.formal.length);
             logo.env.prepareCallProc("[]", srcmap);
             let retVal = await logo.interpreter.evxProc(callTarget, param);
-            logo.env.completeCallProc();
+            completeCallProc();
             return retVal;
         } else {
             throw logo.type.LogoException.create("UNKNOWN_PROC", [template], srcmap);
@@ -620,18 +626,25 @@ $classObj.create = function(logo, sys, ext) {
     async function applyProcText(template, srcmap, param, inputListSrcmap) {
         let formal = logo.type.formalFromProcText(template);
         checkSlotLength(template, param, inputListSrcmap, formal.length);
-        prepareCallProc("[]", srcmap);
-        let retVal = await logo.interpreter.evxProc(
-            makeWorkspaceProcedure(formal,
-                logo.type.formalSrcmapFromProcText(template),
-                logo.type.bodyFromProcText(template),
-                logo.type.bodySrcmapFromProcText(template)),
-            param);
+        prepareCallProc("[]", srcmap, param);
 
-        logo.env.completeCallProc();
+        let proc = makeWorkspaceProcedure(formal,
+            logo.type.formalSrcmapFromProcText(template),
+            logo.type.bodyFromProcText(template),
+            logo.type.bodySrcmapFromProcText(template));
+
+        let retVal = getGenJs() ? await callLogoProcTextAsync(template, param) :
+            await logo.interpreter.evxProc(proc, param);
+
+        completeCallProc();
         return retVal;
     }
     env.applyProcText = applyProcText;
+
+    async function callLogoProcTextAsync(template, param) {
+        justInTimeTranspileProcText(template);
+        return await env._userBlock.get(template).apply(undefined, param);
+    }
 
     function checkSlotLength(template, slot, srcmap, length, maxLength) {
         if (slot.length < length) {

@@ -75,6 +75,7 @@ apply1 run exec
 apply2 run exec
 apply3 run exec
 apply4 run exec
+apply4_cache exec
 apply1_err runl execl
 apply2_err runl execl
 apply3_err runl execl

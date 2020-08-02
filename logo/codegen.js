@@ -784,23 +784,42 @@ $classObj.create = function(logo, sys) {
         return code;
     }
 
-    function genProc(p, srcmap) {
+    function genProc(proc, srcmap) {
+        sys.assert(logo.type.isLogoProc(proc));
+        sys.assert(logo.type.isLogoProc(srcmap));
+
+        let procName = logo.type.getLogoProcName(proc);
+        _isLambda = false;
+
+        return genProcBody(procName, logo.type.getLogoProcParams(proc), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
+            .prepend("logo.env._user[\"" + procName + "\"]=");
+    }
+    codegen.genProc = genProc;
+
+    function genProcText(template) {
+        let procName = "";
+        let params = logo.type.formalFromProcText(template);
+        let body = logo.type.bodyFromProcText(template);
+        let bodySrcmap = logo.type.bodySrcmapFromProcText(template);
+        _isLambda = false;
+        let code = genProcBody(procName, params, logo.type.embedSrcmap(body, bodySrcmap))
+            .prepend("(")
+            .append(")");
+
+        return code;
+    }
+    codegen.genProcText = genProcText;
+
+    function genProcBody(procName, params, body) {
         let code = Code.expr();
         code.append(genAsync(), "function ");
 
-        if(!logo.type.isLogoProc(p)) {
-            return;
-        }
-
         let oldFuncName = _funcName;
-        _funcName = p[1];
+        _funcName = procName;
 
-        let evxContext = logo.interpreter.makeEvalContext(
-            logo.parse.parseBlock(logo.type.embedSrcmap(p[3], srcmap[3])));
+        let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(body));
 
         code.append(_funcName, "(");
-
-        let params = p[2];
         code.append(Code.expr.apply(undefined, insertDelimiters(params, ",")));
         code.append(")");
         code.append("{\n");
@@ -819,13 +838,9 @@ $classObj.create = function(logo, sys) {
         code.append("logo.env._scopeStack.pop();\n");
         code.append("}\n");
 
-        code.prepend("logo.env._user[\"" + _funcName + "\"]=");
-        code.append("undefined;\n");
-
         _funcName = oldFuncName;
         return code;
     }
-    codegen.genProc = genProc;
 
     function genThrowNotEnoughInputs(srcmap, procName) {
         return Code.expr("throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",

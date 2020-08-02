@@ -579,6 +579,21 @@ $classObj.create = function(logo, sys) {
     }
     type.isLogoProc = isLogoProc;
 
+    function getLogoProcName(proc) {
+        return proc[1];
+    }
+    type.getLogoProcName = getLogoProcName;
+
+    function getLogoProcParams(proc) {
+        return proc[2];
+    }
+    type.getLogoProcParams = getLogoProcParams;
+
+    function getLogoProcBodyWithSrcmap(proc, srcmap) {
+        return embedSrcmap(proc[3], srcmap[3]);
+    }
+    type.getLogoProcBodyWithSrcmap = getLogoProcBodyWithSrcmap;
+
     function isProcText(template) {
         return isLogoList(template) &&
             unboxList(template).reduce((acc, item) => acc && isLogoList(item), true);

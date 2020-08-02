@@ -114,7 +114,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
             unitTestsJsSrcFile: "../generated/unittests.js",
             demoJsSrcFile: "../generated/demo.js",
             unactionableDatum : true,  // raise runtime exception for unactionable datum
-            genCommand : false,        // use codegen for interactive commands
+            genCommand : true,        // use codegen for interactive commands
             dynamicScope: true,
             verbose: false,
             postfix: false,

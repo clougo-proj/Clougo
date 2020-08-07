@@ -1,0 +1,6 @@
+to t1
+    wait 1
+    pr "hello
+end
+
+t1

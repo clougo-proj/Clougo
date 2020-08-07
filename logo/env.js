@@ -409,7 +409,10 @@ $classObj.create = function(logo, sys, ext) {
         let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
         sys.trace(parsedCode, "parse.result");
         setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
-        setAsyncFunctionCall(asyncFunctionCall(logosrc));
+        if (!getAsyncFunctionCall() && asyncFunctionCall(logosrc)) {
+            setAsyncFunctionCall(true);
+        }
+
         setGenJs(genjs);
 
         if (genjs) {

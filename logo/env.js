@@ -289,6 +289,8 @@ $classObj.create = function(logo, sys, ext) {
         _userInput = [];
         _resolveUserInput = undefined;
 
+        setAsyncFunctionCall(false);
+
         $ret = undefined; // eslint-disable-line no-unused-vars
     }
     env.clearWorkspace = clearWorkspace;

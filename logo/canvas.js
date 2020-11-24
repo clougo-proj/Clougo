@@ -28,6 +28,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
     const _canvas = document.getElementById(turtleCanvas);
     const _convasContext = _canvas.getContext("2d");
     const _turtleSpeed = 5000;
+    const _maxDrawScreenTime = 30;
     const _zoom = _canvas.width / 1000;
     const _turtleSize = 15 * _zoom;
 
@@ -134,6 +135,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
             restoreBeforeTurtle(imgData);
 
             let nextTqElem;
+            let startTime = Date.now();
             for(let i = 0; i < _turtleSpeed; i++){
                 nextTqElem = tqCacheReader.getNext();
                 if (nextTqElem === undefined) {
@@ -153,6 +155,10 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
                 }
 
                 func.apply(null, param);
+                let currentTime = Date.now();
+                if (currentTime - startTime > _maxDrawScreenTime) {
+                    break;
+                }
             }
 
             if (nextTqElem === undefined) {
@@ -291,7 +297,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
             _convasContext.translate(_tx, _ty);
             _convasContext.rotate(-_td);
             _convasContext.textBaseline="top";
-            _convasContext.font = "30pt arial";
+            _convasContext.font = "15pt arial";
             _convasContext.fillStyle = _penColor;
             _convasContext.fillText(text, 0, 0);  // BEACH:text
             _convasContext.restore();

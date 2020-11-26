@@ -560,7 +560,7 @@ $classObj.create = function(logo, sys) {
 
     const primitiveDemo = (() => {
         let demo = undefined;
-        return function(name) {
+        return async function(name) {
             if (demo === undefined) {
                 demo = sys.util.jsonFromJs(sys.Config.get("demoJsSrcFile"));
             }
@@ -583,7 +583,7 @@ $classObj.create = function(logo, sys) {
                 logo.io.editorload(src);
             }
 
-            logo.entry.exec(src);
+            await logo.entry.exec(src);
         };
     })();
 

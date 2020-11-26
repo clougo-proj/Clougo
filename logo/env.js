@@ -425,7 +425,7 @@ $classObj.create = function(logo, sys, ext) {
     }
 
     function asyncFunctionCall(logosrc) {
-        return (/\b(wait|readword|apply)\b/i).test(logosrc);
+        return (/\b(wait|readword|apply)\b/i).test(logosrc) || (/^(\.test|demo)\b/i).test(logosrc);
     }
 
     async function timedExec(f) {
@@ -535,6 +535,7 @@ $classObj.create = function(logo, sys, ext) {
         let scopeStackLength = env._scopeStack.length;
 
         try {
+            $ret = undefined;
             eval(logoJsSrc);
             await logo.env._user.$();
         } catch(e) {

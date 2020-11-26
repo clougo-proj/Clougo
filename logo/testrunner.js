@@ -87,6 +87,12 @@ $classObj.create = function(Logo, sys) {
         let turtleBuffer = "";
 
         const extForTest = {
+            "entry": {
+                "exec": async function(logoSrc) { await logo.env.exec(logoSrc, true, 1); },
+                "runSingleTest": async function(testName, testMethod) {
+                    await runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
+                }
+            },
             "io": {
                 "clearBuffers": function() {
                     stdoutBuffer = "";
@@ -132,7 +138,6 @@ $classObj.create = function(Logo, sys) {
             }
         };
 
-        extForTest.entry = ext.entry;
         return extForTest;
     }
 

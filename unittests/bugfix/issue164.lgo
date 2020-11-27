@@ -1,0 +1,14 @@
+to t1
+  localmake "a 0
+  localmake "a :a+1
+  pr :a
+end
+
+to t2
+  localmake "a 0
+  repeat 10[localmake "a :a+1]
+  pr :a
+end
+
+t1
+t2

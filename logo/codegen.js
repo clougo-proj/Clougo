@@ -382,13 +382,19 @@ $classObj.create = function(logo, sys) {
 
     function genLocalmake(evxContext) {
         let varName = logo.env.extractVarName(evxContext.next().getToken());
-        _varScopes.addVar(varName);
-
-        return Code.stmt()
+        let code = Code.stmt()
             .append(genToken(evxContext.next()))
-            .append(";\n")
-            .append("let ")
-            .append(genLogoVarLref(varName))
+            .append(";\n");
+
+        if (!_varScopes.isLocalVar(varName)) {
+            code = code.append("let ")
+                .append(Code.expr(varName))
+                .append(";\n");
+
+            _varScopes.addVar(varName);
+        }
+
+        return code.append(Code.expr(varName))
             .append("=$ret;$ret=undefined;");
     }
 

@@ -19,3 +19,4 @@ instrlist_scope run exec
 instrlist_err runl execl
 instrlist_cache exec
 unmatched_paren run exec
+to run exec

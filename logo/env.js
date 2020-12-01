@@ -359,16 +359,36 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.defineLogoProc = defineLogoProc;
 
+    function defineLogoProcSignatureAtParse(procName, formal, formalSrcmap = logo.type.SRCMAP_NULL) {
+        env._ws[procName] = makeWorkspaceProcedure(formal, formalSrcmap);
+    }
+    env.defineLogoProcSignatureAtParse = defineLogoProcSignatureAtParse;
+
     function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap) {
         env._ws[procName] = makeWorkspaceProcedure(formal, formalSrcmap, body, bodySrcmap);
     }
     env.defineLogoProcCode = defineLogoProcCode;
 
+    function defineLogoProcBody(proc, srcmap) {
+        let procName = logo.type.getLogoProcName(proc);
+        let formal = logo.type.getLogoProcParams(proc);
+        let body = logo.type.getLogoProcBody(proc);
+
+        if (procName in env._ws && env._ws[procName].formal === formal && env._ws[procName].body === body) {
+            return;
+        }
+
+        let formalSrcmap = logo.type.getLogoProcParams(srcmap);
+        let bodySrcmap = logo.type.getLogoProcBody(srcmap);
+        logo.env.defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap);
+    }
+    env.defineLogoProcBody = defineLogoProcBody;
+
     function isLogoProcJsAvailable(procName) {
         return procName in env._user;
     }
 
-    function makeWorkspaceProcedure(formal, formalSrcmap, body, bodySrcmap) {
+    function makeWorkspaceProcedure(formal, formalSrcmap, body = undefined, bodySrcmap = undefined) {
         return {
             "formal" : formal,
             "formalSrcmap" : formalSrcmap,

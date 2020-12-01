@@ -589,6 +589,11 @@ $classObj.create = function(logo, sys) {
     }
     type.getLogoProcParams = getLogoProcParams;
 
+    function getLogoProcBody(proc) {
+        return proc[3];
+    }
+    type.getLogoProcBody = getLogoProcBody;
+
     function getLogoProcBodyWithSrcmap(proc, srcmap) {
         return embedSrcmap(proc[3], srcmap[3]);
     }

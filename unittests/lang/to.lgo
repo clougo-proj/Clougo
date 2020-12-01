@@ -1,0 +1,11 @@
+to a
+  pr "x
+end
+
+a
+
+to a
+  pr "y
+end
+
+a

@@ -453,18 +453,30 @@ $classObj.create = function(logo, sys) {
     function genInfixUserProcCall(curToken, srcmap, param) {
         return Code.expr()
             .append("(")
+
+            .append("\"", curToken, "\" in logo.env._user ? (")
+
             .append(genPrepareCall(curToken, srcmap))
             .append("$ret=(", genAwait(), "logo.env._user[\"", curToken, "\"](")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append(")),")
             .append(genCompleteCall())
-            .append("$ret)");
+            .append("$ret)")
+
+            .append(":")
+            .append(genThrowUnknownProc(srcmap, curToken))
+            .append(")");
     }
 
     function genPostfixUserProcCall(curToken, srcmap, param) {
         let code = Code.expr();
 
         code.withPostFix(true);
+
+        code.append("if (!(\"", curToken, "\" in logo.env._user)) {")
+            .append(genThrowUnknownProc(srcmap, curToken))
+            .append("}\n");
+
         code.append("$param.begin([]);\n");
 
         param.map((p) => {
@@ -806,6 +818,8 @@ $classObj.create = function(logo, sys) {
         sys.assert(logo.type.isLogoProc(proc));
         sys.assert(logo.type.isLogoProc(srcmap));
 
+        logo.env.defineLogoProcBody(proc, srcmap);
+
         let procName = logo.type.getLogoProcName(proc);
         _isLambda = false;
 
@@ -896,7 +910,6 @@ $classObj.create = function(logo, sys) {
         } else if (curToken in logo.lrt.primitive) {
             code.append(genPrimitiveCall(evxContext, curToken, srcmap, isInParen));
         } else if (curToken in logo.env._ws) {
-            code.append("$ret=");
             code.append(genUserProcCall(evxContext, curToken, srcmap));
         } else {
             code.append(genThrowUnknownProc(srcmap, curToken));

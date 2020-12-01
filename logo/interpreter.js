@@ -194,7 +194,8 @@ $classObj.create = function(logo, sys) {
             await evxParen(evxContext);
         } else if (logo.type.isCompoundObj(curToken)) {
             if (logo.type.isLogoProc(curToken)) {
-                // procedure should have been registered to workspace by parser
+                sys.assert(logo.type.isLogoProc(curSrcmap));
+                logo.env.defineLogoProcBody(curToken, curSrcmap);
             } else if (logo.type.isLogoArray(curToken)) {
                 evxContext.retVal = curToken.map(sys.toNumberIfApplicable);
             } else if (logo.type.isLogoList(curToken)) {
@@ -233,12 +234,12 @@ $classObj.create = function(logo, sys) {
     }
 
     async function evxCallProc(evxContext, curToken, curSrcmap) {
-        if (curToken in logo.env._user) {
+        if (isProcJsDefined(curToken)) {
             let callTarget = logo.env._user[curToken];
             logo.env.prepareCallProc(curToken, curSrcmap);
             evxContext.retVal = callTarget.apply(undefined,
                 await evxProcCallParam(evxContext, curToken, callTarget.length));
-        } else if (curToken in logo.env._ws) {
+        } else if (isProcBodyDefined(curToken)) {
             let callTarget = logo.env._ws[curToken];
             logo.env.prepareCallProc(curToken, curSrcmap);
             evxContext.retVal = await evxProc(callTarget,
@@ -248,6 +249,14 @@ $classObj.create = function(logo, sys) {
         }
 
         logo.env.completeCallProc();
+    }
+
+    function isProcBodyDefined(procName) {
+        return procName in logo.env._ws && logo.env._ws[procName].body !== undefined;
+    }
+
+    function isProcJsDefined(procName) {
+        return procName in logo.env._user;
     }
 
     async function evxCtrlInfixOperator(evxContext, nextOp, nextOpSrcmap, nextPrec) {

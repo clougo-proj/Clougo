@@ -11,8 +11,8 @@
         "eslint": "eslint logo",
         "pkut": "node tools/pklgo.js unittests > generated/unittests.js",
         "pkdemo": "node tools/pklgo.js demo > generated/demo.js",
-        "build": "npm run eslint && npm run pkdemo",
-        "test": "npm run pkut && node logo/logo test",
+        "build": "npm run eslint && npm run pkdemo && npm run pkut",
+        "test": "node logo/logo test && node logo/logo test on:postfix",
         "server": "http-server",
         "predeploy": "rm -rf unittests && rm -rf demo && rm -rf node_modules"
     }

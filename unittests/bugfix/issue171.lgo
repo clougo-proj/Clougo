@@ -1,0 +1,6 @@
+to t
+  apply [[x] output :x+3] [5]
+  pr "error
+end
+
+pr t

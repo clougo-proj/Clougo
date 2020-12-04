@@ -627,9 +627,7 @@ $classObj.create = function(logo, sys) {
                     curToken + "\"])");
         } else if (logo.type.isOutputStmt(curToken)) {
             return (!_isLambda) ? Code.expr(genToken(evxContext.next())).append(";return $ret") :
-                Code.expr("throwRuntimeLogoException('OUTPUT',", logo.type.srcmapToJs(srcmap), ",[")
-                    .append(genToken(evxContext.next()))
-                    .append("])");
+                genThrowOutputException(evxContext);
         } else if (logo.type.isOpenParen(curToken)) {
             return Code.expr(genParen(evxContext));
         } else if (logo.type.isCompoundObj(curToken)) {
@@ -643,6 +641,20 @@ $classObj.create = function(logo, sys) {
         } else { // call
             return genCall(evxContext, curToken, srcmap, isInParen);
         }
+    }
+
+    function genThrowOutputException(evxContext) {
+        let srcmap = evxContext.getSrcmap();
+        let nextTokenCode = genToken(evxContext.next());
+        let postfix = sys.Config.get("postfix") || nextTokenCode.postFix();
+        if (!postfix) {
+            return Code.expr("throwRuntimeLogoException('OUTPUT',", logo.type.srcmapToJs(srcmap), ",[")
+                .append(nextTokenCode)
+                .append("])");
+        }
+
+        return nextTokenCode.append(";")
+            .append("throwRuntimeLogoException('OUTPUT',", logo.type.srcmapToJs(srcmap), ",[$ret]);");
     }
 
     function genProcInput(evxContext, precedence, isInParen, procName) {

@@ -15,7 +15,8 @@ $classObj.create = function(logo, sys) {
     };
 
     const jsonFile = {
-        "demo": sys.Config.get("demoJsSrcFile")
+        "demo": sys.Config.get("demoJsSrcFile"),
+        "mod": sys.Config.get("modJsSrcFile")
     };
 
     const root = {};
@@ -39,23 +40,55 @@ $classObj.create = function(logo, sys) {
     }
     logofs.list = list;
 
-    function exists(top, key) {
-        return (top in root) && (key in root[top].JSON);
-    }
-    logofs.exists = exists;
-
-    function get(top, key) {
+    function mountIfNeeded(top) {
         if (!(top in root) && (top in jsonFile)) {
             mount(sys.util.jsonFromJs(getJsonFileName(top)), top, MOUNT_MODE.READONLY);
         }
+    }
 
-        if (!exists(top, key)) {
-            throw logo.type.LogoException.CANT_OPEN_FILE.withParam(["/" + top + "/" + key], logo.env.getPrimitiveSrcmap());
+    function isFile(obj) {
+        return typeof obj === "string";
+    }
+
+    function get(filePath) {
+        sys.assert(!isRelativePath(filePath)); // relative path will be supported in the future
+        let path = filePath.split("/");
+        path.shift();
+        let top = path.shift();
+        mountIfNeeded(top);
+        if (!(top in root)) {
+            throwCantOpenFile();
         }
 
-        return root[top].JSON[key];
+        return getFileObj(top, path);
+
+        function getFileObj(top, path) {
+            let currentObj =  root[top].JSON;
+            while (path.length > 0) {
+                let objName = path.shift();
+                if (!(objName in currentObj)) {
+                    throwCantOpenFile();
+                }
+
+                currentObj = currentObj[objName];
+            }
+
+            if (!isFile(currentObj)) {
+                throwCantOpenFile();
+            }
+
+            return currentObj;
+        }
+
+        function throwCantOpenFile() {
+            throw logo.type.LogoException.CANT_OPEN_FILE.withParam([filePath], logo.env.getPrimitiveSrcmap());
+        }
     }
     logofs.get = get;
+
+    function isRelativePath(filePath) {
+        return filePath.substring(0, 1) !== "/";
+    }
 
     function put(top, key, value) {
         sys.assert(top);

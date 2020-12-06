@@ -113,6 +113,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
         const config = {
             unitTestsJsSrcFile: "../generated/unittests.js",
             demoJsSrcFile: "../generated/demo.js",
+            modJsSrcFile: "../generated/mod.js",
             unactionableDatum : true,  // raise runtime exception for unactionable datum
             genCommand : true,        // use codegen for interactive commands
             dynamicScope: true,

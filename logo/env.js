@@ -445,7 +445,7 @@ $classObj.create = function(logo, sys, ext) {
     }
 
     function asyncFunctionCall(logosrc) {
-        return (/\b(wait|readword|apply)\b/i).test(logosrc) || (/^(\.test|demo)\b/i).test(logosrc);
+        return (/\b(wait|readword|apply|load)\b/i).test(logosrc) || (/^(\.test|demo)\b/i).test(logosrc);
     }
 
     async function timedExec(f) {

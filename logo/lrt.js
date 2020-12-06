@@ -558,6 +558,11 @@ $classObj.create = function(logo, sys) {
         return;
     }
 
+    async function primitiveLoad(name) {
+        let src = logo.logofs.get(name);
+        await logo.entry.exec(src);
+    }
+
     async function primitiveDemo(name) {
         let option = undefined;
         if (logo.type.isLogoList(name)) {
@@ -569,7 +574,7 @@ $classObj.create = function(logo, sys) {
 
         let demoFileName = name + ".lgo";
 
-        let src = logo.logofs.get("demo", demoFileName);
+        let src = logo.logofs.get("/demo/" + demoFileName);
 
         if (option !== undefined && option == "load") {
             logo.io.editorload(src);
@@ -851,6 +856,8 @@ $classObj.create = function(logo, sys) {
         "throw": primitiveThrow,
 
         "wait": primitiveWait,
+
+        "load": primitiveLoad,
 
         "demo": primitiveDemo,
 

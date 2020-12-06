@@ -237,7 +237,7 @@ $classObj.create = function(logo, sys) {
         if (isProcJsDefined(curToken)) {
             let callTarget = logo.env._user[curToken];
             logo.env.prepareCallProc(curToken, curSrcmap);
-            evxContext.retVal = callTarget.apply(undefined,
+            evxContext.retVal = await callTarget.apply(undefined,
                 await evxProcCallParam(evxContext, curToken, callTarget.length));
         } else if (isProcBodyDefined(curToken)) {
             let callTarget = logo.env._ws[curToken];

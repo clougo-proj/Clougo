@@ -9,9 +9,10 @@
     "scripts": {
         "clean": "rm generated/*.js",
         "eslint": "eslint logo",
+        "pkmod": "node tools/pkdir.js mod > generated/mod.js",
         "pkut": "node tools/pkut.js unittests > generated/unittests.js",
         "pkdemo": "node tools/pkdir.js demo > generated/demo.js",
-        "build": "npm run eslint && npm run pkdemo && npm run pkut",
+        "build": "npm run eslint && npm run pkdemo && npm run pkut && npm run pkmod",
         "test": "node logo/logo test && node logo/logo test null on:postfix",
         "server": "http-server",
         "predeploy": "rm -rf unittests && rm -rf demo && rm -rf node_modules"

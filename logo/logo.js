@@ -50,6 +50,7 @@ Logo.create = function(ext) {
     logo.codegen = classFromJs("./codegen.js").create(logo, sys);
     logo.parse = classFromJs("./parse.js").create(logo, sys);
     logo.env = classFromJs("./env.js").create(logo, sys, ext);
+    logo.logofs = classFromJs("./logofs.js").create(logo, sys);
 
     logo.env.initLogoEnv();
 

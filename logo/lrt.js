@@ -558,34 +558,25 @@ $classObj.create = function(logo, sys) {
         return;
     }
 
-    const primitiveDemo = (() => {
-        let demo = undefined;
-        return async function(name) {
-            if (demo === undefined) {
-                demo = sys.util.jsonFromJs(sys.Config.get("demoJsSrcFile"));
-            }
+    async function primitiveDemo(name) {
+        let option = undefined;
+        if (logo.type.isLogoList(name)) {
+            option = logo.type.listItem(2, name).toLowerCase();
+            name = logo.type.listItem(1, name).toLowerCase();
+        } else {
+            name = name.toLowerCase();
+        }
 
-            let option = undefined;
-            if (logo.type.isLogoList(name)) {
-                option = logo.type.listItem(2, name).toLowerCase();
-                name = logo.type.listItem(1, name).toLowerCase();
-            } else {
-                name = name.toLowerCase();
-            }
+        let demoFileName = name + ".lgo";
 
-            if (!(name in demo && "__lgo__" in demo[name])) {
-                throw logo.type.LogoException.create("CANT_OPEN_FILE", [name]);
-            }
+        let src = logo.logofs.get("demo", demoFileName);
 
-            let src = demo[name]["__lgo__"];
+        if (option !== undefined && option == "load") {
+            logo.io.editorload(src);
+        }
 
-            if (option !== undefined && option == "load") {
-                logo.io.editorload(src);
-            }
-
-            await logo.entry.exec(src);
-        };
-    })();
+        await logo.entry.exec(src);
+    }
 
     async function dotTest(testName, testMethod) {
         await logo.entry.runSingleTest(testName, testMethod);

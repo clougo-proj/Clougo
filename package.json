@@ -9,8 +9,8 @@
     "scripts": {
         "clean": "rm generated/*.js",
         "eslint": "eslint logo",
-        "pkut": "node tools/pklgo.js unittests > generated/unittests.js",
-        "pkdemo": "node tools/pklgo.js demo > generated/demo.js",
+        "pkut": "node tools/pkut.js unittests > generated/unittests.js",
+        "pkdemo": "node tools/pkdir.js demo > generated/demo.js",
         "build": "npm run eslint && npm run pkdemo && npm run pkut",
         "test": "node logo/logo test && node logo/logo test null on:postfix",
         "server": "http-server",

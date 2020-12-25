@@ -635,7 +635,7 @@ $classObj.create = function(logo, sys) {
             return Code.expr(Number(curToken)).captureRetVal();
         } else if (logo.type.isStopStmt(curToken)) {
             return (!_isLambda) ? Code.expr("return") :
-                Code.expr("throwRuntimeLogoException('STOP',", logo.type.srcmapToJs(srcmap), ",[\"" +
+                Code.expr("throwRuntimeLogoException(logo.type.LogoException.STOP,", logo.type.srcmapToJs(srcmap), ",[\"" +
                     curToken + "\"])");
         } else if (logo.type.isOutputStmt(curToken)) {
             return (!_isLambda) ? Code.expr(genToken(evxContext.next())).append(";return $ret") :
@@ -660,13 +660,13 @@ $classObj.create = function(logo, sys) {
         let nextTokenCode = genToken(evxContext.next());
         let postfix = sys.Config.get("postfix") || nextTokenCode.postFix();
         if (!postfix) {
-            return Code.expr("throwRuntimeLogoException('OUTPUT',", logo.type.srcmapToJs(srcmap), ",[")
+            return Code.expr("throwRuntimeLogoException(logo.type.LogoException.OUTPUT,", logo.type.srcmapToJs(srcmap), ",[")
                 .append(nextTokenCode)
                 .append("])");
         }
 
         return nextTokenCode.append(";")
-            .append("throwRuntimeLogoException('OUTPUT',", logo.type.srcmapToJs(srcmap), ",[$ret]);");
+            .append("throwRuntimeLogoException(logo.type.LogoException.OUTPUT,", logo.type.srcmapToJs(srcmap), ",[$ret]);");
     }
 
     function genProcInput(evxContext, precedence, isInParen, procName) {
@@ -744,7 +744,7 @@ $classObj.create = function(logo, sys) {
         if (evxContext.next().getToken() != ")") {
             code.append(
                 "(throwRuntimeLogoException(",
-                "\"TOO_MUCH_INSIDE_PAREN\",",
+                "logo.type.LogoException.TOO_MUCH_INSIDE_PAREN,",
                 logo.type.srcmapToJs(evxContext.getSrcmap()),
                 "))");
         }
@@ -875,12 +875,12 @@ $classObj.create = function(logo, sys) {
     }
 
     function genThrowNotEnoughInputs(srcmap, procName) {
-        return Code.expr("throwRuntimeLogoException('NOT_ENOUGH_INPUTS',",
+        return Code.expr("throwRuntimeLogoException(logo.type.LogoException.NOT_ENOUGH_INPUTS,",
             logo.type.srcmapToJs(srcmap), ",[ \"" + procName + "\"])");
     }
 
     function genThrowUnknownProc(srcmap, procName) {
-        return Code.expr("throwRuntimeLogoException('UNKNOWN_PROC',",
+        return Code.expr("throwRuntimeLogoException(logo.type.LogoException.UNKNOWN_PROC,",
             logo.type.srcmapToJs(srcmap), ",[ \"" + procName + "\"])");
     }
 

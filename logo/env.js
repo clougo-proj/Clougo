@@ -137,7 +137,7 @@ $classObj.create = function(logo, sys, ext) {
     env.extractSlotNum = extractSlotNum;
 
     function getSlotValue(slotNum) {
-        logo.type.ifTrueThenThrow(slotNum > env._curSlot.length, "INVALID_INPUT", slotNum);
+        logo.type.ifTrueThenThrow(slotNum > env._curSlot.length,  logo.type.LogoException.INVALID_INPUT, slotNum);
         return env._curSlot[slotNum - 1];
     }
     env.getSlotValue = getSlotValue;
@@ -509,13 +509,13 @@ $classObj.create = function(logo, sys, ext) {
         return line.trim().split(" ").slice(eventStart).map(sys.toNumberIfApplicable);
     }
 
-    function throwRuntimeLogoException(name, srcmap, value) { // eslint-disable-line no-unused-vars
-        throw logo.type.LogoException.create(name, value, srcmap);
+    function throwRuntimeLogoException(exception, srcmap, value) { // eslint-disable-line no-unused-vars
+        throw exception.withParam(value, srcmap);
     }
 
     function checkUnactionableDatum(ret, srcmap) {
         if (ret !== undefined) {
-            throw logo.type.LogoException.create("UNACTIONABLE_DATUM", [ret], srcmap);
+            throw logo.type.LogoException.UNACTIONABLE_DATUM.withParam([ret], srcmap);
         }
     }
     env.checkUnactionableDatum = checkUnactionableDatum;
@@ -656,7 +656,7 @@ $classObj.create = function(logo, sys, ext) {
             completeCallProc();
             return retVal;
         } else {
-            throw logo.type.LogoException.create("UNKNOWN_PROC", [template], srcmap);
+            throw logo.type.LogoException.UNKNOWN_PROC.withParam([template], srcmap);
         }
     }
     env.applyNamedProcedure = applyNamedProcedure;
@@ -686,11 +686,11 @@ $classObj.create = function(logo, sys, ext) {
 
     function checkSlotLength(template, slot, srcmap, length, maxLength) {
         if (slot.length < length) {
-            throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [template], srcmap);
+            throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([template], srcmap);
         }
 
         if (maxLength !== -1 && (slot.length > length || (maxLength !== undefined && slot.length > maxLength))) {
-            throw logo.type.LogoException.create("TOO_MUCH_INSIDE_PAREN", undefined, srcmap);
+            throw logo.type.LogoException.TOO_MUCH_INSIDE_PAREN.withParam(undefined, srcmap);
         }
     }
     env.checkSlotLength = checkSlotLength;

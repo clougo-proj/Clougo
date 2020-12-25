@@ -486,7 +486,7 @@ $classObj.create = function(logo, sys) {
     }
 
     function primitiveThrow(tag, value) {
-        throw logo.type.LogoException.create("CUSTOM", [tag, value], logo.env.getPrimitiveSrcmap(), logo.env._curProc);
+        throw logo.type.LogoException.CUSTOM.withParam([tag, value], logo.env.getPrimitiveSrcmap(), logo.env._curProc);
     }
 
     async function primitiveReadword() {
@@ -914,7 +914,7 @@ $classObj.create = function(logo, sys) {
 
     function logoVar(v, varname, srcmap) {
         if (v === undefined) {
-            throw logo.type.LogoException.create("VAR_HAS_NO_VALUE", [varname], srcmap);
+            throw logo.type.LogoException.VAR_HAS_NO_VALUE.withParam([varname], srcmap);
         }
 
         return v;

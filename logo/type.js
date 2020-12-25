@@ -559,7 +559,7 @@ $classObj.create = function(logo, sys) {
 
     function charToAscii(word) {
         let charCode = (typeof word === "string") ? word.charCodeAt(0) : 48 + word; // typeof word === "number"
-        ifTrueThenThrow(!isByteValue(charCode), "INVALID_INPUT", word);
+        ifTrueThenThrow(!isByteValue(charCode),  type.LogoException.INVALID_INPUT, word);
         return charCode;
     }
     type.charToAscii = charToAscii;
@@ -629,8 +629,9 @@ $classObj.create = function(logo, sys) {
 
     function ifTrueThenThrow(predicate, exception, value) {
         if (predicate) {
-            throw logo.type.LogoException.create(exception, [logo.env.getPrimitiveName(),
-                logo.type.toString(value, true)], logo.env.getPrimitiveSrcmap());
+            throw exception.withParam(
+                [logo.env.getPrimitiveName(), logo.type.toString(value, true)],
+                logo.env.getPrimitiveSrcmap());
         }
     }
     type.ifTrueThenThrow = ifTrueThenThrow;
@@ -642,101 +643,101 @@ $classObj.create = function(logo, sys) {
     type.checkMinInputCount = checkMinInputCount;
 
     function validateInputBoolean(value) {
-        ifTrueThenThrow(!logo.type.isLogoBoolean(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoBoolean(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputBoolean = validateInputBoolean;
 
     function validateInputWord(value) {
-        ifTrueThenThrow(!logo.type.isLogoWord(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoWord(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputWord = validateInputWord;
 
     function validateInputCharacter(value) {
-        ifTrueThenThrow(!logo.type.isLogoCharacter(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoCharacter(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputCharacter = validateInputCharacter;
 
     function validateInputInteger(value) {
-        ifTrueThenThrow(!sys.isInteger(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!sys.isInteger(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputInteger = validateInputInteger;
 
     function validateInputNonNegInteger(value) {
-        ifTrueThenThrow(!isNonNegInteger(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!isNonNegInteger(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonNegInteger = validateInputNonNegInteger;
 
     function validateInputNumber(value) {
-        ifTrueThenThrow(!logo.type.isLogoNumber(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoNumber(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNumber = validateInputNumber;
 
     function validateInputNonNegNumber(value) {
-        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value >= 0), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value >= 0),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonNegNumber = validateInputNonNegNumber;
 
     function validateInputPosNumber(value) {
-        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value > 0), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value > 0),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputPosNumber = validateInputPosNumber;
 
     function validateInputNonEmptyWord(value) {
-        ifTrueThenThrow(!(logo.type.isLogoWord(value) && value.length >= 1), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoWord(value) && value.length >= 1),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonEmptyWord = validateInputNonEmptyWord;
 
     function validateIndexWithinWordRange(index, word) {
-        ifTrueThenThrow(index < 1 || index > word.length, "INVALID_INPUT", index);
+        ifTrueThenThrow(index < 1 || index > word.length,  type.LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinWordRange = validateIndexWithinWordRange;
 
     function validateInputList(value) {
-        ifTrueThenThrow(!logo.type.isLogoList(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoList(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputList = validateInputList;
 
     function validateInputNonEmptyList(value) {
-        ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1), "INVALID_INPUT", value);
+        ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonEmptyList = validateInputNonEmptyList;
 
     function validateInputRGB(value) {
-        ifTrueThenThrow(!logo.type.isColor(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isColor(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputRGB = validateInputRGB;
 
     function validateInputPensize(value) {
         ifTrueThenThrow(!((sys.isInteger(value) && value > 0) || (logo.type.isLogoList(value) &&
             logo.type.length(value) == 2 && listItem(1, value) > 0 && listItem(2, value) > 0)),
-        "INVALID_INPUT", value);
+        type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputPensize = validateInputPensize;
 
     function validateInputXY(value) {
         ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) == 2 && logo.type.isLogoNumber(
             logo.type.listItem(1, value)) && logo.type.isLogoNumber(logo.type.listItem(2, value))),
-        "INVALID_INPUT", value);
+        type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputXY = validateInputXY;
 
     function validateIndexWithinListRange(index, list) {
-        ifTrueThenThrow(!logo.type.listIndexWithinRange(index, list), "INVALID_INPUT", index);
+        ifTrueThenThrow(!logo.type.listIndexWithinRange(index, list),  type.LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinListRange = validateIndexWithinListRange;
 
     function validateInputArray(value) {
-        ifTrueThenThrow(!logo.type.isLogoArray(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isLogoArray(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputArray = validateInputArray;
 
     function validateInputByte(value) {
-        ifTrueThenThrow(!logo.type.isByteValue(value), "INVALID_INPUT", value);
+        ifTrueThenThrow(!logo.type.isByteValue(value),  type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputByte = validateInputByte;
 
     function validateIndexWithinArrayRange(index, array) {
-        ifTrueThenThrow(!logo.type.arrayIndexWithinRange(index, array), "INVALID_INPUT", index);
+        ifTrueThenThrow(!logo.type.arrayIndexWithinRange(index, array),  type.LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinArrayRange = validateIndexWithinArrayRange;
 
@@ -910,7 +911,7 @@ $classObj.create = function(logo, sys) {
     function getVarValue(varname, srcmap) {
         const curScope = logo.env.findLogoVarScope(varname);
         if (!(varname in curScope)) {
-            throw logo.type.LogoException.create("VAR_HAS_NO_VALUE", [varname], srcmap);
+            throw type.LogoException.VAR_HAS_NO_VALUE.withParam([varname], srcmap);
         }
 
         return curScope[varname];
@@ -1029,7 +1030,7 @@ $classObj.create = function(logo, sys) {
             getCode: function() { return this._code; },
             getValue: function() { return this._value; },
             getSrcmap: function() { return this._srcmap; },
-            withSrcmap: function(srcmap) { this._srcmap = srcmap; return this; },
+            withParam: function(value, srcmap) { return create(this._code, value, srcmap); },
             formatMessage: function() {
                 const msg = getMessage(this._code);
                 if (typeof msg !== "string") {
@@ -1050,18 +1051,21 @@ $classObj.create = function(logo, sys) {
             }
         };
 
-        LogoException.create = function(name, value, srcmap) {
+        function create(code, value, srcmap) {
             const obj = Object.create(LogoException.prototype);
-            sys.assert(name in codemap);
-            obj._code = getCode(name);
+            obj._code = code;
             obj._value = value;
             obj._srcmap = srcmap;
             return obj;
-        };
+        }
 
         LogoException.is = function(obj) {
             return obj.__proto__ === LogoException.prototype;
         };
+
+        for (let name in codemap) {
+            LogoException[name] = create(getCode(name));
+        }
 
         return LogoException;
     })();

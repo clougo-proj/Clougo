@@ -50,7 +50,7 @@ $classObj.create = function(logo, sys) {
         }
 
         if (!exists(top, key)) {
-            throw logo.type.LogoException.create("CANT_OPEN_FILE", ["/" + top + "/" + key], logo.env.getPrimitiveSrcmap());
+            throw logo.type.LogoException.CANT_OPEN_FILE.withParam(["/" + top + "/" + key], logo.env.getPrimitiveSrcmap());
         }
 
         return root[top].JSON[key];

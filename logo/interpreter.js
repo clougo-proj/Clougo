@@ -82,7 +82,7 @@ $classObj.create = function(logo, sys) {
         for (let j = 0; j < paramListLength; j++) {
             await evxToken(evxContext.next(), precedence);
             if (sys.isUndefined(evxContext.retVal)) {
-                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [procName], evxContext.getSrcmap());
+                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([procName], evxContext.getSrcmap());
             }
 
             nextActualParam.push(evxContext.retVal);
@@ -98,7 +98,7 @@ $classObj.create = function(logo, sys) {
         for (let j = 0; j < paramListLength; j++) {
             await evxToken(evxContext.next(), precedence, false, true);
             if (sys.isUndefined(evxContext.retVal)) {
-                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [ctrlName], evxContext.getSrcmap());
+                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([ctrlName], evxContext.getSrcmap());
             }
 
             let param = logo.type.isLogoList(evxContext.retVal) ?
@@ -142,14 +142,14 @@ $classObj.create = function(logo, sys) {
             }
 
             if (j < paramListMinLength) {
-                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap());
+                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([primitiveName], evxContext.getSrcmap());
             }
         } else {
             let j = 0;
             for (; (j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen)); j++) {
                 await evxToken(evxContext.next(), precedence, false, true);
                 if (sys.isUndefined(evxContext.retVal)) {
-                    throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap());
+                    throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([primitiveName], evxContext.getSrcmap());
                 }
 
                 let retVal = evxContext.retVal;
@@ -157,7 +157,7 @@ $classObj.create = function(logo, sys) {
             }
 
             if (j < paramListMinLength) {
-                throw logo.type.LogoException.create("NOT_ENOUGH_INPUTS", [primitiveName], evxContext.getSrcmap());
+                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([primitiveName], evxContext.getSrcmap());
             }
         }
 
@@ -180,12 +180,12 @@ $classObj.create = function(logo, sys) {
 
         let curSrcmap = evxContext.getSrcmap();
         if (logo.type.isStopStmt(curToken)) {
-            throw logo.type.LogoException.create("STOP");
+            throw logo.type.LogoException.STOP;
         }
 
         if (logo.type.isOutputStmt(curToken)) {
             await evxToken(evxContext.next(), 0);
-            throw logo.type.LogoException.create("OUTPUT", evxContext.retVal);
+            throw logo.type.LogoException.OUTPUT.withParam(evxContext.retVal);
         }
 
         if (logo.type.isNumericConstant(curToken)) {
@@ -245,7 +245,7 @@ $classObj.create = function(logo, sys) {
             evxContext.retVal = await evxProc(callTarget,
                 await evxProcCallParam(evxContext, curToken, callTarget.formal.length));
         } else {
-            throw logo.type.LogoException.create("UNKNOWN_PROC", [curToken], curSrcmap);
+            throw logo.type.LogoException.UNKNOWN_PROC.withParam([curToken], curSrcmap);
         }
 
         logo.env.completeCallProc();
@@ -284,7 +284,7 @@ $classObj.create = function(logo, sys) {
     async function evxParen(evxContext) {
         await evxToken(evxContext.next(), 0, true);
         if (evxContext.next().getToken() != ")") {
-            throw logo.type.LogoException.create("TOO_MUCH_INSIDE_PAREN", undefined, evxContext.getSrcmap());
+            throw logo.type.LogoException.TOO_MUCH_INSIDE_PAREN.withParam(undefined, evxContext.getSrcmap());
         }
     }
 

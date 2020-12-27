@@ -25,7 +25,7 @@ Logo.getUnitTests = (() => {
     let unitTests = undefined;
     return function() {
         if (unitTests === undefined) {
-            unitTests = sys.util.jsonFromJs(sys.Config.get("unitTestsJsSrcFile"));
+            unitTests = sys.util.jsonFromJs(sys.global.unitTestsJsSrcFile);
         }
 
         return unitTests;
@@ -51,6 +51,8 @@ Logo.create = function(ext) {
     logo.parse = classFromJs("./parse.js").create(logo, sys);
     logo.env = classFromJs("./env.js").create(logo, sys, ext);
     logo.logofs = classFromJs("./logofs.js").create(logo, sys);
+    logo.config = classFromJs("./config.js").create(sys);
+    logo.trace = classFromJs("./trace.js").create(logo, sys);
 
     logo.env.initLogoEnv();
 

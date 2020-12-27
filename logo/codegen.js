@@ -165,7 +165,7 @@ $classObj.create = function(logo, sys) {
 
             let nextOpnd = genProcInput(evxContext.next().next(), nextPrec, false, nextOp);
             let lastOpnd = this.last();
-            let postfix = sys.Config.get("postfix") ||
+            let postfix = logo.config.get("postfix") ||
                 ((lastOpnd instanceof Code) && lastOpnd.postFix()) || nextOpnd.postFix();
 
             return !postfix ? this.appendInfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) :
@@ -228,7 +228,7 @@ $classObj.create = function(logo, sys) {
         }
 
         code.append(";");
-        sys.trace("VARNAME=" + varName, "codegen.genLocal");
+        logo.trace.info("VARNAME=" + varName, "codegen.genLocal");
 
         return code;
     }
@@ -248,7 +248,7 @@ $classObj.create = function(logo, sys) {
             code.append(genInstrListCall(curToken, srcmap));
         }
 
-        if (generateCheckUnactionableDatum && sys.Config.get("unactionableDatum")) {
+        if (generateCheckUnactionableDatum && logo.config.get("unactionableDatum")) {
             code.append(";checkUnactionableDatum($ret,", logo.type.srcmapToJs(srcmap), ");\n");
         }
 
@@ -445,7 +445,7 @@ $classObj.create = function(logo, sys) {
 
     function genUserProcCall(evxContext, curToken, srcmap) {
         let param = genUserProcCallParams(evxContext, curToken, logo.env._ws[curToken].formal.length);
-        let postfix = sys.Config.get("postfix") || containsPostFix(param);
+        let postfix = logo.config.get("postfix") || containsPostFix(param);
         return !postfix ? genInfixUserProcCall(curToken, srcmap, param) :
             genPostfixUserProcCall(curToken, srcmap, param);
     }
@@ -511,7 +511,7 @@ $classObj.create = function(logo, sys) {
             isInParen);
 
         if (!(curToken in genLambda)) {
-            let postfix = sys.Config.get("postfix") || containsPostFix(param);
+            let postfix = logo.config.get("postfix") || containsPostFix(param);
 
             return !postfix ? genInfixPrimitiveCall(curToken, srcmap, param).prepend("$ret=") :
                 genPostfixPrimitiveCall(curToken, srcmap, param).prepend("$ret=");
@@ -658,7 +658,7 @@ $classObj.create = function(logo, sys) {
     function genThrowOutputException(evxContext) {
         let srcmap = evxContext.getSrcmap();
         let nextTokenCode = genToken(evxContext.next());
-        let postfix = sys.Config.get("postfix") || nextTokenCode.postFix();
+        let postfix = logo.config.get("postfix") || nextTokenCode.postFix();
         if (!postfix) {
             return Code.expr("throwRuntimeLogoException(logo.type.LogoException.OUTPUT,", logo.type.srcmapToJs(srcmap), ",[")
                 .append(nextTokenCode)
@@ -685,7 +685,7 @@ $classObj.create = function(logo, sys) {
             let codeFromToken = genToken(evxContext);
             code.append(codeFromToken);
             code.append(";\n");
-            if (codeFromToken.isExpr() && sys.Config.get("unactionableDatum") && (!isInstrList || evxContext.hasNext())) {
+            if (codeFromToken.isExpr() && logo.config.get("unactionableDatum") && (!isInstrList || evxContext.hasNext())) {
                 code.append("checkUnactionableDatum($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
             }
 
@@ -730,7 +730,7 @@ $classObj.create = function(logo, sys) {
         _varScopes.exit();
 
         let mergedCode = code.merge();
-        sys.trace(mergedCode, "codegen.lambda");
+        logo.trace.info(mergedCode, "codegen.lambda");
         return mergedCode;
     }
     codegen.genInstrListLambdaDeclCode = genInstrListLambdaDeclCode;
@@ -778,7 +778,7 @@ $classObj.create = function(logo, sys) {
     function genPrepareCall(target, srcmap) {
         let code = Code.expr();
 
-        if (sys.Config.get("dynamicScope")) {
+        if (logo.config.get("dynamicScope")) {
             code.append(genStashLocalVars());
         }
 
@@ -791,7 +791,7 @@ $classObj.create = function(logo, sys) {
     function genCompleteCall() {
         let code = Code.expr();
         code.append("logo.env._curProc=logo.env._callstack.pop()[0],");
-        if (sys.Config.get("dynamicScope")) {
+        if (logo.config.get("dynamicScope")) {
             code.append(genApplyLocalVars());
         }
 
@@ -857,7 +857,7 @@ $classObj.create = function(logo, sys) {
         code.append("{\n");
         code.append("let $ret, $param = logo.env.createParamScope();\n");
 
-        if (sys.Config.get("dynamicScope")) {
+        if (logo.config.get("dynamicScope")) {
             code.append("let $scope = {}, $scopeCache = {};\n");
             code.append("logo.env._scopeStack.push($scope);\n");
         }

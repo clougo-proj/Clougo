@@ -271,7 +271,7 @@ $classObj.create = function(logo, sys) {
 
         do {
             await evxToken(evxContext);
-            if (sys.Config.get("unactionableDatum") && (!allowRetVal || evxContext.hasNext())) {
+            if (logo.config.get("unactionableDatum") && (!allowRetVal || evxContext.hasNext())) {
                 logo.env.checkUnactionableDatum(evxContext.retVal, evxContext.getSrcmap());
             }
 
@@ -348,7 +348,7 @@ $classObj.create = function(logo, sys) {
     async function evxCtrlRepeat(srcmap, count, bodyComp) {
         for (let i = 0; i < count; i++) {
             let retVal = await evxInstrList(bodyComp);
-            if (sys.Config.get("unactionableDatum")) {
+            if (logo.config.get("unactionableDatum")) {
                 logo.env.checkUnactionableDatum(retVal, srcmap);
             }
         }
@@ -385,7 +385,7 @@ $classObj.create = function(logo, sys) {
             (!isDecrease && curScope[forVarName] <= forEnd) || (isDecrease && curScope[forVarName] >= forEnd);
             curScope[forVarName] += forStep) {
             let retVal = await evxInstrList(bodyComp);
-            if (sys.Config.get("unactionableDatum")) {
+            if (logo.config.get("unactionableDatum")) {
                 logo.env.checkUnactionableDatum(retVal, srcmap);
             }
         }
@@ -394,7 +394,7 @@ $classObj.create = function(logo, sys) {
     async function evxCtrlIf(srcmap, predicate, bodyComp) {
         if (logo.type.isNotLogoFalse(predicate)) {
             let retVal = await evxInstrList(bodyComp);
-            if (sys.Config.get("unactionableDatum")) {
+            if (logo.config.get("unactionableDatum")) {
                 logo.env.checkUnactionableDatum(retVal, srcmap);
             }
         }
@@ -403,7 +403,7 @@ $classObj.create = function(logo, sys) {
     async function evxCtrlCatch(srcmap, label, bodyComp) {
         try {
             let retVal = await evxInstrList(bodyComp);
-            if (sys.Config.get("unactionableDatum")) {
+            if (logo.config.get("unactionableDatum")) {
                 logo.env.checkUnactionableDatum(retVal, srcmap);
             }
         } catch(e) {
@@ -427,13 +427,13 @@ $classObj.create = function(logo, sys) {
     async function evxCtrlIfElse(srcmap, predicate, trueBodyComp, falseBodyComp) {
         if (logo.type.isNotLogoFalse(predicate)) {
             let retVal = await evxInstrList(trueBodyComp);
-            if (sys.Config.get("unactionableDatum")) {
+            if (logo.config.get("unactionableDatum")) {
                 logo.env.checkUnactionableDatum(retVal, srcmap);
             }
 
         } else {
             let retVal = await evxInstrList(falseBodyComp);
-            if (sys.Config.get("unactionableDatum")) {
+            if (logo.config.get("unactionableDatum")) {
                 logo.env.checkUnactionableDatum(retVal, srcmap);
             }
 

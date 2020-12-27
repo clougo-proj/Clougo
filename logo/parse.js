@@ -377,7 +377,7 @@ $classObj.create = function(logo, sys) {
                 }
             }
 
-            sys.trace("TOKEN0="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
+            logo.trace.info("TOKEN0="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
             _parseData.push(_parseWord);
             _parseSrcmap.push(makeWordSrcmap());
             _parseWord = "";
@@ -393,7 +393,7 @@ $classObj.create = function(logo, sys) {
 
         function terminateLine() {
             if (_parseWord != "") {
-                sys.trace("TOKEN2="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
+                logo.trace.info("TOKEN2="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
                 insertParseWord();
             }
 
@@ -417,7 +417,7 @@ $classObj.create = function(logo, sys) {
                 _parseWordCol = _parseCol;
             }
 
-            sys.trace("_parseCol=" + _parseCol + "\tc=" + c, "parse");
+            logo.trace.info("_parseCol=" + _parseCol + "\tc=" + c, "parse");
 
             let isLastChar = (_parseCol == s.length - 1);
             let isSecondLastChar = (_parseCol == s.length - 2);
@@ -476,8 +476,8 @@ $classObj.create = function(logo, sys) {
             }
 
             if (Delimiter.isBaseDelimiter(c)) {
-                sys.trace("TOKEN1="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
-                sys.trace("DATA=" + JSON.stringify(_parseData), "parse");
+                logo.trace.info("TOKEN1="+_parseWord + "\tSRCMAP=" + (_parseWordLine + 1) + "," + (_parseWordCol + 1), "parse");
+                logo.trace.info("DATA=" + JSON.stringify(_parseData), "parse");
 
                 if (_parseWord != "") {
                     insertParseWord();
@@ -561,7 +561,7 @@ $classObj.create = function(logo, sys) {
         sys.assert(logo.type.isLogoList(_parseData), "expecting list!");
 
         let comp = parse.parseProc(logo.type.embedSrcmap(_parseData, _parseSrcmap));
-        sys.trace(JSON.stringify(comp), "parse");
+        logo.trace.info(JSON.stringify(comp), "parse");
 
         resetParseData();
         return comp;

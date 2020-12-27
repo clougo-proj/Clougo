@@ -9,17 +9,17 @@ var $classObj = {};
 $classObj.create = function(Logo, sys) {
     const testRunner = {};
 
-    let extForTest, logo;
+    let extForTest, logoForUnitTests;
     let count, failCount;
     let reFilter;
     let singleTestMode = false;
 
-    async function runTests(unitTests, options, ext) {
-        initializeTestEnv(ext);
-        singleTestMode = logo.config.get("verbose");
+    async function runTests(unitTests, testNamePatterns, logo) {
+        initializeTestEnv(logo);
+        singleTestMode = logoForUnitTests.config.get("verbose");
 
         // make regex for filtering unit tests by their full names
-        reFilter = sys.isUndefined(options) ? undefined : sys.makeMatchListRegexp(options);
+        reFilter = sys.isUndefined(testNamePatterns) ? undefined : sys.makeMatchListRegexp(testNamePatterns);
         count = 0;
         failCount = 0;
 
@@ -29,8 +29,8 @@ $classObj.create = function(Logo, sys) {
     }
     testRunner.runTests = runTests;
 
-    async function runSingleTest(unitTests, testName, testMethod, ext) {
-        initializeTestEnv(ext);
+    async function runSingleTest(unitTests, testName, testMethod, logo) {
+        initializeTestEnv(logo);
         singleTestMode = true;
 
         let testDir = getTestDir(unitTests, testName);
@@ -43,9 +43,9 @@ $classObj.create = function(Logo, sys) {
     }
     testRunner.runSingleTest = runSingleTest;
 
-    function initializeTestEnv(ext) {
-        extForTest = makeLogoDependenciesForTest(ext);
-        logo = Logo.create(extForTest);
+    function initializeTestEnv(logo) {
+        extForTest = makeLogoDependenciesForTest(logo.ext);
+        logoForUnitTests = Logo.create(extForTest, logo.config);
     }
 
     function getTestDir(unitTests, testName) {
@@ -88,7 +88,7 @@ $classObj.create = function(Logo, sys) {
 
         const extForTest = {
             "entry": {
-                "exec": async function(logoSrc) { await logo.env.exec(logoSrc, true, 1); },
+                "exec": async function(logoSrc) { await logoForUnitTests.env.exec(logoSrc, true, 1); },
                 "runSingleTest": async function(testName, testMethod) {
                     await runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
                 }
@@ -101,13 +101,13 @@ $classObj.create = function(Logo, sys) {
                 "getStdoutBuffer": function() { return stdoutBuffer; },
                 "getStderrBuffer": function() { return stderrBuffer; },
                 "stdout": function(text) {
-                    stdoutBuffer += text + logo.type.NEWLINE;
+                    stdoutBuffer += text + logoForUnitTests.type.NEWLINE;
                 },
                 "stdoutn": function(text) {
                     stdoutBuffer += text;
                 },
                 "stderr": function(text) {
-                    stderrBuffer += text + logo.type.NEWLINE;
+                    stderrBuffer += text + logoForUnitTests.type.NEWLINE;
                 },
                 "stderrn": function(text) {
                     stderrBuffer += text;
@@ -129,11 +129,11 @@ $classObj.create = function(Logo, sys) {
                 "getBuffer": function() { return turtleBuffer; },
                 "sendCmd": function(cmd, args = []) {
                     ext.canvas.sendCmd(cmd, args);
-                    turtleBuffer += cmd + " " + args.map(sys.logoFround6).join(" ") + logo.type.NEWLINE;
+                    turtleBuffer += cmd + " " + args.map(sys.logoFround6).join(" ") + logoForUnitTests.type.NEWLINE;
                 },
                 "sendCmdAsString": function(cmd, args = []) {
                     ext.canvas.sendCmdAsString(cmd, args);
-                    turtleBuffer += cmd + " " + args.join(" ") + logo.type.NEWLINE;
+                    turtleBuffer += cmd + " " + args.join(" ") + logoForUnitTests.type.NEWLINE;
                 }
             }
         };
@@ -184,7 +184,7 @@ $classObj.create = function(Logo, sys) {
     function testParse(test) {
         let testSrc = getTestSrc(test);
         let testParseBase = getTestParseBase(test);
-        let parseResult = JSON.stringify(logo.parse.parseBlock(logo.parse.parseSrc(testSrc, 1))) + logo.type.NEWLINE;
+        let parseResult = JSON.stringify(logoForUnitTests.parse.parseBlock(logoForUnitTests.parse.parseSrc(testSrc, 1))) + logoForUnitTests.type.NEWLINE;
         if (parseResult == testParseBase) {
             Logo.io.stdout("\t\tpassed ");
             return;
@@ -210,7 +210,7 @@ $classObj.create = function(Logo, sys) {
         const drawActual = extForTest.canvas.getBuffer();
 
         if (outActual == getTestOutBase(test) && errActual == getTestErrBase(test) && drawActual == getTestDrawBase(test)) {
-            Logo.io.stdout("\t\tpassed\trun time: "+logo.env.getRunTime()+"ms");
+            Logo.io.stdout("\t\tpassed\trun time: "+logoForUnitTests.env.getRunTime()+"ms");
             return;
         }
 
@@ -232,7 +232,7 @@ $classObj.create = function(Logo, sys) {
 
     async function runTestHelper(test, testName, testMethod) {
         extForTest.io.mockStdin(getTestInBase(test));
-        logo.env.initLogoEnv();
+        logoForUnitTests.env.initLogoEnv();
         count++;
 
         Logo.io.stdoutn(testName + "(" + testMethod + "):");
@@ -241,19 +241,19 @@ $classObj.create = function(Logo, sys) {
             testParse(test);
             break;
         case Logo.mode.RUNL:
-            await testGenericRun(test, async function(testSrc) { await logo.env.execByLine(testSrc, false, 1); });
+            await testGenericRun(test, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, false, 1); });
             break;
         case Logo.mode.EXECL:
-            await testGenericRun(test, async function(testSrc) { await logo.env.execByLine(testSrc, true, 1); });
+            await testGenericRun(test, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, true, 1); });
             break;
         case Logo.mode.EXECJS:
-            await testGenericRun(test, async function() { await logo.env.evalLogoJsTimed(test.__ljs__); });
+            await testGenericRun(test, async function() { await logoForUnitTests.env.evalLogoJsTimed(test.__ljs__); });
             break;
         case Logo.mode.RUN:
-            await testGenericRun(test, async function(testSrc) { await logo.env.exec(testSrc, false, 1); });
+            await testGenericRun(test, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, false, 1); });
             break;
         case Logo.mode.EXEC:
-            await testGenericRun(test, async function(testSrc) { await logo.env.exec(testSrc, true, 1); });
+            await testGenericRun(test, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, true, 1); });
             break;
         default:
         }

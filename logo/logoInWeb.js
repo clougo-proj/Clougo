@@ -67,7 +67,7 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
     }
 
     async function webRunSingleTest(testName, testMethod) {
-        await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
+        await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, logo);
         postMessage([logo.env.getEnvState()]);
     }
 
@@ -75,7 +75,7 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
         const webMsgHandler = {
             "test": async () => {
                 postMessage(["busy"]);
-                await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, ext);
+                await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, logo);
                 postMessage(["ready"]);
             },
             "run": async (e) => {

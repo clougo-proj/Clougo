@@ -30,7 +30,9 @@ $classObj.create = function logoInNode(Logo, sys) {
     const fs = require("fs");
     const cmd = parseArgv(process.argv);
 
-    setCmdLineConfigs(cmd.options);
+    if (!("file" in cmd) && cmd.op === Logo.mode.EXEC) {
+        cmd.op = Logo.mode.CONSOLE;
+    }
 
     if (cmd.op in srcRunner) {
         const logoSrc = fs.readFileSync(cmd.file, "utf8"); // logo source file (.lgo)
@@ -45,8 +47,8 @@ $classObj.create = function logoInNode(Logo, sys) {
         return;
     }
 
-    if (cmd.op == "test") {
-        Logo.testRunner.runTests(Logo.getUnitTests(), "test" in cmd.options ? cmd.options.test : [], ext)
+    if (cmd.op === Logo.mode.TEST) {
+        Logo.testRunner.runTests(Logo.getUnitTests(), "file" in cmd ? [cmd.file] : [], logo)
             .then(failCount => process.exit(failCount !== 0))
             .catch(e => {
                 stderr(e);
@@ -56,7 +58,7 @@ $classObj.create = function logoInNode(Logo, sys) {
         return;
     }
 
-    if (cmd.op == "console") {
+    if (cmd.op === Logo.mode.CONSOLE) {
         process.stdout.write("Welcome to Logo\n? ");
         logo.env.setInteractiveMode();
         return;
@@ -64,14 +66,15 @@ $classObj.create = function logoInNode(Logo, sys) {
 
     stderr(
         "Usage:\n" +
-            "\tnode logo.js console                         - interactive mode\n" +
-            "\tnode logo.js parse <logosrcfile>             - parse only\n" +
-            "\tnode logo.js codegen <logosrcfile>           - generate JS code\n" +
-            "\tnode logo.js run <logosrcfile>               - run with interpreter\n" +
-            "\tnode logo.js exec <logosrcfile>              - compile to JS and execute\n" +
-            "\tnode logo.js execjs <jssrcfile>              - execute precompiled JS\n" +
-            "\tnode logo.js test <logo_unit_test_jsfile>    - run JavaScript unit test file\n\n" +
-            "\toptions:[on,off,trace,test]\n" +
+            "\tnode logo                            - interactive mode\n" +
+            "\tnode logo <LGO file>                 - compile to JS and execute\n" +
+            "\tnode logo --parse <LGO file>         - parse only\n" +
+            "\tnode logo --codegen <LGO file>       - generate JS code\n" +
+            "\tnode logo --run <LGO file>           - run with interpreter\n" +
+            "\tnode logo --exec <LGO file>          - compile to JS and execute\n" +
+            "\tnode logo --execjs <JS file>         - execute precompiled JS\n" +
+            "\tnode logo --test [<test name>]       - run JavaScript unit test file\n\n" +
+            "\toptions:[--on,--off,--trace]\n" +
             "\ttrace:[parse,evx,codegen,lrt,time,draw]\n"
     );
 
@@ -80,38 +83,38 @@ $classObj.create = function logoInNode(Logo, sys) {
     function parseArgv(argv) {
         let cmd = {};
 
-        cmd.op = argv[2];
-        cmd.file = argv[3];
-        cmd.options = {};
+        cmd.op = Logo.mode.EXEC;
 
-        for(let i = 4; i < argv.length; i++) {
-            parseOptions(argv[i], cmd.options);
+        for(let i = 2; i < argv.length; i++) {
+            if (argv[i].match(/^--/)) {
+                parseOption(argv[i].substring(2));
+            } else if (!("file" in cmd)) {
+                cmd.file = argv[i];
+            }
         }
 
         return cmd;
 
-        function parseOptions(optionStr, optionMap) {
-            let expectedOptions = {"on": 1, "off": 1, "trace": 1, "test": 1};
+        function parseOption(optionStr) {
+            let expectedOptions = {
+                "on": (key) => logo.config.set(key, true),
+                "off": (key) => logo.config.set(key, false),
+                "trace": logo.trace.enableTrace
+            };
+
             let optionPair = optionStr.split(":");
 
-            sys.assert(optionPair[0] in expectedOptions, "Unknown option " + optionPair[0]);
-            sys.assert(optionPair.length == 2, "Option parse error:" + optionStr);
+            if (optionPair.length == 2) {
+                sys.assert(optionPair[0] in expectedOptions, "Unknown option " + optionPair[0]);
 
-            optionMap[optionPair[0]] = optionPair[1].split(",");
-        }
-    }
+                optionPair[1].split(",").map(expectedOptions[optionPair[0]]);
+                return;
+            }
 
-    function setCmdLineConfigs(options) {
-        if ("trace" in options) {
-            logo.trace.setTraceOptions(options.trace);
-        }
+            sys.assert(optionPair.length == 1, "Option parse error:" + optionStr);
+            sys.assert(optionPair[0] in Logo.modeName, "Unknown option " + optionPair[0]);
 
-        if ("on" in options) {
-            logo.config.setConfigs(options.on, true);
-        }
-
-        if ("off" in options) {
-            logo.config.setConfigs(options.off, false);
+            cmd.op = optionPair[0];
         }
     }
 
@@ -139,7 +142,7 @@ $classObj.create = function logoInNode(Logo, sys) {
             "entry": {
                 "exec": async function(logoSrc) { await logo.env.exec(logoSrc, true, 1); },
                 "runSingleTest": async function(testName, testMethod) {
-                    await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
+                    await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, logo);
                 }
             },
             "io": {

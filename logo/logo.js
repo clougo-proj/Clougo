@@ -21,6 +21,27 @@ const sys = classFromJs("./sys.js").create(isNodeJsEnvFlag, util);
 const Logo = {};
 const testRunner = classFromJs("./testrunner.js").create(Logo, sys);
 
+Logo.mode = {
+    CODEGEN: "codegen",
+    CONSOLE: "console",
+    EXEC: "exec",
+    EXECJS: "execjs",
+    EXECL: "execl",
+    HELP: "help",
+    PARSE: "parse",
+    RUN: "run",
+    RUNL: "runl",
+    TEST: "test"
+};
+
+Logo.modeName = ((mode) => {
+    const modeName = {};
+    Object.keys(mode).forEach(key => {
+        modeName[mode[key]] = key;
+    });
+    return modeName;
+})(Logo.mode);
+
 Logo.getUnitTests = (() => {
     let unitTests = undefined;
     return function() {
@@ -32,7 +53,7 @@ Logo.getUnitTests = (() => {
     };
 })();
 
-Logo.create = function(ext) {
+Logo.create = function(ext, config=undefined) {
 
     const logo = {};
 
@@ -51,23 +72,15 @@ Logo.create = function(ext) {
     logo.parse = classFromJs("./parse.js").create(logo, sys);
     logo.env = classFromJs("./env.js").create(logo, sys, ext);
     logo.logofs = classFromJs("./logofs.js").create(logo, sys);
-    logo.config = classFromJs("./config.js").create(sys);
+    logo.config = (config === undefined) ? classFromJs("./config.js").create(sys) : config;
     logo.trace = classFromJs("./trace.js").create(logo, sys);
 
     logo.env.initLogoEnv();
 
+    logo.mode = Logo.mode.EXEC;
+
     return logo;
 }; // Logo.create
-
-Logo.mode = {
-    PARSE: "parse",
-    RUN: "run",
-    RUNL: "runl",
-    EXEC: "exec",
-    EXECL: "execl",
-    EXECJS: "execjs",
-    CODEGEN: "codegen"
-};
 
 Logo.testRunner = testRunner;
 

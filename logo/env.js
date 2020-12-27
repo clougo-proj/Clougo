@@ -240,7 +240,7 @@ $classObj.create = function(logo, sys, ext) {
                         return; // exit
                     }
 
-                    let ret = await exec(userInput, sys.Config.get("genCommand"), 0);
+                    let ret = await exec(userInput, logo.config.get("genCommand"), 0);
                     if (!sys.isUndefined(ret)) {
                         logo.io.stdout("Result:" + logo.type.toString(ret));
                     }
@@ -429,7 +429,7 @@ $classObj.create = function(logo, sys, ext) {
         resetInterpreterCallStack();
 
         let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
-        sys.trace(parsedCode, "parse.result");
+        logo.trace.info(parsedCode, "parse.result");
         setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
         if (!getAsyncFunctionCall() && asyncFunctionCall(logosrc)) {
             setAsyncFunctionCall(true);
@@ -451,14 +451,14 @@ $classObj.create = function(logo, sys, ext) {
     async function timedExec(f) {
         let startTime = new Date();
 
-        sys.trace(startTime.toLocaleString(), "time");
+        logo.trace.info(startTime.toLocaleString(), "time");
 
         let ret = await f();
         let endTime = new Date();
-        sys.trace(endTime.toLocaleString(), "time");
+        logo.trace.info(endTime.toLocaleString(), "time");
 
         let runTime = endTime - startTime;
-        sys.trace((endTime - startTime)+"ms", "time");
+        logo.trace.info((endTime - startTime)+"ms", "time");
         setRunTime(runTime);
 
         return ret;

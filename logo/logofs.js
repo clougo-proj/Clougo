@@ -15,8 +15,8 @@ $classObj.create = function(logo, sys) {
     };
 
     const jsonFile = {
-        "demo": sys.Config.get("demoJsSrcFile"),
-        "mod": sys.Config.get("modJsSrcFile")
+        "demo": sys.global.demoJsSrcFile,
+        "mod": sys.global.modJsSrcFile
     };
 
     const root = {};

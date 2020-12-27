@@ -15,8 +15,8 @@ $classObj.create = function(Logo, sys) {
     let singleTestMode = false;
 
     async function runTests(unitTests, options, ext) {
-        singleTestMode = sys.Config.get("verbose");
         initializeTestEnv(ext);
+        singleTestMode = logo.config.get("verbose");
 
         // make regex for filtering unit tests by their full names
         reFilter = sys.isUndefined(options) ? undefined : sys.makeMatchListRegexp(options);
@@ -30,8 +30,8 @@ $classObj.create = function(Logo, sys) {
     testRunner.runTests = runTests;
 
     async function runSingleTest(unitTests, testName, testMethod, ext) {
-        singleTestMode = true;
         initializeTestEnv(ext);
+        singleTestMode = true;
 
         let testDir = getTestDir(unitTests, testName);
         if (testDir === undefined) {

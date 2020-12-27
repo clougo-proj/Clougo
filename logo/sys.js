@@ -64,83 +64,11 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     }
     sys.logoFround6 = logoFround6;
 
-    const Trace = (() => {
-        const traceKeys = [
-            "parse",
-            "parse.result",
-            "evx",
-            "evalJs",
-            "codegen",
-            "codegen.genLocal",
-            "codegen.lambda",
-            "console",
-            "lrt",
-            "time",
-            "draw",
-            "tmp"
-        ];
-
-        const Trace = {};
-
-        const traceTable = {};
-        traceKeys.forEach(v => traceTable[v] = () => {});
-
-        Trace.setTraceOptions = function(keysOn) {
-            const reKeysOn = makeMatchListRegexp(keysOn);
-            traceKeys.filter(v => v.match(reKeysOn))
-                .forEach(v => traceTable[v] = console.error); // eslint-disable-line no-console
-        };
-
-        Trace.trace = function(text, key) {
-            assert(key in traceTable, "Unknown trace key: " + key);
-            if (Config.get("trace")) {
-                traceTable[key](text);
-            }
-        };
-
-        Trace.getTraceStream = function(key) {
-            return traceTable[key];
-        };
-
-        return Trace;
-    })();
-
-    sys.trace = Trace.trace;
-    sys.Trace = Trace;
-
-    const Config = (() => {
-        const Config = {};
-        const config = {
-            unitTestsJsSrcFile: "../generated/unittests.js",
-            demoJsSrcFile: "../generated/demo.js",
-            modJsSrcFile: "../generated/mod.js",
-            unactionableDatum : true,  // raise runtime exception for unactionable datum
-            genCommand : true,        // use codegen for interactive commands
-            dynamicScope: true,
-            verbose: false,
-            postfix: false,
-            trace: true
-        };
-
-        Config.set = function(configName, val) {
-            assert(configName in config, "Unknown config:" + configName);
-            assert(typeof val == typeof config[configName], "Expect type:" + typeof config[configName] + " but got type:" + typeof val + " on config:" + configName);
-            config[configName] = val;
-        };
-
-        Config.get = function(configName) {
-            assert(configName in config, "Unknown config:" + configName);
-            return config[configName];
-        };
-
-        Config.setConfigs = function(configNames, val) {
-            configNames.forEach(configName =>
-                Config.set(configName, val));
-        };
-
-        return Config;
-    })();
-    sys.Config = Config;
+    sys.global = {
+        unitTestsJsSrcFile: "../generated/unittests.js",
+        demoJsSrcFile: "../generated/demo.js",
+        modJsSrcFile: "../generated/mod.js"
+    };
 
     function toNumberIfApplicable(s) {
         if (typeof s === "object" || s === "\n") {

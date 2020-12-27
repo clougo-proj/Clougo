@@ -103,15 +103,15 @@ $classObj.create = function logoInNode(Logo, sys) {
 
     function setCmdLineConfigs(options) {
         if ("trace" in options) {
-            sys.Trace.setTraceOptions(options.trace);
+            logo.trace.setTraceOptions(options.trace);
         }
 
         if ("on" in options) {
-            sys.Config.setConfigs(options.on, true);
+            logo.config.setConfigs(options.on, true);
         }
 
         if ("off" in options) {
-            sys.Config.setConfigs(options.off, false);
+            logo.config.setConfigs(options.off, false);
         }
     }
 
@@ -179,10 +179,10 @@ $classObj.create = function logoInNode(Logo, sys) {
             },
             "canvas": {
                 "sendCmd": function(cmd, args = []) {
-                    sys.trace(cmd + " " + args.map(sys.logoFround6).join(" "), "draw");
+                    logo.trace.info(cmd + " " + args.map(sys.logoFround6).join(" "), "draw");
                 },
                 "sendCmdAsString": function(cmd, args = []) {
-                    sys.trace(cmd + " " + args.join(" "), "draw");
+                    logo.trace.info(cmd + " " + args.join(" "), "draw");
                 }
             }
         };

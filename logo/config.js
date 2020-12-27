@@ -17,21 +17,18 @@ $classObj.create = function(sys) {
         trace: true
     };
 
-    config.set = function(configName, val) {
-        sys.assert(configName in configMap, "Unknown configMap:" + configName);
-        sys.assert(typeof val == typeof configMap[configName], "Expect type:" + typeof configMap[configName] + " but got type:" + typeof val + " on configMap:" + configName);
-        configMap[configName] = val;
-    };
+    function set(key, val) {
+        sys.assert(key in configMap, "Unknown configMap:" + key);
+        sys.assert(typeof val == typeof configMap[key], "Expect type:" + typeof configMap[key] + " but got type:" + typeof val + " on configMap:" + key);
+        configMap[key] = val;
+    }
+    config.set = set;
 
-    config.get = function(configName) {
-        sys.assert(configName in configMap, "Unknown configMap:" + configName);
-        return configMap[configName];
-    };
-
-    config.setConfigs = function(configNames, val) {
-        configNames.forEach(configName =>
-            config.set(configName, val));
-    };
+    function get(key) {
+        sys.assert(key in configMap, "Unknown configMap:" + key);
+        return configMap[key];
+    }
+    config.get = get;
 
     return config;
 };

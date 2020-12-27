@@ -22,29 +22,32 @@ $classObj.create = function(logo, sys) {
         "tmp"
     ];
 
-    const Trace = {};
+    const trace = {};
 
     const traceTable = {};
     traceKeys.forEach(v => traceTable[v] = () => {});
 
-    Trace.setTraceOptions = function(keysOn) {
-        const reKeysOn = sys.makeMatchListRegexp(keysOn);
-        traceKeys.filter(v => v.match(reKeysOn))
+    function enableTrace(tagPattern) {
+        const reTags = sys.makeMatchListRegexp(tagPattern);
+        traceKeys.filter(v => v.match(reTags))
             .forEach(v => traceTable[v] = console.error); // eslint-disable-line no-console
-    };
+    }
+    trace.enableTrace = enableTrace;
 
-    Trace.info = function(text, key) {
-        sys.assert(key in traceTable, "Unknown trace key: " + key);
+    function info(text, tag) {
+        sys.assert(tag in traceTable, "Unknown trace tag: " + tag);
         if (logo.config.get("trace")) {
-            traceTable[key](text);
+            traceTable[tag](text);
         }
-    };
+    }
+    trace.info = info;
 
-    Trace.getTraceStream = function(key) {
-        return traceTable[key];
-    };
+    function getTraceStream(tag) {
+        return traceTable[tag];
+    }
+    trace.getTraceStream = getTraceStream;
 
-    return Trace;
+    return trace;
 };
 
 if (typeof exports != "undefined") {

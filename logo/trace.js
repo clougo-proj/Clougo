@@ -28,7 +28,7 @@ $classObj.create = function(logo, sys) {
     traceKeys.forEach(v => traceTable[v] = () => {});
 
     function enableTrace(tagPattern) {
-        const reTags = sys.makeMatchListRegexp(tagPattern);
+        const reTags = sys.makeMatchListRegexp([tagPattern]);
         traceKeys.filter(v => v.match(reTags))
             .forEach(v => traceTable[v] = console.error); // eslint-disable-line no-console
     }

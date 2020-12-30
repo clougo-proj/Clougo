@@ -10,6 +10,7 @@ $classObj.create = function(logo, sys) {
     const traceKeys = [
         "parse",
         "parse.result",
+        "env.eagerEval",
         "evx",
         "evalJs",
         "codegen",

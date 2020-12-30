@@ -88,4 +88,4 @@ text run exec
 define run exec
 text_define run exec
 mouse_queries runl execl
-load run execl
+load run exec

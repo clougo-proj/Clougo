@@ -448,6 +448,10 @@ $classObj.create = function(logo, sys, ext) {
         return (/\b(wait|readword|apply|load)\b/i).test(logosrc) || (/^(\.test|demo)\b/i).test(logosrc);
     }
 
+    function isEagerEval(logosrc) {
+        return (/^(load)\b/i).test(logosrc);
+    }
+
     async function timedExec(f) {
         let startTime = new Date();
 
@@ -464,10 +468,49 @@ $classObj.create = function(logo, sys, ext) {
         return ret;
     }
 
+    function makeSrcSegment(src, beginLineNum) {
+        return {
+            LOGO_SRC: src,
+            LINE_NUM: beginLineNum
+        };
+    }
+
+    function splitEagerEvalCode(logoSrc) {
+        let srcLines = logoSrc.split("\n");
+        let eagerLineNums = srcLines.map((line, index) => isEagerEval(line) ? index + 1 : 0)
+            .filter((lineNum) => lineNum !== 0);
+
+        if (eagerLineNums.length === 0) {
+            return [makeSrcSegment(logoSrc, 0)];
+        }
+
+        let srcSegments = [];
+        let lastLineNum = 0;
+        for (let eagerLineNum of eagerLineNums) {
+            srcSegments.push(makeSrcSegment(srcLines.slice(lastLineNum, eagerLineNum).join("\n"), lastLineNum));
+            lastLineNum = eagerLineNum;
+        }
+
+        if (lastLineNum < srcLines.length) {
+            srcSegments.push(makeSrcSegment(srcLines.slice(lastLineNum).join("\n"), lastLineNum));
+        }
+
+        logo.trace.info(JSON.stringify(srcSegments), "env.eagerEval");
+
+        return srcSegments;
+    }
+
     async function exec(logoSrc, genjs, srcidx) {
         return await timedExec(
             async function() {
-                return await logoExecHelper(logoSrc, genjs, srcidx);
+                let ret;
+                let srcSegments = splitEagerEvalCode(logoSrc);
+                while (srcSegments.length > 0) {
+                    let srcSegment = srcSegments.shift();
+                    ret = await logoExecHelper(srcSegment.LOGO_SRC, genjs, srcidx, srcSegment.LINE_NUM);
+                }
+
+                return ret;
             }
         );
     }

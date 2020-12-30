@@ -509,7 +509,7 @@ $classObj.create = function(logo, sys) {
                 pushParseStack(Delimiter.getExpectedClosing(c));
             } else if (Delimiter.isClosing(c)) {
                 if (_parseExpecting !== c) {
-                    throw logo.type.LogoException.UNEXPECTED_TOKEN.withParam([c],  makeSrcmap());
+                    throw logo.type.LogoException.UNEXPECTED_TOKEN.withParam([c], makeSrcmap());
                 }
                 popParseStack();
             }

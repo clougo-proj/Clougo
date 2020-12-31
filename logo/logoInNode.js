@@ -26,59 +26,64 @@ $classObj.create = function logoInNode(Logo, sys) {
     const ext = makeLogoDependencies();
     const logo = Logo.create(ext);
 
-    const srcRunner = makeSrcRunner();
-    const fs = require("fs");
-    const cmd = parseArgv(process.argv);
+    logo.env.loadDefaultLogoModules()
+        .then(postCreation);
 
-    if (!("file" in cmd) && cmd.op === Logo.mode.EXEC) {
-        cmd.op = Logo.mode.CONSOLE;
+    function postCreation() {
+        const srcRunner = makeSrcRunner();
+        const fs = require("fs");
+        const cmd = parseArgv(process.argv);
+
+        if (!("file" in cmd) && cmd.op === Logo.mode.EXEC) {
+            cmd.op = Logo.mode.CONSOLE;
+        }
+
+        if (cmd.op in srcRunner) {
+            const logoSrc = fs.readFileSync(cmd.file, "utf8"); // logo source file (.lgo)
+
+            srcRunner[cmd.op](logoSrc)
+                .then(() => process.exit())
+                .catch(e => {
+                    stderr(e);
+                    process.exit(-1);
+                });
+
+            return;
+        }
+
+        if (cmd.op === Logo.mode.TEST) {
+            Logo.testRunner.runTests(Logo.getUnitTests(), "file" in cmd ? [cmd.file] : [], logo)
+                .then(failCount => process.exit(failCount !== 0))
+                .catch(e => {
+                    stderr(e);
+                    process.exit(-1);
+                });
+
+            return;
+        }
+
+        if (cmd.op === Logo.mode.CONSOLE) {
+            process.stdout.write("Welcome to Logo\n? ");
+            logo.env.setInteractiveMode();
+            return;
+        }
+
+        stderr(
+            "Usage:\n" +
+                "\tnode logo                            - interactive mode\n" +
+                "\tnode logo <LGO file>                 - compile to JS and execute\n" +
+                "\tnode logo --parse <LGO file>         - parse only\n" +
+                "\tnode logo --codegen <LGO file>       - generate JS code\n" +
+                "\tnode logo --run <LGO file>           - run with interpreter\n" +
+                "\tnode logo --exec <LGO file>          - compile to JS and execute\n" +
+                "\tnode logo --execjs <JS file>         - execute precompiled JS\n" +
+                "\tnode logo --test [<test name>]       - run JavaScript unit test file\n\n" +
+                "\toptions:[--on,--off,--trace]\n" +
+                "\ttrace:[parse,evx,codegen,lrt,time,draw]\n"
+        );
+
+        process.exit();
     }
-
-    if (cmd.op in srcRunner) {
-        const logoSrc = fs.readFileSync(cmd.file, "utf8"); // logo source file (.lgo)
-
-        srcRunner[cmd.op](logoSrc)
-            .then(() => process.exit())
-            .catch(e => {
-                stderr(e);
-                process.exit(-1);
-            });
-
-        return;
-    }
-
-    if (cmd.op === Logo.mode.TEST) {
-        Logo.testRunner.runTests(Logo.getUnitTests(), "file" in cmd ? [cmd.file] : [], logo)
-            .then(failCount => process.exit(failCount !== 0))
-            .catch(e => {
-                stderr(e);
-                process.exit(-1);
-            });
-
-        return;
-    }
-
-    if (cmd.op === Logo.mode.CONSOLE) {
-        process.stdout.write("Welcome to Logo\n? ");
-        logo.env.setInteractiveMode();
-        return;
-    }
-
-    stderr(
-        "Usage:\n" +
-            "\tnode logo                            - interactive mode\n" +
-            "\tnode logo <LGO file>                 - compile to JS and execute\n" +
-            "\tnode logo --parse <LGO file>         - parse only\n" +
-            "\tnode logo --codegen <LGO file>       - generate JS code\n" +
-            "\tnode logo --run <LGO file>           - run with interpreter\n" +
-            "\tnode logo --exec <LGO file>          - compile to JS and execute\n" +
-            "\tnode logo --execjs <JS file>         - execute precompiled JS\n" +
-            "\tnode logo --test [<test name>]       - run JavaScript unit test file\n\n" +
-            "\toptions:[--on,--off,--trace]\n" +
-            "\ttrace:[parse,evx,codegen,lrt,time,draw]\n"
-    );
-
-    process.exit();
 
     function parseArgv(argv) {
         let cmd = {};

@@ -13,6 +13,8 @@
 var $classObj = {};
 $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-vars
 
+    postMessage(["busy"]);
+
     importScripts("CanvasCommon.js");
 
     Logo.io = {
@@ -24,6 +26,9 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
 
     const ext = makeLogoDependencies();
     const logo = Logo.create(ext);
+
+    logo.env.loadDefaultLogoModules()
+        .then(() => postMessage(["ready"]));
 
     function webStdout(text) {
         postMessage(["out", text]);
@@ -101,6 +106,7 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
             }
         };
 
+        // listen to events in the worker
         self.addEventListener("message",
             async function(e) {
                 logo.env.setEnvState("ready");

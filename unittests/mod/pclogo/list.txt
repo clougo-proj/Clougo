@@ -1,0 +1,1 @@
+getxy run exec

@@ -16,6 +16,10 @@ $classObj.create = function(logo, sys, ext) {
         "INTERACTIVE": 1
     };
 
+    const defaultModules = [
+        "/mod/pclogo/pclogo.lgo"
+    ];
+
     function createParamScope() {
         let _stack = [];
         let obj = {};
@@ -373,6 +377,10 @@ $classObj.create = function(logo, sys, ext) {
         let procName = logo.type.getLogoProcName(proc);
         let formal = logo.type.getLogoProcParams(proc);
         let body = logo.type.getLogoProcBody(proc);
+
+        if (procName in env._user) {
+            delete env._user[procName];
+        }
 
         if (procName in env._ws && env._ws[procName].formal === formal && env._ws[procName].body === body) {
             return;
@@ -737,6 +745,13 @@ $classObj.create = function(logo, sys, ext) {
         }
     }
     env.checkSlotLength = checkSlotLength;
+
+    async function loadDefaultLogoModules() {
+        for (let mod of defaultModules) {
+            await logo.entry.exec(logo.logofs.get(mod));
+        }
+    }
+    env.loadDefaultLogoModules = loadDefaultLogoModules;
 
     return env;
 };

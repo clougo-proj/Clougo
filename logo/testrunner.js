@@ -233,6 +233,7 @@ $classObj.create = function(Logo, sys) {
     async function runTestHelper(test, testName, testMethod) {
         extForTest.io.mockStdin(getTestInBase(test));
         logoForUnitTests.env.initLogoEnv();
+        await logoForUnitTests.env.loadDefaultLogoModules();
         count++;
 
         Logo.io.stdoutn(testName + "(" + testMethod + "):");

@@ -1,0 +1,11 @@
+make "CASEIGNOREDP "false
+show remove "e 1=1
+show remove 1 121
+show remove "a "America
+show remove {} "America
+show remove "true (list 1=1 2=2 "a)
+show remove "false (list 1=2 2=1 "false "true)
+show remove [] [[] [] [[]]]
+show remove [1] [[2] [1] [[1]]]
+show remove [[1]] [[[1]] [[1]] 2]
+show remove {} [[] {} {}]

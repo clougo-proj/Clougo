@@ -235,6 +235,21 @@ $classObj.create = function(logo, sys) {
         return logo.type.listButLast(thing);
     }
 
+    function primitiveRemove(thing, list) {
+        if (logo.type.isLogoWord(list)) {
+            let thingString = (logo.type.isLogoWord(thing)) ? logo.type.wordToString(thing) : thing;
+            return logo.type.wordToString(list)
+                .split("")
+                .filter((c) => (c !== thingString))
+                .join("");
+        }
+
+        logo.type.validateInputList(list);
+        return logo.type.makeLogoList(
+            logo.type.unboxList(list)
+                .filter((item) => !logo.type.equal(item, thing)));
+    }
+
     function primitiveCount(thing) {
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "boolean") {
@@ -830,6 +845,8 @@ $classObj.create = function(logo, sys) {
 
         "butlast": primitiveButlast,
         "bl": primitiveButlast,
+
+        "remove": primitiveRemove,
 
         "count": primitiveCount,
 

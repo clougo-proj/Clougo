@@ -89,3 +89,5 @@ define run exec
 text_define run exec
 mouse_queries runl execl
 load run exec
+remove run exec
+remove1 runl execl

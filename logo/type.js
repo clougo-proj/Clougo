@@ -559,7 +559,7 @@ $classObj.create = function(logo, sys) {
 
     function charToAscii(word) {
         let charCode = (typeof word === "string") ? word.charCodeAt(0) : 48 + word; // typeof word === "number"
-        ifTrueThenThrow(!isByteValue(charCode),  type.LogoException.INVALID_INPUT, word);
+        ifTrueThenThrow(!isByteValue(charCode), type.LogoException.INVALID_INPUT, word);
         return charCode;
     }
     type.charToAscii = charToAscii;
@@ -643,67 +643,67 @@ $classObj.create = function(logo, sys) {
     type.checkMinInputCount = checkMinInputCount;
 
     function validateInputBoolean(value) {
-        ifTrueThenThrow(!logo.type.isLogoBoolean(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isLogoBoolean(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputBoolean = validateInputBoolean;
 
     function validateInputWord(value) {
-        ifTrueThenThrow(!logo.type.isLogoWord(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isLogoWord(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputWord = validateInputWord;
 
     function validateInputCharacter(value) {
-        ifTrueThenThrow(!logo.type.isLogoCharacter(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isLogoCharacter(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputCharacter = validateInputCharacter;
 
     function validateInputInteger(value) {
-        ifTrueThenThrow(!sys.isInteger(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!sys.isInteger(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputInteger = validateInputInteger;
 
     function validateInputNonNegInteger(value) {
-        ifTrueThenThrow(!isNonNegInteger(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!isNonNegInteger(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonNegInteger = validateInputNonNegInteger;
 
     function validateInputNumber(value) {
-        ifTrueThenThrow(!logo.type.isLogoNumber(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isLogoNumber(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNumber = validateInputNumber;
 
     function validateInputNonNegNumber(value) {
-        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value >= 0),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value >= 0), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonNegNumber = validateInputNonNegNumber;
 
     function validateInputPosNumber(value) {
-        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value > 0),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value > 0), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputPosNumber = validateInputPosNumber;
 
     function validateInputNonEmptyWord(value) {
-        ifTrueThenThrow(!(logo.type.isLogoWord(value) && value.length >= 1),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!(logo.type.isLogoWord(value) && value.length >= 1), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonEmptyWord = validateInputNonEmptyWord;
 
     function validateIndexWithinWordRange(index, word) {
-        ifTrueThenThrow(index < 1 || index > word.length,  type.LogoException.INVALID_INPUT, index);
+        ifTrueThenThrow(index < 1 || index > word.length, type.LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinWordRange = validateIndexWithinWordRange;
 
     function validateInputList(value) {
-        ifTrueThenThrow(!logo.type.isLogoList(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isLogoList(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputList = validateInputList;
 
     function validateInputNonEmptyList(value) {
-        ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonEmptyList = validateInputNonEmptyList;
 
     function validateInputRGB(value) {
-        ifTrueThenThrow(!logo.type.isColor(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isColor(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputRGB = validateInputRGB;
 
@@ -722,22 +722,22 @@ $classObj.create = function(logo, sys) {
     type.validateInputXY = validateInputXY;
 
     function validateIndexWithinListRange(index, list) {
-        ifTrueThenThrow(!logo.type.listIndexWithinRange(index, list),  type.LogoException.INVALID_INPUT, index);
+        ifTrueThenThrow(!logo.type.listIndexWithinRange(index, list), type.LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinListRange = validateIndexWithinListRange;
 
     function validateInputArray(value) {
-        ifTrueThenThrow(!logo.type.isLogoArray(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isLogoArray(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputArray = validateInputArray;
 
     function validateInputByte(value) {
-        ifTrueThenThrow(!logo.type.isByteValue(value),  type.LogoException.INVALID_INPUT, value);
+        ifTrueThenThrow(!logo.type.isByteValue(value), type.LogoException.INVALID_INPUT, value);
     }
     type.validateInputByte = validateInputByte;
 
     function validateIndexWithinArrayRange(index, array) {
-        ifTrueThenThrow(!logo.type.arrayIndexWithinRange(index, array),  type.LogoException.INVALID_INPUT, index);
+        ifTrueThenThrow(!logo.type.arrayIndexWithinRange(index, array), type.LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinArrayRange = validateIndexWithinArrayRange;
 

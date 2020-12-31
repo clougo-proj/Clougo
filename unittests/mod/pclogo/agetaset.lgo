@@ -1,0 +1,15 @@
+to test_array :arr
+  pr :arr
+  (type "< aget 1 :arr ">)
+  pr "
+  aset :arr 1 0
+  pr :arr
+  (type "< aget 1 :arr ">)
+  pr "
+end
+
+make "arr array 10
+test_array :arr
+
+make "arr (array 10 -5)
+test_array :arr

@@ -423,7 +423,7 @@ $classObj.create = function(logo, sys) {
     type.listEqual = listEqual;
 
     function booleanEqual(a, b) {
-        return isLogoBoolean(a) && isLogoBoolean(b) && asLogoBoolean(a) === asLogoBoolean(b);
+        return isLogoBoolean(a) && isLogoBoolean(b) && logoBoolean(a) === logoBoolean(b);
     }
     type.booleanEqual = booleanEqual;
 
@@ -816,11 +816,11 @@ $classObj.create = function(logo, sys) {
     }
     type.isLogoBoolean = isLogoBoolean;
 
-    function asLogoBoolean(value) {
+    function logoBoolean(value) {
         return typeof value === "boolean" ? value :
             (sys.equalToken(value, "true")) ? true : false;
     }
-    type.asLogoBoolean = asLogoBoolean;
+    type.logoBoolean = logoBoolean;
 
     function isLogoVarRef(token) {
         return (typeof token == "string" && token.charAt(0) == ":");

@@ -301,17 +301,17 @@ $classObj.create = function(logo, sys) {
 
     function primitiveAnd(...args) {
         args.forEach(logo.type.validateInputBoolean);
-        return args.reduce((accumulator, currentValue) => accumulator && logo.type.asLogoBoolean(currentValue), true);
+        return args.reduce((accumulator, currentValue) => accumulator && logo.type.logoBoolean(currentValue), true);
     }
 
     function primitiveOr(...args) {
         args.forEach(logo.type.validateInputBoolean);
-        return args.reduce((accumulator, currentValue) => accumulator || logo.type.asLogoBoolean(currentValue), false);
+        return args.reduce((accumulator, currentValue) => accumulator || logo.type.logoBoolean(currentValue), false);
     }
 
     function primitiveNot(value) {
         logo.type.validateInputBoolean(value);
-        return !logo.type.asLogoBoolean(value);
+        return !logo.type.logoBoolean(value);
     }
 
     function primitiveLocal(...args) {
@@ -919,6 +919,7 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.throw =
     primitiveParamCount.array = [1, 1, 2];
 
+    primitiveParamCount.fill =
     primitiveParamCount["?"] = [0, 0, 1];
 
     lrt.primitiveParamCount = primitiveParamCount;

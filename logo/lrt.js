@@ -546,6 +546,11 @@ $classObj.create = function(logo, sys) {
         return await logo.env.applyInstrList(template, srcmap, unboxedInputList);
     }
 
+    function primitiveTime() {
+        let date = new Date().toString().split(" "); // E.g. [Sat Sep 01 2018 14:53:26 GMT+1400 (LINT)]
+        return logo.type.makeLogoList(date.slice(0, 3).concat(date[4], date[3]));
+    }
+
     function primitiveTimeMilli() {
         return new Date().getTime();
     }
@@ -863,6 +868,8 @@ $classObj.create = function(logo, sys) {
         "readword": primitiveReadword,
 
         "apply": primitiveApply,
+
+        "time": primitiveTime,
 
         "timemilli": primitiveTimeMilli,
 

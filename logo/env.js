@@ -44,7 +44,7 @@ $classObj.create = function(logo, sys, ext) {
     env.createParamScope = createParamScope;
 
     let _logoMode = LogoMode.BATCH;
-    let _globalScope, _envState, _runTime,  _userInput, _resolveUserInput;
+    let _globalScope, _envState, _runTime, _userInput, _resolveUserInput;
     let _asyncFunctionCall;
     let _genJs;
     let $primitiveName, $primitiveSrcmap;
@@ -141,7 +141,7 @@ $classObj.create = function(logo, sys, ext) {
     env.extractSlotNum = extractSlotNum;
 
     function getSlotValue(slotNum) {
-        logo.type.ifTrueThenThrow(slotNum > env._curSlot.length,  logo.type.LogoException.INVALID_INPUT, slotNum);
+        logo.type.ifTrueThenThrow(slotNum > env._curSlot.length, logo.type.LogoException.INVALID_INPUT, slotNum);
         return env._curSlot[slotNum - 1];
     }
     env.getSlotValue = getSlotValue;

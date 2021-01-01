@@ -164,7 +164,7 @@ editor.setOptions({
 });
 
 function saveEditorContent() {
-    writeLogoStorage("logoSrc",  editor.getValue());
+    writeLogoStorage("logoSrc", editor.getValue());
 }
 
 window.setInterval(saveEditorContent, 10000);

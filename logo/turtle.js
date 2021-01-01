@@ -241,7 +241,7 @@ $classObj.create = function(logo, sys) {
     function primitiveSetfloodcolor(color) {
         logo.type.validateInputRGB(color);
         _floodColor = logo.type.isPaletteIndex(color) ? color : logo.type.makeLogoList(logo.type.getRGB(color));
-        logo.ext.canvas.sendCmd("fillcolor",  logo.type.getRGB(_floodColor));
+        logo.ext.canvas.sendCmd("fillcolor", logo.type.getRGB(_floodColor));
     }
     turtle.setfloodcolor = primitiveSetfloodcolor;
 

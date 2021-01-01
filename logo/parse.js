@@ -488,7 +488,7 @@ $classObj.create = function(logo, sys) {
                     pushParseStackWithData(Delimiter.getExpectedClosing(c), Delimiter.getLiteralFactory(c));
                 } else if (Delimiter.isClosing(c)) {
                     if (_parseExpecting !== c) {
-                        throw logo.type.LogoException.UNEXPECTED_TOKEN.withParam([c],  makeSrcmap());
+                        throw logo.type.LogoException.UNEXPECTED_TOKEN.withParam([c], makeSrcmap());
                     }
 
                     popParseStackWithData();

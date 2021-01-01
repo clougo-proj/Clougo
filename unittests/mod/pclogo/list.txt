@@ -2,3 +2,4 @@ getxy run exec
 agetaset run exec
 butmember run exec
 butmember1 runl execl
+colorf run exec

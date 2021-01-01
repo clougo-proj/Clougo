@@ -1,0 +1,24 @@
+make "CASEIGNOREDP "false
+pr [BUTMEMBER]
+show butmember "e 1=1
+show butmember 1 121
+show butmember "a "America
+show butmember {} "America
+show butmember "true (list 1=1 2=2 "a)
+show butmember "false (list 1=2 2=1 "false "true)
+show butmember [] [[] [] [[]]]
+show butmember [1] [[2] [1] [[1]]]
+show butmember [[1]] [[[1]] [[1]] 2]
+show butmember {} [[] {} {}]
+
+pr [\nBM]
+show butmember "e 1=1
+show butmember 1 121
+show butmember "a "America
+show butmember {} "America
+show butmember "true (list 1=1 2=2 "a)
+show butmember "false (list 1=2 2=1 "false "true)
+show butmember [] [[] [] [[]]]
+show butmember [1] [[2] [1] [[1]]]
+show butmember [[1]] [[[1]] [[1]] 2]
+show butmember {} [[] {} {}]

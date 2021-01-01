@@ -1,0 +1,6 @@
+remove doesn't like {1 2 3} as input
+    butmember at 14,4
+    at 1,1
+remove doesn't like {1 2 3} as input
+    bm at 10,4
+    at 2,1

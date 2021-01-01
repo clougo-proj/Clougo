@@ -166,11 +166,11 @@ $classObj.create = function(Logo, sys) {
     }
 
     function getTestOutBase(test) {
-        return sys.emptyStringIfUndefined(test.__out__);
+        return expandBuiltInMacros(sys.emptyStringIfUndefined(test.__out__));
     }
 
     function getTestErrBase(test) {
-        return sys.emptyStringIfUndefined(test.__err__);
+        return expandBuiltInMacros(sys.emptyStringIfUndefined(test.__err__));
     }
 
     function getTestDrawBase(test) {
@@ -205,20 +205,24 @@ $classObj.create = function(Logo, sys) {
 
         await runTestMethod(testSrc);
 
+        const outExpected = getTestOutBase(test);
+        const errExpected = getTestErrBase(test);
+        const drawExpected = getTestDrawBase(test);
+
         const outActual = extForTest.io.getStdoutBuffer();
         const errActual = extForTest.io.getStderrBuffer();
         const drawActual = extForTest.canvas.getBuffer();
 
-        if (outActual == getTestOutBase(test) && errActual == getTestErrBase(test) && drawActual == getTestDrawBase(test)) {
+        if (outActual == outExpected && errActual == errExpected && drawActual == drawExpected) {
             Logo.io.stdout("\t\tpassed\trun time: "+logoForUnitTests.env.getRunTime()+"ms");
             return;
         }
 
         Logo.io.stdout("\t\tfailed");
         if (singleTestMode) {
-            outputIfDifferent("out", outActual, getTestOutBase(test));
-            outputIfDifferent("err", errActual, getTestErrBase(test));
-            outputIfDifferent("draw", drawActual, getTestDrawBase(test));
+            outputIfDifferent("out", outActual, outExpected);
+            outputIfDifferent("err", errActual, errExpected);
+            outputIfDifferent("draw", drawActual, drawExpected);
         }
 
         failCount++;
@@ -228,6 +232,34 @@ $classObj.create = function(Logo, sys) {
         if (expected !== actual) {
             Logo.io.stdout("Expected " + type + ":\n<" + expected + ">\n\tActual " + type + ":\n<" + actual + ">");
         }
+    }
+
+    function padStart(str, num, pad) {
+        return (pad.repeat(num) + str).slice(-num);
+    }
+
+    function expandBuiltInMacros(str) {
+        let reDateTimeFormat = /\$dateTimeFormat\("(?<date>.*?)"\)/;
+        let found = str.match(reDateTimeFormat);
+
+        if (!found) {
+            return str;
+        }
+
+        return str.replace(reDateTimeFormat, formatDateTime(found.groups.date));
+    }
+
+    function formatDateTime(dtFormat)  {
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let dateTime = new Date();
+        return dtFormat.replace(/EEE/, days[dateTime.getDay()])
+            .replace(/MMM/, months[dateTime.getMonth()])
+            .replace(/dd/, padStart(dateTime.getDate(), 2, "0"))
+            .replace(/HH/, padStart(dateTime.getHours(), 2, "0"))
+            .replace(/mm/, padStart(dateTime.getMinutes(), 2, "0"))
+            .replace(/ss/, padStart(dateTime.getSeconds(), 2, "0"))
+            .replace(/yyyy/, dateTime.getFullYear());
     }
 
     async function runTestHelper(test, testName, testMethod) {

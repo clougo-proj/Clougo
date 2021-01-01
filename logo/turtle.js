@@ -498,8 +498,9 @@ $classObj.create = function(logo, sys) {
     }
     turtle.label = primitiveLabel;
 
-    function primitiveFill() {
-        logo.ext.canvas.sendCmd("fill");
+    function primitiveFill(fillmode = false) {
+        logo.type.validateInputBoolean(fillmode);
+        logo.ext.canvas.sendCmd("fill", [logo.type.logoBoolean(fillmode)]);
     }
     turtle.fill = primitiveFill;
 

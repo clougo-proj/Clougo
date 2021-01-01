@@ -302,8 +302,8 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
             _convasContext.fillText(text, 0, 0);  // BEACH:text
             _convasContext.restore();
         },
-        "fill" : function fill() {
-            floodFill(_canvas, Math.round(_tx), Math.round(_ty), _floodColor);
+        "fill" : function fill(fillMode) {
+            floodFill(_canvas, Math.round(_tx), Math.round(_ty), _floodColor, fillMode, _penColor);
         },
         "pensize" : function pensize(size) {
             _penSize = size * _zoom;

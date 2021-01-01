@@ -5,17 +5,22 @@
 
 // Adapted from
 //     http://www.williammalone.com/articles/html5-canvas-javascript-paint-bucket-tool/
-function floodFill(canvas, startX, startY, fillColor) {
+function floodFill(canvas, startX, startY, fillColor, fillMode, stopColor) {
 
   function getPixelPos(x, y) {
       return (y * canvas.width + x) * 4;
   }
 
-  function matchStartColor(data, pos, startColor) {
-      return (data[pos]   === startColor.r &&
-              data[pos+1] === startColor.g &&
-              data[pos+2] === startColor.b &&
-              data[pos+3] === startColor.a);
+  function matchColor(data, pos, color) {
+      return (data[pos]   === color.r &&
+              data[pos+1] === color.g &&
+              data[pos+2] === color.b &&
+              data[pos+3] === color.a);
+  }
+
+  function shouldFillPos(data, pos) {
+      return !matchColor(data, pos, fillColor) &&
+          (fillMode ? !matchColor(data, pos, stopColor) : matchColor(data, pos, startColor));
   }
 
   function colorPixel(data, pos, color) {
@@ -30,6 +35,7 @@ function floodFill(canvas, startX, startY, fillColor) {
   var dstData = dstImg.data;
 
   fillColor = color_to_rgba(fillColor);
+  stopColor = color_to_rgba(stopColor);
 
   var startPos = getPixelPos(startX, startY);
   var startColor = {
@@ -39,7 +45,7 @@ function floodFill(canvas, startX, startY, fillColor) {
     a: dstData[startPos+3]
   };
 
-  if (fillColor.r == startColor.r && fillColor.g == startColor.g && fillColor.b == startColor.b && fillColor.a == startColor.a) {
+  if (!fillMode && (fillColor.r == startColor.r && fillColor.g == startColor.g && fillColor.b == startColor.b && fillColor.a == startColor.a)) {
     return;
   }
 
@@ -51,7 +57,7 @@ function floodFill(canvas, startX, startY, fillColor) {
     var y = pos[1];
     var currentPos = getPixelPos(x, y);
 
-    while((--y >= 0) && matchStartColor(dstData, currentPos, startColor)) {
+    while((--y >= 0) && shouldFillPos(dstData, currentPos)) {
       currentPos -= canvas.width * 4;
     }
 
@@ -60,12 +66,12 @@ function floodFill(canvas, startX, startY, fillColor) {
     var reachLeft = false;
     var reachRight = false;
 
-    while((y++ < canvas.height-1) && matchStartColor(dstData, currentPos, startColor)) {
+    while((y++ < canvas.height-1) && shouldFillPos(dstData, currentPos)) {
 
       colorPixel(dstData, currentPos, fillColor);
 
       if (x > 0) {
-        if (matchStartColor(dstData, currentPos-4, startColor)) {
+        if (shouldFillPos(dstData, currentPos-4)) {
           if (!reachLeft) {
             todo.push([x-1, y]);
             reachLeft = true;
@@ -77,7 +83,7 @@ function floodFill(canvas, startX, startY, fillColor) {
       }
 
       if (x < canvas.width-1) {
-        if (matchStartColor(dstData, currentPos+4, startColor)) {
+        if (shouldFillPos(dstData, currentPos+4)) {
           if (!reachRight) {
             todo.push([x+1, y]);
             reachRight = true;

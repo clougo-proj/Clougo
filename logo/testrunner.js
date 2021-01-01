@@ -255,6 +255,7 @@ $classObj.create = function(Logo, sys) {
         let dateTime = new Date();
         return dtFormat.replace(/EEE/, days[dateTime.getDay()])
             .replace(/MMM/, months[dateTime.getMonth()])
+            .replace(/M/, dateTime.getMonth() + 1)
             .replace(/dd/, padStart(dateTime.getDate(), 2, "0"))
             .replace(/HH/, padStart(dateTime.getHours(), 2, "0"))
             .replace(/mm/, padStart(dateTime.getMinutes(), 2, "0"))

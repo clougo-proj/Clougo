@@ -1,128 +1,172 @@
+Not enough inputs to circle
+    at 1,7
 circle doesn't like abc as input
-    at 1,1
-circle doesn't like {} as input
     at 2,1
-circle doesn't like [] as input
+circle doesn't like {} as input
     at 3,1
-circle doesn't like -100 as input
+circle doesn't like [] as input
     at 4,1
+circle doesn't like -100 as input
+    at 5,1
+circle doesn't like abc as input
+    at 6,2
+Not enough inputs to circle2
+    at 8,8
 circle2 doesn't like abc as input
-    at 6,1
-circle2 doesn't like {} as input
-    at 7,1
-circle2 doesn't like [] as input
-    at 8,1
-circle2 doesn't like -100 as input
     at 9,1
-arc doesn't like abc as input
+circle2 doesn't like {} as input
+    at 10,1
+circle2 doesn't like [] as input
     at 11,1
-arc doesn't like {} as input
+circle2 doesn't like -100 as input
     at 12,1
-arc doesn't like [] as input
-    at 13,1
-arc doesn't like -200 as input
-    at 14,1
+circle2 doesn't like abc as input
+    at 13,2
+Not enough inputs to arc
+    at 15,4
+Not enough inputs to arc
+    at 16,8
 arc doesn't like abc as input
-    at 15,1
-arc doesn't like {} as input
-    at 16,1
-arc doesn't like [] as input
     at 17,1
-arc2 doesn't like abc as input
+arc doesn't like {} as input
+    at 18,1
+arc doesn't like [] as input
     at 19,1
-arc2 doesn't like {} as input
+arc doesn't like -200 as input
     at 20,1
-arc2 doesn't like [] as input
+arc doesn't like abc as input
     at 21,1
-arc2 doesn't like -200 as input
+arc doesn't like {} as input
     at 22,1
-arc2 doesn't like abc as input
+arc doesn't like [] as input
     at 23,1
-arc2 doesn't like {} as input
-    at 24,1
-arc2 doesn't like [] as input
-    at 25,1
-ellipse doesn't like abc as input
+Not enough inputs to arc2
+    at 25,5
+Not enough inputs to arc2
+    at 26,9
+arc2 doesn't like abc as input
     at 27,1
-ellipse doesn't like {} as input
+arc2 doesn't like {} as input
     at 28,1
-ellipse doesn't like [] as input
+arc2 doesn't like [] as input
     at 29,1
-ellipse doesn't like -200 as input
+arc2 doesn't like -200 as input
     at 30,1
-ellipse doesn't like abc as input
+arc2 doesn't like abc as input
     at 31,1
-ellipse doesn't like {} as input
+arc2 doesn't like {} as input
     at 32,1
-ellipse doesn't like [] as input
+arc2 doesn't like [] as input
     at 33,1
-ellipse2 doesn't like abc as input
-    at 35,1
-ellipse2 doesn't like {} as input
-    at 36,1
-ellipse2 doesn't like [] as input
+Not enough inputs to ellipse
+    at 35,8
+Not enough inputs to ellipse
+    at 36,12
+ellipse doesn't like abc as input
     at 37,1
-ellipse2 doesn't like -200 as input
+ellipse doesn't like {} as input
     at 38,1
-ellipse2 doesn't like abc as input
+ellipse doesn't like [] as input
     at 39,1
-ellipse2 doesn't like {} as input
+ellipse doesn't like -200 as input
     at 40,1
-ellipse2 doesn't like [] as input
+ellipse doesn't like abc as input
     at 41,1
-ellipsearc doesn't like abc as input
+ellipse doesn't like {} as input
+    at 42,1
+ellipse doesn't like [] as input
     at 43,1
-ellipsearc doesn't like abc as input
-    at 44,1
-ellipsearc doesn't like -200 as input
-    at 45,1
-ellipsearc doesn't like abc as input
-    at 46,1
-ellipsearc doesn't like -100 as input
-    at 47,1
-ellipsearc doesn't like abc as input
+ellipse doesn't like abc as input
+    at 44,2
+Not enough inputs to ellipse2
+    at 46,9
+Not enough inputs to ellipse2
+    at 47,13
+ellipse2 doesn't like abc as input
     at 48,1
-ellipsearc doesn't like {} as input
+ellipse2 doesn't like {} as input
     at 49,1
-ellipsearc doesn't like {} as input
+ellipse2 doesn't like [] as input
     at 50,1
-ellipsearc doesn't like {} as input
+ellipse2 doesn't like -200 as input
     at 51,1
-ellipsearc doesn't like {} as input
+ellipse2 doesn't like abc as input
     at 52,1
-ellipsearc doesn't like [] as input
+ellipse2 doesn't like {} as input
     at 53,1
-ellipsearc doesn't like [] as input
+ellipse2 doesn't like [] as input
     at 54,1
-ellipsearc doesn't like [] as input
-    at 55,1
-ellipsearc doesn't like [] as input
-    at 56,1
-ellipsearc2 doesn't like abc as input
-    at 58,1
-ellipsearc2 doesn't like abc as input
-    at 59,1
-ellipsearc2 doesn't like -200 as input
-    at 60,1
-ellipsearc2 doesn't like abc as input
+ellipse2 doesn't like abc as input
+    at 55,2
+Not enough inputs to ellipsearc
+    at 57,11
+Not enough inputs to ellipsearc
+    at 58,14
+Not enough inputs to ellipsearc
+    at 59,18
+Not enough inputs to ellipsearc
+    at 60,22
+ellipsearc doesn't like abc as input
     at 61,1
-ellipsearc2 doesn't like -100 as input
+ellipsearc doesn't like abc as input
     at 62,1
-ellipsearc2 doesn't like abc as input
+ellipsearc doesn't like -200 as input
     at 63,1
-ellipsearc2 doesn't like {} as input
+ellipsearc doesn't like abc as input
     at 64,1
-ellipsearc2 doesn't like {} as input
+ellipsearc doesn't like -100 as input
     at 65,1
-ellipsearc2 doesn't like {} as input
+ellipsearc doesn't like abc as input
     at 66,1
-ellipsearc2 doesn't like {} as input
+ellipsearc doesn't like {} as input
     at 67,1
-ellipsearc2 doesn't like [] as input
+ellipsearc doesn't like {} as input
     at 68,1
-ellipsearc2 doesn't like [] as input
+ellipsearc doesn't like {} as input
     at 69,1
-ellipsearc2 doesn't like [] as input
+ellipsearc doesn't like {} as input
     at 70,1
-ellipsearc2 doesn't like [] as input
+ellipsearc doesn't like [] as input
     at 71,1
+ellipsearc doesn't like [] as input
+    at 72,1
+ellipsearc doesn't like [] as input
+    at 73,1
+ellipsearc doesn't like [] as input
+    at 74,1
+Not enough inputs to ellipsearc2
+    at 76,12
+Not enough inputs to ellipsearc2
+    at 77,15
+Not enough inputs to ellipsearc2
+    at 78,19
+Not enough inputs to ellipsearc2
+    at 79,23
+ellipsearc2 doesn't like abc as input
+    at 80,1
+ellipsearc2 doesn't like abc as input
+    at 81,1
+ellipsearc2 doesn't like -200 as input
+    at 82,1
+ellipsearc2 doesn't like abc as input
+    at 83,1
+ellipsearc2 doesn't like -100 as input
+    at 84,1
+ellipsearc2 doesn't like abc as input
+    at 85,1
+ellipsearc2 doesn't like {} as input
+    at 86,1
+ellipsearc2 doesn't like {} as input
+    at 87,1
+ellipsearc2 doesn't like {} as input
+    at 88,1
+ellipsearc2 doesn't like {} as input
+    at 89,1
+ellipsearc2 doesn't like [] as input
+    at 90,1
+ellipsearc2 doesn't like [] as input
+    at 91,1
+ellipsearc2 doesn't like [] as input
+    at 92,1
+ellipsearc2 doesn't like [] as input
+    at 93,1

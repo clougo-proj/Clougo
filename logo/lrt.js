@@ -917,10 +917,15 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.listtoarray =
     primitiveParamCount.mdarray =
     primitiveParamCount.throw =
+    primitiveParamCount.circle =
+    primitiveParamCount.circle2 =
     primitiveParamCount.array = [1, 1, 2];
 
     primitiveParamCount.fill =
     primitiveParamCount["?"] = [0, 0, 1];
+
+    primitiveParamCount.ellipse =
+    primitiveParamCount.ellipse2 = [2, 2, 3];
 
     lrt.primitiveParamCount = primitiveParamCount;
 

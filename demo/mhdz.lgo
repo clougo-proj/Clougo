@@ -24,8 +24,7 @@ END
 
 TO DOT :X_ :Y_          ;自定义的画点子程序  在:X_:Y_处画一个圆点
   PU SETXY :X_ :Y_ PD  ;移位到画点处
-  CIRCLE 10              ;画半径10的圆
-  (FILL "TRUE)                   ;填色
+  (CIRCLE 10 "TRUE)     ;画半径10的圆;填色
 END
 
 MHDZ 9

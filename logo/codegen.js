@@ -205,7 +205,7 @@ $classObj.create = function(logo, sys) {
 
         let code = Code.stmt();
 
-        code.append("let ");
+        code.append("var ");
 
         let expectedParams = 1;
         let generatedParams = 0;
@@ -387,7 +387,7 @@ $classObj.create = function(logo, sys) {
             .append(";\n");
 
         if (!_varScopes.isLocalVar(varName)) {
-            code = code.append("let ")
+            code = code.append("var ")
                 .append(Code.expr(varName))
                 .append(";\n");
 

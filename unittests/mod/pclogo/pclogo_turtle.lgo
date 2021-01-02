@@ -1,0 +1,5 @@
+setW 2
+setWidth 3
+stampOval 10 20
+tt "Abcdefg
+turtleText 12345

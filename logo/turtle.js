@@ -25,9 +25,9 @@ $classObj.create = function(logo, sys) {
 
     let _penDown = true;
     let _penMode = "paint";
-    let _floodColor = logo.type.getPaletteRGB(0);
-    let _penColor = logo.type.getPaletteRGB(0);
-    let _bgColor = logo.type.getPaletteRGB(15);
+    let _floodColor = 0;
+    let _penColor = 0;
+    let _bgColor = 15;
     let _penSize = originalPenSize;
 
     let _mouseX = originX;
@@ -42,9 +42,9 @@ $classObj.create = function(logo, sys) {
         _turtleHeading = originalHeading;
 
         _penDown = true;
-        _floodColor = logo.type.getPaletteRGB(0);
-        _penColor = logo.type.getPaletteRGB(0);
-        _bgColor = logo.type.getPaletteRGB(15);
+        _floodColor = 0;
+        _penColor = 0;
+        _bgColor = 15;
         _penSize = originalPenSize;
     }
     turtle.reset = primitiveReset;
@@ -275,16 +275,18 @@ $classObj.create = function(logo, sys) {
     }
     turtle.pensize = primitivePensize;
 
-    function primitiveCircle(radius) {
+    function primitiveCircle(radius, fill = false) {
         logo.type.validateInputNonNegNumber(radius);
+        logo.type.validateInputBoolean(fill);
         if (_penDown) {
-            logo.ext.canvas.sendCmd("arc", [_turtleX, _turtleY, radius, 0, 360, false]);
+            logo.ext.canvas.sendCmd("arc", [_turtleX, _turtleY, radius, 0, 360, false, logo.type.logoBoolean(fill)]);
         }
     }
     turtle.circle = primitiveCircle;
 
-    function primitiveCircle2(radius) {
+    function primitiveCircle2(radius, fill = false) {
         logo.type.validateInputNonNegNumber(radius);
+        logo.type.validateInputBoolean(fill);
         if (_penDown) {
             logo.ext.canvas.sendCmd("arc", [
                 _turtleX + Math.cos(logo.type.degToRad(_turtleHeading)) * radius,
@@ -292,7 +294,8 @@ $classObj.create = function(logo, sys) {
                 radius,
                 0,
                 360,
-                false]);
+                false,
+                logo.type.logoBoolean(fill)]);
         }
     }
     turtle.circle2 = primitiveCircle2;
@@ -314,7 +317,8 @@ $classObj.create = function(logo, sys) {
                 radius,
                 sAngle,
                 sAngle + deg,
-                deg < 0]);
+                deg < 0,
+                false]);
         }
     }
     turtle.arc = primitiveArc;
@@ -335,7 +339,8 @@ $classObj.create = function(logo, sys) {
                 radius,
                 sAngle,
                 sAngle + deg,
-                deg < 0]);
+                deg < 0,
+                false]);
         }
 
         _turtleX += (Math.cos(logo.type.degToRad(_turtleHeading))  - Math.cos(logo.type.degToRad(_turtleHeading + deg))) * radius;  // BEACH: moveto
@@ -345,9 +350,10 @@ $classObj.create = function(logo, sys) {
     }
     turtle.arc2 = primitiveArc2;
 
-    function primitiveEllipse(radiusX, radiusY) {
+    function primitiveEllipse(radiusX, radiusY, fill = false) {
         logo.type.validateInputNonNegNumber(radiusX);
         logo.type.validateInputNonNegNumber(radiusY);
+        logo.type.validateInputBoolean(fill);
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX,
@@ -357,14 +363,16 @@ $classObj.create = function(logo, sys) {
                 _turtleHeading,
                 0,
                 360,
-                false]);
+                false,
+                logo.type.logoBoolean(fill)]);
         }
     }
     turtle.ellipse = primitiveEllipse;
 
-    function primitiveEllipse2(radiusX, radiusY) {
+    function primitiveEllipse2(radiusX, radiusY, fill = false) {
         logo.type.validateInputNonNegNumber(radiusX);
         logo.type.validateInputNonNegNumber(radiusY);
+        logo.type.validateInputBoolean(fill);
         if (_penDown) {
             logo.ext.canvas.sendCmd("ellipse", [
                 _turtleX + Math.cos(logo.type.degToRad(_turtleHeading)) * radiusY,
@@ -374,7 +382,8 @@ $classObj.create = function(logo, sys) {
                 _turtleHeading,
                 0,
                 360,
-                false]);
+                false,
+                logo.type.logoBoolean(fill)]);
         }
     }
     turtle.ellipse2 = primitiveEllipse2;
@@ -397,7 +406,8 @@ $classObj.create = function(logo, sys) {
                 _turtleHeading,
                 sAngle,
                 eAngle,
-                deg < 0]);
+                deg < 0,
+                false]);
         }
     }
     turtle.ellipsearc = primitiveEllipsearc;
@@ -437,7 +447,8 @@ $classObj.create = function(logo, sys) {
                 logo.type.radToDeg(osOriginHeading - osTurtleHeading - tangentStartAngle),
                 logo.type.radToDeg(sAngle),
                 logo.type.radToDeg(eAngle),
-                deg < 0]);
+                deg < 0,
+                false]);
         }
 
         // turtle's new coordinates relative to center

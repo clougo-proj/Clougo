@@ -1,13 +1,19 @@
+circle
 circle "abc
 circle {}
 circle []
 circle -100
+(circle 100 "abc)
 
+circle2
 circle2 "abc
 circle2 {}
 circle2 []
 circle2 -100
+(circle2 100 "abc)
 
+arc
+arc 100
 arc 100 "abc
 arc 100 {}
 arc 100 []
@@ -16,6 +22,8 @@ arc "abc 200
 arc {} 200
 arc [] 200
 
+arc2
+arc2 100
 arc2 100 "abc
 arc2 100 {}
 arc2 100 []
@@ -24,6 +32,8 @@ arc2 "abc 200
 arc2 {} 200
 arc2 [] 200
 
+ellipse
+ellipse 100
 ellipse 100 "abc
 ellipse 100 {}
 ellipse 100 []
@@ -31,7 +41,10 @@ ellipse 100 -200
 ellipse "abc 200
 ellipse {} 200
 ellipse [] 200
+(ellipse 100 200 "abc)
 
+ellipse2
+ellipse2 100
 ellipse2 100 "abc
 ellipse2 100 {}
 ellipse2 100 []
@@ -39,7 +52,12 @@ ellipse2 100 -200
 ellipse2 "abc 200
 ellipse2 {} 200
 ellipse2 [] 200
+(ellipse2 100 200 "abc)
 
+ellipsearc
+ellipsearc 60
+ellipsearc 60 200
+ellipsearc 60 200 100
 ellipsearc "abc 200 100 120
 ellipsearc 60 "abc 100 120
 ellipsearc 60 -200 100 120
@@ -55,6 +73,10 @@ ellipsearc 60 [] 100 120
 ellipsearc 60 200 [] 120
 ellipsearc 60 200 100 []
 
+ellipsearc2
+ellipsearc2 60
+ellipsearc2 60 200
+ellipsearc2 60 200 100
 ellipsearc2 "abc 200 100 120
 ellipsearc2 60 "abc 100 120
 ellipsearc2 60 -200 100 120

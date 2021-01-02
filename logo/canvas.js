@@ -191,18 +191,26 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
         return "rgb(" + red + ", " + green + ", " + blue + ")";
     }
 
-    function canvasDraw(penMode, func) {
-        let repeat = 0;
+    function calcLineWidth() {
+        return (_penMode == CanvasCommon.PenMode.erase) ? _penSize + 2 * _zoom : _penSize;
+    }
 
-        _convasContext.lineWidth = _penSize;
-        if (penMode == CanvasCommon.PenMode.erase) {
-            _convasContext.lineWidth += 1 * _zoom;
-            repeat = 1;
-        }
+    function drawStroke(drawPath) {
+        _convasContext.globalCompositeOperation = _penMode;
+        _convasContext.strokeStyle = _penColor;
+        _convasContext.lineWidth = calcLineWidth();
 
-        for (let i = 0; i < repeat + 1; i++) {
-            func();
-        }
+        _convasContext.beginPath();
+        drawPath();
+        _convasContext.stroke();
+    }
+
+    function drawFill(drawPath) {
+        _convasContext.globalCompositeOperation = _penMode;
+        _convasContext.fillStyle = _floodColor;
+        _convasContext.beginPath();
+        drawPath();
+        _convasContext.fill();
     }
 
     let _primitive = {
@@ -213,14 +221,10 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
             let newTx = t2cX(turtleX);
             let newTy = t2cY(turtleY);
 
-            _convasContext.globalCompositeOperation = _penMode;
-            _convasContext.strokeStyle = _penColor;
-
-            canvasDraw(_penMode, function() {
+            drawStroke(() => {
                 _convasContext.beginPath();
                 _convasContext.moveTo(_tx, _ty);
                 _convasContext.lineTo(newTx, newTy);
-                _convasContext.stroke();
             });
 
             _tx = newTx;
@@ -258,39 +262,37 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
             ext.assert(!(isNaN(red) || isNaN(blue) || isNaN(green)));
             _floodColor = makeColorString(red, green, blue);
         },
-        "arc" : function arc(turtleX, turtleY, radius, startAngle, endAngle, counterClockwise) {
-            _convasContext.globalCompositeOperation = _penMode;
-            _convasContext.strokeStyle = _penColor;
+        "arc" : function arc(turtleX, turtleY, radius, startAngle, endAngle, counterClockwise, fill) {
+            const draw = () => _convasContext.arc(
+                t2cX(turtleX),
+                t2cY(turtleY),
+                radius * _zoom,
+                rad(startAngle),
+                rad(endAngle),
+                counterClockwise);
 
-            _convasContext.beginPath();
-            canvasDraw(_penMode, function() {
-                _convasContext.arc(
-                    t2cX(turtleX),
-                    t2cY(turtleY),
-                    radius * _zoom,
-                    rad(startAngle),
-                    rad(endAngle),
-                    counterClockwise);
-                _convasContext.stroke();
-            });
+            if (fill) {
+                drawFill(draw);
+            }
+
+            drawStroke(draw);
         },
-        "ellipse" : function ellipse(turtleX, turtleY, radiusX, radiusY, orientationAngle, startAngle, endAngle, counterClockwise) {
-            _convasContext.globalCompositeOperation = _penMode;
-            _convasContext.strokeStyle = _penColor;
+        "ellipse" : function ellipse(turtleX, turtleY, radiusX, radiusY, orientationAngle, startAngle, endAngle, counterClockwise, fill) {
+            const draw = () => _convasContext.ellipse(
+                t2cX(turtleX),
+                t2cY(turtleY),
+                radiusX * _zoom,
+                radiusY * _zoom,
+                rad(orientationAngle),
+                rad(startAngle),
+                rad(endAngle),
+                counterClockwise);
 
-            _convasContext.beginPath();
-            canvasDraw(_penMode, function() {
-                _convasContext.ellipse(
-                    t2cX(turtleX),
-                    t2cY(turtleY),
-                    radiusX * _zoom,
-                    radiusY * _zoom,
-                    rad(orientationAngle),
-                    rad(startAngle),
-                    rad(endAngle),
-                    counterClockwise);
-                _convasContext.stroke();
-            });
+            if (fill) {
+                drawFill(draw);
+            }
+
+            drawStroke(draw);
         },
         "drawtext" : function drawtext(text) {
             _convasContext.save();

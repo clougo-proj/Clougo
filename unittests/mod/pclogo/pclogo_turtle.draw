@@ -1,0 +1,9 @@
+pensize 2
+pensize 3
+ellipse 0 0 10 20 0 0 360 0 0
+moveto 0 0 90
+drawtext Abcdefg
+moveto 0 0 0
+moveto 0 0 90
+drawtext 12345
+moveto 0 0 0

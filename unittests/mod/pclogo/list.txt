@@ -5,3 +5,5 @@ butmember1 runl execl
 colorf run exec
 date run exec
 dot run exec
+pclogo_turtle run exec
+stamprect run exec

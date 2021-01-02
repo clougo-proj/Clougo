@@ -4,3 +4,4 @@ butmember run exec
 butmember1 runl execl
 colorf run exec
 date run exec
+dot run exec

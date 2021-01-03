@@ -1,10 +1,23 @@
-//-------------------------------------------------------------------------------------------------------
-// Copyright (C) Clougo Project. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//-------------------------------------------------------------------------------------------------------
-
-// Adapted from
+// Copyright (C) Clougo Project.
+// Copyright 2010 William Malone (www.williammalone.com)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Modified from
 //     http://www.williammalone.com/articles/html5-canvas-javascript-paint-bucket-tool/
+//     https://github.com/williammalone/HTML5-Paint-Bucket-Tool/blob/master/html5-canvas-paint-bucket.js
+//
+
 function floodFill(canvas, startX, startY, fillColor, fillMode, stopColor) {
 
   function getPixelPos(x, y) {

@@ -12,7 +12,7 @@ $classObj.create = function(sys) {
         unactionableDatum : true,  // raise runtime exception for unactionable datum
         genCommand : true,        // use codegen for interactive commands
         dynamicScope: true,
-        verbose: false,
+        verbose: true,
         postfix: false,
         trace: true
     };

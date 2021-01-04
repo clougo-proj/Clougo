@@ -12,9 +12,10 @@
         "pkmod": "node tools/pkdir mod > generated/mod.js",
         "pkut": "node tools/pkut unittests > generated/unittests.js",
         "pkdemo": "node tools/pkdir demo > generated/demo.js",
+        "pkucblogohelp": "node tools/pkdir UCBLogo > generated/UCBLogo.js",
         "build": "npm run eslint && npm run pkdemo && npm run pkut && npm run pkmod",
         "test": "node logo/logo --test && node logo/logo --test --on:postfix",
         "server": "http-server",
-        "predeploy": "rm -rf unittests && rm -rf demo && rm -rf node_modules"
+        "predeploy": "rm -rf unittests && rm -rf demo && rm -rf node_modules && rm -rf UCBLogo"
     }
 }

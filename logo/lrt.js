@@ -583,6 +583,18 @@ $classObj.create = function(logo, sys) {
         await logo.entry.exec(src);
     }
 
+    function primitiveHelp(topic) {
+        try {
+            logo.io.stdout(logo.logofs.get("/ucblogo/HELPFILE/" + topic.toLowerCase()));
+        } catch (e) {
+            if (logo.type.LogoException.is(e) && logo.type.LogoException.CANT_OPEN_FILE.equalsByCode(e)) {
+                throw logo.type.LogoException.NO_HELP_AVAILABLE.withParam([topic], logo.env.getPrimitiveSrcmap());
+            } else {
+                throw e;
+            }
+        }
+    }
+
     async function primitiveDemo(name) {
         let option = undefined;
         if (logo.type.isLogoList(name)) {
@@ -884,6 +896,8 @@ $classObj.create = function(logo, sys) {
         "load": primitiveLoad,
 
         "demo": primitiveDemo,
+
+        "help": primitiveHelp,
 
         ".test": dotTest
     };

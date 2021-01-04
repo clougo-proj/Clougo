@@ -989,6 +989,7 @@ $classObj.create = function(logo, sys) {
             "UNKNOWN_PROC"          : 13,
             "CANT_OPEN_FILE"        : 40,
             "LAST_ERROR_CODE"       : 1024,
+            "NO_HELP_AVAILABLE"     : 65531,
             "CUSTOM"                : 65532,
             "OUTPUT"                : 65534,
             "STOP"                  : 65535
@@ -1004,6 +1005,7 @@ $classObj.create = function(logo, sys) {
             12 : "Unexpected '{0}'",
             13 : "I don't know how to {0}",
             40 : "I can't open file {0}",
+            65531 : "No help available on {0}.",
             65532 : "Can't find catch tag for {0}",
             65534 : "Can only use output inside a procedure",
             65535 : "Can only use stop inside a procedure"
@@ -1026,7 +1028,7 @@ $classObj.create = function(logo, sys) {
             isCustom: function() { return this._code == codemap.CUSTOM; },
             isStop: function() { return this._code == codemap.STOP; },
             isOutput: function() { return this._code == codemap.OUTPUT; },
-            codeEquals: function(name) { return this._code == getCode(name); },
+            equalsByCode: function(e) { return this._code === e._code; },
             getCode: function() { return this._code; },
             getValue: function() { return this._value; },
             getSrcmap: function() { return this._srcmap; },

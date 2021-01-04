@@ -308,7 +308,7 @@ $classObj.create = function(logo, sys) {
                 throw e;
             }
 
-            if (e.codeEquals("OUTPUT")) {
+            if (logo.type.LogoException.OUTPUT.equalsByCode(e)) {
                 retVal = e.getValue();
             }
         }
@@ -415,7 +415,8 @@ $classObj.create = function(logo, sys) {
                 throw e; // rethrow if tag doesn't match label
             }
 
-            if (!logo.type.LogoException.is(e) || e.codeEquals("STOP") || e.codeEquals("OUTPUT") ||
+            if (!logo.type.LogoException.is(e) || logo.type.LogoException.STOP.equalsByCode(e) ||
+                    logo.type.LogoException.OUTPUT.equalsByCode(e) ||
                     (e.isError() && !sys.equalToken(label, "error"))) {
                 throw e;
             }

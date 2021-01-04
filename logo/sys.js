@@ -67,6 +67,7 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
     sys.global = {
         unitTestsJsSrcFile: "../generated/unittests.js",
         demoJsSrcFile: "../generated/demo.js",
+        ucbLogoJsSrcFile: "../generated/UCBLogo.js",
         modJsSrcFile: "../generated/mod.js"
     };
 

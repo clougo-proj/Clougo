@@ -91,6 +91,6 @@ mouse_queries runl execl
 load run exec
 remove run exec
 remove1 runl execl
-;time run exec
+time run exec
 help run exec
 help2 runl execl

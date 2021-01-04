@@ -253,14 +253,14 @@ $classObj.create = function(Logo, sys) {
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         let dateTime = new Date();
-        return dtFormat.replace(/EEE/, days[dateTime.getDay()])
-            .replace(/MMM/, months[dateTime.getMonth()])
-            .replace(/M/, dateTime.getMonth() + 1)
-            .replace(/dd/, padStart(dateTime.getDate(), 2, "0"))
-            .replace(/HH/, padStart(dateTime.getHours(), 2, "0"))
-            .replace(/mm/, padStart(dateTime.getMinutes(), 2, "0"))
-            .replace(/ss/, padStart(dateTime.getSeconds(), 2, "0"))
-            .replace(/yyyy/, dateTime.getFullYear());
+        return dtFormat.replace(/<EEE>/, days[dateTime.getDay()])
+            .replace(/<MMM>/, months[dateTime.getMonth()])
+            .replace(/<M>/, dateTime.getMonth() + 1)
+            .replace(/<dd>/, padStart(dateTime.getDate(), 2, "0"))
+            .replace(/<HH>/, padStart(dateTime.getHours(), 2, "0"))
+            .replace(/<mm>/, padStart(dateTime.getMinutes(), 2, "0"))
+            .replace(/<ss>/, padStart(dateTime.getSeconds(), 2, "0"))
+            .replace(/<yyyy>/, dateTime.getFullYear());
     }
 
     async function runTestHelper(test, testName, testMethod) {

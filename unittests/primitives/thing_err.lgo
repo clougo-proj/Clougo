@@ -1,0 +1,5 @@
+show thing
+show thing {}
+show thing []
+show thing "xy
+;show (thing "a "b)

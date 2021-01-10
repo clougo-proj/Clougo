@@ -1,0 +1,11 @@
+to test1
+    localmake "xy 123
+    show thing "xy
+    show thing (word "x "y)
+
+    make "Abc listToArray (list [] 1=2 3="abc)
+    show thing "Abc
+    show thing butFirst "zAbc
+end
+
+test1

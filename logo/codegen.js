@@ -75,9 +75,9 @@ $classObj.create = function(logo, sys) {
         "pi": genPi
     };
 
-    const genLambda = {
-        "apply": 1
-    };
+    const callLambda = new Set(["apply"]);
+
+    const needStashLocalVars = new Set(["apply", "thing"]);
 
     const CODE_TYPE = {
         EXPR: 0,
@@ -173,7 +173,7 @@ $classObj.create = function(logo, sys) {
         }
 
         appendInfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) {
-            return this.prepend("(\"", nextOp,  "\",", logo.type.srcmapToJs(nextOpSrcmap), ",")
+            return this.prepend("(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",")
                 .prepend(genCallPrimitiveOperator())
                 .prepend("($ret=")
                 .append(",")
@@ -510,7 +510,8 @@ $classObj.create = function(logo, sys) {
         let param = genPrimitiveCallParams(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
             isInParen);
 
-        if (!(curToken in genLambda)) {
+        if (!callLambda.has(curToken)) {
+
             let postfix = logo.config.get("postfix") || containsPostFix(param);
 
             return !postfix ? genInfixPrimitiveCall(curToken, srcmap, param).prepend("$ret=") :
@@ -531,7 +532,7 @@ $classObj.create = function(logo, sys) {
         let code = Code.expr();
 
         code.append("(");
-        if  (curToken in genLambda) {
+        if (needStashLocalVars.has(curToken)) {
             code.append(genStashLocalVars());
         }
 
@@ -543,7 +544,7 @@ $classObj.create = function(logo, sys) {
         code.append(Code.expr.apply(undefined, insertDelimiters(param, ",")));
         code.append("))");
 
-        if (curToken in genLambda) {
+        if (needStashLocalVars.has(curToken)) {
             code.append(",");
             code.append(genApplyLocalVars());
             code.append("$ret");
@@ -558,7 +559,7 @@ $classObj.create = function(logo, sys) {
         let code = Code.expr();
 
         code.withPostFix(true);
-        if  (curToken in genLambda) {
+        if  (needStashLocalVars.has(curToken)) {
             code.append(genStashLocalVars());
         }
 
@@ -573,8 +574,7 @@ $classObj.create = function(logo, sys) {
         code.append(genCallPrimitive());
         code.append(".apply(undefined,$param.end());\n");
 
-        if (curToken in genLambda) {
-
+        if  (needStashLocalVars.has(curToken)) {
             code.append(genApplyLocalVars());
             code.append("$ret;");
         }

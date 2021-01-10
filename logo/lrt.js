@@ -199,6 +199,11 @@ $classObj.create = function(logo, sys) {
         return logo.type.arrayFindItem(candidate, group) != -1;
     }
 
+    function primitiveThing(name) {
+        logo.type.validateInputWord(name);
+        return logo.type.getVarValue(logo.type.toString(name).toLowerCase(), logo.env.getPrimitiveSrcmap());
+    }
+
     function primitiveButfirst(thing) {
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "boolean") {
@@ -810,6 +815,8 @@ $classObj.create = function(logo, sys) {
 
         "memberp": primitiveMemberp,
         "member?": primitiveMemberp,
+
+        "thing": primitiveThing,
 
         "show": primitiveShow,
 

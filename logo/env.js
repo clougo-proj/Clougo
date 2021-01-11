@@ -190,6 +190,11 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.findLogoVarScope = findLogoVarScope;
 
+    function getGlobalScope() {
+        return _globalScope;
+    }
+    env.getGlobalScope = getGlobalScope;
+
     function batchMode() {
         return _logoMode == LogoMode.BATCH;
     }

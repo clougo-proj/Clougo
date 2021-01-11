@@ -1,0 +1,4 @@
+if (namep "argv) [
+    pr count :argv
+    show :argv
+]

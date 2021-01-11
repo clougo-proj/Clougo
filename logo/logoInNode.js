@@ -39,6 +39,8 @@ $classObj.create = function logoInNode(Logo, sys) {
         }
 
         if (cmd.op in srcRunner) {
+            logo.env.getGlobalScope().argv = logo.type.makeLogoList(cmd.argv);
+
             const logoSrc = fs.readFileSync(cmd.file, "utf8"); // logo source file (.lgo)
 
             srcRunner[cmd.op](logoSrc)
@@ -89,12 +91,18 @@ $classObj.create = function logoInNode(Logo, sys) {
         let cmd = {};
 
         cmd.op = Logo.mode.EXEC;
+        cmd.argv = [];
 
         for(let i = 2; i < argv.length; i++) {
-            if (argv[i].match(/^--/)) {
-                parseOption(argv[i].substring(2));
-            } else if (!("file" in cmd)) {
+            if (!("file" in cmd)) {
+                if (argv[i].match(/^--/)) {
+                    parseOption(argv[i].substring(2));
+                    continue;
+                }
+
                 cmd.file = argv[i];
+            } else {
+                cmd.argv.push(argv[i]);
             }
         }
 

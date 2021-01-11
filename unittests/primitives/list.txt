@@ -96,3 +96,5 @@ help run exec
 help2 runl execl
 thing run exec
 thing_err runl execl
+namep run exec
+namep_err runl execl

@@ -1,0 +1,3 @@
+show namep
+show namep {}
+show namep []

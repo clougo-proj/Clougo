@@ -77,7 +77,7 @@ $classObj.create = function(logo, sys) {
 
     const callLambda = new Set(["apply"]);
 
-    const needStashLocalVars = new Set(["apply", "thing"]);
+    const needStashLocalVars = new Set(["apply", "thing", "namep"]);
 
     const CODE_TYPE = {
         EXPR: 0,

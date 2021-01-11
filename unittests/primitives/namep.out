@@ -1,0 +1,17 @@
+testMake
+false
+false
+true
+true
+
+testLocalmake
+false
+false
+true
+true
+
+testLocalThenMake
+false
+false
+true
+true

@@ -199,6 +199,12 @@ $classObj.create = function(logo, sys) {
         return logo.type.arrayFindItem(candidate, group) != -1;
     }
 
+    function primitiveNamep(name) {
+        logo.type.validateInputWord(name);
+        let scope = logo.env.findLogoVarScope(name);
+        return (name in scope) && (scope[name] !== undefined);
+    }
+
     function primitiveThing(name) {
         logo.type.validateInputWord(name);
         return logo.type.getVarValue(logo.type.toString(name).toLowerCase(), logo.env.getPrimitiveSrcmap());
@@ -815,6 +821,9 @@ $classObj.create = function(logo, sys) {
 
         "memberp": primitiveMemberp,
         "member?": primitiveMemberp,
+
+        "namep": primitiveNamep,
+        "name?": primitiveNamep,
 
         "thing": primitiveThing,
 

@@ -1,0 +1,33 @@
+to testMake
+    show namep "a ; false
+    show name? "a ; false
+    make "a 1
+    show namep "a ; true
+    show name? "a ; true
+end
+
+to testLocalmake
+    show namep "b ; false
+    show name? "b ; false
+    localmake "b "Xyz
+    show namep "b ; true
+    show name? "b ; true
+end
+
+to testLocalThenMake
+    local "b
+    show namep "b ; false
+    show name? "b ; false
+    make "b {}
+    show namep "b ; true
+    show name? "b ; true
+end
+
+pr "testMake
+testMake
+
+pr "\ntestLocalmake
+testLocalmake
+
+pr "\ntestLocalThenMake
+testLocalThenMake

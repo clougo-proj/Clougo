@@ -120,6 +120,8 @@ $classObj.create = function(logo, sys) {
         }
 
         nextActualParam.splice(0, 0, evxContext.getSrcmap());
+        logo.env.setPrimitiveName(ctrlName);
+        logo.env.setPrimitiveSrcmap(evxContext.getSrcmap());
         evxContext.retVal = await ctrl[ctrlName].apply(null, nextActualParam);
     }
 
@@ -333,6 +335,7 @@ $classObj.create = function(logo, sys) {
     interpreter.evxInstrListWithFormalParam = evxInstrListWithFormalParam;
 
     async function evxInstrList(bodyComp, param) {
+        logo.type.validateInputList(bodyComp);
         let parsedBlock = logo.parse.parseBlock(bodyComp);
         if (!logo.type.hasReferenceSrcmap(bodyComp)) {
             return await evxBody(parsedBlock);
@@ -346,6 +349,7 @@ $classObj.create = function(logo, sys) {
     interpreter.evxInstrList = evxInstrList;
 
     async function evxCtrlRepeat(srcmap, count, bodyComp) {
+        logo.type.validateInputInteger(count);
         for (let i = 0; i < count; i++) {
             let retVal = await evxInstrList(bodyComp);
             if (logo.config.get("unactionableDatum")) {

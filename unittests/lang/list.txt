@@ -6,6 +6,7 @@ output run exec
 ifelse run exec
 if_else run exec
 repeat run exec
+repeat_err runl execl
 tilde run exec
 forloop run exec
 local run exec

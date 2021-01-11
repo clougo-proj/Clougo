@@ -321,13 +321,18 @@ $classObj.create = function(logo, sys) {
         let code = Code.stmt();
         let repeatVarName = "$i";
 
-        code.append(genToken(evxContext.next()));
-        code.append(";const $repeatEnd=$ret;\n");
-        code.append("for (let ");
-        code.append(repeatVarName, "=0;", repeatVarName, "<$repeatEnd;", repeatVarName, "++) {\n");
-        code.append(genInstrList(evxContext.next(), "repeat"));
-        code.append("}");
-        code.append("\n;$ret=undefined;");
+        let repeatCount = genToken(evxContext.next());
+        if (repeatCount === CODEGEN_CONSTANTS.NOP) {
+            code.append(genThrowNotEnoughInputs(evxContext.getSrcmap(), "repeat"));
+        } else {
+            code.append(repeatCount);
+            code.append(";const $repeatEnd=$ret;\n");
+            code.append("for (let ");
+            code.append(repeatVarName, "=0;", repeatVarName, "<$repeatEnd;", repeatVarName, "++) {\n");
+            code.append(genInstrList(evxContext.next(), "repeat"));
+            code.append("}");
+            code.append("\n;$ret=undefined;");
+        }
 
         return code;
     }

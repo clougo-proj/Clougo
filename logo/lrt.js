@@ -557,6 +557,18 @@ $classObj.create = function(logo, sys) {
         return await logo.env.applyInstrList(template, srcmap, unboxedInputList);
     }
 
+    async function primitiveRepeat(count, template) {
+        logo.type.validateInputPosNumber(count);
+        logo.type.validateInputList(template);
+
+        let srcmap = logo.env.getPrimitiveSrcmap();
+
+        for (let i = 0; i < count; i++) {
+            let ret = await logo.env.applyInstrList(template, srcmap, []);
+            logo.env.checkUnactionableDatum(ret, srcmap);
+        }
+    }
+
     function primitiveTime() {
         let date = new Date().toString().split(" "); // E.g. [Sat Sep 01 2018 14:53:26 GMT+1400 (LINT)]
         return logo.type.makeLogoList(date.slice(0, 3).concat(date[4], date[3]));
@@ -896,6 +908,8 @@ $classObj.create = function(logo, sys) {
         "readword": primitiveReadword,
 
         "apply": primitiveApply,
+
+        "repeat": primitiveRepeat,
 
         "time": primitiveTime,
 

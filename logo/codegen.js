@@ -77,7 +77,7 @@ $classObj.create = function(logo, sys) {
 
     const callLambda = new Set(["apply"]);
 
-    const needStashLocalVars = new Set(["apply", "thing", "namep"]);
+    const needStashLocalVars = new Set(["apply", "repeat", "thing", "namep"]);
 
     const CODE_TYPE = {
         EXPR: 0,
@@ -321,6 +321,7 @@ $classObj.create = function(logo, sys) {
         let code = Code.stmt();
         let repeatVarName = "$i";
 
+        evxContext.setAnchor();
         let repeatCount = genToken(evxContext.next());
         if (repeatCount === CODEGEN_CONSTANTS.NOP) {
             code.append(genThrowNotEnoughInputs(evxContext.getSrcmap(), "repeat"));
@@ -329,7 +330,14 @@ $classObj.create = function(logo, sys) {
             code.append(";const $repeatEnd=$ret;\n");
             code.append("for (let ");
             code.append(repeatVarName, "=0;", repeatVarName, "<$repeatEnd;", repeatVarName, "++) {\n");
+
+            if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+                evxContext.rewindToAnchor();
+                return;
+            }
+
             code.append(genInstrList(evxContext.next(), "repeat"));
+
             code.append("}");
             code.append("\n;$ret=undefined;");
         }
@@ -905,8 +913,8 @@ $classObj.create = function(logo, sys) {
     function genCall(evxContext, curToken, srcmap, isInParen) {
         let code = Code.expr();
 
-        if (curToken in genNativeJs) {
-            let nativeJsCode = genNativeJs[curToken](evxContext, isInParen);
+        let nativeJsCode = undefined;
+        if (curToken in genNativeJs && (nativeJsCode = genNativeJs[curToken](evxContext, isInParen)) !== undefined) {
             if (nativeJsCode.isExpr()) {
                 code.append("$ret=");
             }

@@ -458,7 +458,7 @@ $classObj.create = function(logo, sys, ext) {
     }
 
     function asyncFunctionCall(logosrc) {
-        return (/\b(wait|readword|apply|load)\b/i).test(logosrc) || (/^(\.test|demo)\b/i).test(logosrc);
+        return (/\b(wait|readword|apply|load|repeat)\b/i).test(logosrc) || (/^(\.test|demo)\b/i).test(logosrc);
     }
 
     function isEagerEval(logosrc) {
@@ -662,15 +662,21 @@ $classObj.create = function(logo, sys, ext) {
         }
 
         if (getGenJs()) {
+            let scopeStackLength = env._scopeStack.length;
             prepareCallProc("[]", srcmap, param);
             let retVal = await callLogoInstrListAsync(template, param);
             completeCallProc();
+            env._scopeStack.splice(scopeStackLength);
             return retVal;
         }
 
         let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
         if (formalParam === undefined) {
-            return await logo.interpreter.evxInstrList(bodyComp, param);
+            let scopeStackLength = env._scopeStack.length;
+            let ret = await logo.interpreter.evxInstrList(bodyComp, param);
+            env._scopeStack.splice(scopeStackLength);
+
+            return ret;
         }
 
         return await logo.interpreter.evxInstrListWithFormalParam(

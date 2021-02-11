@@ -1,0 +1,14 @@
+to f :n
+  if :n<1 [
+    make "result :result+1
+    stop ]
+  repeat 5 (list "f ":n-1)
+end
+
+to test0
+  localmake "result 0
+  f 3
+  pr :result
+end
+
+test0

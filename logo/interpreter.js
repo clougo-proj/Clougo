@@ -12,7 +12,6 @@ var $classObj = {};
 $classObj.create = function(logo, sys) {
     const interpreter = {};
     const ctrl = {
-        "repeat": evxCtrlRepeat,
         "for": evxCtrlFor,
         "if": evxCtrlIf,
         "ifelse": evxCtrlIfElse,
@@ -29,6 +28,12 @@ $classObj.create = function(logo, sys) {
                 }
 
                 return this;
+            },
+            setAnchor: function() {
+                this.anchor = this.ptr;
+            },
+            rewindToAnchor: function() {
+                this.ptr = this.anchor;
             },
             isEol: function() {
                 return this.eol;
@@ -347,16 +352,6 @@ $classObj.create = function(logo, sys) {
         return retVal;
     }
     interpreter.evxInstrList = evxInstrList;
-
-    async function evxCtrlRepeat(srcmap, count, bodyComp) {
-        logo.type.validateInputInteger(count);
-        for (let i = 0; i < count; i++) {
-            let retVal = await evxInstrList(bodyComp);
-            if (logo.config.get("unactionableDatum")) {
-                logo.env.checkUnactionableDatum(retVal, srcmap);
-            }
-        }
-    }
 
     async function evxCtrlFor(srcmap, forCtrlComp, bodyComp) {
         if (logo.type.isLogoList(forCtrlComp)) {

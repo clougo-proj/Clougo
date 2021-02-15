@@ -81,7 +81,8 @@ $classObj.create = function(logo, sys) {
 
     const CODE_TYPE = {
         EXPR: 0,
-        STMT: 1
+        STMT: 1,
+        ASYNC_MACRO: 2
     };
 
     class Code {
@@ -97,6 +98,10 @@ $classObj.create = function(logo, sys) {
 
         static stmt(...rawCode) {
             return new Code(rawCode, CODE_TYPE.STMT);
+        }
+
+        static asyncMacro(...rawCode) {
+            return new Code(rawCode, CODE_TYPE.ASYNC_MACRO);
         }
 
         append(...args) {
@@ -130,13 +135,23 @@ $classObj.create = function(logo, sys) {
             return this._codeType === CODE_TYPE.EXPR;
         }
 
+        isAsyncMacro() {
+            return this._codeType === CODE_TYPE.ASYNC_MACRO;
+        }
+
         postFix() {
             return this._postFix;
         }
 
         merge() {
+            if (this.isAsyncMacro()) {
+                let key = this._code[0];
+                return logo.env.getAsyncFunctionCall() ? ASYNC_MACRO_CODE[key][0] : ASYNC_MACRO_CODE[key][1];
+            }
+
             return this._code.map((v) => (v instanceof Code) ? v.merge() :
-                typeof v !== "string" ? JSON.stringify(v) : v).join("");
+                typeof v !== "string" ? JSON.stringify(v) : v)
+                .join("");
         }
 
         withPostFix(postFix) {
@@ -174,7 +189,7 @@ $classObj.create = function(logo, sys) {
 
         appendInfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) {
             return this.prepend("(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",")
-                .prepend(genCallPrimitiveOperator())
+                .prepend(ASYNC_MACRO.CALL_PRIMITIVE_OPERATOR)
                 .prepend("($ret=")
                 .append(",")
                 .append(nextOpnd)
@@ -188,10 +203,27 @@ $classObj.create = function(logo, sys) {
                 .append(nextOpnd)
                 .append(";\n$param.add($ret);\n")
                 .append("$ret=")
-                .append(genCallPrimitiveOperator())
+                .append(ASYNC_MACRO.CALL_PRIMITIVE_OPERATOR)
                 .append(".apply(undefined,$param.end());\n");
         }
     }
+
+    const ASYNC_MACRO = {
+        "ASYNC": Code.asyncMacro("ASYNC"),
+        "AWAIT": Code.asyncMacro("AWAIT"),
+        "CALL_PRIMITIVE": Code.asyncMacro("CALL_PRIMITIVE"),
+        "CALL_PRIMITIVE_OPERATOR": Code.asyncMacro("CALL_PRIMITIVE_OPERATOR"),
+        "CALL_LOGO_INSTR_LIST": Code.asyncMacro("CALL_LOGO_INSTR_LIST")
+    };
+
+    const ASYNC_MACRO_CODE = {
+        "ASYNC": ["async ", ""],
+        "AWAIT": ["await ", ""],
+        "CALL_PRIMITIVE": ["await logo.env.callPrimitiveAsync", "logo.env.callPrimitive"],
+        "CALL_PRIMITIVE_OPERATOR": [ "await logo.env.callPrimitiveOperatorAsync",
+            "logo.env.callPrimitiveOperator"],
+        "CALL_LOGO_INSTR_LIST": ["await callLogoInstrListAsync(", "callLogoInstrList("]
+    };
 
     const CODEGEN_CONSTANTS = {
         NOP: Code.stmt("undefined;")
@@ -436,7 +468,7 @@ $classObj.create = function(logo, sys) {
             .append(genPrepareCall(defaultInstrListName, srcmap))
             .append("$ret);\n")
             .append("$ret=")
-            .append(genCallLogoInstrList())
+            .append(ASYNC_MACRO.CALL_LOGO_INSTR_LIST)
             .append(genLogoVarRef(curToken, srcmap))
             .append(");")
             .append("(")
@@ -470,7 +502,8 @@ $classObj.create = function(logo, sys) {
             .append("\"", curToken, "\" in logo.env._user ? (")
 
             .append(genPrepareCall(curToken, srcmap))
-            .append("$ret=(", genAwait(), "logo.env._user[\"", curToken, "\"](")
+            .append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", curToken, "\"](")
+
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append(")),")
             .append(genCompleteCall())
@@ -500,7 +533,7 @@ $classObj.create = function(logo, sys) {
         code.append(genPrepareCall(curToken, srcmap));
         code.append("$ret;\n");
 
-        code.append("$ret=", genAwait(), "logo.env._user[", "\"" + curToken + "\"",
+        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env._user[", "\"" + curToken + "\"",
             "].apply(undefined,$param.end());\n");
 
         code.append(genCompleteCall());
@@ -519,9 +552,17 @@ $classObj.create = function(logo, sys) {
         return param;
     }
 
+    function isAsyncPrimitive(primitiveName) {
+        return logo.lrt.primitive[primitiveName].constructor.name === "AsyncFunction";
+    }
+
     function genPrimitiveCall(evxContext, curToken, srcmap, isInParen) {
         let param = genPrimitiveCallParams(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
             isInParen);
+
+        if (isAsyncPrimitive(curToken)) {
+            logo.env.setAsyncFunctionCall(true);
+        }
 
         if (!callLambda.has(curToken)) {
 
@@ -550,7 +591,7 @@ $classObj.create = function(logo, sys) {
         }
 
         code.append("($ret=");
-        code.append(genCallPrimitive());
+        code.append(ASYNC_MACRO.CALL_PRIMITIVE);
         code.append("(\"");
 
         code.append(curToken, "\", ", logo.type.srcmapToJs(srcmap), ",");
@@ -584,7 +625,7 @@ $classObj.create = function(logo, sys) {
         });
 
         code.append("$ret=");
-        code.append(genCallPrimitive());
+        code.append(ASYNC_MACRO.CALL_PRIMITIVE);
         code.append(".apply(undefined,$param.end());\n");
 
         if  (needStashLocalVars.has(curToken)) {
@@ -711,7 +752,7 @@ $classObj.create = function(logo, sys) {
         _isLambda = true;
         _varScopes.enter();
         let code = Code.expr();
-        code.append("(", genAsync(), "(");
+        code.append("(", ASYNC_MACRO.ASYNC, "(");
 
         if (param !== undefined) {
             code.append(Code.expr.apply(undefined, insertDelimiters(param, ",")));
@@ -775,6 +816,7 @@ $classObj.create = function(logo, sys) {
 
         _varScopes.enter();
         let code = genBody(evxContext).merge();
+        logo.trace.info(code, "codegen");
         _varScopes.exit();
 
         let ret = "$scopeCache={};" +
@@ -857,7 +899,7 @@ $classObj.create = function(logo, sys) {
 
     function genProcBody(procName, params, body) {
         let code = Code.expr();
-        code.append(genAsync(), "function ");
+        code.append(ASYNC_MACRO.ASYNC, "function ");
 
         let oldFuncName = _funcName;
         _funcName = procName;
@@ -929,28 +971,6 @@ $classObj.create = function(logo, sys) {
         }
 
         return code;
-    }
-
-    function genAsync() {
-        return logo.env.getAsyncFunctionCall() ? "async " : "";
-    }
-
-    function genAwait() {
-        return logo.env.getAsyncFunctionCall() ? "await " : "";
-    }
-
-    function genCallPrimitive() {
-        return logo.env.getAsyncFunctionCall() ? "await logo.env.callPrimitiveAsync" :
-            "logo.env.callPrimitive";
-    }
-
-    function genCallPrimitiveOperator() {
-        return logo.env.getAsyncFunctionCall() ? "await logo.env.callPrimitiveOperatorAsync" :
-            "logo.env.callPrimitiveOperator";
-    }
-
-    function genCallLogoInstrList() {
-        return logo.env.getAsyncFunctionCall() ? "await callLogoInstrListAsync(" : "callLogoInstrList(";
     }
 
     return codegen;

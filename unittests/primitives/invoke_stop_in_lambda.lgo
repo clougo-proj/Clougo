@@ -1,0 +1,15 @@
+to test_named_slot
+  invoke [[x] stop] 5
+  pr "error
+end
+
+to test_explicit_slot
+  invoke [stop] 5
+  pr "error
+end
+
+test_named_slot
+pr [test_named_slot completed]
+
+test_explicit_slot
+pr [test_explicit_slot completed]

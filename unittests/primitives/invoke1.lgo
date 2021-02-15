@@ -1,0 +1,13 @@
+to abc :x :y
+  op word :y :x
+end
+
+; Named procedure
+show (invoke "word 1 2 3)
+show (invoke "abc 1 2)
+
+pr "
+
+; Named procedure - indirect
+make "template "word show (invoke :template 1 2 3)
+make "template "abc show (invoke :template 1 2)

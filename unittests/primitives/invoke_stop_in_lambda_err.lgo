@@ -1,0 +1,4 @@
+invoke [[x] stop] 5
+invoke [stop] 5
+invoke [[x] output :x] 5
+invoke [output 1] 5

@@ -1,0 +1,61 @@
+make "input 5
+
+to test_named_slot_infix
+  invoke [[x] output :x+3] 5
+  pr "error
+end
+
+to test_named_slot_infix_indirect
+  localmake "template [[x] output :x+3]
+  invoke :template :input
+  pr "error
+end
+
+to test_named_slot_prefix
+  invoke [[x] output word :x 3] 5
+  pr "error
+end
+
+to test_named_slot_prefix_indirect
+  localmake "template [[x] output word :x 3]
+  invoke :template :input
+  pr "error
+end
+
+to test_explicit_slot_infix
+  invoke [output ?+3] 5
+  pr "error
+end
+
+to test_explicit_slot_infix_indirect
+  localmake "template [output ?+3]
+  invoke :template :input
+  pr "error
+end
+
+to test_explicit_slot_prefix
+  invoke [output word ? 3] 5
+  pr "error
+end
+
+to test_explicit_slot_prefix_indirect
+  localmake "template [output word ? 3]
+  invoke :template :input
+  pr "error
+end
+
+pr list "test_named_slot_infix: test_named_slot_infix
+
+pr list "test_named_slot_infix_indirect: test_named_slot_infix_indirect
+
+pr list "test_named_slot_prefix: test_named_slot_prefix
+
+pr list "test_named_slot_prefix_indirect: test_named_slot_prefix_indirect
+
+pr list "test_explicit_slot_infix: test_explicit_slot_infix
+
+pr list "test_explicit_slot_infix_indirect: test_explicit_slot_infix_indirect
+
+pr list "test_explicit_slot_prefix: test_explicit_slot_prefix
+
+pr list "test_explicit_slot_prefix_indirect: test_explicit_slot_prefix_indirect

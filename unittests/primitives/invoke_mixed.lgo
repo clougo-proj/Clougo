@@ -1,0 +1,10 @@
+to test0
+  make "a 100
+  invoke [[a]
+    pr :a
+    invoke [make "a ? pr :a] 5
+    pr :a] 11
+  pr :a
+end
+
+test0

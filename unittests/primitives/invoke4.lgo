@@ -1,0 +1,15 @@
+; Procedure Text
+(invoke [[x y] [show (list :x :y :x)]] 1 3)
+show (invoke [[a b][output (list :a :b :a)]] 1 3) ; [1 3 1]
+show invoke [[v][output word :v :v]]1
+show invoke [[w][output list :w :w]]1
+invoke [[m][type :m apply [[m]type :m] (list :m+1) pr :m]] 3
+
+pr "
+
+; Procedure Text - indirect
+make "template [[x y][show (list :x :y :x)]] (invoke :template 1 3)
+make "template [[a b][output (list :a :b :a)]] show (invoke :template 1 3) ; [1 3 1]
+make "template [[v][output word :v :v]] show invoke :template 1
+make "template [[w][output list :w :w]] show invoke :template 1
+make "template [[m][type :m invoke [[m]type :m] :m+1 pr :m]] invoke :template 3

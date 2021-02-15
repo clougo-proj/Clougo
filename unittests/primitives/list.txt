@@ -98,3 +98,18 @@ thing run exec
 thing_err runl execl
 namep run exec
 namep_err runl execl
+invoke run exec
+invoke_err runl execl
+invoke_mixed run exec
+invoke_output_in_lambda run exec
+invoke_stop_in_lambda_err runl execl
+invoke_stop_in_lambda run exec
+invoke1 run exec
+invoke1_err runl execl
+invoke2 run exec
+invoke2_err runl execl
+invoke3 run exec
+invoke3_err runl execl
+invoke4 run exec
+invoke4_err runl execl
+invoke4 exec

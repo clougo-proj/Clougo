@@ -25,6 +25,7 @@ Not enough inputs to []
 Too much inside ()'s
     at 15,30
 You don't say what to do with [1 3]
+    [] at 16,30
     at 16,37
 y has no value
     [] at 17,26

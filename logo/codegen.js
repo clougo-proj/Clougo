@@ -77,9 +77,9 @@ $classObj.create = function(logo, sys) {
         "pi": genPi
     };
 
-    const callLambda = new Set(["apply"]);
+    const callLambda = new Set(["apply", "invoke"]);
 
-    const needStashLocalVars = new Set(["apply", "repeat", "thing", "namep"]);
+    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "thing", "namep"]);
 
     const CODE_TYPE = {
         EXPR: 0,
@@ -698,7 +698,7 @@ $classObj.create = function(logo, sys) {
             return (!_isLambda) ? Code.expr(genToken(evxContext.next())).append(";return $ret") :
                 genThrowOutputException(evxContext);
         } else if (logo.type.isOpenParen(curToken)) {
-            return Code.expr(genParen(evxContext));
+            return genParen(evxContext);
         } else if (logo.type.isCompoundObj(curToken)) {
             return genCompoundObj(curToken, srcmap);
         } else if (logo.type.isQuotedLogoWord(curToken)) {

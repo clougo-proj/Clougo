@@ -557,6 +557,10 @@ $classObj.create = function(logo, sys) {
         return await logo.env.applyInstrList(template, srcmap, unboxedInputList);
     }
 
+    async function primitiveInvoke(template, ...inputs) {
+        return await primitiveApply(template, logo.type.makeLogoList(inputs));
+    }
+
     async function primitiveRepeat(count, template) {
         logo.type.validateInputPosNumber(count);
         logo.type.validateInputList(template);
@@ -909,6 +913,8 @@ $classObj.create = function(logo, sys) {
 
         "apply": primitiveApply,
 
+        "invoke": primitiveInvoke,
+
         "repeat": primitiveRepeat,
 
         "time": primitiveTime,
@@ -970,6 +976,8 @@ $classObj.create = function(logo, sys) {
 
     primitiveParamCount.ellipse =
     primitiveParamCount.ellipse2 = [2, 2, 3];
+
+    primitiveParamCount.invoke = [2, 2, -1];
 
     lrt.primitiveParamCount = primitiveParamCount;
 

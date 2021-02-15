@@ -444,10 +444,6 @@ $classObj.create = function(logo, sys, ext) {
         let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
         logo.trace.info(parsedCode, "parse.result");
         setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
-        if (!getAsyncFunctionCall() && asyncFunctionCall(logosrc)) {
-            setAsyncFunctionCall(true);
-        }
-
         setGenJs(genjs);
 
         if (genjs) {
@@ -455,10 +451,6 @@ $classObj.create = function(logo, sys, ext) {
         } else {
             await evalLogo(parsedCode);
         }
-    }
-
-    function asyncFunctionCall(logosrc) {
-        return (/\b(wait|readword|apply|load|repeat)\b/i).test(logosrc) || (/^(\.test|demo)\b/i).test(logosrc);
     }
 
     function isEagerEval(logosrc) {
@@ -649,7 +641,6 @@ $classObj.create = function(logo, sys, ext) {
 
     async function codegenOnly(src) {
         let ir = logo.parse.parseSrc(src, 1);
-        setAsyncFunctionCall(asyncFunctionCall(src));
         return logo.codegen.genTopLevelCode(ir);
     }
     env.codegenOnly = codegenOnly;

@@ -13,9 +13,11 @@ $classObj.create = function(logo, sys) {
 
     const defaultInstrListName = "[]";
 
+    const TOP_LEVEL_FUNC = "";
+
     const codegen = {};
 
-    let _funcName = "";
+    let _funcName = TOP_LEVEL_FUNC;
 
     let _isLambda = false;
 
@@ -576,8 +578,9 @@ $classObj.create = function(logo, sys) {
             .prepend("try {\n$ret=")
             .append("} catch (e) {\n")
             .append("if(logo.type.LogoException.is(e)){")
-            .append("if(e.isStop()) return;\n")
-            .append("if(e.isOutput()) return e.getValue();\n")
+            .append((_funcName === TOP_LEVEL_FUNC) ?
+                "if(e.isStop() || e.isOutput()){errorOnLogoException(e);return;}\n" :
+                "if(e.isStop()) return;if(e.isOutput()) return e.getValue();\n")
             .append("}\n")
             .append("throw e;}\n");
     }
@@ -809,7 +812,7 @@ $classObj.create = function(logo, sys) {
     function genTopLevelCode(p) {
 
         let oldFuncName = _funcName;
-        _funcName = "";
+        _funcName = TOP_LEVEL_FUNC;
         _isLambda = false;
 
         let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(p));

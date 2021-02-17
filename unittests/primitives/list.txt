@@ -82,7 +82,7 @@ apply3_err runl execl
 apply4_err runl execl
 apply_mixed run exec
 apply_stop_in_lambda run exec
-apply_stop_in_lambda_err runl
+apply_stop_in_lambda_err runl execl
 apply_output_in_lambda run exec
 text run exec
 define run exec

@@ -568,6 +568,16 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.checkUnactionableDatum = checkUnactionableDatum;
 
+    function errorOnLogoException(e, omitCurProc = true) {
+        logo.io.stderr(e.formatMessage());
+        if (!omitCurProc) {
+            env._callstack.push([env._curProc, e.getSrcmap()]);
+        }
+
+        logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
+    }
+    env.errorOnLogoException = errorOnLogoException;
+
     async function evalLogo(parsedCommand) {
         let scopeStackLength = env._scopeStack.length;
 
@@ -578,9 +588,7 @@ $classObj.create = function(logo, sys, ext) {
                 if (!logo.type.LogoException.is(e)) {
                     throw e;
                 } else {
-                    logo.io.stderr(e.formatMessage());
-                    env._callstack.push([env._curProc, e.getSrcmap()]);
-                    logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
+                    errorOnLogoException(e, false);
                 }
             }
         }
@@ -610,9 +618,7 @@ $classObj.create = function(logo, sys, ext) {
             if (!logo.type.LogoException.is(e)) {
                 throw e;
             } else {
-                logo.io.stderr(e.formatMessage());
-                env._callstack.push([env._curProc, e.getSrcmap()]);
-                logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
+                errorOnLogoException(e, false);
             }
         }
 

@@ -2,3 +2,7 @@ Can only use stop inside a procedure
     at 1,1
 Can only use stop inside a procedure
     at 2,1
+Can only use output inside a procedure
+    at 3,1
+Can only use output inside a procedure
+    at 4,1

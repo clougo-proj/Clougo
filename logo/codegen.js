@@ -380,10 +380,17 @@ $classObj.create = function(logo, sys) {
     }
 
     function genFor(evxContext) {
-        let code = Code.stmt();
-
+        evxContext.setAnchor();
         let token = evxContext.next().getToken();
         let srcmap = evxContext.getSrcmap();
+
+        if (evxContext.isTokenEndOfStatement(token)) {
+            return Code.stmt(genThrowNotEnoughInputs(evxContext.getSrcmap(), "for"));
+        }
+
+        if (evxContext.isTokenEndOfStatement(evxContext.peekNextToken())) {
+            return Code.stmt(genThrowNotEnoughInputs(evxContext.peekNextSrcmap(), "for"));
+        }
 
         token = token.map(sys.toNumberIfApplicable);
 
@@ -391,28 +398,37 @@ $classObj.create = function(logo, sys) {
         let forLoopCtrl = logo.interpreter.makeEvalContext(comp);
         let forVarName = genLogoVarLref(forLoopCtrl.getToken());
 
-        code.append("{");
-        code.append(genToken(forLoopCtrl.next()));
-        code.append(";const $forBegin=$ret;\n");
+        let forBeginStmt = genToken(forLoopCtrl.next());
+        let forEndStmt = genToken(forLoopCtrl.next());
+        let forStepStmt = forLoopCtrl.hasNext() ? genToken(forLoopCtrl.next()) : Code.expr("$ret=$forDecrease?-1:1");
 
-        code.append(genToken(forLoopCtrl.next()));
-        code.append(";const $forEnd=$ret;\n");
+        if (forBeginStmt == CODEGEN_CONSTANTS.NOP || forEndStmt == CODEGEN_CONSTANTS.NOP) {
+            return Code.stmt("throwRuntimeLogoException(logo.type.LogoException.INVALID_INPUT,",
+                logo.type.srcmapToJs(srcmap), ",['for','", logo.type.toString(token, true), "']);\n");
+        }
 
-        code.append("const $forDecrease = $forEnd < $forBegin;\n");
+        return Code.stmt("{")
+            .append(forBeginStmt)
+            .append(genValidateNumber(srcmap, token))
+            .append("const $forBegin=sys.toNumberIfApplicable($ret);\n")
+            .append(forEndStmt)
+            .append(genValidateNumber(srcmap, token))
+            .append("const $forEnd=sys.toNumberIfApplicable($ret);\n")
+            .append("const $forDecrease = $forEnd < $forBegin;\n")
+            .append(forStepStmt)
+            .append(genValidateNumber(srcmap, token))
+            .append("const $forStep=sys.toNumberIfApplicable($ret);\n")
+            .append("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n")
+            .append("for(", forVarName, "=$forBegin; ($forDecrease && ", forVarName, ">=$forEnd) || (!$forDecrease &&",
+                forVarName, "<=$forEnd); ", forVarName, "+=$forStep) {\n")
+            .append(genInstrList(evxContext.next(), "for"))
+            .append("}}")
+            .append("\n;$ret=undefined;");
+    }
 
-        let forStep = forLoopCtrl.hasNext() ? genToken(forLoopCtrl.next()) : "$forDecrease ? -1 : 1";
-        code.append("const $forStep = ", forStep, ";\n");
-
-        code.append("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n");
-        code.append("for(", forVarName, "=$forBegin; ($forDecrease && ", forVarName, ">=$forEnd) || (!$forDecrease &&",
-            forVarName, "<=$forEnd); ", forVarName, "+=$forStep) {\n");
-
-        code.append(genInstrList(evxContext.next(), "for"));
-
-        code.append("}}");
-        code.append("\n;$ret=undefined;");
-
-        return code;
+    function genValidateNumber(srcmap, token) {
+        return Code.stmt(";\nlogo.type.validateNumber($ret,logo.type.LogoException.INVALID_INPUT,",
+            logo.type.srcmapToJs(srcmap), ",['for','", logo.type.toString(token, true), "']);\n");
     }
 
     function genMake(evxContext) {
@@ -684,7 +700,7 @@ $classObj.create = function(logo, sys) {
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
 
-        if (sys.isUndefined(curToken) || curToken === logo.type.NEWLINE) {
+        if (evxContext.isTokenEndOfStatement(curToken)) {
             return CODEGEN_CONSTANTS.NOP; // make sure eval() returns undefined
         }
 

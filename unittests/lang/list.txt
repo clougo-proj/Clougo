@@ -10,6 +10,8 @@ repeat1 run exec
 repeat_err runl execl
 tilde run exec
 forloop run exec
+for run exec
+for_err runl execl
 local run exec
 newline_in_block run exec
 paren run exec

@@ -1,0 +1,7 @@
+for
+for [i 1 2]
+for [i][pr :i]
+for [i 0][pr :i]
+for [i "a "b][pr :i]
+for [i "0 "b][pr :i]
+for[i 0 1 "a][pr :i]

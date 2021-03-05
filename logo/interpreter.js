@@ -57,11 +57,18 @@ $classObj.create = function(logo, sys) {
                 return sys.isUndefined(token) || token === logo.type.NEWLINE;
             },
             peekNextToken : function() {
-                if (this.ptr + 1 >= this.body.length) {
+                if (sys.isUndefined(this.body) || this.ptr + 1 >= this.body.length) {
                     return undefined;
                 }
 
                 return this.body[this.ptr+1];
+            },
+            peekNextSrcmap : function() {
+                if (sys.isUndefined(this.srcmap) || this.ptr + 1 >= this.srcmap.length) {
+                    return logo.type.SRCMAP_NULL;
+                }
+
+                return this.srcmap[this.ptr+1];
             },
             getNextOperator: function() {
                 return this.body[this.ptr + 1];
@@ -354,6 +361,7 @@ $classObj.create = function(logo, sys) {
     interpreter.evxInstrList = evxInstrList;
 
     async function evxCtrlFor(srcmap, forCtrlComp, bodyComp) {
+        let forCtrlSrcmap = logo.type.getEmbeddedSrcmap(forCtrlComp);
         if (logo.type.isLogoList(forCtrlComp)) {
             forCtrlComp = logo.parse.parseBlock(forCtrlComp);
         }
@@ -363,13 +371,17 @@ $classObj.create = function(logo, sys) {
 
         let forBegin, forEnd, forStep;
         await evxToken(evxContext.next());
-        forBegin = evxContext.retVal;
-        await evxToken(evxContext.next());
+        logo.type.validateNumber(evxContext.retVal, logo.type.LogoException.INVALID_INPUT, forCtrlSrcmap, ["for", forCtrlComp]);
 
-        forEnd = evxContext.retVal;
+        forBegin = sys.toNumberIfApplicable(evxContext.retVal);
+        await evxToken(evxContext.next());
+        logo.type.validateNumber(evxContext.retVal, logo.type.LogoException.INVALID_INPUT, forCtrlSrcmap, ["for", forCtrlComp]);
+
+        forEnd = sys.toNumberIfApplicable(evxContext.retVal);
         evxContext.retVal = undefined;
         if (evxContext.hasNext()) {
             await evxToken(evxContext.next());
+            logo.type.validateNumber(evxContext.retVal, logo.type.LogoException.INVALID_INPUT, forCtrlSrcmap, ["for", forCtrlComp]);
         }
 
         forStep = evxContext.retVal;

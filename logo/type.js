@@ -672,6 +672,13 @@ $classObj.create = function(logo, sys) {
     }
     type.validateInputNumber = validateInputNumber;
 
+    function validateNumber(value, exception, srcmap, exceptionParam) {
+        if (!logo.type.isLogoNumber(value)) {
+            throw exception.withParam(exceptionParam, srcmap);
+        }
+    }
+    type.validateNumber = validateNumber;
+
     function validateInputNonNegNumber(value) {
         ifTrueThenThrow(!(logo.type.isLogoNumber(value) && value >= 0), type.LogoException.INVALID_INPUT, value);
     }

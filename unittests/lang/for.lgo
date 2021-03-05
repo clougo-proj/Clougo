@@ -1,0 +1,3 @@
+for [i "0 1][pr :i]
+for [i "2 "3][pr :i]
+for [i 4 "5][pr :i]

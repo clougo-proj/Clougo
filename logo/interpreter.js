@@ -12,7 +12,6 @@ var $classObj = {};
 $classObj.create = function(logo, sys) {
     const interpreter = {};
     const ctrl = {
-        "for": evxCtrlFor,
         "if": evxCtrlIf,
         "ifelse": evxCtrlIfElse,
         "catch": evxCtrlCatch
@@ -333,6 +332,12 @@ $classObj.create = function(logo, sys) {
     }
     interpreter.evxProc = evxProc;
 
+    async function evxNextNumberExpr(evxContext, exception, exceptionParam, srcmap) {
+        await evxToken(evxContext.next());
+        logo.type.validateNumber(evxContext.retVal, exception, srcmap, exceptionParam);
+    }
+    interpreter.evxNextNumberExpr = evxNextNumberExpr;
+
     async function evxInstrListWithFormalParam(bodyComp, formalParam, param) {
         let curScope = {};
         logo.env._scopeStack.push(curScope);
@@ -346,10 +351,10 @@ $classObj.create = function(logo, sys) {
     }
     interpreter.evxInstrListWithFormalParam = evxInstrListWithFormalParam;
 
-    async function evxInstrList(bodyComp, param) {
+    async function evxInstrList(bodyComp, param = undefined, pushStack = true) {
         logo.type.validateInputList(bodyComp);
         let parsedBlock = logo.parse.parseBlock(bodyComp);
-        if (!logo.type.hasReferenceSrcmap(bodyComp)) {
+        if (!logo.type.hasReferenceSrcmap(bodyComp) || !pushStack) {
             return await evxBody(parsedBlock);
         }
 
@@ -359,48 +364,6 @@ $classObj.create = function(logo, sys) {
         return retVal;
     }
     interpreter.evxInstrList = evxInstrList;
-
-    async function evxCtrlFor(srcmap, forCtrlComp, bodyComp) {
-        let forCtrlSrcmap = logo.type.getEmbeddedSrcmap(forCtrlComp);
-        if (logo.type.isLogoList(forCtrlComp)) {
-            forCtrlComp = logo.parse.parseBlock(forCtrlComp);
-        }
-
-        let evxContext = makeEvalContext(forCtrlComp);
-        let forVarName = evxContext.getToken();
-
-        let forBegin, forEnd, forStep;
-        await evxToken(evxContext.next());
-        logo.type.validateNumber(evxContext.retVal, logo.type.LogoException.INVALID_INPUT, forCtrlSrcmap, ["for", forCtrlComp]);
-
-        forBegin = sys.toNumberIfApplicable(evxContext.retVal);
-        await evxToken(evxContext.next());
-        logo.type.validateNumber(evxContext.retVal, logo.type.LogoException.INVALID_INPUT, forCtrlSrcmap, ["for", forCtrlComp]);
-
-        forEnd = sys.toNumberIfApplicable(evxContext.retVal);
-        evxContext.retVal = undefined;
-        if (evxContext.hasNext()) {
-            await evxToken(evxContext.next());
-            logo.type.validateNumber(evxContext.retVal, logo.type.LogoException.INVALID_INPUT, forCtrlSrcmap, ["for", forCtrlComp]);
-        }
-
-        forStep = evxContext.retVal;
-        let curScope = logo.env._scopeStack[logo.env._scopeStack.length - 1];
-        let isDecrease = forEnd < forBegin;
-
-        if (sys.isUndefined(forStep)) {
-            forStep = isDecrease ? -1 : 1;
-        }
-
-        for (curScope[forVarName] = forBegin;
-            (!isDecrease && curScope[forVarName] <= forEnd) || (isDecrease && curScope[forVarName] >= forEnd);
-            curScope[forVarName] += forStep) {
-            let retVal = await evxInstrList(bodyComp);
-            if (logo.config.get("unactionableDatum")) {
-                logo.env.checkUnactionableDatum(retVal, srcmap);
-            }
-        }
-    }
 
     async function evxCtrlIf(srcmap, predicate, bodyComp) {
         if (logo.type.isNotLogoFalse(predicate)) {

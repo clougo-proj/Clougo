@@ -79,7 +79,7 @@ $classObj.create = function(logo, sys) {
 
     const callLambda = new Set(["apply", "invoke"]);
 
-    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "thing", "namep"]);
+    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "for", "thing", "namep"]);
 
     const CODE_TYPE = {
         EXPR: 0,
@@ -267,11 +267,14 @@ $classObj.create = function(logo, sys) {
         return code;
     }
 
-    function genInstrList(evxContext, primitiveName, generateCheckUnactionableDatum = true) {
+    function genInstrList(evxContext, primitiveName, generateCheckUnactionableDatum = true, parentSrcmap = undefined) {
         let code = Code.expr();
 
         let curToken = evxContext.getToken();
         let srcmap = evxContext.getSrcmap();
+        if (parentSrcmap === undefined) {
+            parentSrcmap = srcmap;
+        }
 
         if (evxContext.isTokenEndOfStatement(curToken)) {
             code.append(genThrowNotEnoughInputs(evxContext.getSrcmap(), primitiveName));
@@ -279,11 +282,11 @@ $classObj.create = function(logo, sys) {
             let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
             code.append(genBody(logo.interpreter.makeEvalContext(comp)));
         } else {
-            code.append(genInstrListCall(curToken, srcmap));
+            code.append(genInstrListCall(curToken, parentSrcmap));
         }
 
         if (generateCheckUnactionableDatum && logo.config.get("unactionableDatum")) {
-            code.append(";checkUnactionableDatum($ret,", logo.type.srcmapToJs(srcmap), ");\n");
+            code.append(";checkUnactionableDatum($ret,", logo.type.srcmapToJs(parentSrcmap), ");\n");
         }
 
         return code;
@@ -381,6 +384,7 @@ $classObj.create = function(logo, sys) {
 
     function genFor(evxContext) {
         evxContext.setAnchor();
+        let forSrcmap = evxContext.getSrcmap();
         let token = evxContext.next().getToken();
         let srcmap = evxContext.getSrcmap();
 
@@ -390,6 +394,11 @@ $classObj.create = function(logo, sys) {
 
         if (evxContext.isTokenEndOfStatement(evxContext.peekNextToken())) {
             return Code.stmt(genThrowNotEnoughInputs(evxContext.peekNextSrcmap(), "for"));
+        }
+
+        if (!logo.type.isLogoList(token)) {
+            evxContext.rewindToAnchor();
+            return;
         }
 
         token = token.map(sys.toNumberIfApplicable);
@@ -421,7 +430,7 @@ $classObj.create = function(logo, sys) {
             .append("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n")
             .append("for(", forVarName, "=$forBegin; ($forDecrease && ", forVarName, ">=$forEnd) || (!$forDecrease &&",
                 forVarName, "<=$forEnd); ", forVarName, "+=$forStep) {\n")
-            .append(genInstrList(evxContext.next(), "for"))
+            .append(genInstrList(evxContext.next(), "for", true, forSrcmap))
             .append("}}")
             .append("\n;$ret=undefined;");
     }

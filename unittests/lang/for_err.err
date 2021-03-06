@@ -12,3 +12,7 @@ for doesn't like [i "0 "b] as input
     at 6,5
 for doesn't like [i 0 1 "a] as input
     at 7,4
+for doesn't like {} as input
+    at 8,1
+for doesn't like [ab 6 "a4] as input
+    at 9,1

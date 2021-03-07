@@ -956,6 +956,10 @@ $classObj.create = function(logo, sys) {
         return actual;
     }
 
+    function booleanToString(value) {
+        return value ? "true" : "false";
+    }
+
     function toString(v, outterBracket = false) {
         if (isQuotedLogoWord(v)) {
             return unquoteLogoWord(v);
@@ -967,6 +971,10 @@ $classObj.create = function(logo, sys) {
 
         if (typeof v === "number") {
             return numberToString(v);
+        }
+
+        if (typeof v === "boolean") {
+            return booleanToString(v);
         }
 
         if (!(isLogoList(v) || isLogoArray(v))) {

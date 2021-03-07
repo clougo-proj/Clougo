@@ -261,6 +261,17 @@ $classObj.create = function(logo, sys) {
                 .filter((item) => !logo.type.equal(item, thing)));
     }
 
+
+    function primitiveReverse(value) {
+        if (logo.type.isLogoWord(value)) {
+            return logo.type.toString(value).split("").reverse().join("");
+        }
+
+        logo.type.validateInputList(value);
+        return logo.type.makeLogoList(
+            logo.type.unboxList(value).reverse());
+    }
+
     function primitiveCount(thing) {
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "boolean") {
@@ -955,6 +966,8 @@ $classObj.create = function(logo, sys) {
         "bl": primitiveButlast,
 
         "remove": primitiveRemove,
+
+        "reverse": primitiveReverse,
 
         "count": primitiveCount,
 

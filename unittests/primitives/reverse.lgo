@@ -1,0 +1,9 @@
+show reverse []
+show reverse [1 2 3]
+show reverse [[] {}]
+make "origArray [1 2 3]
+show reverse :origArray
+show :origArray ; orginal array is unchanged
+show reverse "abcde
+show reverse 1=2
+show reverse "abc = word "a "bc

@@ -1,0 +1,94 @@
+; primitive
+foreach [1 2 abc] "pr
+pr "
+
+; primitive slots
+(foreach [a b c][1 2 3] "make)
+(show :a :b :c)
+pr "
+
+; named procedure
+to g :x
+  show (list # :x ?rest)
+end
+foreach[a b c]"g
+pr "
+
+; explicit slot
+foreach [1 2 abc] [pr ?]
+pr "
+
+; explicit slots
+(foreach (list 1 2 "abc) (list 1=2 reverse 3 = 4 "10) [pr word ?1 ?2])
+pr "
+
+; explicit slots
+(foreach [a b c][d e f] [pr word ?1 ?2])
+pr "
+
+; explicit rest slot
+foreach [a b c][show ?rest]
+pr "
+
+; explicit slot: index, slot, and rest slot
+foreach [a b c][show (list # ? ?rest)]
+pr "
+
+; explict rest slots
+(foreach [a b c][d e f] [show list (?rest 1) (?rest 2)])
+pr "
+
+; named slots - indirect
+localmake "param1 (list 1 2 "abc)
+localmake "param2 (list 1=2 reverse 3 = 4 "10)
+localmake "template (list (list "x "y) "pr "word ":x ":y)
+(foreach :param1 :param2 :template)
+pr "
+
+; named slots
+(foreach [a b c][d e f] [[x y] pr word :x :y])
+pr "
+
+; named slots with rest
+(foreach [a b c][d e f] [[x y] show list (?rest 1) (?rest 2)])
+pr "
+
+; named slot: index, slot, and rest slot
+foreach [a b c][[x] show (list # :x ?rest)]
+pr "
+
+; procedure text - indirect
+localmake "template [[x y][pr word :x :y]]
+(foreach :param1 :param2 :template)
+pr "
+
+; procedure text: index, slot, and rest slot
+foreach [a b c][[x][show (list # :x ?rest)]]
+pr "
+
+; string word
+foreach "abc [pr ?]
+pr "
+
+; numeric word
+foreach -100 [pr ?]
+pr "
+
+; boolean word
+foreach 1<>1 [pr ?]
+pr "
+
+; boolean word
+foreach 1=1 [pr ?]
+pr "
+
+; two words
+(foreach "abc "def [pr word ?1 ?2])
+pr "
+
+; mixed word and list
+(foreach "abc [d e f] [pr word ?1 ?2])
+pr "
+
+; mixed list and word
+(foreach [a b c] "def [pr word ?1 ?2])

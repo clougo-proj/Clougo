@@ -360,27 +360,27 @@ $classObj.create = function(logo, sys) {
     }
     interpreter.evxNextNumberExpr = evxNextNumberExpr;
 
-    async function evxInstrListWithFormalParam(bodyComp, formalParam, param) {
+    async function evxInstrListWithFormalParam(bodyComp, formalParam, slot) {
         let curScope = {};
         logo.env._scopeStack.push(curScope);
         for (let i = 0; i < formalParam.length; i++) {
-            curScope[formalParam[i]] = param[i];
+            curScope[formalParam[i]] = slot.param[i];
         }
 
-        let retVal = await evxInstrList(bodyComp, param);
+        let retVal = await evxInstrList(bodyComp, slot);
         logo.env._scopeStack.pop();
         return retVal;
     }
     interpreter.evxInstrListWithFormalParam = evxInstrListWithFormalParam;
 
-    async function evxInstrList(bodyComp, param = undefined, pushStack = true) {
+    async function evxInstrList(bodyComp, slot = {}, pushStack = true) {
         logo.type.validateInputList(bodyComp);
         let parsedBlock = logo.parse.parseBlock(bodyComp);
         if (!logo.type.hasReferenceSrcmap(bodyComp) || !pushStack) {
             return await evxBody(parsedBlock);
         }
 
-        logo.env.prepareCallProc("[]", logo.type.getReferenceSrcmap(bodyComp), param);
+        logo.env.prepareCallProc(logo.type.LAMBDA_EXPR, logo.type.getReferenceSrcmap(bodyComp), slot);
         let retVal = await evxBody(parsedBlock, true);
         logo.env.completeCallProc();
         return retVal;

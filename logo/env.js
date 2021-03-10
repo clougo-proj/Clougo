@@ -141,10 +141,25 @@ $classObj.create = function(logo, sys, ext) {
     env.extractSlotNum = extractSlotNum;
 
     function getSlotValue(slotNum) {
-        logo.type.ifTrueThenThrow(slotNum > env._curSlot.length, logo.type.LogoException.INVALID_INPUT, slotNum);
-        return env._curSlot[slotNum - 1];
+        logo.type.ifTrueThenThrow(env._curSlot === undefined || slotNum > env._curSlot.param.length,
+            logo.type.LogoException.INVALID_INPUT, slotNum);
+
+        return env._curSlot.param[slotNum - 1];
     }
     env.getSlotValue = getSlotValue;
+
+    function getSlotIndex() {
+        return env._curSlot.index;
+    }
+    env.getSlotIndex = getSlotIndex;
+
+    function getSlotRestValue(slotNum) {
+        logo.type.ifTrueThenThrow(env._curSlot === undefined || slotNum > env._curSlot.rest.length,
+            logo.type.LogoException.INVALID_INPUT, slotNum);
+
+        return logo.type.makeLogoList(env._curSlot.rest[slotNum - 1]);
+    }
+    env.getSlotRestValue = getSlotRestValue;
 
     function getLogoProcText(procName) {
         let formal = env._ws[procName].formal;
@@ -651,17 +666,17 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.codegenOnly = codegenOnly;
 
-    async function applyInstrList(template, srcmap, param) {
+    async function applyInstrList(template, srcmap, slot = {}, inputListSrcmap) {
         let formalParam = getInstrListFormalParam(template);
 
         if (formalParam !== undefined) {
-            logo.env.checkSlotLength("[]", param, srcmap, formalParam.length);
+            logo.env.checkSlotLength(logo.type.LAMBDA_EXPR, slot.param, inputListSrcmap, formalParam.length);
         }
 
         if (getGenJs()) {
             let scopeStackLength = env._scopeStack.length;
-            prepareCallProc("[]", srcmap, param);
-            let retVal = await callLogoInstrListAsync(template, param);
+            prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
+            let retVal = await callLogoInstrListAsync(template, slot.param);
             completeCallProc();
             env._scopeStack.splice(scopeStackLength);
             return retVal;
@@ -670,14 +685,14 @@ $classObj.create = function(logo, sys, ext) {
         let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
         if (formalParam === undefined) {
             let scopeStackLength = env._scopeStack.length;
-            let ret = await logo.interpreter.evxInstrList(bodyComp, param);
+            let ret = await logo.interpreter.evxInstrList(bodyComp, slot);
             env._scopeStack.splice(scopeStackLength);
 
             return ret;
         }
 
         return await logo.interpreter.evxInstrListWithFormalParam(
-            logo.type.listButFirst(bodyComp), formalParam, param);
+            logo.type.listButFirst(bodyComp), formalParam, slot);
     }
     env.applyInstrList = applyInstrList;
 
@@ -690,28 +705,28 @@ $classObj.create = function(logo, sys, ext) {
         return logo.type.unbox(firstItem);
     }
 
-    async function applyNamedProcedure(template, srcmap, param, inputListSrcmap) {
+    async function applyNamedProcedure(template, srcmap, slot = {}, inputListSrcmap) {
         if (template in logo.lrt.primitive) {
             const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(template);
             const paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(template);
 
-            checkSlotLength(template, param, inputListSrcmap, paramListMinLength, paramListMaxLength);
-            param.splice(0, 0, template, srcmap);
-            return await logo.env.callPrimitiveAsync.apply(undefined, param);
+            checkSlotLength(template, slot.param, inputListSrcmap, paramListMinLength, paramListMaxLength);
+            slot.param.splice(0, 0, template, srcmap);
+            return await logo.env.callPrimitiveAsync.apply(undefined, slot.param);
         } else if (template in logo.env._user) {
             let callTarget = logo.env._user[template];
-            checkSlotLength(template, param, inputListSrcmap, callTarget.length);
-            logo.env.prepareCallProc("[]", srcmap);
+            checkSlotLength(template, slot.param, inputListSrcmap, callTarget.length);
+            logo.env.prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
             let retVal = logo.env.getAsyncFunctionCall() ?
-                await callTarget.apply(undefined, param) : callTarget.apply(undefined, param);
+                await callTarget.apply(undefined, slot.param) : callTarget.apply(undefined, slot.param);
 
             completeCallProc();
             return retVal;
         } else if (template in logo.env._ws) {
             let callTarget = logo.env._ws[template];
-            checkSlotLength(template, param, inputListSrcmap, callTarget.formal.length);
-            logo.env.prepareCallProc("[]", srcmap);
-            let retVal = await logo.interpreter.evxProc(callTarget, param);
+            checkSlotLength(template, slot.param, inputListSrcmap, callTarget.formal.length);
+            logo.env.prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
+            let retVal = await logo.interpreter.evxProc(callTarget, slot.param);
             completeCallProc();
             return retVal;
         } else {
@@ -720,18 +735,18 @@ $classObj.create = function(logo, sys, ext) {
     }
     env.applyNamedProcedure = applyNamedProcedure;
 
-    async function applyProcText(template, srcmap, param, inputListSrcmap) {
+    async function applyProcText(template, srcmap, slot = {}, inputListSrcmap) {
         let formal = logo.type.formalFromProcText(template);
-        checkSlotLength(template, param, inputListSrcmap, formal.length);
-        prepareCallProc("[]", srcmap, param);
+        checkSlotLength(logo.type.LAMBDA_EXPR, slot.param, inputListSrcmap, formal.length);
+        prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
 
         let proc = makeWorkspaceProcedure(formal,
             logo.type.formalSrcmapFromProcText(template),
             logo.type.bodyFromProcText(template),
             logo.type.bodySrcmapFromProcText(template));
 
-        let retVal = getGenJs() ? await callLogoProcTextAsync(template, param) :
-            await logo.interpreter.evxProc(proc, param);
+        let retVal = getGenJs() ? await callLogoProcTextAsync(template, slot.param) :
+            await logo.interpreter.evxProc(proc, slot.param);
 
         completeCallProc();
         return retVal;
@@ -749,7 +764,7 @@ $classObj.create = function(logo, sys, ext) {
         }
 
         if (maxLength !== -1 && (slot.length > length || (maxLength !== undefined && slot.length > maxLength))) {
-            throw logo.type.LogoException.TOO_MUCH_INSIDE_PAREN.withParam(undefined, srcmap);
+            throw logo.type.LogoException.TOO_MANY_INPUTS.withParam([template], srcmap);
         }
     }
     env.checkSlotLength = checkSlotLength;
@@ -760,6 +775,15 @@ $classObj.create = function(logo, sys, ext) {
         }
     }
     env.loadDefaultLogoModules = loadDefaultLogoModules;
+
+    function makeSlotObj(param, index, rest) {
+        return {
+            "param": param,
+            "rest": rest,
+            "index": index
+        };
+    }
+    env.makeSlotObj = makeSlotObj;
 
     return env;
 };

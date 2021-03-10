@@ -1,10 +1,10 @@
-Too much inside ()'s
+Too many inputs to cos
     at 5,12
-Too much inside ()'s
+Too many inputs to cos
     at 6,1
 Not enough inputs to quotient
     at 7,17
-Too much inside ()'s
+Too many inputs to abc
     at 8,12
 Not enough inputs to abc
     at 9,12
@@ -12,13 +12,13 @@ Not enough inputs to apply
     at 10,11
 I don't know how to def
     at 11,1
-Too much inside ()'s
+Too many inputs to cos
     at 14,37
-Too much inside ()'s
+Too many inputs to cos
     at 15,21
 Not enough inputs to quotient
     at 16,42
-Too much inside ()'s
+Too many inputs to abc
     at 17,37
 Not enough inputs to abc
     at 18,37

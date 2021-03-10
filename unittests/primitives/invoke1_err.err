@@ -1,8 +1,8 @@
-Too much inside ()'s
+Too many inputs to cos
     at 5,2
 Not enough inputs to quotient
     at 6,2
-Too much inside ()'s
+Too many inputs to abc
     at 7,2
 Not enough inputs to abc
     at 8,2
@@ -10,11 +10,11 @@ Not enough inputs to invoke
     at 9,9
 I don't know how to def
     at 10,2
-Too much inside ()'s
+Too many inputs to cos
     at 13,22
 Not enough inputs to quotient
     at 14,27
-Too much inside ()'s
+Too many inputs to abc
     at 15,22
 Not enough inputs to abc
     at 16,22

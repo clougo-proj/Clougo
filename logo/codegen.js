@@ -11,8 +11,6 @@
 var $classObj = {};
 $classObj.create = function(logo, sys) {
 
-    const defaultInstrListName = "[]";
-
     const TOP_LEVEL_FUNC = "";
 
     const codegen = {};
@@ -516,7 +514,7 @@ $classObj.create = function(logo, sys) {
     function genInstrListCall(curToken, srcmap) {
         return Code.expr()
             .append("(")
-            .append(genPrepareCall(defaultInstrListName, srcmap))
+            .append(genPrepareCall(logo.type.LAMBDA_EXPR, srcmap))
             .append("$ret);\n")
             .append("$ret=")
             .append(ASYNC_MACRO.CALL_LOGO_INSTR_LIST)

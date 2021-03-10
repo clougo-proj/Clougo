@@ -115,3 +115,5 @@ invoke4_err runl execl
 invoke4 exec
 reverse run exec
 reverse_err runl execl
+foreach run exec
+foreach_err runl execl

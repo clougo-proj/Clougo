@@ -1,0 +1,89 @@
+1
+2
+abc
+
+1 2 3
+
+[1 a [b c]]
+[2 b [c]]
+[3 c []]
+
+1
+2
+abc
+
+1false
+2eslaf
+abc10
+
+ad
+be
+cf
+
+[b c]
+[c]
+[]
+
+[1 a [b c]]
+[2 b [c]]
+[3 c []]
+
+[[b c] [e f]]
+[[c] [f]]
+[[] []]
+
+1false
+2eslaf
+abc10
+
+ad
+be
+cf
+
+[[b c] [e f]]
+[[c] [f]]
+[[] []]
+
+[1 a [b c]]
+[2 b [c]]
+[3 c []]
+
+1false
+2eslaf
+abc10
+
+[1 a [b c]]
+[2 b [c]]
+[3 c []]
+
+a
+b
+c
+
+-
+1
+0
+0
+
+f
+a
+l
+s
+e
+
+t
+r
+u
+e
+
+ad
+be
+cf
+
+ad
+be
+cf
+
+ad
+be
+cf

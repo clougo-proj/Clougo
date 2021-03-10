@@ -1,8 +1,8 @@
-Too much inside ()'s
+Too many inputs to []
     at 2,2
 Not enough inputs to []
     at 3,1
-Too much inside ()'s
+Too many inputs to []
     at 4,2
 You don't say what to do with [1 3]
     [] at 5,23
@@ -14,11 +14,11 @@ y has no value
     at 7,37
 x has no value
     at 8,4
-Too much inside ()'s
+Too many inputs to []
     at 11,26
 Not enough inputs to []
     at 12,30
-Too much inside ()'s
+Too many inputs to []
     at 13,31
 You don't say what to do with [1 3]
     [] at 14,30

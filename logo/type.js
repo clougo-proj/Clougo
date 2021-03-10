@@ -15,6 +15,7 @@ $classObj.create = function(logo, sys) {
     const LIST_ORIGIN = 1;
     const ARRAY_DEFAULT_ORIGIN = 1;
     const NEWLINE = "\n";
+    const LAMBDA_EXPR = "[]";
 
     type.LIST_HEAD_SIZE = LIST_HEAD_SIZE;
     type.ARRAY_HEAD_SIZE = ARRAY_HEAD_SIZE;
@@ -22,6 +23,7 @@ $classObj.create = function(logo, sys) {
     type.LIST_ORIGIN = LIST_ORIGIN;
     type.ARRAY_DEFAULT_ORIGIN = ARRAY_DEFAULT_ORIGIN;
     type.NEWLINE = NEWLINE;
+    type.LAMBDA_EXPR = LAMBDA_EXPR;
 
     const OBJTYPE = {
         MIN_VALUE: 0,
@@ -704,6 +706,11 @@ $classObj.create = function(logo, sys) {
     }
     type.validateInputList = validateInputList;
 
+    function validateInputWordOrList(value) {
+        ifTrueThenThrow(!logo.type.isLogoWord(value) && !logo.type.isLogoList(value), type.LogoException.INVALID_INPUT, value);
+    }
+    type.validateInputWordOrList = validateInputWordOrList;
+
     function validateInputNonEmptyList(value) {
         ifTrueThenThrow(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1), type.LogoException.INVALID_INPUT, value);
     }
@@ -1004,6 +1011,8 @@ $classObj.create = function(logo, sys) {
             "UNEXPECTED_TOKEN"      : 12,
             "UNKNOWN_PROC"          : 13,
             "CANT_OPEN_FILE"        : 40,
+            "NOT_SAME_LENGTH"       : 1022,
+            "TOO_MANY_INPUTS"       : 1023,
             "LAST_ERROR_CODE"       : 1024,
             "NO_HELP_AVAILABLE"     : 65531,
             "CUSTOM"                : 65532,
@@ -1022,6 +1031,8 @@ $classObj.create = function(logo, sys) {
             12 : "Unexpected '{0}'",
             13 : "I don't know how to {0}",
             40 : "I can't open file {0}",
+            1022  : "Inputs of {0} have different lengths",
+            1023  : "Too many inputs to {0}",
             65531 : "No help available on {0}.",
             65532 : "Can't find catch tag for {0}",
             65534 : "Can only use output inside a procedure",

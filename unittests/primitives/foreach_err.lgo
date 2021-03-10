@@ -1,0 +1,22 @@
+to f
+end
+
+foreach
+
+foreach[a]
+
+foreach{}[]
+
+foreach "ab {}
+
+foreach[a b]"f
+
+(foreach [a b][c d][[x]])
+
+(foreach [a b][c d][[x][]])
+
+(foreach [a b][c][])
+
+(foreach [a][b c][])
+
+(foreach 1=1 1<>1 [])

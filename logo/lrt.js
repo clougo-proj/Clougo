@@ -60,6 +60,14 @@ $classObj.create = function(logo, sys) {
         return logo.env.getSlotValue(slotNum);
     }
 
+    function primitiveQuestionMarkRest(slotNum = 1) {
+        return logo.env.getSlotRestValue(slotNum);
+    }
+
+    function primitiveHashMark() {
+        return logo.env.getSlotIndex();
+    }
+
     function primitiveAscii(value) {
         logo.type.validateInputCharacter(value);
         return logo.type.charToAscii(value);
@@ -545,10 +553,15 @@ $classObj.create = function(logo, sys) {
     }
 
     async function primitiveApply(template, inputList) {
+        return await applyHelper(template, inputList);
+    }
+
+    async function applyHelper(template, inputList, index = 1, unboxedRestList = []) {
         logo.type.validateInputList(inputList);
 
         let unboxedInputList = logo.type.unbox(inputList);
         let srcmap = logo.env.getPrimitiveSrcmap();
+        let slot = logo.env.makeSlotObj(unboxedInputList, index, unboxedRestList);
 
         let inputListSrcmap = logo.type.getEmbeddedSrcmap(inputList);
         if (inputListSrcmap === logo.type.SRCMAP_NULL) {
@@ -556,20 +569,45 @@ $classObj.create = function(logo, sys) {
         }
 
         if (logo.type.isLogoWord(template)) {
-            return await logo.env.applyNamedProcedure(template, srcmap, unboxedInputList, inputListSrcmap);
+            return await logo.env.applyNamedProcedure(template, srcmap, slot, inputListSrcmap);
         }
 
         logo.type.validateInputList(template);
 
         if (logo.type.isProcText(template)) {
-            return await logo.env.applyProcText(template, srcmap, unboxedInputList, inputListSrcmap);
+            return await logo.env.applyProcText(template, srcmap, slot, inputListSrcmap);
         }
 
-        return await logo.env.applyInstrList(template, srcmap, unboxedInputList);
+        return await logo.env.applyInstrList(template, srcmap, slot, inputListSrcmap);
     }
 
     async function primitiveInvoke(template, ...inputs) {
-        return await primitiveApply(template, logo.type.makeLogoList(inputs));
+        return await applyHelper(template, logo.type.makeLogoList(inputs));
+    }
+
+    function sameLength(lists) {
+        let lengths = lists.map(list => list.length);
+        return Math.max.apply(null, lengths) === Math.min.apply(null, lengths);
+    }
+
+    async function primitiveForeach(...inputs) {
+        let template = inputs.pop();
+        inputs.forEach(logo.type.validateInputWordOrList);
+        inputs = inputs.map(input => logo.type.isLogoList(input) ? logo.type.unbox(input) :
+            logo.type.toString(input).split(""));
+
+        if (!sameLength(inputs)) {
+            throw logo.type.LogoException.NOT_SAME_LENGTH.withParam(["foreach"], logo.env.getPrimitiveSrcmap());
+        }
+
+        let length = inputs[0].length;
+        let srcmap = logo.env.getPrimitiveSrcmap();
+        for (let i = 0; i < length; i++) {
+            let retVal = await applyHelper(template, logo.type.makeLogoList(inputs.map(v => v[i])), i + 1,
+                inputs.map(v => v.slice(i + 1)));
+
+            logo.env.checkUnactionableDatum(retVal, srcmap);
+        }
     }
 
     async function primitiveRepeat(count, template) {
@@ -579,7 +617,7 @@ $classObj.create = function(logo, sys) {
         let srcmap = logo.env.getPrimitiveSrcmap();
 
         for (let i = 0; i < count; i++) {
-            let ret = await logo.env.applyInstrList(template, srcmap, []);
+            let ret = await logo.env.applyInstrList(template, srcmap);
             logo.env.checkUnactionableDatum(ret, srcmap);
         }
     }
@@ -951,6 +989,10 @@ $classObj.create = function(logo, sys) {
 
         "?": primitiveQuestionMark,
 
+        "?rest": primitiveQuestionMarkRest,
+
+        "#": primitiveHashMark,
+
         "ascii": primitiveAscii,
 
         "char": primitiveChar,
@@ -986,6 +1028,8 @@ $classObj.create = function(logo, sys) {
         "apply": primitiveApply,
 
         "invoke": primitiveInvoke,
+
+        "foreach": primitiveForeach,
 
         "repeat": primitiveRepeat,
 
@@ -1051,7 +1095,10 @@ $classObj.create = function(logo, sys) {
     primitiveParamCount.ellipse =
     primitiveParamCount.ellipse2 = [2, 2, 3];
 
+    primitiveParamCount.foreach =
     primitiveParamCount.invoke = [2, 2, -1];
+
+    primitiveParamCount["?rest"] = [0, 0, 1];
 
     lrt.primitiveParamCount = primitiveParamCount;
 

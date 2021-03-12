@@ -523,19 +523,27 @@ $classObj.create = function(logo, sys) {
     }
 
     function genInfixUserProcCall(curToken, srcmap, param) {
-        return Code.expr()
+        let code = Code.expr()
             .append("(")
+            .append("\"", curToken, "\" in logo.env._user ? (");
 
-            .append("\"", curToken, "\" in logo.env._user ? (")
+        if (param.length === 0)  {
+            code = code.append(genPrepareCall(curToken, srcmap));
+        } else {
+            let lastParam = param.pop();
+            lastParam = lastParam.prepend("($ret=")
+                .append(",")
+                .append(genPrepareCall(curToken, srcmap))
+                .append("$ret)");
 
-            .append(genPrepareCall(curToken, srcmap))
-            .append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", curToken, "\"](")
+            param.push(lastParam);
+        }
 
+        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", curToken, "\"](")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append(")),")
             .append(genCompleteCall())
             .append("$ret)")
-
             .append(":")
             .append(genThrowUnknownProc(srcmap, curToken))
             .append(")");

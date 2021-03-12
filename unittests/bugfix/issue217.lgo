@@ -1,0 +1,8 @@
+to f
+    3 ;error
+end
+
+to g :x
+end
+
+g f

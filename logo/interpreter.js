@@ -249,14 +249,14 @@ $classObj.create = function(logo, sys) {
     async function evxCallProc(evxContext, curToken, curSrcmap) {
         if (isProcJsDefined(curToken)) {
             let callTarget = logo.env._user[curToken];
+            let callParams =  await evxProcCallParam(evxContext, curToken, callTarget.length);
             logo.env.prepareCallProc(curToken, curSrcmap);
-            evxContext.retVal = await callTarget.apply(undefined,
-                await evxProcCallParam(evxContext, curToken, callTarget.length));
+            evxContext.retVal = await callTarget.apply(undefined, callParams);
         } else if (isProcBodyDefined(curToken)) {
             let callTarget = logo.env._ws[curToken];
+            let callParams = await evxProcCallParam(evxContext, curToken, callTarget.formal.length);
             logo.env.prepareCallProc(curToken, curSrcmap);
-            evxContext.retVal = await evxProc(callTarget,
-                await evxProcCallParam(evxContext, curToken, callTarget.formal.length));
+            evxContext.retVal = await evxProc(callTarget, callParams);
         } else {
             throw logo.type.LogoException.UNKNOWN_PROC.withParam([curToken], curSrcmap);
         }

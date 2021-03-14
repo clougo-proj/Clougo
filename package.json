@@ -14,7 +14,7 @@
         "pkdemo": "node tools/pkdir demo > generated/demo.js",
         "pkucblogohelp": "node tools/pkdir UCBLogo > generated/UCBLogo.js",
         "build": "npm run eslint && npm run pkdemo && npm run pkut && npm run pkmod && npm run pkucblogohelp",
-        "test": "node logo/logo --test && node logo/logo --test --on:postfix",
+        "test": "node logo/logo --test --on:verbose && node logo/logo --test --on:postfix,verbose",
         "server": "http-server",
         "predeploy": "rm -rf unittests && rm -rf demo && rm -rf node_modules && rm -rf UCBLogo"
     }

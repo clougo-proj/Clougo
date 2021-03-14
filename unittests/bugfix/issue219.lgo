@@ -1,0 +1,50 @@
+to f
+  op "a
+end
+
+to testMake
+  make f "====
+  show :a
+end
+
+to testLocalmake
+   localmake f 2
+   show :a
+end
+
+to testLocal
+   local f
+   make "a 3
+   show :a
+end
+
+to testLocalReverse
+   local "a
+   make f 4
+   show :a
+end
+
+to testLocalWithParen
+   (local f)
+   make "a 5
+   show :a
+end
+
+to testLocalWithParenReverse
+   (local "a)
+   make f 6
+   show :a
+end
+
+show namep "a
+testMake
+testLocalMake
+show :a
+testLocal
+show :a
+testLocalReverse
+show :a
+testLocalWithParen
+show :a
+testLocalWithParenReverse
+show :a

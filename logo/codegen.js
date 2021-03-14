@@ -79,7 +79,7 @@ $classObj.create = function(logo, sys) {
 
     const callLambda = new Set(["apply", "invoke"]);
 
-    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "for", "thing", "namep"]);
+    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "for", "thing", "namep", "make"]);
 
     const CODE_TYPE = {
         EXPR: 0,
@@ -237,6 +237,7 @@ $classObj.create = function(logo, sys) {
 
     function genLocal(evxContext, isInParen = false) {
 
+        evxContext.setAnchor();
         let code = Code.stmt();
 
         code.append("var ");
@@ -253,7 +254,11 @@ $classObj.create = function(logo, sys) {
                 code.append(",");
             }
 
-            sys.assert(logo.type.isQuotedLogoWord(varName));  // TODO: throw Logo exception
+            if (!logo.type.isQuotedLogoWord(varName)) {
+                evxContext.rewindToAnchor();
+                return;
+            }
+
             varName = logo.type.unquoteLogoWord(varName).toLowerCase();
             _varScopes.addVar(varName);
             code.append(varName);
@@ -441,19 +446,30 @@ $classObj.create = function(logo, sys) {
     }
 
     function genMake(evxContext) {
-        let code = Code.stmt();
-        let varName = logo.env.extractVarName(evxContext.next().getToken());
+        evxContext.setAnchor();
+        let token = evxContext.next().getToken();
+        if (!logo.type.isQuotedLogoWord(token)) {
+            evxContext.rewindToAnchor();
+            return;
+        }
 
-        code.append(genToken(evxContext.next()));
-        code.append(";\n");
-        code.append(genLogoVarLref(varName));
-        code.append("=$ret;$ret=undefined;");
+        let varName = logo.env.extractVarName(token);
 
-        return code;
+        return Code.stmt(genToken(evxContext.next()))
+            .append(";\n")
+            .append(genLogoVarLref(varName))
+            .append("=$ret;$ret=undefined;");
     }
 
     function genLocalmake(evxContext) {
-        let varName = logo.env.extractVarName(evxContext.next().getToken());
+        evxContext.setAnchor();
+        let token = evxContext.next().getToken();
+        if (!logo.type.isQuotedLogoWord(token)) {
+            evxContext.rewindToAnchor();
+            return;
+        }
+
+        let varName = logo.env.extractVarName(token);
         let code = Code.stmt()
             .append(genToken(evxContext.next()))
             .append(";\n");

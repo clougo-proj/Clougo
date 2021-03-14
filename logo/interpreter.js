@@ -81,8 +81,10 @@ $classObj.create = function(logo, sys) {
         obj.body = body;
         obj.srcmap = logo.type.getEmbeddedSrcmap(body);
         obj.retVal = undefined;
+        obj.proc = undefined;
         obj.retExpr = false;
         obj.eol = false;
+        obj.endOfStatement = false;
 
         return obj;
     }
@@ -93,7 +95,11 @@ $classObj.create = function(logo, sys) {
         for (let j = 0; j < paramListLength; j++) {
             await evxToken(evxContext.next(), precedence);
             if (sys.isUndefined(evxContext.retVal)) {
-                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([procName], evxContext.getSrcmap());
+                if (evxContext.endOfStatement) {
+                    throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([procName], evxContext.getSrcmap());
+                }
+
+                throw logo.type.LogoException.NO_OUTPUT.withParam([evxContext.proc, procName], evxContext.getSrcmap());
             }
 
             nextActualParam.push(evxContext.retVal);
@@ -109,7 +115,11 @@ $classObj.create = function(logo, sys) {
         for (let j = 0; j < paramListLength; j++) {
             await evxToken(evxContext.next(), precedence, false, true);
             if (sys.isUndefined(evxContext.retVal)) {
-                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([ctrlName], evxContext.getSrcmap());
+                if (evxContext.endOfStatement) {
+                    throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([ctrlName], evxContext.getSrcmap());
+                }
+
+                throw logo.type.LogoException.NO_OUTPUT.withParam([evxContext.proc, ctrlName], evxContext.getSrcmap());
             }
 
             let param = logo.type.isLogoList(evxContext.retVal) ?
@@ -150,6 +160,10 @@ $classObj.create = function(logo, sys) {
                 isInParen && evxContext.peekNextToken() != ")" )) && evxContext.hasNext()); j++) {
 
                 await evxToken(evxContext.next(), precedence);
+                if (sys.isUndefined(evxContext.retVal)) {
+                    throw logo.type.LogoException.NO_OUTPUT.withParam([evxContext.proc, primitiveName], evxContext.getSrcmap());
+                }
+
                 let retVal = evxContext.retVal;
                 nextActualParam.push(retVal);
             }
@@ -162,7 +176,11 @@ $classObj.create = function(logo, sys) {
             for (; (j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen)); j++) {
                 await evxToken(evxContext.next(), precedence, false, true);
                 if (sys.isUndefined(evxContext.retVal)) {
-                    throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([primitiveName], evxContext.getSrcmap());
+                    if (evxContext.endOfStatement) {
+                        throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([primitiveName], evxContext.getSrcmap());
+                    }
+
+                    throw logo.type.LogoException.NO_OUTPUT.withParam([evxContext.proc, primitiveName], evxContext.getSrcmap());
                 }
 
                 let retVal = evxContext.retVal;
@@ -188,6 +206,7 @@ $classObj.create = function(logo, sys) {
         }
 
         if (evxContext.isTokenEndOfStatement(curToken)) {
+            evxContext.endOfStatement = true;
             return;
         }
 
@@ -222,14 +241,17 @@ $classObj.create = function(logo, sys) {
         } else if (logo.type.isLogoVarRef(curToken)) {
             evxContext.retVal = logo.type.getVarValue(logo.env.extractVarName(curToken), curSrcmap);
         } else if (logo.type.isLogoSlot(curToken)) {
+            evxContext.proc = "?";
             evxContext.retVal = logo.env.callPrimitive("?", curSrcmap, logo.env.extractSlotNum(curToken));
         } else if (curToken in ctrl) {
             await evxCtrl(evxContext, curToken, 0);
         } else if (curToken in logo.lrt.primitive) {
+            evxContext.proc = curToken;
             evxContext.retVal = await logo.env.callPrimitiveAsync.apply(undefined,
                 await evxPrimitiveCallParam(evxContext, curToken, curSrcmap,
                     logo.lrt.util.getPrimitivePrecedence(curToken), isInParen));
         } else {
+            evxContext.proc = curToken;
             await evxCallProc(evxContext, curToken, curSrcmap);
         }
 

@@ -300,7 +300,8 @@ $classObj.create = function(logo, sys) {
     function genIf(evxContext) {
         let code = Code.stmt();
 
-        code.append(genToken(evxContext.next()));
+        code.append(genProcInput(evxContext.next(), 0, false, "if"));
+
         code.append(";\n");
         code.append("if (logo.type.isNotLogoFalse($ret)) {\n");
 
@@ -320,7 +321,15 @@ $classObj.create = function(logo, sys) {
 
     function genCatch(evxContext) {
         let code = Code.stmt();
-        let label = genToken(evxContext.next());
+
+        let label = genProcInput(evxContext.next(), 0, false, "catch");
+
+        if (!label.postFix()) {
+            code.append("let $label=", label, ";\n");
+        } else {
+            code.append(label)
+                .append("\nlet $label=$ret;\n");
+        }
 
         code.append("try {\n");
 
@@ -329,12 +338,12 @@ $classObj.create = function(logo, sys) {
 
         code.append("if (logo.type.LogoException.is(e) && e.isCustom()) {\n");
         code.append("if (sys.equalToken(");
-        code.append(label);
+        code.append("$label");
         code.append(", e.getValue()[0])){$ret=e.getValue()[1];}\n");
         code.append("else { throw e;} }\n");
 
         code.append("else if (!logo.type.LogoException.is(e) || (e.isError() && !sys.equalToken(");
-        code.append(label);
+        code.append("$label");
         code.append(", 'error'))) {\n");
         code.append("throw e;}else{$ret=undefined;}}\n");
 
@@ -346,7 +355,8 @@ $classObj.create = function(logo, sys) {
     function genIfElse(evxContext) {
         let code = Code.stmt();
 
-        code.append(genToken(evxContext.next()));
+        code.append(genProcInput(evxContext.next(), 0, false, "ifelse"));
+
         code.append(";\n");
         code.append("if (logo.type.isNotLogoFalse($ret)) {\n");
         code.append(genInstrList(evxContext.next(), "ifelse"));
@@ -364,25 +374,23 @@ $classObj.create = function(logo, sys) {
         let repeatVarName = "$i";
 
         evxContext.setAnchor();
-        let repeatCount = genToken(evxContext.next());
-        if (repeatCount === CODEGEN_CONSTANTS.NOP) {
-            code.append(genThrowNotEnoughInputs(evxContext.getSrcmap(), "repeat"));
-        } else {
-            code.append(repeatCount);
-            code.append(";const $repeatEnd=$ret;\n");
-            code.append("for (let ");
-            code.append(repeatVarName, "=0;", repeatVarName, "<$repeatEnd;", repeatVarName, "++) {\n");
 
-            if (!logo.type.isLogoList(evxContext.peekNextToken())) {
-                evxContext.rewindToAnchor();
-                return;
-            }
+        let repeatCount = genProcInput(evxContext.next(), 0, false, "repeat");
 
-            code.append(genInstrList(evxContext.next(), "repeat"));
+        code.append(repeatCount);
+        code.append(";const $repeatEnd=$ret;\n");
+        code.append("for (let ");
+        code.append(repeatVarName, "=0;", repeatVarName, "<$repeatEnd;", repeatVarName, "++) {\n");
 
-            code.append("}");
-            code.append("\n;$ret=undefined;");
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            evxContext.rewindToAnchor();
+            return;
         }
+
+        code.append(genInstrList(evxContext.next(), "repeat"));
+
+        code.append("}");
+        code.append("\n;$ret=undefined;");
 
         return code;
     }
@@ -698,7 +706,7 @@ $classObj.create = function(logo, sys) {
         if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength == -1)) {
             for (; (j < paramListMaxLength || paramListMaxLength == -1) &&
                     (isInParen && evxContext.peekNextToken() != ")" ) && evxContext.next(); j++) {
-                param.push(genToken(evxContext, precedence));
+                param.push(genProcInput(evxContext, precedence, false, primitiveName));
             }
         } else {
             for (; j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen) &&
@@ -734,6 +742,7 @@ $classObj.create = function(logo, sys) {
         let srcmap = evxContext.getSrcmap();
 
         if (evxContext.isTokenEndOfStatement(curToken)) {
+            evxContext.endOfStatement = true;
             return CODEGEN_CONSTANTS.NOP; // make sure eval() returns undefined
         }
 
@@ -755,8 +764,10 @@ $classObj.create = function(logo, sys) {
         } else if (logo.type.isLogoVarRef(curToken)) {
             return Code.expr(genLogoVarRef(curToken, srcmap)).captureRetVal();
         } else if (logo.type.isLogoSlot(curToken)) {
+            evxContext.proc = "?";
             return Code.expr(genLogoSlotRef(curToken, srcmap)).captureRetVal();
         } else { // call
+            evxContext.proc = curToken;
             return genCall(evxContext, curToken, srcmap, isInParen);
         }
     }
@@ -775,13 +786,29 @@ $classObj.create = function(logo, sys) {
             .append("throwRuntimeLogoException(logo.type.LogoException.OUTPUT,", logo.type.srcmapToJs(srcmap), ",[$ret]);");
     }
 
+    function genThrowNoOutput(evxContext, procName) {
+        return Code.expr()
+            .append("throwRuntimeLogoException(logo.type.LogoException.NO_OUTPUT,")
+            .append(logo.type.srcmapToJs(evxContext.getSrcmap()))
+            .append(",['", evxContext.proc, "','", procName, "'])");
+    }
+
     function genProcInput(evxContext, precedence, isInParen, procName) {
         let procInput = genToken(evxContext, precedence, isInParen);
         if (procInput == CODEGEN_CONSTANTS.NOP) {
-            procInput = genThrowNotEnoughInputs(evxContext.getSrcmap(), procName);
+            return genThrowNotEnoughInputs(evxContext.getSrcmap(), procName);
         }
 
-        return procInput;
+        if (!procInput.postFix()) {
+            return procInput.prepend("($ret=")
+                .append(",($ret===undefined?")
+                .append(genThrowNoOutput(evxContext, procName))
+                .append(":$ret))");
+        }
+
+        return procInput.append(";\nif($ret===undefined)")
+            .append(genThrowNoOutput(evxContext, procName))
+            .append(";\n");
     }
 
     function genBody(evxContext, isInstrList) {

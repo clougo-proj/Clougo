@@ -1,0 +1,19 @@
+to f
+end
+
+to g :x
+end
+
+apply f
+show f
+(se f)
+word f
+if f []
+ifelse f [][]
+catch f []
+repeat f[]
+for f[]
+make f 1
+local f
+localmake f 1
+g f

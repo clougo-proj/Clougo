@@ -995,6 +995,7 @@ $classObj.create = function(logo, sys) {
     const LogoException = (() => {
         const codemap = {
             // name : code
+            "NO_OUTPUT"             : 5,
             "NOT_ENOUGH_INPUTS"     : 6,
             "INVALID_INPUT"         : 7,
             "TOO_MUCH_INSIDE_PAREN" : 8,
@@ -1012,6 +1013,7 @@ $classObj.create = function(logo, sys) {
 
         const msgmap = {
             // code : message
+            5  : "{0} didn't output to {1}",
             6  : "Not enough inputs to {0}",
             7  : "{0} doesn't like {1} as input",
             8  : "Too much inside ()'s",

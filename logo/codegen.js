@@ -547,7 +547,7 @@ $classObj.create = function(logo, sys) {
     function genInfixUserProcCall(curToken, srcmap, param) {
         let code = Code.expr()
             .append("(")
-            .append("\"", curToken, "\" in logo.env._user ? (");
+            .append("\"", escape(curToken), "\" in logo.env._user ? (");
 
         if (param.length === 0)  {
             code = code.append(genPrepareCall(curToken, srcmap));
@@ -561,7 +561,7 @@ $classObj.create = function(logo, sys) {
             param.push(lastParam);
         }
 
-        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", curToken, "\"](")
+        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", escape(curToken), "\"](")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append(")),")
             .append(genCompleteCall())
@@ -571,12 +571,16 @@ $classObj.create = function(logo, sys) {
             .append(")");
     }
 
+    function escape(token) {
+        return token.replace(/"/g, "\\\"");
+    }
+
     function genPostfixUserProcCall(curToken, srcmap, param) {
         let code = Code.expr();
 
         code.withPostFix(true);
 
-        code.append("if (!(\"", curToken, "\" in logo.env._user)) {")
+        code.append("if (!(\"", escape(curToken),"\" in logo.env._user)) {")
             .append(genThrowUnknownProc(srcmap, curToken))
             .append("}\n");
 
@@ -590,7 +594,7 @@ $classObj.create = function(logo, sys) {
         code.append(genPrepareCall(curToken, srcmap));
         code.append("$ret;\n");
 
-        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env._user[", "\"" + curToken + "\"",
+        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env._user[", "\"", escape(curToken), "\"",
             "].apply(undefined,$param.end());\n");
 
         code.append(genCompleteCall());
@@ -675,7 +679,7 @@ $classObj.create = function(logo, sys) {
             code.append(genStashLocalVars());
         }
 
-        code.append("$param.begin([\"", curToken, "\",", logo.type.srcmapToJs(srcmap), "]);\n");
+        code.append("$param.begin([\"", curToken,"\",", logo.type.srcmapToJs(srcmap), "]);\n");
 
         param.map((p) => {
             code.append(p);
@@ -748,8 +752,8 @@ $classObj.create = function(logo, sys) {
             return Code.expr(Number(curToken)).captureRetVal();
         } else if (logo.type.isStopStmt(curToken)) {
             return (!_isLambda) ? Code.expr("return") :
-                Code.expr("throwRuntimeLogoException(logo.type.LogoException.STOP,", logo.type.srcmapToJs(srcmap), ",[\"" +
-                    curToken + "\"])");
+                Code.expr("throwRuntimeLogoException(logo.type.LogoException.STOP,", logo.type.srcmapToJs(srcmap), ",[\"",
+                    curToken, "\"])");
         } else if (logo.type.isOutputStmt(curToken)) {
             return (!_isLambda) ? Code.expr(genToken(evxContext.next())).append(";return $ret") :
                 genThrowOutputException(evxContext);
@@ -915,7 +919,7 @@ $classObj.create = function(logo, sys) {
         }
 
         code.append("logo.env._callstack.push([logo.env._curProc," + logo.type.srcmapToJs(srcmap) + "]),");
-        code.append("logo.env._curProc=\"" + target + "\",\n");
+        code.append("logo.env._curProc=\"", escape(target), "\",\n");
 
         return code;
     }
@@ -956,7 +960,7 @@ $classObj.create = function(logo, sys) {
         _isLambda = false;
 
         return genProcBody(procName, logo.type.getLogoProcParams(proc), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
-            .prepend("logo.env._user[\"" + procName + "\"]=");
+            .prepend("logo.env._user[\"", escape(procName), "\"]=");
     }
     codegen.genProc = genProc;
 
@@ -976,14 +980,14 @@ $classObj.create = function(logo, sys) {
 
     function genProcBody(procName, params, body) {
         let code = Code.expr();
-        code.append(ASYNC_MACRO.ASYNC, "function ");
+        code.append(ASYNC_MACRO.ASYNC, "function");
 
         let oldFuncName = _funcName;
         _funcName = procName;
 
         let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(body));
 
-        code.append(_funcName, "(");
+        code.append("(");
         code.append(Code.expr.apply(undefined, insertDelimiters(params, ",")));
         code.append(")");
         code.append("{\n");
@@ -1008,12 +1012,12 @@ $classObj.create = function(logo, sys) {
 
     function genThrowNotEnoughInputs(srcmap, procName) {
         return Code.expr("throwRuntimeLogoException(logo.type.LogoException.NOT_ENOUGH_INPUTS,",
-            logo.type.srcmapToJs(srcmap), ",[ \"" + procName + "\"])");
+            logo.type.srcmapToJs(srcmap), ",[ \"", escape(procName), "\"])");
     }
 
     function genThrowUnknownProc(srcmap, procName) {
         return Code.expr("throwRuntimeLogoException(logo.type.LogoException.UNKNOWN_PROC,",
-            logo.type.srcmapToJs(srcmap), ",[ \"" + procName + "\"])");
+            logo.type.srcmapToJs(srcmap), ",[ \"", escape(procName), "\"])");
     }
 
     function genCompoundObj(curToken, srcmap) {

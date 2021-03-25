@@ -1,0 +1,9 @@
+logo
+>Welcome to Logo\n?\s
+<pr [Enter a word] pr (list "You "entered readword)\n
+>Enter a word\n
+<abc\n
+>You entered abc\n
+>?\s
+<bye\n
+>Thank you for using Logo. Bye!\n

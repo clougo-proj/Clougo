@@ -540,15 +540,12 @@ $classObj.create = function(logo, sys) {
         }
 
         logo.env.prepareToBeBlocked();
-        let oldEnvState = logo.env.getEnvState();
-        logo.env.setEnvState("continue");
         do {
             await new Promise((resolve) => {
                 logo.env.registerUserInputResolver(resolve);
             });
         } while (!logo.env.hasUserInput());
 
-        logo.env.setEnvState(oldEnvState);
         return logo.env.getUserInput();
     }
 

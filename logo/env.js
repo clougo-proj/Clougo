@@ -458,7 +458,8 @@ $classObj.create = function(logo, sys, ext) {
 
         let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
         logo.trace.info(parsedCode, "parse.result");
-        setEnvState(sys.isUndefined(parsedCode) ? "multiline" : "ready");
+        setEnvState("continue");
+        let nextEnvState = sys.isUndefined(parsedCode) ? "multiline" : "ready";
         setGenJs(genjs);
 
         if (genjs) {
@@ -466,6 +467,8 @@ $classObj.create = function(logo, sys, ext) {
         } else {
             await evalLogo(parsedCode);
         }
+
+        setEnvState(nextEnvState);
     }
 
     function isEagerEval(logosrc) {
@@ -655,7 +658,6 @@ $classObj.create = function(logo, sys, ext) {
         const ret = sys.isUndefined(parsedCommand) ? undefined :
             await evalLogoJs(logo.codegen.genTopLevelCode(parsedCommand));
 
-        setEnvState("ready");
         return ret;
     }
     env.evalLogoGen = evalLogoGen;

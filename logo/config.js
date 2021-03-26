@@ -6,16 +6,17 @@
 "use strict";
 
 var $classObj = {};
-$classObj.create = function(sys) {
+$classObj.create = function(sys, origConfigMap = undefined) {
     const config = {};
-    const configMap = {
+    const configMap = (origConfigMap === undefined) ? {
         unactionableDatum : true,  // raise runtime exception for unactionable datum
         genCommand : true,        // use codegen for interactive commands
         dynamicScope: true,
         verbose: false,
         postfix: false,
+        deepCallStack: false,
         trace: true
-    };
+    } : Object.assign({}, origConfigMap);
 
     function set(key, val) {
         sys.assert(key in configMap, "Unknown configMap:" + key);
@@ -29,6 +30,11 @@ $classObj.create = function(sys) {
         return configMap[key];
     }
     config.get = get;
+
+    function clone() {
+        return $classObj.create(sys, configMap);
+    }
+    config.clone = clone;
 
     return config;
 };

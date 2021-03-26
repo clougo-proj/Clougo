@@ -263,6 +263,42 @@ $classObj.create = function(Logo, sys) {
             .replace(/<yyyy>/, dateTime.getFullYear());
     }
 
+    function parseConfigs(tokens, sign) {
+        return tokens.filter(token => token.charAt(0) === sign)
+            .map(token => token.substring(1));
+    }
+
+    function toTestSettings(testMethod) {
+        let tokens = testMethod.split(/,/);
+        let mode = tokens.shift();
+        let on = parseConfigs(tokens, "+");
+        let off = parseConfigs(tokens, "-");
+
+        return {
+            "mode": mode,
+            "on": on,
+            "off": off
+        };
+    }
+
+    function overrideLogoConfig(logo, testSettings) {
+        if ((testSettings.on.length !== 0) || (testSettings.off.length !== 0)) {
+            let backupConfig = logo.config;
+            logo.config = backupConfig.clone();
+            testSettings.on.forEach(key => logo.config.set(key, true));
+            testSettings.off.forEach(key => logo.config.set(key, false));
+            return backupConfig;
+        }
+
+        return undefined;
+    }
+
+    function restoreLogoConfig(logo, config) {
+        if (config !== undefined) {
+            logo.config = config;
+        }
+    }
+
     async function runTestHelper(test, testName, testMethod) {
         extForTest.io.mockStdin(getTestInBase(test));
         logoForUnitTests.env.initLogoEnv();
@@ -270,7 +306,10 @@ $classObj.create = function(Logo, sys) {
         count++;
 
         Logo.io.stdoutn(testName + "(" + testMethod + "):");
-        switch(testMethod) {
+        let testSettings = toTestSettings(testMethod);
+        let backupConfig = overrideLogoConfig(logoForUnitTests, testSettings);
+
+        switch(testSettings.mode) {
         case Logo.mode.PARSE:
             testParse(test);
             break;
@@ -290,7 +329,11 @@ $classObj.create = function(Logo, sys) {
             await testGenericRun(test, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, true, 1); });
             break;
         default:
+            Logo.io.stdout("\t\t" + testSettings.mode + " not found");
+            failCount++;
         }
+
+        restoreLogoConfig(logoForUnitTests, backupConfig);
     }
 
     return testRunner;

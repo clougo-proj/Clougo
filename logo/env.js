@@ -236,7 +236,7 @@ $classObj.create = function(logo, sys, ext) {
     env.setAsyncFunctionCall = setAsyncFunctionCall;
 
     function getAsyncFunctionCall() {
-        return !!_asyncFunctionCall;
+        return _asyncFunctionCall || logo.config.get("deepCallStack");
     }
     env.getAsyncFunctionCall = getAsyncFunctionCall;
 

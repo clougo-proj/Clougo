@@ -1,0 +1,6 @@
+to accu :x
+  if :x = 1 [output 1]
+  output 1 + (accu :x - 1)
+end
+
+show accu 10000

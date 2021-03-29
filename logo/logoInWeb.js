@@ -10,12 +10,16 @@
 
 /* global importScripts, CanvasCommon */
 
+importScripts("CanvasCommon.js");
+
 var $obj = {};
 $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-vars
 
-    postMessage(["busy"]);
+    const LOGO_EVENT = Logo.constants.LOGO_EVENT;
 
-    importScripts("CanvasCommon.js");
+    const LOGO_METHOD = Logo.constants.LOGO_METHOD;
+
+    postMessage([LOGO_EVENT.BUSY]);
 
     Logo.io = {
         "stdout": webStdout,
@@ -28,36 +32,36 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
     const logo = Logo.create(ext);
 
     logo.env.loadDefaultLogoModules()
-        .then(() => postMessage(["ready"]));
+        .then(() => postMessage([LOGO_EVENT.READY]));
 
     function webStdout(text) {
-        postMessage(["out", text]);
+        postMessage([LOGO_EVENT.OUT, text]);
     }
 
     function webStdoutn(text) {
-        postMessage(["outn", text]);
+        postMessage([LOGO_EVENT.OUTN, text]);
     }
 
     function webStderr(text) {
-        postMessage(["err", text]);
+        postMessage([LOGO_EVENT.ERR, text]);
     }
 
     function webStderrn(text) {
-        postMessage(["errn", text]);
+        postMessage([LOGO_EVENT.ERRN, text]);
     }
 
     function webCleartext() {
-        postMessage(["cleartext"]);
+        postMessage([LOGO_EVENT.CLEAR_TEXT]);
     }
 
     function webEditorLoad(src) {
-        postMessage(["editorload", src]);
+        postMessage([LOGO_EVENT.EDITOR_LOAD, src]);
     }
 
     function webExit(batchMode) {
         if (!batchMode) {
-            postMessage(["out", "Thank you for using Logo. Bye!"]);
-            postMessage(["out", "(You may now close the window)"]);
+            postMessage([LOGO_EVENT.OUT, "Thank you for using Logo. Bye!"]);
+            postMessage([LOGO_EVENT.OUT, "(You may now close the window)"]);
         }
     }
 
@@ -66,7 +70,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
     }
 
     async function webExec(src, srcidx) {
-        postMessage(["busy"]);
+        postMessage([LOGO_EVENT.BUSY]);
         await logo.env.exec(src, true, srcidx);
         postMessage([logo.env.getEnvState()]);
     }
@@ -77,39 +81,47 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
     }
 
     function registerEventHandler(logoUserInputListener) {
-        const webMsgHandler = {
-            "test": async () => {
-                postMessage(["busy"]);
-                await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, logo);
-                postMessage(["ready"]);
-            },
-            "run": async (e) => {
-                postMessage(["busy"]);
-                await logo.env.exec(getMsgBody(e), false, getMsgId(e));
-                postMessage([logo.env.getEnvState()]);
-            },
-            "exec": async (e) => webExec(getMsgBody(e), getMsgId(e)),
-            "console": async (e) => {
-                postMessage(["busy"]);
-                logo.env.setInteractiveMode();
-                await logoUserInputListener(getMsgBody(e) + logo.type.NEWLINE);  // needs new line to be treated as completed command
-                postMessage([logo.env.getEnvState()]);
-            },
-            "clearWorkspace": async () => {
-                postMessage(["busy"]);
-                logo.env.clearWorkspace();
-                logo.turtle.draw();
-                postMessage(["ready"]);
-            },
-            "mouseEvent": async (e) => {
-                logo.turtle.onMouseEvent(getMsgBody(e));
-            }
+        const webMsgHandler = {};
+
+        webMsgHandler[LOGO_METHOD.TEST] = async function() {
+            postMessage([LOGO_EVENT.BUSY]);
+            await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, logo);
+            postMessage([LOGO_EVENT.READY]);
+
+        };
+
+        webMsgHandler[LOGO_METHOD.RUN] = async function(e) {
+            postMessage([LOGO_EVENT.BUSY]);
+            await logo.env.exec(getMsgBody(e), false, getMsgId(e));
+            postMessage([logo.env.getEnvState()]);
+        };
+
+        webMsgHandler[LOGO_METHOD.EXEC] = async function(e) {
+            webExec(getMsgBody(e), getMsgId(e));
+        };
+
+        webMsgHandler[LOGO_METHOD.CONSOLE] = async function(e) {
+            postMessage([LOGO_EVENT.BUSY]);
+            logo.env.setInteractiveMode();
+            await logoUserInputListener(getMsgBody(e) + logo.type.NEWLINE);  // needs new line to be treated as completed command
+            postMessage([logo.env.getEnvState()]);
+        };
+
+        webMsgHandler[LOGO_METHOD.CLEAR_WORKSPACE] = async function() {
+            postMessage([LOGO_EVENT.BUSY]);
+            logo.env.clearWorkspace();
+            logo.turtle.draw();
+            postMessage([LOGO_EVENT.READY]);
+        };
+
+        webMsgHandler[LOGO_METHOD.MOUSE_EVENT] = async function(e) {
+            logo.turtle.onMouseEvent(getMsgBody(e));
         };
 
         // listen to events in the worker
         self.addEventListener("message",
             async function(e) {
-                logo.env.setEnvState("ready");
+                logo.env.setEnvState(LOGO_EVENT.READY);
                 sys.assert(getMsgType(e) in webMsgHandler);
                 await webMsgHandler[getMsgType(e)](e);
                 ext.canvas.flush();
@@ -178,7 +190,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
             if (code in CanvasCommon.primitivecode) {
                 let length = args.length + 2;
                 canvas.flush();
-                postMessage(["canvas", [].concat(length, code, args)]);
+                postMessage([LOGO_EVENT.CANVAS, [].concat(length, code, args)]);
             }
         };
 

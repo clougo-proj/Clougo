@@ -8,11 +8,15 @@
 
 "use strict";
 
-/* global jQuery, $, ace, createTurtleCanvas */
+/* global jQuery, $, ace, createTurtleCanvas, Constants */
 
 const TURTLE_CANVAS_SIZE = 1000;
 
 const TURTLE_CANVAS_OFFSET = -500;
+
+const LOGO_EVENT = Constants.LOGO_EVENT;
+
+const LOGO_METHOD = Constants.LOGO_METHOD;
 
 function assert(cond, msg) {
     if (!cond) {
@@ -285,12 +289,12 @@ function createLogoWorker(eventHandler) {
         }
 
         switch(msg[0]) {
-        case "canvas":
+        case LOGO_EVENT.CANVAS:
             // message for turtle canvas
             eventHandler.canvas(msg[1]);
             break;
-        case "ready":
-        case "multiline":
+        case LOGO_EVENT.READY:
+        case LOGO_EVENT.MULTILINE:
         {
             // ready for logo command line input
             let prompt = (msg[0] == "ready") ? "? " : "> ";
@@ -298,34 +302,34 @@ function createLogoWorker(eventHandler) {
             eventHandler.prompt(prompt);
             break;
         }
-        case "continue":
+        case LOGO_EVENT.CONTINUE:
             // ready for user interative input (e.g. readword)
             eventHandler.ready();
             eventHandler.user();
             break;
-        case "out":
-        case "err":
+        case LOGO_EVENT.OUT:
+        case LOGO_EVENT.ERR:
             // out/err stream with newline
             eventHandler.writeln(msg[1]);
             break;
-        case "outn":
-        case "errn":
+        case LOGO_EVENT.OUTN:
+        case LOGO_EVENT.ERRN:
             // out/err stream w/o newline
             eventHandler.write(msg[1]);
             break;
-        case "cleartext":
+        case LOGO_EVENT.CLEAR_TEXT:
             // cleartext in terminal
             eventHandler.cleartext();
             break;
-        case "busy":
+        case LOGO_EVENT.BUSY:
             // logo work is busy (vs. ready)
             eventHandler.busy();
             break;
-        case "exit":
+        case LOGO_EVENT.EXIT:
             eventHandler.prompt("You can now close the window");
             eventHandler.exit();
             break;
-        case "editorload":
+        case LOGO_EVENT.EDITOR_LOAD:
             eventHandler.editorLoad(msg[1]);
             break;
         default:
@@ -334,22 +338,22 @@ function createLogoWorker(eventHandler) {
 
     return {
         "console": function(param) {
-            worker.postMessage(["console", param, 0]);
+            worker.postMessage([LOGO_METHOD.CONSOLE, param, 0]);
         },
         "exec": function(param) {
-            worker.postMessage(["exec", param, 1]);
+            worker.postMessage([LOGO_METHOD.EXEC, param, 1]);
         },
         "run": function(param) {
-            worker.postMessage(["run", param, 1]);
+            worker.postMessage([LOGO_METHOD.RUN, param, 1]);
         },
         "test": function() {
-            worker.postMessage(["test"]);
+            worker.postMessage([LOGO_METHOD.TEST]);
         },
         "clearWorkspace": function() {
-            worker.postMessage(["clearWorkspace"]);
+            worker.postMessage([LOGO_METHOD.CLEAR_WORKSPACE]);
         },
         "onMouseEvent": function(event) {
-            worker.postMessage(["mouseEvent", event]);
+            worker.postMessage([LOGO_METHOD.MOUSE_EVENT, event]);
         }
     };
 }

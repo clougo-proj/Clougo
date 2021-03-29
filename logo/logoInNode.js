@@ -8,8 +8,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function logoInNode(Logo, sys) {
+var $obj = {};
+$obj.create = function logoInNode(Logo, sys) {
 
     const stdout = console.log; // eslint-disable-line no-console
     const stdoutn = function(v) { process.stdout.write(v); };
@@ -206,5 +206,5 @@ $classObj.create = function logoInNode(Logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

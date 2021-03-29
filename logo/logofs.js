@@ -5,8 +5,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function(logo, sys) {
+var $obj = {};
+$obj.create = function(logo, sys) {
     const logofs = {};
 
     const MOUNT_MODE = {
@@ -43,7 +43,7 @@ $classObj.create = function(logo, sys) {
 
     function mountIfNeeded(top) {
         if (!(top in root) && (top in jsonFile)) {
-            mount(sys.util.jsonFromJs(getJsonFileName(top)), top, MOUNT_MODE.READONLY);
+            mount(sys.util.fromJs(getJsonFileName(top)), top, MOUNT_MODE.READONLY);
         }
     }
 
@@ -102,5 +102,5 @@ $classObj.create = function(logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

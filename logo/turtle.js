@@ -8,8 +8,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function(logo, sys) {
+var $obj = {};
+$obj.create = function(logo, sys) {
     const turtle = {};
 
     const originX = 0;
@@ -595,5 +595,5 @@ $classObj.create = function(logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

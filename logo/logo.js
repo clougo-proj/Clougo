@@ -8,7 +8,7 @@
 
 "use strict";
 
-/* global importScripts, $obj */
+/* global importScripts */
 
 // detect Node by testing if variable 'process' exists - don't change it
 const isNodeJsEnvFlag = (typeof process != "undefined" && process.argv) ? true : false;
@@ -19,6 +19,9 @@ const util = {
 const sys = fromJs("./sys.js").create(isNodeJsEnvFlag, util);
 const Logo = {};
 const testRunner = fromJs("./testrunner.js").create(Logo, sys);
+const constants = fromJs("./constants.js", "Constants");
+
+Logo.constants = constants;
 
 Logo.mode = {
     CODEGEN: "codegen",
@@ -63,6 +66,7 @@ Logo.create = function(ext, config=undefined) {
     logo.io = ext.io;
     logo.entry = ext.entry;
 
+    logo.constants = constants;
     logo.type = fromJs("./type.js").create(logo, sys);
     logo.turtle = fromJs("./turtle.js").create(logo, sys);
     logo.lrt = fromJs("./lrt.js").create(logo, sys);
@@ -89,11 +93,11 @@ if (isNodeJsEnvFlag) {
     fromJs("./logoInWeb.js").create(Logo, sys);
 }
 
-function fromJs(scriptFile) {
+function fromJs(scriptFile, name = "$obj") {
     if (isNodeJsEnvFlag) {
-        return require(scriptFile).$obj;
+        return require(scriptFile)[name];
     }
 
     importScripts(scriptFile);
-    return $obj;
+    return self[name];
 }

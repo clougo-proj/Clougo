@@ -20,6 +20,8 @@ $obj.create = function(logo, sys, ext) {
         "/mod/pclogo/pclogo.lgo"
     ];
 
+    const LOGO_EVENT = logo.constants.LOGO_EVENT;
+
     function createParamScope() {
         let _stack = [];
         let obj = {};
@@ -458,8 +460,8 @@ $obj.create = function(logo, sys, ext) {
 
         let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
         logo.trace.info(parsedCode, "parse.result");
-        setEnvState("continue");
-        let nextEnvState = sys.isUndefined(parsedCode) ? "multiline" : "ready";
+        setEnvState(LOGO_EVENT.CONTINUE);
+        let nextEnvState = sys.isUndefined(parsedCode) ? LOGO_EVENT.MULTILINE : LOGO_EVENT.READY;
         setGenJs(genjs);
 
         if (genjs) {

@@ -6,7 +6,7 @@
 "use strict";
 
 var $obj = {};
-$obj.create = function(sys, origConfigMap = undefined) {
+$obj.create = function create(sys, origConfigMap = undefined) {
     const config = {};
     const configMap = (origConfigMap === undefined) ? {
         unactionableDatum : true,  // raise runtime exception for unactionable datum
@@ -32,7 +32,7 @@ $obj.create = function(sys, origConfigMap = undefined) {
     config.get = get;
 
     function clone() {
-        return $obj.create(sys, configMap);
+        return create(sys, configMap);
     }
     config.clone = clone;
 

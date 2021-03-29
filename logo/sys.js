@@ -5,8 +5,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function(isNodeJsEnvFlag, util) {
+var $obj = {};
+$obj.create = function(isNodeJsEnvFlag, util) {
     const sys = {};
 
     sys.util = util;
@@ -85,5 +85,5 @@ $classObj.create = function(isNodeJsEnvFlag, util) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

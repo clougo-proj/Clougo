@@ -5,8 +5,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function(sys, origConfigMap = undefined) {
+var $obj = {};
+$obj.create = function(sys, origConfigMap = undefined) {
     const config = {};
     const configMap = (origConfigMap === undefined) ? {
         unactionableDatum : true,  // raise runtime exception for unactionable datum
@@ -32,7 +32,7 @@ $classObj.create = function(sys, origConfigMap = undefined) {
     config.get = get;
 
     function clone() {
-        return $classObj.create(sys, configMap);
+        return $obj.create(sys, configMap);
     }
     config.clone = clone;
 
@@ -40,5 +40,5 @@ $classObj.create = function(sys, origConfigMap = undefined) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

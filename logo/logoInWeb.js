@@ -10,8 +10,8 @@
 
 /* global importScripts, CanvasCommon */
 
-var $classObj = {};
-$classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-vars
+var $obj = {};
+$obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-vars
 
     postMessage(["busy"]);
 
@@ -195,5 +195,5 @@ $classObj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unu
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

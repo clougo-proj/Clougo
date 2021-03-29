@@ -5,8 +5,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function(logo, sys) {
+var $obj = {};
+$obj.create = function(logo, sys) {
     const traceKeys = [
         "parse",
         "parse.result",
@@ -52,5 +52,5 @@ $classObj.create = function(logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

@@ -8,8 +8,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function(logo, sys, ext) {
+var $obj = {};
+$obj.create = function(logo, sys, ext) {
     const env = {};
     const LogoMode = {
         "BATCH": 0,
@@ -791,5 +791,5 @@ $classObj.create = function(logo, sys, ext) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

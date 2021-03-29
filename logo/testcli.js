@@ -1,6 +1,6 @@
 const { spawn } = require("child_process");
 
-const clitests = require("../generated/clitests.js").$jsonObj;
+const clitests = require("../generated/clitests.js").$obj;
 
 const IO_TYPE = {
     "INPUT": "input",

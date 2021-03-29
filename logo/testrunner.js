@@ -5,8 +5,8 @@
 
 "use strict";
 
-var $classObj = {};
-$classObj.create = function(Logo, sys) {
+var $obj = {};
+$obj.create = function(Logo, sys) {
     const testRunner = {};
 
     let extForTest, logoForUnitTests;
@@ -340,5 +340,5 @@ $classObj.create = function(Logo, sys) {
 };
 
 if (typeof exports != "undefined") {
-    exports.$classObj = $classObj;
+    exports.$obj = $obj;
 }

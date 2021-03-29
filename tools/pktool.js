@@ -19,8 +19,8 @@ function dirToJs(root, encodeDirectory = encodeDirFiles) {
     let dir = splittedPath[0];
     let parent = splittedPath[1];
 
-    return "var $jsonObj = " + encodeDir(dir, parent, encodeDirectory) +
-        ";\nif (typeof exports !== \"undefined\") { exports.$jsonObj = $jsonObj; }\n";
+    return "var $obj = " + encodeDir(dir, parent, encodeDirectory) +
+        ";\nif (typeof exports !== \"undefined\") { exports.$obj = $obj; }\n";
 }
 exports.dirToJs = dirToJs;
 

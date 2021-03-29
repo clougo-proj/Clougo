@@ -8,18 +8,17 @@
 
 "use strict";
 
-/* global importScripts, $classObj, $jsonObj */
+/* global importScripts, $obj */
 
 // detect Node by testing if variable 'process' exists - don't change it
 const isNodeJsEnvFlag = (typeof process != "undefined" && process.argv) ? true : false;
 const util = {
-    "classFromJs": classFromJs,
-    "jsonFromJs": jsonFromJs
+    "fromJs": fromJs
 };
 
-const sys = classFromJs("./sys.js").create(isNodeJsEnvFlag, util);
+const sys = fromJs("./sys.js").create(isNodeJsEnvFlag, util);
 const Logo = {};
-const testRunner = classFromJs("./testrunner.js").create(Logo, sys);
+const testRunner = fromJs("./testrunner.js").create(Logo, sys);
 
 Logo.mode = {
     CODEGEN: "codegen",
@@ -46,7 +45,7 @@ Logo.getUnitTests = (() => {
     let unitTests = undefined;
     return function() {
         if (unitTests === undefined) {
-            unitTests = sys.util.jsonFromJs(sys.global.unitTestsJsSrcFile);
+            unitTests = sys.util.fromJs(sys.global.unitTestsJsSrcFile);
         }
 
         return unitTests;
@@ -64,16 +63,16 @@ Logo.create = function(ext, config=undefined) {
     logo.io = ext.io;
     logo.entry = ext.entry;
 
-    logo.type = classFromJs("./type.js").create(logo, sys);
-    logo.turtle = classFromJs("./turtle.js").create(logo, sys);
-    logo.lrt = classFromJs("./lrt.js").create(logo, sys);
-    logo.interpreter = classFromJs("./interpreter.js").create(logo, sys);
-    logo.codegen = classFromJs("./codegen.js").create(logo, sys);
-    logo.parse = classFromJs("./parse.js").create(logo, sys);
-    logo.env = classFromJs("./env.js").create(logo, sys, ext);
-    logo.logofs = classFromJs("./logofs.js").create(logo, sys);
-    logo.config = (config === undefined) ? classFromJs("./config.js").create(sys) : config;
-    logo.trace = classFromJs("./trace.js").create(logo, sys);
+    logo.type = fromJs("./type.js").create(logo, sys);
+    logo.turtle = fromJs("./turtle.js").create(logo, sys);
+    logo.lrt = fromJs("./lrt.js").create(logo, sys);
+    logo.interpreter = fromJs("./interpreter.js").create(logo, sys);
+    logo.codegen = fromJs("./codegen.js").create(logo, sys);
+    logo.parse = fromJs("./parse.js").create(logo, sys);
+    logo.env = fromJs("./env.js").create(logo, sys, ext);
+    logo.logofs = fromJs("./logofs.js").create(logo, sys);
+    logo.config = (config === undefined) ? fromJs("./config.js").create(sys) : config;
+    logo.trace = fromJs("./trace.js").create(logo, sys);
 
     logo.env.initLogoEnv();
 
@@ -85,25 +84,16 @@ Logo.create = function(ext, config=undefined) {
 Logo.testRunner = testRunner;
 
 if (isNodeJsEnvFlag) {
-    classFromJs("./logoInNode.js").create(Logo, sys);
+    fromJs("./logoInNode.js").create(Logo, sys);
 } else {
-    classFromJs("./logoInWeb.js").create(Logo, sys);
+    fromJs("./logoInWeb.js").create(Logo, sys);
 }
 
-function classFromJs(scriptFile) {
+function fromJs(scriptFile) {
     if (isNodeJsEnvFlag) {
-        return require(scriptFile).$classObj;
+        return require(scriptFile).$obj;
     }
 
     importScripts(scriptFile);
-    return $classObj;
-}
-
-function jsonFromJs(scriptFile) {
-    if (isNodeJsEnvFlag) {
-        return require(scriptFile).$jsonObj;
-    }
-
-    importScripts(scriptFile);
-    return $jsonObj;
+    return $obj;
 }

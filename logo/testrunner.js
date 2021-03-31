@@ -268,35 +268,37 @@ $obj.create = function(Logo, sys) {
             .map(token => token.substring(1));
     }
 
+    function toConfigOverride(onConfigKeys, offConfigKeys) {
+        if (onConfigKeys.length === 0 && offConfigKeys.length === 0) {
+            return undefined;
+        }
+
+        let configOverride = {};
+        onConfigKeys.forEach(key => { configOverride[key] = true; });
+        offConfigKeys.forEach(key => { configOverride[key] = false; });
+        return configOverride;
+    }
+
     function toTestSettings(testMethod) {
         let tokens = testMethod.split(/,/);
         let mode = tokens.shift();
-        let on = parseConfigs(tokens, "+");
-        let off = parseConfigs(tokens, "-");
-
-        return {
-            "mode": mode,
-            "on": on,
-            "off": off
-        };
+        let configOverride = toConfigOverride(parseConfigs(tokens, "+"), parseConfigs(tokens, "-"));
+        return (configOverride === undefined) ? { "mode": mode } :
+            { "mode": mode, "configOverride": configOverride };
     }
 
     function overrideLogoConfig(logo, testSettings) {
-        if ((testSettings.on.length !== 0) || (testSettings.off.length !== 0)) {
-            let backupConfig = logo.config;
-            logo.config = backupConfig.clone();
-            testSettings.on.forEach(key => logo.config.set(key, true));
-            testSettings.off.forEach(key => logo.config.set(key, false));
-            return backupConfig;
+        if (!("configOverride" in testSettings)) {
+            return logo.config;
         }
 
-        return undefined;
+        let backupConfig = logo.config;
+        logo.config = backupConfig.clone().override(testSettings.configOverride);
+        return backupConfig;
     }
 
     function restoreLogoConfig(logo, config) {
-        if (config !== undefined) {
-            logo.config = config;
-        }
+        logo.config = config;
     }
 
     async function runTestHelper(test, testName, testMethod) {

@@ -19,14 +19,14 @@ $obj.create = function create(sys, origConfigMap = undefined) {
     } : Object.assign({}, origConfigMap);
 
     function set(key, val) {
-        sys.assert(key in configMap, "Unknown configMap:" + key);
-        sys.assert(typeof val == typeof configMap[key], "Expect type:" + typeof configMap[key] + " but got type:" + typeof val + " on configMap:" + key);
-        configMap[key] = val;
+        if (key in configMap && typeof val === typeof configMap[key]) {
+            configMap[key] = val;
+        }
     }
     config.set = set;
 
     function get(key) {
-        sys.assert(key in configMap, "Unknown configMap:" + key);
+        sys.assert(key in configMap, "Unknown config key:" + key);
         return configMap[key];
     }
     config.get = get;
@@ -35,6 +35,15 @@ $obj.create = function create(sys, origConfigMap = undefined) {
         return create(sys, configMap);
     }
     config.clone = clone;
+
+    function override(configOverride) {
+        for (let key in configOverride) {
+            set(key, configOverride[key]);
+        }
+
+        return config;
+    }
+    config.override = override;
 
     return config;
 };

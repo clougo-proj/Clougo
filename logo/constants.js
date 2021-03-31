@@ -17,6 +17,7 @@ Constants.LOGO_EVENT = {
     "ERR": "err",
     "ERRN": "errn",
     "EXIT": "exit",
+    "CONFIG": "config",
     "CLEAR_TEXT": "cleartext",
     "EDITOR_LOAD": "editorload"
 };

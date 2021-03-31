@@ -349,6 +349,9 @@ function createLogoWorker(eventHandler) {
         "test": function() {
             worker.postMessage([LOGO_METHOD.TEST]);
         },
+        "config": function(config) {
+            worker.postMessage([LOGO_METHOD.CONFIG, config]);
+        },
         "clearWorkspace": function() {
             worker.postMessage([LOGO_METHOD.CLEAR_WORKSPACE]);
         },
@@ -437,6 +440,25 @@ function toTurtleCoord(pixPos, edge, scrollPos, pixRange, logicRange, logicOffse
     return Math.round((pixPos - edge + scrollPos) * logicRange / pixRange + logicOffset);
 }
 
-if (getUrlParams("mode") == "beta") {
+function getConfigOverride() {
+    let configOverride = JSON.parse(readLogoStorage("configOverride", "{}"));
+    let onParams = getUrlParams("on");
+    let offParams = getUrlParams("off");
+    if (onParams !== null) {
+        onParams.split(/ /).forEach(key =>{ configOverride[key] = true; });
+    }
+
+    if (offParams !== null) {
+        offParams.split(/ /).forEach(key =>{ configOverride[key] = false; });
+    }
+
+    writeLogoStorage("configOverride", JSON.stringify(configOverride));
+    return configOverride;
+}
+
+let configOverride = getConfigOverride();
+logoWorker.config(configOverride);
+
+if (configOverride["unitTestButton"]) {
     $("#menubar").append("<li><a onclick=\"runLogoTest()\" data-toggle=\"tab\"><span class=\"glyphicon glyphicon-wrench\"></span></a></li>");
 }

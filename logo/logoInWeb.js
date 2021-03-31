@@ -118,6 +118,10 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
             logo.turtle.onMouseEvent(getMsgBody(e));
         };
 
+        webMsgHandler[LOGO_METHOD.CONFIG] = async function(e) {
+            logo.config.override(getMsgBody(e));
+        };
+
         // listen to events in the worker
         self.addEventListener("message",
             async function(e) {

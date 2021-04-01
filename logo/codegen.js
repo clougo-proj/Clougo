@@ -376,7 +376,7 @@ $obj.create = function(logo, sys) {
         let repeatCount = genProcInput(evxContext.next(), 0, false, "repeat");
 
         code.append(repeatCount);
-        code.append(";const $repeatEnd=$ret;\n");
+        code.append(";{const $repeatEnd=$ret;\n");
         code.append("for (let ");
         code.append(repeatVarName, "=0;", repeatVarName, "<$repeatEnd;", repeatVarName, "++) {\n");
 
@@ -388,7 +388,7 @@ $obj.create = function(logo, sys) {
         code.append(genInstrList(evxContext.next(), "repeat"));
 
         code.append("}");
-        code.append("\n;$ret=undefined;");
+        code.append("\n;$ret=undefined};");
 
         return code;
     }

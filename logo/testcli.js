@@ -13,7 +13,7 @@ const MESSAGE_TAG = {
     "ERROR":  "error"
 };
 
-const TIME_OUT = 1000; // ms
+const TIME_OUT = 2000; // ms
 
 function unescapeSpecialChar(str) {
     return str.replace(/\\n/g, "\n")

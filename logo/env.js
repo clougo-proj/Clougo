@@ -16,9 +16,11 @@ $obj.create = function(logo, sys, ext) {
         "INTERACTIVE": 1
     };
 
-    const defaultModules = [
-        "/mod/pclogo/pclogo.lgo"
-    ];
+    const defaultModules = {
+        "pclogo": [
+            "/mod/pclogo/pclogo.lgo"
+        ]
+    };
 
     const LOGO_EVENT = logo.constants.LOGO_EVENT;
 
@@ -773,9 +775,18 @@ $obj.create = function(logo, sys, ext) {
     }
     env.checkSlotLength = checkSlotLength;
 
-    async function loadDefaultLogoModules() {
-        for (let mod of defaultModules) {
+    async function loadLogoModules(modules) {
+        for (let mod of modules) {
+            logo.io.stdout("LOAD \"" + mod);
             await logo.entry.exec(logo.logofs.get(mod));
+        }
+    }
+
+    async function loadDefaultLogoModules() {
+        for (let configKey in defaultModules) {
+            if (logo.config.get(configKey)) {
+                loadLogoModules(defaultModules[configKey]);
+            }
         }
     }
     env.loadDefaultLogoModules = loadDefaultLogoModules;

@@ -48,9 +48,22 @@ function encodeCase(testCase, dir) {
 }
 
 function getListOfCases(dir) {
-    return pktool.readFile(dir + "/list.txt")
-        .map(line => line.replace(/#.*$/, ""))
+    let cases = pktool.readFile(dir + "/list.txt");
+
+    if (cases.length === 0) {
+        return [];
+    }
+
+    let match = cases[0].match(/^\s*configOverride:\s*(?<configOverride>\S+)/);
+
+    let configOverride = "";
+    if (match) {
+        configOverride = match.groups.configOverride;
+        cases.shift();
+    }
+
+    return cases.map(line => line.replace(/#.*$/, ""))
         .filter(line => !line.match(/^\s*$/))
         .map(line => line.split(/\s+/))
-        .map(line => [line[0], line.slice(1)]);
+        .map(line => [line[0], line.slice(1).map(mode => mode + configOverride)]);
 }

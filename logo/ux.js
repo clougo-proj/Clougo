@@ -124,7 +124,7 @@ function writeLogoStorage(key, value) {
     localStorage.setItem(key, value);
 }
 
-// http://localhost:8080/?mode=beta&lpk=unittest
+// http://localhost:8080/?on=unitTestButton
 const getUrlParams = (() => {
     let urlParams = typeof URLSearchParams !== "undefined" ? new URLSearchParams(window.location.search) : undefined;
     return function(key) {

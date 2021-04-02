@@ -304,12 +304,12 @@ $obj.create = function(Logo, sys) {
     async function runTestHelper(test, testName, testMethod) {
         extForTest.io.mockStdin(getTestInBase(test));
         logoForUnitTests.env.initLogoEnv();
-        await logoForUnitTests.env.loadDefaultLogoModules();
         count++;
 
         Logo.io.stdoutn(testName + "(" + testMethod + "):");
         let testSettings = toTestSettings(testMethod);
         let backupConfig = overrideLogoConfig(logoForUnitTests, testSettings);
+        await logoForUnitTests.env.loadDefaultLogoModules();
 
         switch(testSettings.mode) {
         case Logo.mode.PARSE:

@@ -1,3 +1,4 @@
+configOverride:,+pclogo
 getxy run exec
 agetaset run exec
 butmember run exec

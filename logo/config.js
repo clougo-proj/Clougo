@@ -15,6 +15,7 @@ $obj.create = function create(sys, origConfigMap = undefined) {
         verbose: false,
         postfix: false,
         deepCallStack: false,
+        pclogo: false,
         trace: true
     } : Object.assign({}, origConfigMap);
 

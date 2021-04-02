@@ -25,6 +25,7 @@ $obj.create = function logoInNode(Logo, sys) {
 
     const ext = makeLogoDependencies();
     const logo = Logo.create(ext);
+    const cmd = parseArgv(process.argv);
 
     logo.env.loadDefaultLogoModules()
         .then(postCreation);
@@ -32,7 +33,6 @@ $obj.create = function logoInNode(Logo, sys) {
     function postCreation() {
         const srcRunner = makeSrcRunner();
         const fs = require("fs");
-        const cmd = parseArgv(process.argv);
 
         if (!("file" in cmd) && cmd.op === Logo.mode.EXEC) {
             cmd.op = Logo.mode.CONSOLE;

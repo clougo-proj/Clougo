@@ -110,6 +110,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
         webMsgHandler[LOGO_METHOD.CLEAR_WORKSPACE] = async function() {
             postMessage([LOGO_EVENT.BUSY]);
             logo.env.clearWorkspace();
+            logo.env.loadDefaultLogoModules();
             logo.turtle.draw();
             postMessage([LOGO_EVENT.READY]);
         };
@@ -120,6 +121,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
 
         webMsgHandler[LOGO_METHOD.CONFIG] = async function(e) {
             logo.config.override(getMsgBody(e));
+            logo.env.loadDefaultLogoModules();
         };
 
         // listen to events in the worker

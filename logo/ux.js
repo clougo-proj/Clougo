@@ -332,6 +332,9 @@ function createLogoWorker(eventHandler) {
         case LOGO_EVENT.EDITOR_LOAD:
             eventHandler.editorLoad(msg[1]);
             break;
+        case LOGO_EVENT.CANVAS_SNAPSHOT:
+            eventHandler.canvasSnapshot();
+            break;
         default:
         }
     };
@@ -357,8 +360,20 @@ function createLogoWorker(eventHandler) {
         },
         "onMouseEvent": function(event) {
             worker.postMessage([LOGO_METHOD.MOUSE_EVENT, event]);
+        },
+        "turtleUndo": function() {
+            worker.postMessage([LOGO_METHOD.TURTLE_UNDO]);
         }
     };
+}
+
+function turtleUndo() { // eslint-disable-line no-unused-vars
+    logoWorker.turtleUndo();
+    turtleCanvas.undo();
+}
+
+function canvasSnapshot() {
+    turtleCanvas.snapshot();
 }
 
 const logoWorker = createLogoWorker({
@@ -391,6 +406,9 @@ const logoWorker = createLogoWorker({
     },
     "editorLoad": function(src) {
         editor.setValue(editor.getValue() + "\n" + src);
+    },
+    "canvasSnapshot": function() {
+        canvasSnapshot();
     }
 });
 

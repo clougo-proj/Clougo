@@ -741,7 +741,7 @@ $obj.create = function(logo, sys) {
         let src = logo.logofs.get("/demo/" + demoFileName);
 
         if (option !== undefined && option == "load") {
-            logo.io.editorload(src);
+            logo.io.editorLoad(src);
         }
 
         await logo.entry.exec(src);

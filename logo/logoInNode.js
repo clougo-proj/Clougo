@@ -164,7 +164,8 @@ $obj.create = function logoInNode(Logo, sys) {
                 "stderr": console.error,  // eslint-disable-line no-console
                 "stderrn": function(v) { process.stderr.write(v); },
                 "drawflush": function() {},
-                "editorload": function() {},
+                "editorLoad": function() {},
+                "canvasSnapshot": function() {},
                 "cleartext": function() { process.stdout.write(sys.getCleartextChar()); },
                 "envstate": function() {},
                 "exit": function(batchMode) {

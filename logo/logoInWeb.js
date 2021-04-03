@@ -58,6 +58,10 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
         postMessage([LOGO_EVENT.EDITOR_LOAD, src]);
     }
 
+    function webCanvasSnapshot() {
+        postMessage([LOGO_EVENT.CANVAS_SNAPSHOT]);
+    }
+
     function webExit(batchMode) {
         if (!batchMode) {
             postMessage([LOGO_EVENT.OUT, "Thank you for using Logo. Bye!"]);
@@ -96,7 +100,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
             postMessage([logo.env.getEnvState()]);
         };
 
-        webMsgHandler[LOGO_METHOD.EXEC] = async function(e) {
+        webMsgHandler[LOGO_METHOD.EXEC] = function(e) {
             webExec(getMsgBody(e), getMsgId(e));
         };
 
@@ -107,7 +111,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
             postMessage([logo.env.getEnvState()]);
         };
 
-        webMsgHandler[LOGO_METHOD.CLEAR_WORKSPACE] = async function() {
+        webMsgHandler[LOGO_METHOD.CLEAR_WORKSPACE] = function() {
             postMessage([LOGO_EVENT.BUSY]);
             logo.env.clearWorkspace();
             logo.env.loadDefaultLogoModules();
@@ -115,13 +119,17 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
             postMessage([LOGO_EVENT.READY]);
         };
 
-        webMsgHandler[LOGO_METHOD.MOUSE_EVENT] = async function(e) {
+        webMsgHandler[LOGO_METHOD.MOUSE_EVENT] = function(e) {
             logo.turtle.onMouseEvent(getMsgBody(e));
         };
 
-        webMsgHandler[LOGO_METHOD.CONFIG] = async function(e) {
+        webMsgHandler[LOGO_METHOD.CONFIG] = function(e) {
             logo.config.override(getMsgBody(e));
             logo.env.loadDefaultLogoModules();
+        };
+
+        webMsgHandler[LOGO_METHOD.TURTLE_UNDO] = function() {
+            logo.turtle.undo();
         };
 
         // listen to events in the worker
@@ -159,7 +167,8 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
                 "stderr": webStderr,
                 "stderrn": webStderrn,
                 "cleartext": webCleartext,
-                "editorload": webEditorLoad,
+                "editorLoad": webEditorLoad,
+                "canvasSnapshot": webCanvasSnapshot,
                 "drawflush": function() {
                     ext.canvas.flush();
                 },

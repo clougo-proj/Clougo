@@ -17,11 +17,14 @@ $obj.create = function(logo, sys) {
     const originalHeading = 0; // deg
     const originalPenSize = logo.type.makeLogoList([1, 1]);
 
+    const MAX_UNDO_DEPTH = logo.constants.MAX_UNDO_DEPTH;
+
     let _showTurtle = true;
 
     let _turtleX = originX;
     let _turtleY = originY;
     let _turtleHeading = originalHeading;
+    let _undoStack = [];
 
     let _penDown = true;
     let _penMode = "paint";
@@ -551,6 +554,36 @@ $obj.create = function(logo, sys) {
         return _mouseDown;
     }
     turtle.buttonpp = primitiveButtonp;
+
+    function undo() {
+        if (_undoStack.length > 0) {
+            restoreTurtle(_undoStack.pop());
+            logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
+        }
+    }
+    turtle.undo = undo;
+
+    function snapshot() {
+        _undoStack.push(backupTurtle());
+        if (_undoStack.length > MAX_UNDO_DEPTH) {
+            _undoStack.shift();
+        }
+    }
+    turtle.snapshot = snapshot;
+
+    function backupTurtle() {
+        return {
+            "x": _turtleX,
+            "y": _turtleY,
+            "heading": _turtleHeading
+        };
+    }
+
+    function restoreTurtle(turtleState) {
+        _turtleX = turtleState.x;
+        _turtleY = turtleState.y;
+        _turtleHeading = turtleState.heading;
+    }
 
     function getMsgType(msg) {
         return msg[0];

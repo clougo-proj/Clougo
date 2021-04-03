@@ -116,6 +116,7 @@ $obj.create = function(Logo, sys) {
                 "cleartext": function() {
                     stdoutBuffer += sys.getCleartextChar();
                 },
+                "canvasSnapshot": function() {},
                 "mockStdin": function(text) {
                     extForTest.io.onstdin = function(logoUserInputListener) {
                         logoUserInputListener(text);

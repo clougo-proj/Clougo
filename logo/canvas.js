@@ -8,7 +8,9 @@
 
 "use strict";
 
-/* global CanvasCommon, floodFill */
+/* global CanvasCommon, floodFill, Constants */
+
+const MAX_UNDO_DEPTH = Constants.MAX_UNDO_DEPTH;
 
 if (CanvasRenderingContext2D.prototype.ellipse === undefined) {
     CanvasRenderingContext2D.prototype.ellipse = function(x, y, radiusX, radiusY,
@@ -35,6 +37,8 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
     const _originX = _canvas.width * 0.5;
     const _originY = _canvas.height * 0.5;
     const _originHeading = Math.PI*0.5;
+
+    let _undoStack = [];
 
     let _tx = _originX;
     let _ty = _originY;
@@ -111,6 +115,10 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
         }
     }
 
+    function backupForUndo() {
+        return _convasContext.getImageData(0, 0, _canvas.width, _canvas.height);
+    }
+
     function backupBeforeTurtle() {
         let itx = Math.round(_tx);
         let ity = Math.round(_ty);
@@ -118,21 +126,42 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
         return _convasContext.getImageData(itx - 25 * _zoom, ity - 25 * _zoom, 50 * _zoom, 50 * _zoom);
     }
 
-    function restoreBeforeTurtle(imgData) {
+    function restoreBeforeTurtle(imgAroundTurtle) {
         let itx = Math.round(_tx);
         let ity = Math.round(_ty);
 
-        if (imgData != undefined) {
-            _convasContext.putImageData(imgData, itx - 25 * _zoom, ity - 25 * _zoom);
+        if (imgAroundTurtle !== undefined) {
+            _convasContext.putImageData(imgAroundTurtle, itx - 25 * _zoom, ity - 25 * _zoom);
         }
     }
 
     const drawScreen = (() => {
 
-        let imgData = undefined;
+        let imgAroundTurtle = undefined;
+
+        function undo() {
+            if (_undoStack.length > 0) {
+                _convasContext.putImageData(_undoStack.pop(), 0, 0);
+                imgAroundTurtle = backupBeforeTurtle();
+                drawTurtle(_tx, _ty);
+            }
+        }
+        _self.undo = undo;
+
+        function snapshot() {
+            restoreBeforeTurtle(imgAroundTurtle);
+            _undoStack.push(backupForUndo());
+            if (_undoStack.length > MAX_UNDO_DEPTH) {
+                _undoStack.shift();
+            }
+
+            imgAroundTurtle = backupBeforeTurtle();
+            drawTurtle(_tx, _ty);
+        }
+        _self.snapshot = snapshot;
 
         return function() {
-            restoreBeforeTurtle(imgData);
+            restoreBeforeTurtle(imgAroundTurtle);
 
             let nextTqElem;
             let startTime = Date.now();
@@ -165,7 +194,7 @@ function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unuse
                 ext.turtleReady();
             }
 
-            imgData = backupBeforeTurtle();
+            imgAroundTurtle = backupBeforeTurtle();
             drawTurtle(_tx, _ty);
             requestAnimationFrame(drawScreen);
         };

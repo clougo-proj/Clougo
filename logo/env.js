@@ -527,7 +527,13 @@ $obj.create = function(logo, sys, ext) {
         return srcSegments;
     }
 
+    function snapshot() {
+        logo.turtle.snapshot();
+        logo.io.canvasSnapshot();
+    }
+
     async function exec(logoSrc, genjs, srcidx) {
+        snapshot();
         return await timedExec(
             async function() {
                 let ret;

@@ -12,6 +12,7 @@ Constants.LOGO_EVENT = {
     "MULTI_LINE": "multiline",
     "CONTINUE": "continue",
     "CANVAS": "canvas",
+    "CANVAS_SNAPSHOT": "canvasSnapshot",
     "OUT": "out",
     "OUTN": "outn",
     "ERR": "err",
@@ -19,7 +20,7 @@ Constants.LOGO_EVENT = {
     "EXIT": "exit",
     "CONFIG": "config",
     "CLEAR_TEXT": "cleartext",
-    "EDITOR_LOAD": "editorload"
+    "EDITOR_LOAD": "editorLoad"
 };
 Object.freeze(Constants.LOGO_EVENT);
 
@@ -29,9 +30,12 @@ Constants.LOGO_METHOD = {
     "RUN": "run",
     "TEST": "test",
     "CLEAR_WORKSPACE": "clearWorkspace",
+    "TURTLE_UNDO": "turtleUndo",
     "MOUSE_EVENT": "mouseEvent"
 };
 Object.freeze(Constants.LOGO_METHOD);
+
+Constants.MAX_UNDO_DEPTH = 100;
 
 if (typeof exports != "undefined") {
     exports.Constants = Constants;

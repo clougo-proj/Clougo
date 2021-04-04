@@ -530,6 +530,18 @@ $obj.create = function(logo, sys) {
         return Math.floor(Math.random() * Math.floor(range));
     }
 
+    function primitiveIseq(from, to) {
+        logo.type.validateInputNumber(from);
+        logo.type.validateInputNumber(to);
+        if (from === to) {
+            return logo.type.makeLogoList([from]);
+        }
+
+        let incr = from < to;
+        let length = Math.floor(Math.abs(to - from)) + 1;
+        return logo.type.makeLogoList(Array.from({length: length}, (x, i) => (incr ? i : -i) + from));
+    }
+
     function primitiveThrow(tag, value) {
         throw logo.type.LogoException.CUSTOM.withParam([tag, value], logo.env.getPrimitiveSrcmap(), logo.env._curProc);
     }
@@ -910,6 +922,8 @@ $obj.create = function(logo, sys) {
         "sign": primitiveSign,
 
         "random": primitiveRandom,
+
+        "iseq": primitiveIseq,
 
         "lessp": primitiveLessp,
 

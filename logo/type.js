@@ -967,6 +967,11 @@ $obj.create = function(logo, sys) {
         return value ? "true" : "false";
     }
 
+    function scalarToString(v) {
+        return (typeof v === "number") ? numberToString(v) :
+            (typeof v === "boolean") ? booleanToString(v) : v;
+    }
+
     function toString(v, outterBracket = false) {
         if (isQuotedLogoWord(v)) {
             return unquoteLogoWord(v);
@@ -976,22 +981,14 @@ $obj.create = function(logo, sys) {
             return outterBracket ? "[]" : "";
         }
 
-        if (typeof v === "number") {
-            return numberToString(v);
-        }
-
-        if (typeof v === "boolean") {
-            return booleanToString(v);
-        }
-
         if (!(isLogoList(v) || isLogoArray(v))) {
-            return v;
+            return scalarToString(v);
         }
 
         function toStringHelper(v) {
             return type.isLogoList(v) ? "[" +  unboxList(v).map(toStringHelper).join(" ") + "]" :
                 type.isLogoArray(v) ? "{" +  unboxArray(v).map(toStringHelper).join(" ") + "}" :
-                    v === null ? "[]" : v;
+                    v === null ? "[]" : scalarToString(v);
         }
 
         return type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) ? toStringHelper(v) :

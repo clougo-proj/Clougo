@@ -1,0 +1,8 @@
+show iseq
+show iseq 1
+show iseq "a 1
+show iseq 1 = 1 2
+show iseq 1 1 = 2
+show iseq [] 1
+show iseq 2 {}
+show (iseq 2 3 4)

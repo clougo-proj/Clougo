@@ -117,3 +117,5 @@ reverse run exec
 reverse_err runl execl
 foreach run exec
 foreach_err runl execl
+iseq run exec
+iseq_err runl execl

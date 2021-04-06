@@ -140,7 +140,7 @@ $obj.create = function logoInNode(Logo, sys) {
         srcRunner[Logo.mode.EXECL] = async function(src) { await logo.env.execByLine(src, true, 1); };
         srcRunner[Logo.mode.EXECJS] = async function(src) { await logo.env.evalLogoJsTimed(src); };
         srcRunner[Logo.mode.PARSE] = async function(src) {
-            stdout(JSON.stringify(logo.parse.parseSrc(src, 1)));
+            stdout(JSON.stringify(logo.parse.parseBlock(logo.parse.parseSrc(src, 1))));
         };
 
         srcRunner[Logo.mode.CODEGEN] = async function(src) {

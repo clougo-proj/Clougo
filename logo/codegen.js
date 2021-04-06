@@ -306,12 +306,6 @@ $obj.create = function(logo, sys) {
         code.append(genInstrList(evxContext.next(), "if"));
         code.append("}");
 
-        if (evxContext.peekNextToken() === "else") {
-            code.append(" else {");
-            code.append(genInstrList(evxContext.next().next(), "if"));
-            code.append("}");
-        }
-
         code.append("\n;$ret=undefined;");
 
         return code;

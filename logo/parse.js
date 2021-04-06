@@ -188,6 +188,7 @@ $obj.create = function(logo, sys) {
 
         let retsrcmap = blockHasSrcmap ? logo.type.makeLogoList() : logo.type.SRCMAP_NULL;
         let ret = logo.type.makeLogoList(undefined, retsrcmap);
+        let lastIf = undefined;
 
         list.forEach(processLine);
 
@@ -291,6 +292,16 @@ $obj.create = function(logo, sys) {
             }
 
             function captureToken(token, offset) {
+                if (logo.config.get("clougo")) {
+                    if (token == "if") {
+                        lastIf = ret.length;
+                    } else if (token == "else" && lastIf !== undefined) {
+                        ret[lastIf] = "ifelse";
+                        lastIf = undefined;
+                        return;
+                    }
+                }
+
                 ret.push(isStringLiteral ? token : token.toLowerCase());
                 if (blockHasSrcmap) {
                     retsrcmap.push(addSrcmapOffset(srcmap[index], offset));

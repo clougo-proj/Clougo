@@ -129,17 +129,6 @@ $obj.create = function(logo, sys) {
             nextActualParam.push(param);
         }
 
-        // if pred [list1] else [list2]
-        if (ctrlName === "if" && evxContext.peekNextToken() === "else") {
-            await evxToken(evxContext.next().next(), precedence, false, true);
-            let param = logo.type.isLogoList(evxContext.retVal) ?
-                logo.type.embedReferenceSrcmap(evxContext.retVal, evxContext.getSrcmap()) :
-                evxContext.retVal;
-
-            nextActualParam.push(param);
-            ctrlName = "ifelse";
-        }
-
         nextActualParam.splice(0, 0, evxContext.getSrcmap());
         logo.env.setPrimitiveName(ctrlName);
         logo.env.setPrimitiveSrcmap(evxContext.getSrcmap());

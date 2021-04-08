@@ -258,6 +258,12 @@ $obj.create = function(logo, sys) {
     }
     type.hasEmbeddedSrcmap = hasEmbeddedSrcmap;
 
+    function inSameLine(srcmap1, srcmap2) {
+        return (srcmap1 !== SRCMAP_NULL && srcmap2 !== SRCMAP_NULL &&
+            srcmap1[0] === srcmap2[0] && srcmap1[1] === srcmap2[1]);
+    }
+    type.inSameLine = inSameLine;
+
     function embedReferenceSrcmap(list, srcmap) {
         if (list[1] === SRCMAP_NULL) {
             list[1] = [SRCMAP_NULL];
@@ -850,6 +856,20 @@ $obj.create = function(logo, sys) {
         return val != false && val != "false";
     }
     type.isNotLogoFalse = isNotLogoFalse;
+
+    function isLogoBooleanTrue(value, name, srcmap) {
+        if (value === true || value == "true") {
+            return true;
+        }
+
+        if (value === false || value == "false") {
+            return false;
+        }
+
+        throw type.LogoException.INVALID_INPUT.withParam([name, logo.type.toString(value, true)],
+            srcmap);
+    }
+    type.isLogoBooleanTrue = isLogoBooleanTrue;
 
     function isNonNegInteger(value) {
         return sys.isInteger(value) && value >= 0;

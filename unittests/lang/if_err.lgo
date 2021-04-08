@@ -1,0 +1,9 @@
+if cos 30 []
+if {} []
+if [] []
+if "true "true
+if "true "false
+if "true {}
+if "true 100
+if "true "abc
+if "true (list "pr1 "\"a)

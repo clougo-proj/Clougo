@@ -3,6 +3,8 @@ dynscope2 run exec
 globalvar run exec
 case run exec
 output run exec
+if run exec
+if_err runl execl
 ifelse run exec
 if_else run exec
 repeat run exec

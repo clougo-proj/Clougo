@@ -298,14 +298,22 @@ $obj.create = function(logo, sys) {
     function genIf(evxContext) {
         let code = Code.stmt();
 
+        evxContext.setAnchor();
+
+        let srcmap = evxContext.getSrcmap();
+
         code.append(genProcInput(evxContext.next(), 0, false, "if"));
 
         code.append(";\n");
-        code.append("if (logo.type.isNotLogoFalse($ret)) {\n");
+        code.append("if (logo.type.isLogoBooleanTrue($ret,'if',", logo.type.srcmapToJs(srcmap), ")) {\n");
+
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            evxContext.rewindToAnchor();
+            return;
+        }
 
         code.append(genInstrList(evxContext.next(), "if"));
         code.append("}");
-
         code.append("\n;$ret=undefined;");
 
         return code;
@@ -347,10 +355,13 @@ $obj.create = function(logo, sys) {
     function genIfElse(evxContext) {
         let code = Code.stmt();
 
+        let srcmap = evxContext.getSrcmap();
+
         code.append(genProcInput(evxContext.next(), 0, false, "ifelse"));
 
         code.append(";\n");
-        code.append("if (logo.type.isNotLogoFalse($ret)) {\n");
+        code.append("if (logo.type.isLogoBooleanTrue($ret,'ifelse',", logo.type.srcmapToJs(srcmap), ")) {\n");
+
         code.append(genInstrList(evxContext.next(), "ifelse"));
         code.append("} else {\n");
         code.append(genInstrList(evxContext.next(), "ifelse"));

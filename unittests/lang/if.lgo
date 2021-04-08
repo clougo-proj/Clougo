@@ -1,0 +1,2 @@
+if (cos 30) < 1 [pr [case 1 passed]]
+if word "t "rue (list "pr [case 2 passed])

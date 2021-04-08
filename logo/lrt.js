@@ -587,7 +587,7 @@ $obj.create = function(logo, sys) {
             return await logo.env.applyProcText(template, srcmap, slot, inputListSrcmap);
         }
 
-        return await logo.env.applyInstrList(template, srcmap, slot, inputListSrcmap);
+        return await logo.env.applyInstrList(template, srcmap, true, slot, inputListSrcmap);
     }
 
     async function primitiveInvoke(template, ...inputs) {
@@ -627,6 +627,29 @@ $obj.create = function(logo, sys) {
 
         for (let i = 0; i < count; i++) {
             let ret = await logo.env.applyInstrList(template, srcmap);
+            logo.env.checkUnactionableDatum(ret, srcmap);
+        }
+    }
+
+    async function primitiveIf(predicate, template) {
+        logo.type.validateInputBoolean(predicate);
+
+        if (logo.type.isLogoWord(template)) {
+            template = logo.type.makeLogoList([template]);
+        }
+
+        logo.type.validateInputList(template);
+
+        let templateSrcmap = logo.type.getEmbeddedSrcmap(template);
+        if (Array.isArray(templateSrcmap)) {
+            templateSrcmap = templateSrcmap[0];
+        }
+
+        let srcmap = logo.env.getPrimitiveSrcmap();
+
+        if (logo.type.logoBoolean(predicate)) {
+            let ret = await logo.env.applyInstrList(template, srcmap,
+                !logo.type.inSameLine(srcmap, templateSrcmap));
             logo.env.checkUnactionableDatum(ret, srcmap);
         }
     }
@@ -1043,6 +1066,8 @@ $obj.create = function(logo, sys) {
         "foreach": primitiveForeach,
 
         "repeat": primitiveRepeat,
+
+        "if": primitiveIf,
 
         "for": primitiveFor,
 

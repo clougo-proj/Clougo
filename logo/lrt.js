@@ -643,7 +643,7 @@ $obj.create = function(logo, sys) {
     async function callTemplate(template) {
         let srcmap = logo.env.getPrimitiveSrcmap();
         let ret = await logo.env.applyInstrList(template, srcmap,
-            !logo.type.inSameLine(srcmap,  getTemplateSrcmap(template)));
+            !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
         logo.env.checkUnactionableDatum(ret, srcmap);
     }
 
@@ -671,6 +671,37 @@ $obj.create = function(logo, sys) {
             await callTemplate(templateTrue);
         } else {
             await callTemplate(templateFalse);
+        }
+    }
+
+    async function primitiveCatch(label, template) {
+        logo.type.validateInputWord(label);
+        template = wordTemplateToList(template);
+        logo.type.validateInputList(template);
+
+        try {
+            let srcmap = logo.env.getPrimitiveSrcmap();
+            let retVal = await logo.env.applyInstrList(template, srcmap,
+                !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
+            if (logo.config.get("unactionableDatum")) {
+                logo.env.checkUnactionableDatum(retVal, getTemplateSrcmap(template));
+            }
+        } catch(e) {
+            if (logo.type.LogoException.is(e) && e.isCustom()) {
+                if (sys.equalToken(label, e.getValue()[0])) {
+                    return e.getValue()[1];
+                }
+
+                throw e; // rethrow if tag doesn't match label
+            }
+
+            if (!logo.type.LogoException.is(e) || logo.type.LogoException.STOP.equalsByCode(e) ||
+                    logo.type.LogoException.OUTPUT.equalsByCode(e) ||
+                    (e.isError() && !sys.equalToken(label, "error"))) {
+                throw e;
+            }
+
+            // caught and continue execution past catch statement
         }
     }
 
@@ -1090,6 +1121,8 @@ $obj.create = function(logo, sys) {
         "if": primitiveIf,
 
         "ifelse": primitiveIfelse,
+
+        "catch": primitiveCatch,
 
         "for": primitiveFor,
 

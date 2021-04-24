@@ -11,9 +11,6 @@
 var $obj = {};
 $obj.create = function(logo, sys) {
     const interpreter = {};
-    const ctrl = {
-        "catch": evxCtrlCatch
-    };
 
     function makeEvalContext(body) {
         const obj = Object.create({
@@ -104,33 +101,6 @@ $obj.create = function(logo, sys) {
         }
 
         return nextActualParam;
-    }
-
-    async function evxCtrl(evxContext, ctrlName, precedence = 0) {
-        const paramListLength = ctrl[ctrlName].length - 1;
-        let nextActualParam = [];
-
-        for (let j = 0; j < paramListLength; j++) {
-            await evxToken(evxContext.next(), precedence, false, true);
-            if (sys.isUndefined(evxContext.retVal)) {
-                if (evxContext.endOfStatement) {
-                    throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([ctrlName], evxContext.getSrcmap());
-                }
-
-                throw logo.type.LogoException.NO_OUTPUT.withParam([evxContext.proc, ctrlName], evxContext.getSrcmap());
-            }
-
-            let param = logo.type.isLogoList(evxContext.retVal) ?
-                logo.type.embedReferenceSrcmap(evxContext.retVal, evxContext.getSrcmap()) :
-                evxContext.retVal;
-
-            nextActualParam.push(param);
-        }
-
-        nextActualParam.splice(0, 0, evxContext.getSrcmap());
-        logo.env.setPrimitiveName(ctrlName);
-        logo.env.setPrimitiveSrcmap(evxContext.getSrcmap());
-        evxContext.retVal = await ctrl[ctrlName].apply(null, nextActualParam);
     }
 
     async function evxPrimitiveCallParam(evxContext, primitiveName, srcmap, precedence, isInParen) {
@@ -230,8 +200,6 @@ $obj.create = function(logo, sys) {
         } else if (logo.type.isLogoSlot(curToken)) {
             evxContext.proc = "?";
             evxContext.retVal = logo.env.callPrimitive("?", curSrcmap, logo.env.extractSlotNum(curToken));
-        } else if (curToken in ctrl) {
-            await evxCtrl(evxContext, curToken, 0);
         } else if (curToken in logo.lrt.primitive) {
             evxContext.proc = curToken;
             evxContext.retVal = await logo.env.callPrimitiveAsync.apply(undefined,
@@ -373,31 +341,6 @@ $obj.create = function(logo, sys) {
         return retVal;
     }
     interpreter.evxInstrList = evxInstrList;
-
-    async function evxCtrlCatch(srcmap, label, bodyComp) {
-        try {
-            let retVal = await evxInstrList(bodyComp);
-            if (logo.config.get("unactionableDatum")) {
-                logo.env.checkUnactionableDatum(retVal, srcmap);
-            }
-        } catch(e) {
-            if (logo.type.LogoException.is(e) && e.isCustom()) {
-                if (sys.equalToken(label, e.getValue()[0])) {
-                    return e.getValue()[1];
-                }
-
-                throw e; // rethrow if tag doesn't match label
-            }
-
-            if (!logo.type.LogoException.is(e) || logo.type.LogoException.STOP.equalsByCode(e) ||
-                    logo.type.LogoException.OUTPUT.equalsByCode(e) ||
-                    (e.isError() && !sys.equalToken(label, "error"))) {
-                throw e;
-            }
-
-            // caught and continue execution past catch statement
-        }
-    }
 
     return interpreter;
 };

@@ -75,9 +75,9 @@ $obj.create = function(logo, sys) {
         "pi": genPi
     };
 
-    const callLambda = new Set(["apply", "invoke"]);
+    const callLambda = new Set(["apply", "invoke", "catch"]);
 
-    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "for", "thing", "namep", "make"]);
+    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "for", "thing", "namep", "make", "catch"]);
 
     const CODE_TYPE = {
         EXPR: 0,
@@ -322,6 +322,12 @@ $obj.create = function(logo, sys) {
     function genCatch(evxContext) {
         let code = Code.stmt();
 
+        evxContext.setAnchor();
+
+        if (!logo.type.isQuotedLogoWord(evxContext.peekNextToken())) {
+            return;
+        }
+
         let label = genProcInput(evxContext.next(), 0, false, "catch");
 
         if (!label.postFix()) {
@@ -332,6 +338,11 @@ $obj.create = function(logo, sys) {
         }
 
         code.append("try {\n");
+
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            evxContext.rewindToAnchor();
+            return;
+        }
 
         code.append(genInstrList(evxContext.next(), "catch", false));
         code.append("} catch (e) {\n");
@@ -795,6 +806,7 @@ $obj.create = function(logo, sys) {
             evxContext.proc = "?";
             return Code.expr(genLogoSlotRef(curToken, srcmap)).captureRetVal();
         } else { // call
+            curToken = logo.type.toString(curToken);
             evxContext.proc = curToken;
             return genCall(evxContext, curToken, srcmap, isInParen);
         }

@@ -877,7 +877,7 @@ $obj.create = function(logo, sys) {
     type.isNonNegInteger = isNonNegInteger;
 
     function isNumericConstant(curToken) {
-        return typeof curToken !== "object" && !isNaN(Number(curToken));
+        return typeof curToken !== "boolean" && typeof curToken !== "object" && !isNaN(Number(curToken));
     }
     type.isNumericConstant = isNumericConstant;
 

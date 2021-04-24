@@ -478,8 +478,15 @@ $obj.create = function(logo, sys) {
         }
 
         let varName = logo.env.extractVarName(token);
+        let nextTokenCode = genToken(evxContext.next());
+        if (logo.config.get("postfix") || nextTokenCode.postFix()) {
+            return Code.stmt(nextTokenCode)
+                .append(";\n")
+                .append(genLogoVarLref(varName))
+                .append("=$ret;$ret=undefined;");
+        }
 
-        return Code.expr(genToken(evxContext.next()))
+        return Code.expr(nextTokenCode)
             .prepend("(")
             .append(",")
             .append(genLogoVarLref(varName))

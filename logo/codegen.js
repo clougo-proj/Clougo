@@ -868,6 +868,7 @@ $obj.create = function(logo, sys) {
             code.append("let $scope = logo.env._scopeStack[logo.env._scopeStack.length - 1];\n");
         }
 
+        code.append("$ret=undefined;\n");
         code.append(genBody(evxContext, true));
 
         code.append("(");

@@ -1,0 +1,7 @@
+catch
+catch "label
+catch [][]
+catch {}[]
+catch "label {}
+catch "label 2>1
+catch "label word "hel "lo

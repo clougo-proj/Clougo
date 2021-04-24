@@ -19,6 +19,7 @@ local run exec
 newline_in_block run exec
 paren run exec
 catch run exec
+catch_err runl execl
 localmake run exec
 block_indirect run
 instrlist run exec

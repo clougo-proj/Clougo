@@ -20,3 +20,4 @@ issue225 exec run
 issue225_err exec run
 issue236 exec run
 issue245 exec run
+issue246 exec run

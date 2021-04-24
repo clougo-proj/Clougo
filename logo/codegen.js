@@ -86,10 +86,10 @@ $obj.create = function(logo, sys) {
     };
 
     class Code {
-        constructor(rawCodeArray, codeType) {
+        constructor(rawCodeArray, codeType, postfix = false) {
             this._code = rawCodeArray.slice(0);
             this._codeType = codeType;
-            this._postFix = false;
+            this._postFix = postfix;
         }
 
         static expr(...rawCode) {
@@ -97,7 +97,7 @@ $obj.create = function(logo, sys) {
         }
 
         static stmt(...rawCode) {
-            return new Code(rawCode, CODE_TYPE.STMT);
+            return new Code(rawCode, CODE_TYPE.STMT, true);
         }
 
         static asyncMacro(...rawCode) {
@@ -479,10 +479,11 @@ $obj.create = function(logo, sys) {
 
         let varName = logo.env.extractVarName(token);
 
-        return Code.stmt(genToken(evxContext.next()))
-            .append(";\n")
+        return Code.expr(genToken(evxContext.next()))
+            .prepend("(")
+            .append(",")
             .append(genLogoVarLref(varName))
-            .append("=$ret;$ret=undefined;");
+            .append("=$ret,$ret=undefined)");
     }
 
     function genLocalmake(evxContext) {

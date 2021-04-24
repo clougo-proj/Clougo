@@ -6,6 +6,7 @@ output run exec
 if run exec
 if_err runl execl
 ifelse run exec
+ifelse_err runl execl
 if_else run exec
 repeat run exec
 repeat1 run exec

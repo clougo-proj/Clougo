@@ -631,26 +631,46 @@ $obj.create = function(logo, sys) {
         }
     }
 
+    function wordTemplateToList(template) {
+        return logo.type.isLogoWord(template) ? logo.type.makeLogoList([template]) : template;
+    }
+
+    function getTemplateSrcmap(template) {
+        let templateSrcmap = logo.type.getEmbeddedSrcmap(template);
+        return Array.isArray(templateSrcmap) ? templateSrcmap[0] : templateSrcmap;
+    }
+
+    async function callTemplate(template) {
+        let srcmap = logo.env.getPrimitiveSrcmap();
+        let ret = await logo.env.applyInstrList(template, srcmap,
+            !logo.type.inSameLine(srcmap,  getTemplateSrcmap(template)));
+        logo.env.checkUnactionableDatum(ret, srcmap);
+    }
+
     async function primitiveIf(predicate, template) {
         logo.type.validateInputBoolean(predicate);
 
-        if (logo.type.isLogoWord(template)) {
-            template = logo.type.makeLogoList([template]);
-        }
-
+        template = wordTemplateToList(template);
         logo.type.validateInputList(template);
 
-        let templateSrcmap = logo.type.getEmbeddedSrcmap(template);
-        if (Array.isArray(templateSrcmap)) {
-            templateSrcmap = templateSrcmap[0];
+        if (logo.type.logoBoolean(predicate)) {
+            await callTemplate(template);
         }
+    }
 
-        let srcmap = logo.env.getPrimitiveSrcmap();
+    async function primitiveIfelse(predicate, templateTrue, templateFalse) {
+        logo.type.validateInputBoolean(predicate);
+
+        templateTrue = wordTemplateToList(templateTrue);
+        templateFalse = wordTemplateToList(templateFalse);
+
+        logo.type.validateInputList(templateTrue);
+        logo.type.validateInputList(templateFalse);
 
         if (logo.type.logoBoolean(predicate)) {
-            let ret = await logo.env.applyInstrList(template, srcmap,
-                !logo.type.inSameLine(srcmap, templateSrcmap));
-            logo.env.checkUnactionableDatum(ret, srcmap);
+            await callTemplate(templateTrue);
+        } else {
+            await callTemplate(templateFalse);
         }
     }
 
@@ -1068,6 +1088,8 @@ $obj.create = function(logo, sys) {
         "repeat": primitiveRepeat,
 
         "if": primitiveIf,
+
+        "ifelse": primitiveIfelse,
 
         "for": primitiveFor,
 

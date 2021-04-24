@@ -12,7 +12,6 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const interpreter = {};
     const ctrl = {
-        "ifelse": evxCtrlIfElse,
         "catch": evxCtrlCatch
     };
 
@@ -397,22 +396,6 @@ $obj.create = function(logo, sys) {
             }
 
             // caught and continue execution past catch statement
-        }
-    }
-
-    async function evxCtrlIfElse(srcmap, predicate, trueBodyComp, falseBodyComp) {
-        if (logo.type.isNotLogoFalse(predicate)) {
-            let retVal = await evxInstrList(trueBodyComp);
-            if (logo.config.get("unactionableDatum")) {
-                logo.env.checkUnactionableDatum(retVal, srcmap);
-            }
-
-        } else {
-            let retVal = await evxInstrList(falseBodyComp);
-            if (logo.config.get("unactionableDatum")) {
-                logo.env.checkUnactionableDatum(retVal, srcmap);
-            }
-
         }
     }
 

@@ -1,0 +1,13 @@
+ifelse
+ifelse "true
+ifelse "false []
+ifelse pd [][]
+ifelse cos 30 [][]
+ifelse {}[][]
+ifelse [][][]
+ifelse "true "true []
+ifelse "false [] "false
+ifelse "true {} []
+ifelse "false [] 100
+ifelse "true "abc []
+ifelse "false [] (list "pr1 "\"a)

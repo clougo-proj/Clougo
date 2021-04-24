@@ -355,6 +355,8 @@ $obj.create = function(logo, sys) {
     function genIfElse(evxContext) {
         let code = Code.stmt();
 
+        evxContext.setAnchor();
+
         let srcmap = evxContext.getSrcmap();
 
         code.append(genProcInput(evxContext.next(), 0, false, "ifelse"));
@@ -362,8 +364,19 @@ $obj.create = function(logo, sys) {
         code.append(";\n");
         code.append("if (logo.type.isLogoBooleanTrue($ret,'ifelse',", logo.type.srcmapToJs(srcmap), ")) {\n");
 
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            evxContext.rewindToAnchor();
+            return;
+        }
+
         code.append(genInstrList(evxContext.next(), "ifelse"));
         code.append("} else {\n");
+
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            evxContext.rewindToAnchor();
+            return;
+        }
+
         code.append(genInstrList(evxContext.next(), "ifelse"));
 
         code.append("}");

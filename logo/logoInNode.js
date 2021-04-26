@@ -11,6 +11,8 @@
 var $obj = {};
 $obj.create = function logoInNode(Logo, sys) {
 
+    const LOGO_EVENT = Logo.constants.LOGO_EVENT;
+
     const stdout = console.log; // eslint-disable-line no-console
     const stdoutn = function(v) { process.stdout.write(v); };
     const stderr = console.error; // eslint-disable-line no-console
@@ -182,13 +184,12 @@ $obj.create = function logoInNode(Logo, sys) {
 
                             let envState = getEnvState();
 
-                            if (envState == "exit") {
+                            if (envState == LOGO_EVENT.EXIT) {
                                 process.exit();
                             }
 
-                            let prompt = envState == "ready" ? "? " :
-                                envState == "multiline" ? "> " : "";
-
+                            let prompt = envState == LOGO_EVENT.READY ? "? " :
+                                envState == LOGO_EVENT.MULTILINE ? "> " : "";
                             process.stdout.write(prompt);
                         });
                     });

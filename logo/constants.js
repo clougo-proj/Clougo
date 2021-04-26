@@ -9,7 +9,7 @@ var Constants = {};
 Constants.LOGO_EVENT = {
     "BUSY": "busy",
     "READY": "ready",
-    "MULTI_LINE": "multiline",
+    "MULTILINE": "multiline",
     "CONTINUE": "continue",
     "CANVAS": "canvas",
     "CANVAS_SNAPSHOT": "canvasSnapshot",

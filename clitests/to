@@ -1,0 +1,13 @@
+logo
+>Welcome to Logo\n?\s
+<to sayhello\n
+>>\s
+<pr "hello\n
+>>\s
+<end\n
+>?\s
+<sayhello\n
+>hello\n
+>?\s
+<bye\n
+>Thank you for using Logo. Bye!\n

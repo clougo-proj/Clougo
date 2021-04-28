@@ -189,7 +189,9 @@ $obj.create = function logoInNode(Logo, sys) {
                             }
 
                             let prompt = envState == LOGO_EVENT.READY ? "? " :
-                                envState == LOGO_EVENT.MULTILINE ? "> " : "";
+                                envState == LOGO_EVENT.MULTILINE ? "> " :
+                                    envState == LOGO_EVENT.VERTICAL_BAR ? "| " : "";
+
                             process.stdout.write(prompt);
                         });
                     });

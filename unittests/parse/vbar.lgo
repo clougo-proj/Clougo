@@ -1,0 +1,14 @@
+pr "|dfs dsaflasdjfj asdflj fdsa|
+make "a [|a b c d e|f g]
+show count :a
+show item 1 :a
+show item 2 :a
+show :a
+make "s "|abc ; xyz
+    def
+    ghi|
+pr :s
+show count :s
+pr "|(|a
+pr "(pr ")
+pr [pr "|(|a]

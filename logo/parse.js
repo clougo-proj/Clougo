@@ -9,6 +9,8 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const parse = {};
 
+    const LOGO_EVENT = logo.constants.LOGO_EVENT;
+
     const Delimiter = (() => {
         const SP_NONE = 0,
             SP_BASE = 0x1,
@@ -100,11 +102,19 @@ $obj.create = function(logo, sys) {
         return _parseCol < s.length ? s.charAt(_parseCol) : undefined;
     }
 
+    function isMultiline() {
+        return _parseStack.length != 0 || _parseInProc || !logo.type.isLogoList(_parseData);
+    }
+
+    function isVerticalBar() {
+        return _parseInvbar;
+    }
+
     let _parseExpecting, _parseStack, _parseData, _parseSrcmap,
         _parseLine, _parseCol,
         _parseSource,
         _parseWord, _parseWordLine, _parseWordCol, _parseInvbar, _parseInComment,
-        _parseLastTo, _parseInProc;
+        _parseLastTo, _parseInProc, _parseVbar;
 
     function reset() {
         resetParseData();
@@ -113,6 +123,7 @@ $obj.create = function(logo, sys) {
         _parseLine = 0;
         _parseCol = 0;
         _parseWord = "";
+        _parseVbar = [];
         _parseWordLine = 0;
         _parseWordCol = 0;
         _parseInvbar = false;
@@ -130,7 +141,16 @@ $obj.create = function(logo, sys) {
     }
 
     function makeWordSrcmap() {
-        return [_parseSource, _parseWordLine + 1, _parseWordCol + 1];
+        return _parseVbar.length == 0 ? [_parseSource, _parseWordLine + 1, _parseWordCol + 1] :
+            [_parseSource, _parseWordLine + 1, _parseWordCol + 1, _parseVbar];
+    }
+
+    function getVbarFromSrcmap(srcmap) {
+        if (Array.isArray(srcmap) && srcmap.length == 4 && Array.isArray(srcmap[3])) {
+            return srcmap[3];
+        }
+
+        return [];
     }
 
     function pushParseStack(expectedClosing) {
@@ -190,7 +210,7 @@ $obj.create = function(logo, sys) {
         let ret = logo.type.makeLogoList(undefined, retsrcmap);
         let lastIf = undefined;
 
-        list.forEach(processLine);
+        list.forEach(processWord);
 
         return ret;
 
@@ -204,7 +224,7 @@ $obj.create = function(logo, sys) {
             return newSrcmap;
         }
 
-        function processLine(word, index){
+        function processWord(word, index){
             if (typeof word != "string" || word.length == 0) {
                 ret.push(word);
                 if (blockHasSrcmap) {
@@ -217,6 +237,9 @@ $obj.create = function(logo, sys) {
             let last = 0;
             let ptr = 0;
             let isStringLiteral = false;
+            let vbarMap = getVbarFromSrcmap(srcmap[index]);
+            let vbarMapPtr = 0;
+            let inVbar = false;
             if (word.substring(0, 1) == "\"") {
                 ptr = 1;
                 isStringLiteral = true;
@@ -224,6 +247,14 @@ $obj.create = function(logo, sys) {
 
             for (; ptr < word.length; ptr++) {
                 let c = word.charAt(ptr);
+                if (vbarMap.length !== 0 && ptr === vbarMap[vbarMapPtr]) {
+                    inVbar = !inVbar;
+                    vbarMapPtr += 1;
+                }
+
+                if (inVbar) {
+                    continue;
+                }
 
                 if (isStringLiteral) {
                     let c = word.charAt(ptr);
@@ -392,6 +423,7 @@ $obj.create = function(logo, sys) {
             _parseData.push(_parseWord);
             _parseSrcmap.push(makeWordSrcmap());
             _parseWord = "";
+            _parseVbar = [];
         }
 
         function convertFormalParam() {
@@ -433,6 +465,31 @@ $obj.create = function(logo, sys) {
             let isLastChar = (_parseCol == s.length - 1);
             let isSecondLastChar = (_parseCol == s.length - 2);
 
+            if (_parseInvbar) {
+                if (c == "|") {
+                    _parseInvbar = false;
+                    _parseVbar.push(_parseWord.length);
+                    if (isLastChar) {
+                        terminateLine();
+                        break;
+                    }
+                } else {
+                    _parseWord += c;
+                    if (isLastChar) {
+                        _parseWord += "\n";
+                        break;
+                    }
+                }
+
+                continue;
+            }
+
+            if (c == "|") {
+                _parseInvbar = true;
+                _parseVbar.push(_parseWord.length);
+                continue;
+            }
+
             if (_parseInComment) {
                 if (!isLastChar) { // ignore everthing except last character
                     continue;
@@ -459,16 +516,6 @@ $obj.create = function(logo, sys) {
                     break;
                 }
 
-                continue;
-            }
-
-            if (_parseInvbar) {
-                if (c != "|") {
-                    _parseWord += c;
-                    continue;
-                }
-
-                _parseInvbar = false;
                 continue;
             }
 
@@ -565,7 +612,7 @@ $obj.create = function(logo, sys) {
 
         tryParseLines(s.split(/\r?\n/));
 
-        if (_parseStack.length != 0 || _parseInProc || !logo.type.isLogoList(_parseData)) {
+        if (isVerticalBar() || isMultiline()) {
             return undefined;
         }
 
@@ -576,6 +623,11 @@ $obj.create = function(logo, sys) {
 
         resetParseData();
         return comp;
+    };
+
+    parse.getParserState = function() {
+        return isVerticalBar() ? LOGO_EVENT.VERTICAL_BAR :
+            isMultiline() ? LOGO_EVENT.MULTILINE : LOGO_EVENT.READY;
     };
 
     parse.reset();

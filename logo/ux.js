@@ -295,9 +295,13 @@ function createLogoWorker(eventHandler) {
             break;
         case LOGO_EVENT.READY:
         case LOGO_EVENT.MULTILINE:
+        case LOGO_EVENT.VERTICAL_BAR:
         {
             // ready for logo command line input
-            let prompt = (msg[0] == "ready") ? "? " : "> ";
+            let prompt = (msg[0] == LOGO_EVENT.MULTILINE) ? "> " :
+                (msg[0] == LOGO_EVENT.VERTICAL_BAR) ? "| " :
+                    (msg[0] == LOGO_EVENT.READY) ? "? " : "";
+
             eventHandler.ready();
             eventHandler.prompt(prompt);
             break;

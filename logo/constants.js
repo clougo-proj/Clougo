@@ -10,6 +10,7 @@ Constants.LOGO_EVENT = {
     "BUSY": "busy",
     "READY": "ready",
     "MULTILINE": "multiline",
+    "VERTICAL_BAR" : "vbar",
     "CONTINUE": "continue",
     "CANVAS": "canvas",
     "CANVAS_SNAPSHOT": "canvasSnapshot",

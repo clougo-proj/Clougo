@@ -5,3 +5,4 @@ tab parse
 scientific parse
 equal_after_quote parse run exec
 if_else parse
+vbar parse run exec

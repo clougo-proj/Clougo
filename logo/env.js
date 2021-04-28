@@ -263,7 +263,7 @@ $obj.create = function(logo, sys, ext) {
                     let userInput = getUserInput();
 
                     if (sys.equalToken(userInput, "quit") || sys.equalToken(userInput, "exit") || sys.equalToken(userInput, "bye")) {
-                        _envState = "exit";
+                        _envState = LOGO_EVENT.EXIT;
                         ext.io.exit();
                         return; // exit
                     }
@@ -462,8 +462,6 @@ $obj.create = function(logo, sys, ext) {
 
         let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
         logo.trace.info(parsedCode, "parse.result");
-        setEnvState(LOGO_EVENT.CONTINUE);
-        let nextEnvState = sys.isUndefined(parsedCode) ? LOGO_EVENT.MULTILINE : LOGO_EVENT.READY;
         setGenJs(genjs);
 
         if (genjs) {
@@ -472,7 +470,7 @@ $obj.create = function(logo, sys, ext) {
             await evalLogo(parsedCode);
         }
 
-        setEnvState(nextEnvState);
+        setEnvState(logo.parse.getParserState());
     }
 
     function isEagerEval(logosrc) {

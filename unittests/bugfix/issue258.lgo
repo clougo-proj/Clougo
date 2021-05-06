@@ -1,0 +1,6 @@
+to f
+    pr [Code before TO should still execute.]
+    to g
+end
+
+f

@@ -354,8 +354,7 @@ $obj.create = function(logo, sys) {
         let lastto = -1;
 
         parseCode.forEach((word, index) => {
-            if (sys.equalToken(word, "to")) {
-                sys.assert(lastto == -1, "Nested to?");
+            if (sys.equalToken(word, "to") && lastto === -1) {
                 lastto = ret.length;
             }
 

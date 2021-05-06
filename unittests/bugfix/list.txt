@@ -22,3 +22,4 @@ issue236 exec run
 issue245 exec run
 issue246 exec run
 issue254 exec run
+issue258 exec run

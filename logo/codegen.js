@@ -1065,9 +1065,15 @@ $obj.create = function(logo, sys) {
             code.append("$ret=");
         }
 
-        code.append(logo.type.isLogoProc(curToken) ? genProc(curToken, srcmap) :
-            logo.type.isLogoArray(curToken) ?  genArray(curToken, srcmap) :
-                genLogoList(curToken, srcmap));
+        if (logo.type.isLogoProc(curToken)) {
+            code.append(genProc(curToken, srcmap));
+        } else if (logo.type.isLogoArray(curToken)) {
+            code.append(genArray(curToken, srcmap));
+        } else if (logo.type.isLogoList(curToken)) {
+            code.append(genLogoList(curToken, srcmap));
+        } else {
+            code.append("undefined");
+        }
 
         return code;
     }

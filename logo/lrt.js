@@ -781,6 +781,10 @@ $obj.create = function(logo, sys) {
         logo.env.defineLogoProc(procname, formal, body);
     }
 
+    function primitiveTo() {
+        throw logo.type.LogoException.NESTED_TO.withParam([], logo.env.getPrimitiveSrcmap());
+    }
+
     function primitiveText(procname) {
         return logo.env.getLogoProcText(procname);
     }
@@ -1131,6 +1135,8 @@ $obj.create = function(logo, sys) {
         "timemilli": primitiveTimeMilli,
 
         "define": primitiveDefine,
+
+        "to": primitiveTo,
 
         "text": primitiveText,
 

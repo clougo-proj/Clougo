@@ -427,6 +427,10 @@ $obj.create = function(logo, sys) {
         }
 
         function convertFormalParam() {
+            if (_parseLastTo + 1 === _parseData.length) {
+                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam(["to"], makeSrcmap());
+            }
+
             let formal = _parseData.slice(_parseLastTo + 2, _parseData.length);
             let formalSrcmap = _parseSrcmap.slice(_parseLastTo + 2, _parseSrcmap.length);
 

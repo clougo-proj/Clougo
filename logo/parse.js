@@ -358,15 +358,13 @@ $obj.create = function(logo, sys) {
                 lastto = ret.length;
             }
 
-            if (!sys.equalToken(word, "end")) {
-                ret.push(word);
-                retsrcmap.push(srcmap[index]);
+            if (sys.equalToken(word, "end") && lastto !== -1) {
+                defineParsedProc();
                 return;
             }
 
-            if (lastto != -1) { // ignore end without to
-                defineParsedProc();
-            }
+            ret.push(word);
+            retsrcmap.push(srcmap[index]);
         });
 
         return ret;

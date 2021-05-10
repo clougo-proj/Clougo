@@ -589,13 +589,11 @@ $obj.create = function(logo, sys) {
         if (param.length === 0)  {
             code = code.append(genPrepareCall(curToken, srcmap));
         } else {
-            let lastParam = param.pop();
-            lastParam = lastParam.prepend("($ret=")
+            param.unshift(param.shift().prepend("$ret=")
+                .prepend(genPrepareCall(curToken, srcmap))
+                .prepend("(")
                 .append(",")
-                .append(genPrepareCall(curToken, srcmap))
-                .append("$ret)");
-
-            param.push(lastParam);
+                .append("$ret)"));
         }
 
         return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", escape(curToken), "\"](")
@@ -621,6 +619,7 @@ $obj.create = function(logo, sys) {
             .append(genThrowUnknownProc(srcmap, curToken))
             .append("}\n");
 
+        code.append(genPrepareCall(curToken, srcmap));
         code.append("$param.begin([]);\n");
 
         param.map((p) => {
@@ -628,9 +627,7 @@ $obj.create = function(logo, sys) {
             code.append(";\n$param.add($ret);\n");
         });
 
-        code.append(genPrepareCall(curToken, srcmap));
         code.append("$ret;\n");
-
         code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env._user[", "\"", escape(curToken), "\"",
             "].apply(undefined,$param.end());\n");
 

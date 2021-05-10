@@ -1,0 +1,14 @@
+; no value in default expression
+to f1 :y [:x word (first :y) :z]
+  pr :x
+end
+
+f1 "yes
+
+; having required input, optional input, rest input, and default input count
+to f2 :y [:z :y-1] [:x] 1
+  pr (list "y= :y ", "z= :z ", "x= :x)
+end
+
+f2
+f2 1 2

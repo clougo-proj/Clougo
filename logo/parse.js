@@ -373,7 +373,8 @@ $obj.create = function(logo, sys) {
             sys.assert(Array.isArray(formal));
             return formal.map(v =>
                 logo.type.isLogoVarRef(v) ? logo.env.extractVarName(v) :
-                    (Array.isArray(v) && logo.type.isLogoVarRef(v[0])) ? v.splice(0, 1, logo.env.extractVarName(v)) : v);
+                    (Array.isArray(v) && logo.type.isLogoVarRef(v[2])) ?
+                        (v.splice(2, 1, logo.env.extractVarName(v[2])), v) : v);
         }
 
         function defineParsedProc() {

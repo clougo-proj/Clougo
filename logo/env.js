@@ -424,9 +424,99 @@ $obj.create = function(logo, sys, ext) {
         return {
             "formal" : formal,
             "formalSrcmap" : formalSrcmap,
+            "formalParams": captureFormalParams(formal, formalSrcmap),
             "body" : body,
             "bodySrcmap" : bodySrcmap
         };
+    }
+
+    function isOptionalInput(input) {
+        return logo.type.isLogoList(input) && logo.type.listLength(input) > 1;
+    }
+
+    function getInputName(input) {
+        return logo.type.listItem(1, input);
+    }
+
+    function isRestInput(input) {
+        return logo.type.isLogoList(input) && logo.type.listLength(input) === 1;
+    }
+
+    function isDefaultInputCount(input) {
+        let number = sys.toNumberIfApplicable(input);
+        return sys.isInteger(number) && number > 0;
+    }
+
+    function captureFormalParams(formalParams, formalSrcmap) {
+        let length = formalParams.length;
+        let minInputCount = 0;
+        let defaultInputCount = 0;
+        let maxInputCount = 0;
+        let restParam = undefined;
+
+        let params = [];
+        let paramTemplates = [];
+        let ptr = length - 1;
+
+        captureDefaultInputCount();
+        captureRestParam();
+        captureOptionalParams();
+
+        minInputCount = ptr + 1;
+
+        captureRequiredParams();
+
+        if (defaultInputCount === 0) {
+            defaultInputCount = minInputCount;
+        }
+
+        return {
+            "params": params,
+            "paramTemplates": paramTemplates,
+            "restParam": restParam,
+            "minInputCount": minInputCount,
+            "defaultInputCount": defaultInputCount,
+            "maxInputCount": maxInputCount
+        };
+
+        function captureDefaultInputCount() {
+            if (ptr >= 0 && isDefaultInputCount(formalParams[ptr])) {
+                defaultInputCount = formalParams[ptr];
+                ptr -= 1;
+            }
+        }
+
+        function captureRestParam() {
+            if (ptr >= 0 && isRestInput(formalParams[ptr])) {
+                maxInputCount = -1;
+                restParam = getInputName(formalParams[ptr]);
+                ptr -= 1;
+            } else {
+                maxInputCount = ptr + 1;
+            }
+        }
+
+        function captureOptionalParams() {
+            while (ptr >= -1 && isOptionalInput(formalParams[ptr])) {
+                params[ptr] = getInputName(formalParams[ptr]);
+                let template = logo.type.listButFirst(formalParams[ptr]);
+                if (formalSrcmap !== logo.type.SRCMAP_NULL) {
+                    let templateSrcmap = logo.type.listButFirst(formalSrcmap[ptr]);
+                    logo.type.embedSrcmap(template, templateSrcmap);
+                }
+
+                paramTemplates[ptr] = template;
+
+                ptr -= 1;
+            }
+        }
+
+        function captureRequiredParams() {
+            if (minInputCount > 0) {
+                params.splice(0, minInputCount);
+                Array.prototype.unshift.apply(params, formalParams.slice(0, minInputCount));
+            }
+        }
     }
 
     function defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap) {

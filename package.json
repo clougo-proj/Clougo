@@ -16,8 +16,8 @@
         "pkucblogohelp": "node tools/pkdir UCBLogo > generated/UCBLogo.js",
         "build": "npm run eslint & npm run pkdemo & npm run pkut & npm run pkct & npm run pkmod & npm run pkucblogohelp",
         "test" : "npm run unittest & npm run clitest",
-        "clitest" : "cd logo && node testcli",
-        "unittest": "cd logo && node logo --test --on:verbose && node logo --test --on:postfix,verbose",
+        "clitest" : "cd logo & node testcli",
+        "unittest": "cd logo & node logo --test --on:verbose & node logo --test --on:postfix,verbose",
         "server": "http-server",
         "predeploy": "rm -rf unittests & rm -rf mod & rm -rf demo & rm -rf node_modules & rm -rf UCBLogo"
     }

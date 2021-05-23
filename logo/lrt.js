@@ -1261,6 +1261,11 @@ $obj.create = function(logo, sys) {
     }
     lrt.util.isBinaryOperator = isBinaryOperator;
 
+    function isOnlyBinaryOperator(op) {
+        return isBinaryOperator(op) && !isUnaryOperator(op);
+    }
+    lrt.util.isOnlyBinaryOperator = isOnlyBinaryOperator;
+
     function getBinaryOperatorPrecedence(op) {
         return binaryOperator[op][0];
     }

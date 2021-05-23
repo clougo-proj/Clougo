@@ -831,6 +831,10 @@ $obj.create = function(logo, sys) {
     }
 
     function genProcInput(evxContext, precedence, isInParen, procName) {
+        if (logo.lrt.util.isOnlyBinaryOperator(evxContext.getToken())) {
+            return genThrowNotEnoughInputs(evxContext.getSrcmap(), procName);
+        }
+
         let procInput = genToken(evxContext, precedence, isInParen);
         if (procInput == CODEGEN_CONSTANTS.NOP) {
             return genThrowNotEnoughInputs(evxContext.getSrcmap(), procName);

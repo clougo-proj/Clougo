@@ -1,0 +1,5 @@
+to f :x
+end
+
+show f < 1
+show cos < 1

@@ -270,20 +270,24 @@ $obj.create = function(logo, sys) {
         return code;
     }
 
-    function genInstrList(evxContext, primitiveName, generateCheckUnusedValue = true, parentSrcmap = undefined) {
+    function genInstrList(evxContext, procName, generateCheckUnusedValue = true, parentSrcmap = undefined) {
+        return genInstrListHelper(evxContext.getToken(), evxContext.getSrcmap(), procName,
+            generateCheckUnusedValue, parentSrcmap);
+    }
+
+    function genInstrListFromTemplate(template, procName) {
+        return genInstrListHelper(template, logo.type.getEmbeddedSrcmap(template), procName, false,
+            logo.type.getEmbeddedSrcmap(template), true);
+    }
+
+    function genInstrListHelper(curToken, srcmap, procName, generateCheckUnusedValue, parentSrcmap, allowUnusedValue = false) {
         let code = Code.expr();
 
-        let curToken = evxContext.getToken();
-        let srcmap = evxContext.getSrcmap();
-        if (parentSrcmap === undefined) {
-            parentSrcmap = srcmap;
-        }
-
-        if (evxContext.isTokenEndOfStatement(curToken)) {
-            code.append(genThrowNotEnoughInputs(evxContext.getSrcmap(), primitiveName));
+        if (sys.isUndefined(curToken) || curToken === logo.type.NEWLINE) {
+            code.append(genThrowNotEnoughInputs(srcmap, procName));
         } else if (logo.type.isLogoList(curToken)) {
             let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
-            code.append(genBody(logo.interpreter.makeEvalContext(comp)));
+            code.append(genBody(logo.interpreter.makeEvalContext(comp), allowUnusedValue));
         } else {
             code.append(genInstrListCall(curToken, parentSrcmap));
         }
@@ -574,8 +578,8 @@ $obj.create = function(logo, sys) {
             .reduce((acc, cur) => acc || cur, false);
     }
 
-    function genUserProcCall(evxContext, curToken, srcmap) {
-        let param = genUserProcCallParams(evxContext, curToken, logo.env._ws[curToken].formal.length);
+    function genUserProcCall(evxContext, curToken, srcmap, isInParen) {
+        let param = genUserProcCallParams(evxContext, curToken, logo.env._ws[curToken].formalParams, 0, isInParen);
         let postfix = logo.config.get("postfix") || containsPostFix(param);
         return !postfix ? genInfixUserProcCall(curToken, srcmap, param) :
             genPostfixUserProcCall(curToken, srcmap, param);
@@ -637,14 +641,43 @@ $obj.create = function(logo, sys) {
         return code;
     }
 
-    function genUserProcCallParams(evxContext, procName, paramListLength, precedence) {
+    function isRequiredParam(formal, index) {
+        return formal.paramTemplates[index] === undefined;
+    }
+
+    function genUserProcCallParams(evxContext, procName, formal, precedence, isInParen) {
         let param = [];
-        for (let j = 0; j < paramListLength; j++) { // push actual parameters
+        let j = 0;
+
+        while (paramNotCompleteWithoutParen() || paramNotCompleteWithinParen()) {
             evxContext.next();
-            param.push(genProcInput(evxContext, precedence, false, procName));
+            param.push(genProcInput(evxContext, precedence, false, procName, isRequiredParam(formal, j)));
+            j++;
+        }
+
+        if (restParamNotEmpty()) {
+            for (let j = formal.params.length; j < formal.defaultInputCount; j++) {
+                evxContext.next();
+                param.push(genProcInput(evxContext, precedence, false, procName, true));
+            }
         }
 
         return param;
+
+        function restParamNotEmpty() {
+            return  formal.restParam !== undefined && formal.params.length < formal.defaultInputCount &&
+                !(isInParen && evxContext.peekNextToken() == ")");
+        }
+
+        function paramNotCompleteWithinParen() {
+            return isInParen && evxContext.peekNextToken() != ")" &&
+                ((formal.maxInputCount > formal.defaultInputCount && j < formal.maxInputCount) ||
+                    formal.maxInputCount === -1 || j < formal.defaultInputCount);
+        }
+
+        function paramNotCompleteWithoutParen() {
+            return !isInParen && j < formal.params.length;
+        }
     }
 
     function isAsyncPrimitive(primitiveName) {
@@ -830,14 +863,15 @@ $obj.create = function(logo, sys) {
             .append(",['", evxContext.proc, "','", procName, "'])");
     }
 
-    function genProcInput(evxContext, precedence, isInParen, procName) {
+    function genProcInput(evxContext, precedence, isInParen, procName, throwsNotEnoughInputs = true) {
         if (logo.lrt.util.isOnlyBinaryOperator(evxContext.getToken())) {
             return genThrowNotEnoughInputs(evxContext.getSrcmap(), procName);
         }
 
         let procInput = genToken(evxContext, precedence, isInParen);
         if (procInput == CODEGEN_CONSTANTS.NOP) {
-            return genThrowNotEnoughInputs(evxContext.getSrcmap(), procName);
+            return throwsNotEnoughInputs ? genThrowNotEnoughInputs(evxContext.getSrcmap(), procName) :
+                Code.expr("$ret=undefined");
         }
 
         if (!procInput.postFix()) {
@@ -852,14 +886,14 @@ $obj.create = function(logo, sys) {
             .append(";\n");
     }
 
-    function genBody(evxContext, isInstrList) {
+    function genBody(evxContext, allowUnusedValue) {
         let code = Code.expr();
 
         do {
             let codeFromToken = genToken(evxContext);
             code.append(codeFromToken);
             code.append(";\n");
-            if (codeFromToken.isExpr() && logo.config.get("unusedValue") && (!isInstrList || evxContext.hasNext())) {
+            if (codeFromToken.isExpr() && logo.config.get("unusedValue") && (!allowUnusedValue || evxContext.hasNext())) {
                 code.append("checkUnusedValue($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
             }
 
@@ -999,7 +1033,9 @@ $obj.create = function(logo, sys) {
         let procName = logo.type.getLogoProcName(proc);
         _isLambda = false;
 
-        return genProcBody(procName, logo.type.getLogoProcParams(proc), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
+        sys.assert(logo.env._ws[procName].formalParams !== undefined);
+
+        return genProcBody(procName, logo.env._ws[procName].formalParams, logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
             .prepend("logo.env._user[\"", escape(procName), "\"]=");
     }
     codegen.genProc = genProc;
@@ -1010,7 +1046,15 @@ $obj.create = function(logo, sys) {
         let body = logo.type.bodyFromProcText(template);
         let bodySrcmap = logo.type.bodySrcmapFromProcText(template);
         _isLambda = false;
-        let code = genProcBody(procName, params, logo.type.embedSrcmap(body, bodySrcmap))
+        let code = genProcBody(procName,
+            {
+                "params": params,
+                "paramTemplates": [],
+                "restParam": undefined,
+                "minInputCount": params.length,
+                "defaultInputCount": params.length,
+                "maxInputCount": params.length
+            }, logo.type.embedSrcmap(body, bodySrcmap))
             .prepend("(")
             .append(")");
 
@@ -1018,7 +1062,49 @@ $obj.create = function(logo, sys) {
     }
     codegen.genProcText = genProcText;
 
-    function genProcBody(procName, params, body) {
+    function genRestParamDecl(formal) {
+        let code = Code.expr();
+        if (formal.restParam !== undefined) {
+            if (formal.params.length > 0) {
+                code.append(",");
+            }
+
+            code.append("...", formal.restParam);
+        }
+
+        return code;
+    }
+
+    function genConvertRestParamToLogoList(formal) {
+        if (formal.restParam !== undefined) {
+            _varScopes.addVar(formal.restParam);
+            return Code.expr(formal.restParam, "=logo.type.makeLogoList(", formal.restParam, ");\n");
+        }
+    }
+
+    function genOptionalInputDefault(formal, procName) {
+        let code = Code.expr();
+        for (let i = formal.minInputCount; i < formal.params.length; i++) {
+            let instrList = genInstrListFromTemplate(formal.paramTemplates[i], procName);
+            let postfix = logo.config.get("postfix") || instrList.postFix();
+
+            code.append("if(", formal.params[i], "===undefined){");
+            if (!postfix) {
+                code.append(formal.params[i])
+                    .append("=")
+                    .append(instrList)
+                    .append(";}\n");
+            } else {
+                code.append(instrList)
+                    .append(formal.params[i])
+                    .append("=$ret;}\n");
+            }
+        }
+
+        return code;
+    }
+
+    function genProcBody(procName, formal, body) {
         let code = Code.expr();
         code.append(ASYNC_MACRO.ASYNC, "function");
 
@@ -1028,7 +1114,9 @@ $obj.create = function(logo, sys) {
         let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(body));
 
         code.append("(");
-        code.append(Code.expr.apply(undefined, insertDelimiters(params, ",")));
+        code.append(Code.expr.apply(undefined, insertDelimiters(formal.params, ",")));
+        code.append(genRestParamDecl(formal));
+
         code.append(")");
         code.append("{\n");
         code.append("let $ret, $param = logo.env.createParamScope();\n");
@@ -1039,7 +1127,9 @@ $obj.create = function(logo, sys) {
         }
 
         _varScopes.enter();
-        params.forEach(v => _varScopes.addVar(v));
+        formal.params.forEach(v => _varScopes.addVar(v));
+        code.append(genOptionalInputDefault(formal, procName));
+        code.append(genConvertRestParamToLogoList(formal));
         code.append(genBody(evxContext));
         _varScopes.exit();
 
@@ -1092,7 +1182,7 @@ $obj.create = function(logo, sys) {
         } else if (curToken in logo.lrt.primitive) {
             code.append(genPrimitiveCall(evxContext, curToken, srcmap, isInParen));
         } else if (curToken in logo.env._ws) {
-            code.append(genUserProcCall(evxContext, curToken, srcmap));
+            code.append(genUserProcCall(evxContext, curToken, srcmap, isInParen));
         } else {
             code.append(genThrowUnknownProc(srcmap, curToken));
         }

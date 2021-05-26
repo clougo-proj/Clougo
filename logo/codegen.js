@@ -676,7 +676,7 @@ $obj.create = function(logo, sys) {
         }
 
         function paramNotCompleteWithoutParen() {
-            return !isInParen && j < formal.params.length;
+            return !isInParen && j < formal.params.length && j < formal.defaultInputCount;
         }
     }
 

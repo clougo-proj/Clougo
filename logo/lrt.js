@@ -615,7 +615,7 @@ $obj.create = function(logo, sys) {
             let retVal = await applyHelper(template, logo.type.makeLogoList(inputs.map(v => v[i])), i + 1,
                 inputs.map(v => v.slice(i + 1)));
 
-            logo.env.checkUnactionableDatum(retVal, srcmap);
+            logo.env.checkUnusedValue(retVal, srcmap);
         }
     }
 
@@ -627,7 +627,7 @@ $obj.create = function(logo, sys) {
 
         for (let i = 0; i < count; i++) {
             let ret = await logo.env.applyInstrList(template, srcmap);
-            logo.env.checkUnactionableDatum(ret, srcmap);
+            logo.env.checkUnusedValue(ret, srcmap);
         }
     }
 
@@ -644,7 +644,7 @@ $obj.create = function(logo, sys) {
         let srcmap = logo.env.getPrimitiveSrcmap();
         let ret = await logo.env.applyInstrList(template, srcmap,
             !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
-        logo.env.checkUnactionableDatum(ret, srcmap);
+        logo.env.checkUnusedValue(ret, srcmap);
     }
 
     async function primitiveIf(predicate, template) {
@@ -683,8 +683,8 @@ $obj.create = function(logo, sys) {
             let srcmap = logo.env.getPrimitiveSrcmap();
             let retVal = await logo.env.applyInstrList(template, srcmap,
                 !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
-            if (logo.config.get("unactionableDatum")) {
-                logo.env.checkUnactionableDatum(retVal, getTemplateSrcmap(template));
+            if (logo.config.get("unusedValue")) {
+                logo.env.checkUnusedValue(retVal, getTemplateSrcmap(template));
             }
         } catch(e) {
             if (logo.type.LogoException.is(e) && e.isCustom()) {
@@ -740,8 +740,8 @@ $obj.create = function(logo, sys) {
             curScope[forVarName] += forStep) {
             await decorateSrcmap(async () => {
                 let retVal = await logo.interpreter.evxInstrList(bodyComp, undefined, false);
-                if (logo.config.get("unactionableDatum")) {
-                    logo.env.checkUnactionableDatum(retVal, srcmap);
+                if (logo.config.get("unusedValue")) {
+                    logo.env.checkUnusedValue(retVal, srcmap);
                 }
             }, srcmap);
         }

@@ -9,7 +9,7 @@ var $obj = {};
 $obj.create = function create(sys, origConfigMap = undefined) {
     const config = {};
     const configMap = (origConfigMap === undefined) ? {
-        unactionableDatum : true,  // raise runtime exception for unactionable datum
+        unusedValue : true,  // raise runtime exception for unactionable datum
         genCommand : true,        // use codegen for interactive commands
         dynamicScope: true,
         verbose: false,

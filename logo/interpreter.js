@@ -298,8 +298,8 @@ $obj.create = function(logo, sys) {
 
         do {
             await evxToken(evxContext);
-            if (logo.config.get("unactionableDatum") && (!allowRetVal || evxContext.hasNext())) {
-                logo.env.checkUnactionableDatum(evxContext.retVal, evxContext.getSrcmap());
+            if (logo.config.get("unusedValue") && (!allowRetVal || evxContext.hasNext())) {
+                logo.env.checkUnusedValue(evxContext.retVal, evxContext.getSrcmap());
             }
 
         } while (!evxContext.next().isEol());

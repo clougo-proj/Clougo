@@ -270,7 +270,7 @@ $obj.create = function(logo, sys) {
         return code;
     }
 
-    function genInstrList(evxContext, primitiveName, generateCheckUnactionableDatum = true, parentSrcmap = undefined) {
+    function genInstrList(evxContext, primitiveName, generateCheckUnusedValue = true, parentSrcmap = undefined) {
         let code = Code.expr();
 
         let curToken = evxContext.getToken();
@@ -288,8 +288,8 @@ $obj.create = function(logo, sys) {
             code.append(genInstrListCall(curToken, parentSrcmap));
         }
 
-        if (generateCheckUnactionableDatum && logo.config.get("unactionableDatum")) {
-            code.append(";checkUnactionableDatum($ret,", logo.type.srcmapToJs(parentSrcmap), ");\n");
+        if (generateCheckUnusedValue && logo.config.get("unusedValue")) {
+            code.append(";checkUnusedValue($ret,", logo.type.srcmapToJs(parentSrcmap), ");\n");
         }
 
         return code;
@@ -859,8 +859,8 @@ $obj.create = function(logo, sys) {
             let codeFromToken = genToken(evxContext);
             code.append(codeFromToken);
             code.append(";\n");
-            if (codeFromToken.isExpr() && logo.config.get("unactionableDatum") && (!isInstrList || evxContext.hasNext())) {
-                code.append("checkUnactionableDatum($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
+            if (codeFromToken.isExpr() && logo.config.get("unusedValue") && (!isInstrList || evxContext.hasNext())) {
+                code.append("checkUnusedValue($ret,", logo.type.srcmapToJs(evxContext.getSrcmap()), ");\n");
             }
 
         } while (!evxContext.next().isEol());

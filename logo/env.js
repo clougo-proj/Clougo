@@ -677,12 +677,12 @@ $obj.create = function(logo, sys, ext) {
         throw exception.withParam(value, srcmap);
     }
 
-    function checkUnactionableDatum(ret, srcmap) {
+    function checkUnusedValue(ret, srcmap) {
         if (ret !== undefined) {
             throw logo.type.LogoException.UNACTIONABLE_DATUM.withParam([ret], srcmap);
         }
     }
-    env.checkUnactionableDatum = checkUnactionableDatum;
+    env.checkUnusedValue = checkUnusedValue;
 
     function errorOnLogoException(e, omitCurProc = true) {
         logo.io.stderr(e.formatMessage());

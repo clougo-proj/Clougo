@@ -75,9 +75,9 @@ $obj.create = function(logo, sys) {
         "pi": genPi
     };
 
-    const callLambda = new Set(["apply", "invoke", "catch", "if", "ifelse", "repeat", "for"]);
+    const callLambda = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "repeat"]);
 
-    const needStashLocalVars = new Set(["apply", "invoke", "repeat", "for", "thing", "namep", "make", "catch"]);
+    const needStashLocalVars = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "make", "namep", "repeat", "thing"]);
 
     const CODE_TYPE = {
         EXPR: 0,

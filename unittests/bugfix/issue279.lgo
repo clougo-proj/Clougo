@@ -1,0 +1,36 @@
+to testIf :template
+  localmake "x 10
+  if "true :template
+  output :x
+end
+
+to testIfelseTrue :template
+  localmake "x 10
+  ifelse "true :template []
+  output :x
+end
+
+to testIfelsefalse :template
+  localmake "x 10
+  ifelse "false [] :template
+  output :x
+end
+
+to testRepeat :template
+  localmake "x 10
+  repeat 1 :template
+  output :x
+end
+
+to testFor :template
+  localmake "x 10
+  for [i 1 1] :template
+  output :x
+end
+
+make "x 1
+pr (list testIf [make "x :x+1] :x)
+pr (list testIfelseTrue [make "x :x+1] :x)
+pr (list testIfelseFalse [make "x :x+1] :x)
+pr (list testRepeat [make "x :x+1] :x)
+pr (list testFor [make "x :x+1] :x)

@@ -25,3 +25,4 @@ issue254 exec run
 issue258 exec run
 issue259 exec run
 issue263 execl runl
+issue279 exec run

@@ -1,0 +1,42 @@
+to testIf :x
+  pr (list "testIf :x)
+  if "true :x
+  pr "error
+end
+
+to testIfelseTrue :x
+  pr (list "testIfElseTrue :x)
+  ifelse "true :x []
+  pr "error
+end
+
+to testIfelseFalse :x
+  pr (list "testIfElseFalse :x)
+  ifelse "false [] :x
+  pr "error
+end
+
+to testRepeat :x
+  pr (list "testRepeat :x)
+  repeat 1 :x
+  pr "error
+end
+
+to testFor :x
+  pr (list "testFor :x)
+  for [i 1 1] :x
+  pr "error
+end
+
+testIf [stop]
+testIfElseTrue [stop]
+testIfElseFalse [stop]
+testRepeat [stop]
+testFor [stop]
+
+pr "
+show testIf [output "pass]
+show testIfElseTrue [output "pass]
+show testIfElseFalse [output "pass]
+show testRepeat [output "pass]
+show testFor [output "pass]

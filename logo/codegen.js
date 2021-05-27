@@ -75,7 +75,7 @@ $obj.create = function(logo, sys) {
         "pi": genPi
     };
 
-    const callLambda = new Set(["apply", "invoke", "catch"]);
+    const callLambda = new Set(["apply", "invoke", "catch", "if", "ifelse", "repeat", "for"]);
 
     const needStashLocalVars = new Set(["apply", "invoke", "repeat", "for", "thing", "namep", "make", "catch"]);
 
@@ -458,6 +458,11 @@ $obj.create = function(logo, sys) {
         if (forBeginStmt == CODEGEN_CONSTANTS.NOP || forEndStmt == CODEGEN_CONSTANTS.NOP) {
             return Code.stmt("throwRuntimeLogoException(logo.type.LogoException.INVALID_INPUT,",
                 logo.type.srcmapToJs(srcmap), ",['for','", logo.type.toString(token, true), "']);\n");
+        }
+
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            evxContext.rewindToAnchor();
+            return;
         }
 
         return Code.stmt("{")

@@ -1,0 +1,16 @@
+testIf [stop]
+testIfElseTrue [stop]
+testIfElseFalse [stop]
+testRepeat [stop]
+testFor [stop]
+
+testIf [output "pass]
+pass
+testIfElseTrue [output "pass]
+pass
+testIfElseFalse [output "pass]
+pass
+testRepeat [output "pass]
+pass
+testFor [output "pass]
+pass

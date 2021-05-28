@@ -131,6 +131,10 @@ $obj.create = function(logo, sys) {
 
                 j += 1;
             }
+
+            if (j < formal.minInputCount) {
+                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([procName], evxContext.getSrcmap());
+            }
         }
 
         function paramNotCompleteWithinParen() {

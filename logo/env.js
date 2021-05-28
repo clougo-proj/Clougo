@@ -775,9 +775,16 @@ $obj.create = function(logo, sys, ext) {
 
         if (getGenJs()) {
             let scopeStackLength = env._scopeStack.length;
-            prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
+            if (pushCallStack) {
+                prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
+            }
+
             let retVal = await callLogoInstrListAsync(template, slot.param);
-            completeCallProc();
+
+            if (pushCallStack) {
+                completeCallProc();
+            }
+
             env._scopeStack.splice(scopeStackLength);
             return retVal;
         }

@@ -1,6 +1,12 @@
-to t1 :a :b ;declare proc signature for transpile mode
-end
-
-define "t1 [[a b][repeat 2[pr :a+:b pr :a*:b]]]
+define "t1 [[a b][
+    pr (list
+        :a+:b
+        :a*:b)]]
 
 t1 10 11
+
+(t1 10 11)
+
+(t1
+    10
+    11)

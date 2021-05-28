@@ -647,6 +647,12 @@ $obj.create = function(logo, sys) {
         logo.env.checkUnusedValue(ret, srcmap);
     }
 
+    async function primitiveRun(template) {
+        template = wordTemplateToList(template);
+        logo.type.validateInputList(template);
+        await callTemplate(template);
+    }
+
     async function primitiveIf(predicate, template) {
         logo.type.validateInputBoolean(predicate);
 
@@ -1121,6 +1127,8 @@ $obj.create = function(logo, sys) {
         "foreach": primitiveForeach,
 
         "repeat": primitiveRepeat,
+
+        "run": primitiveRun,
 
         "if": primitiveIf,
 

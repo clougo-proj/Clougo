@@ -1,0 +1,25 @@
+run [pr [case 1 passed]]
+run (list "pr [case 2 passed])
+
+to testRunStopOutput :x
+  run :x
+  pr "error
+end
+
+testRunStopOutput [
+  pr [case 3 passed]
+  stop]
+
+pr testRunStopOutput [
+  type [case 4]
+  output "\ passed]
+
+to testRunLocalvar :template
+  localmake "x 10
+  run :template
+  output :x
+end
+
+make "x 1
+type "|case 5 |
+pr (list testRunLocalvar [make "x :x+1] :x)

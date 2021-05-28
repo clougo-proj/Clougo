@@ -64,6 +64,7 @@ $obj.create = function(logo, sys) {
     })();
 
     const genNativeJs = {
+        "run": genRun,
         "if": genIf,
         "catch": genCatch,
         "ifelse": genIfElse,
@@ -75,9 +76,10 @@ $obj.create = function(logo, sys) {
         "pi": genPi
     };
 
-    const callLambda = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "repeat"]);
+    const callLambda = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "repeat", "run"]);
 
-    const needStashLocalVars = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "make", "namep", "repeat", "thing"]);
+    const needStashLocalVars = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "make", "namep",
+        "repeat", "run", "thing"]);
 
     const CODE_TYPE = {
         EXPR: 0,
@@ -297,6 +299,15 @@ $obj.create = function(logo, sys) {
         }
 
         return code;
+    }
+
+    function genRun(evxContext) {
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            return;
+        }
+
+        return Code.stmt("{", genInstrList(evxContext.next(), "run",), "}")
+            .append("\n;$ret=undefined;");
     }
 
     function genIf(evxContext) {

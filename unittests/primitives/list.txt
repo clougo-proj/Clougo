@@ -119,3 +119,5 @@ foreach run exec
 foreach_err runl execl
 iseq run exec
 iseq_err runl execl
+run run exec
+run_err runl execl

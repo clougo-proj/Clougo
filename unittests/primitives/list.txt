@@ -85,7 +85,15 @@ apply_stop_in_lambda run exec
 apply_stop_in_lambda_err runl execl
 apply_output_in_lambda run exec
 text run exec
-define run exec
+define run runl exec execl
+define_err runl execl
+define_err0 run exec
+define_err1 run exec
+define_err2 run exec
+define_err3 run exec
+define_err4 run exec
+define_err5 run exec
+define_err6 run exec
 text_define run exec
 mouse_queries runl execl
 load run exec

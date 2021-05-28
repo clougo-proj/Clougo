@@ -15,6 +15,7 @@ $obj.create = function(logo, sys) {
     const LIST_ORIGIN = 1;
     const ARRAY_DEFAULT_ORIGIN = 1;
     const NEWLINE = "\n";
+    const CLOSE_PAREN = ")";
     const LAMBDA_EXPR = "[]";
 
     type.LIST_HEAD_SIZE = LIST_HEAD_SIZE;
@@ -23,6 +24,7 @@ $obj.create = function(logo, sys) {
     type.LIST_ORIGIN = LIST_ORIGIN;
     type.ARRAY_DEFAULT_ORIGIN = ARRAY_DEFAULT_ORIGIN;
     type.NEWLINE = NEWLINE;
+    type.CLOSE_PAREN = CLOSE_PAREN;
     type.LAMBDA_EXPR = LAMBDA_EXPR;
 
     const OBJTYPE = {
@@ -286,6 +288,15 @@ $obj.create = function(logo, sys) {
         return list[1][1];
     }
     type.getReferenceSrcmap = getReferenceSrcmap;
+
+    function makeCompList(data, topSrcmap, dataSrcmap) {
+        data = makeLogoList(data);
+        dataSrcmap = makeLogoList(dataSrcmap);
+        dataSrcmap[0] = topSrcmap;
+        embedSrcmap(data, dataSrcmap);
+        return data;
+    }
+    type.makeCompList = makeCompList;
 
     function isLogoListLiteral(value) {
         return isLogoList(value) && getEmbeddedSrcmap(value) !== SRCMAP_NULL;

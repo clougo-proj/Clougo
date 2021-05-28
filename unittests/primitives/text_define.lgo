@@ -1,6 +1,3 @@
-to t1 :a :b ; declare proc signature for transpile mode
-end
-
 to t2 :a :b
   repeat 2[
     pr :a+:b
@@ -8,13 +5,9 @@ to t2 :a :b
   ]
 end
 
-to define_t1
-  define "t1 text "t2
+to clone :f :g
+  define :g text :f
 end
 
-to run_test
-  define_t1
-  t1 10 11
-end
-
-run_test
+clone "t2 "t1
+t1 10 11

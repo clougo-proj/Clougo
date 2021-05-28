@@ -246,7 +246,7 @@ $obj.create = function(logo, sys) {
         let generatedParams = 0;
         let varName;
 
-        while ((generatedParams < expectedParams || isInParen) && evxContext.peekNextToken() != ")" &&
+        while ((generatedParams < expectedParams || isInParen) && evxContext.peekNextToken() != logo.type.CLOSE_PAREN &&
             evxContext.hasNext()) {
 
             varName = evxContext.next().getToken();
@@ -671,6 +671,10 @@ $obj.create = function(logo, sys) {
             j++;
         }
 
+        if (j < formal.minInputCount) {
+            param.push(genThrowNotEnoughInputs(evxContext.getSrcmap(), procName));
+        }
+
         if (restParamNotEmpty()) {
             for (let j = formal.params.length; j < formal.defaultInputCount; j++) {
                 evxContext.next();
@@ -682,11 +686,11 @@ $obj.create = function(logo, sys) {
 
         function restParamNotEmpty() {
             return  formal.restParam !== undefined && formal.params.length < formal.defaultInputCount &&
-                !(isInParen && evxContext.peekNextToken() == ")");
+                !(isInParen && evxContext.peekNextToken() == logo.type.CLOSE_PAREN);
         }
 
         function paramNotCompleteWithinParen() {
-            return isInParen && evxContext.peekNextToken() != ")" &&
+            return isInParen && evxContext.peekNextToken() != logo.type.CLOSE_PAREN &&
                 ((formal.maxInputCount > formal.defaultInputCount && j < formal.maxInputCount) ||
                     formal.maxInputCount === -1 || j < formal.defaultInputCount);
         }
@@ -790,11 +794,11 @@ $obj.create = function(logo, sys) {
 
         if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength == -1)) {
             for (; (j < paramListMaxLength || paramListMaxLength == -1) &&
-                    (isInParen && evxContext.peekNextToken() != ")" ) && evxContext.next(); j++) {
+                    (isInParen && evxContext.peekNextToken() != logo.type.CLOSE_PAREN ) && evxContext.next(); j++) {
                 param.push(genProcInput(evxContext, precedence, false, primitiveName));
             }
         } else {
-            for (; j < paramListLength && ((isInParen && evxContext.peekNextToken() != ")" ) || !isInParen) &&
+            for (; j < paramListLength && ((isInParen && evxContext.peekNextToken() != logo.type.CLOSE_PAREN ) || !isInParen) &&
                     evxContext.next(); j++) { // push actual parameters
                 param.push(genProcInput(evxContext, precedence, false, primitiveName));
             }
@@ -966,7 +970,7 @@ $obj.create = function(logo, sys) {
         let codeFromToken = genToken(evxContext.next(), 0, true);
         code.append(codeFromToken);
 
-        if (evxContext.next().getToken() != ")") {
+        if (evxContext.next().getToken() != logo.type.CLOSE_PAREN) {
             code.append(
                 "(throwRuntimeLogoException(",
                 "logo.type.LogoException.TOO_MUCH_INSIDE_PAREN,",
@@ -1185,6 +1189,46 @@ $obj.create = function(logo, sys) {
         return code;
     }
 
+    function genDeferredCallTemplateWithoutParen(evxContext) {
+        let srcmap = evxContext.getSrcmap();
+        let template = [];
+        let templateSrcmap = [];
+        while (!evxContext.isEol() && evxContext.getToken() != logo.type.NEWLINE) {
+            template.push(evxContext.getToken());
+            templateSrcmap.push(evxContext.getSrcmap());
+            evxContext.next();
+        }
+
+        template.push(logo.type.NEWLINE);
+        templateSrcmap.push(evxContext.getSrcmap());
+        return logo.type.makeCompList(template, srcmap, templateSrcmap);
+    }
+
+    function genDeferredCallTemplateWithinParen(evxContext) {
+        let srcmap = evxContext.getSrcmap();
+        let template = ["(", evxContext.getToken()];
+        let templateSrcmap = [logo.type.SRCMAP_NULL, evxContext.getSrcmap()];
+        while (!evxContext.isEol() && evxContext.peekNextToken() != logo.type.CLOSE_PAREN) {
+            evxContext.next();
+            template.push(evxContext.getToken());
+            templateSrcmap.push(evxContext.getSrcmap());
+        }
+
+        template.push(logo.type.CLOSE_PAREN);
+        templateSrcmap.push(logo.type.SRCMAP_NULL);
+        return logo.type.makeCompList(template, srcmap, templateSrcmap);
+    }
+
+
+    function genDeferredCall(evxContext, isInParen) {
+        let srcmap = evxContext.getSrcmap();
+        let deferredCallTemplate = isInParen ? genDeferredCallTemplateWithinParen(evxContext) :
+            genDeferredCallTemplateWithoutParen(evxContext);
+
+        logo.env.setAsyncFunctionCall(true);
+        return genPostfixPrimitiveCall("run", srcmap, [Code.expr("$ret=", deferredCallTemplate)]);
+    }
+
     function genCall(evxContext, curToken, srcmap, isInParen) {
         let code = Code.expr();
 
@@ -1200,7 +1244,7 @@ $obj.create = function(logo, sys) {
         } else if (curToken in logo.env._ws) {
             code.append(genUserProcCall(evxContext, curToken, srcmap, isInParen));
         } else {
-            code.append(genThrowUnknownProc(srcmap, curToken));
+            code.append(_isLambda ? genThrowUnknownProc(srcmap, curToken) : genDeferredCall(evxContext, isInParen));
         }
 
         return code;

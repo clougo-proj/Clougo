@@ -86,6 +86,7 @@ apply_stop_in_lambda_err runl execl
 apply_output_in_lambda run exec
 text run exec
 define run runl exec execl
+define2 run exec
 define_err runl execl
 define_err0 run exec
 define_err1 run exec

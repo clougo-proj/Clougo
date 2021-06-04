@@ -261,7 +261,7 @@ $obj.create = function(logo, sys) {
 
             varName = logo.type.unquoteLogoWord(varName).toLowerCase();
             _varScopes.addVar(varName);
-            code.append(varName);
+            code.append(toJsVarName(varName));
 
             generatedParams++;
         }
@@ -270,6 +270,10 @@ $obj.create = function(logo, sys) {
         logo.trace.info("VARNAME=" + varName, "codegen.genLocal");
 
         return code;
+    }
+
+    function toJsVarName(varName) {
+        return "_" + varName.replace(/([^1-9a-z])/g, (p1) => "_" + p1.charCodeAt(0) + "_");
     }
 
     function genInstrList(evxContext, procName, generateCheckUnusedValue = true, parentSrcmap = undefined) {
@@ -539,27 +543,27 @@ $obj.create = function(logo, sys) {
 
         if (!_varScopes.isLocalVar(varName)) {
             code = code.append("var ")
-                .append(Code.expr(varName))
+                .append(Code.expr(toJsVarName(varName)))
                 .append(";\n");
 
             _varScopes.addVar(varName);
         }
 
-        return code.append(Code.expr(varName))
+        return code.append(Code.expr(toJsVarName(varName)))
             .append("=$ret;$ret=undefined;");
     }
 
     function genLogoVarRef(curToken, srcmap) {
         let varName = logo.env.extractVarName(curToken);
         return _varScopes.isLocalVar(varName) ?
-            Code.expr("logo.lrt.util.logoVar(", varName, ", \"", varName, "\",", logo.type.srcmapToJs(srcmap),
+            Code.expr("logo.lrt.util.logoVar(", toJsVarName(varName), ", \"", varName, "\",", logo.type.srcmapToJs(srcmap),
                 ")") :
             Code.expr("logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"",
                 varName, "\"", "], \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")");
     }
 
     function genLogoVarLref(varName) {
-        return _varScopes.isLocalVar(varName) ? Code.expr(varName) :
+        return _varScopes.isLocalVar(varName) ? Code.expr(toJsVarName(varName)) :
             Code.expr("logo.env.findLogoVarScope('" + varName + "', $scopeCache)['" + varName + "']");
     }
 
@@ -604,7 +608,7 @@ $obj.create = function(logo, sys) {
     function genInfixUserProcCall(curToken, srcmap, param) {
         let code = Code.expr()
             .append("(")
-            .append("\"", escape(curToken), "\" in logo.env._user ? (");
+            .append("\"", escapeProcName(curToken), "\" in logo.env._user ? (");
 
         if (param.length === 0)  {
             code = code.append(genPrepareCall(curToken, srcmap));
@@ -616,7 +620,7 @@ $obj.create = function(logo, sys) {
                 .append("$ret)"));
         }
 
-        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", escape(curToken), "\"](")
+        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", escapeProcName(curToken), "\"](")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append(")),")
             .append(genCompleteCall())
@@ -626,7 +630,7 @@ $obj.create = function(logo, sys) {
             .append(")");
     }
 
-    function escape(token) {
+    function escapeProcName(token) {
         return token.replace(/"/g, "\\\"");
     }
 
@@ -635,7 +639,7 @@ $obj.create = function(logo, sys) {
 
         code.withPostFix(true);
 
-        code.append("if (!(\"", escape(curToken),"\" in logo.env._user)) {")
+        code.append("if (!(\"", escapeProcName(curToken),"\" in logo.env._user)) {")
             .append(genThrowUnknownProc(srcmap, curToken))
             .append("}\n");
 
@@ -648,7 +652,7 @@ $obj.create = function(logo, sys) {
         });
 
         code.append("$ret;\n");
-        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env._user[", "\"", escape(curToken), "\"",
+        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env._user[", "\"", escapeProcName(curToken), "\"",
             "].apply(undefined,$param.end());\n");
 
         code.append(genCompleteCall());
@@ -928,8 +932,8 @@ $obj.create = function(logo, sys) {
         let code = Code.expr();
         code.append("(", ASYNC_MACRO.ASYNC, "(");
 
-        if (param !== undefined) {
-            code.append(Code.expr.apply(undefined, insertDelimiters(param, ",")));
+        if (param !== undefined && param.length > 0) {
+            code.append(Code.expr.apply(undefined, insertDelimiters(param.map((v) => toJsVarName(v)), ",")));
             param.forEach(v => _varScopes.addVar(v));
         }
 
@@ -1013,7 +1017,7 @@ $obj.create = function(logo, sys) {
         }
 
         code.append("logo.env._callstack.push([logo.env._curProc," + logo.type.srcmapToJs(srcmap) + "]),");
-        code.append("logo.env._curProc=\"", escape(target), "\",\n");
+        code.append("logo.env._curProc=\"", escapeProcName(target), "\",\n");
 
         return code;
     }
@@ -1031,7 +1035,7 @@ $obj.create = function(logo, sys) {
     function genStashLocalVars() {
         let code = Code.expr();
         _varScopes.localVars().forEach((varName) =>
-            code.append("($scope['", varName, "']=", varName, "),"));
+            code.append("($scope['", varName, "']=", toJsVarName(varName), "),"));
 
         return code;
     }
@@ -1039,7 +1043,7 @@ $obj.create = function(logo, sys) {
     function genApplyLocalVars() {
         let code = Code.expr();
         _varScopes.localVars().forEach(varName =>
-            code.append("(", varName, "=$scope['", varName, "']),"));
+            code.append("(", toJsVarName(varName), "=$scope['", varName, "']),"));
 
         return code;
     }
@@ -1056,7 +1060,7 @@ $obj.create = function(logo, sys) {
         sys.assert(logo.env._ws[procName].formalParams !== undefined);
 
         return genProcBody(procName, logo.env._ws[procName].formalParams, logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
-            .prepend("logo.env._user[\"", escape(procName), "\"]=");
+            .prepend("logo.env._user[\"", escapeProcName(procName), "\"]=");
     }
     codegen.genProc = genProc;
 
@@ -1089,7 +1093,7 @@ $obj.create = function(logo, sys) {
                 code.append(",");
             }
 
-            code.append("...", formal.restParam);
+            code.append("...", toJsVarName(formal.restParam));
         }
 
         return code;
@@ -1098,7 +1102,7 @@ $obj.create = function(logo, sys) {
     function genConvertRestParamToLogoList(formal) {
         if (formal.restParam !== undefined) {
             _varScopes.addVar(formal.restParam);
-            return Code.expr(formal.restParam, "=logo.type.makeLogoList(", formal.restParam, ");\n");
+            return Code.expr(toJsVarName(formal.restParam), "=logo.type.makeLogoList(", toJsVarName(formal.restParam), ");\n");
         }
     }
 
@@ -1108,15 +1112,15 @@ $obj.create = function(logo, sys) {
             let instrList = genInstrListFromTemplate(formal.paramTemplates[i], procName);
             let postfix = logo.config.get("postfix") || instrList.postFix();
 
-            code.append("if(", formal.params[i], "===undefined){");
+            code.append("if(", toJsVarName(formal.params[i]), "===undefined){");
             if (!postfix) {
-                code.append(formal.params[i])
+                code.append(toJsVarName(formal.params[i]))
                     .append("=")
                     .append(instrList)
                     .append(";}\n");
             } else {
                 code.append(instrList)
-                    .append(formal.params[i])
+                    .append(toJsVarName(formal.params[i]))
                     .append("=$ret;}\n");
             }
         }
@@ -1134,7 +1138,7 @@ $obj.create = function(logo, sys) {
         let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(body));
 
         code.append("(");
-        code.append(Code.expr.apply(undefined, insertDelimiters(formal.params, ",")));
+        code.append(Code.expr.apply(undefined, insertDelimiters(formal.params.map((v) => toJsVarName(v)), ",")));
         code.append(genRestParamDecl(formal));
 
         code.append(")");
@@ -1162,12 +1166,12 @@ $obj.create = function(logo, sys) {
 
     function genThrowNotEnoughInputs(srcmap, procName) {
         return Code.expr("throwRuntimeLogoException(logo.type.LogoException.NOT_ENOUGH_INPUTS,",
-            logo.type.srcmapToJs(srcmap), ",[ \"", escape(procName), "\"])");
+            logo.type.srcmapToJs(srcmap), ",[ \"", escapeProcName(procName), "\"])");
     }
 
     function genThrowUnknownProc(srcmap, procName) {
         return Code.expr("throwRuntimeLogoException(logo.type.LogoException.UNKNOWN_PROC,",
-            logo.type.srcmapToJs(srcmap), ",[ \"", escape(procName), "\"])");
+            logo.type.srcmapToJs(srcmap), ",[ \"", escapeProcName(procName), "\"])");
     }
 
     function genCompoundObj(curToken, srcmap) {

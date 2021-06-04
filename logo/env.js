@@ -135,7 +135,7 @@ $obj.create = function(logo, sys, ext) {
     env.isReservedWordTthen = isReservedWordTthen;
 
     function extractVarName(varname) {
-        return varname.substring(1).toLowerCase();
+        return varname.substring(1).toLowerCase().replace(/"/g, "\\\"");
     }
     env.extractVarName = extractVarName;
 

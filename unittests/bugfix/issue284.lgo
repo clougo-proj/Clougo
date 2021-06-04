@@ -1,0 +1,25 @@
+to testDoubleQuote :"val
+    pr :"val
+end
+
+to testSingleQuote :'val
+    pr :'val
+end
+
+to testSpecialCharacter :#val
+    pr :#val
+end
+
+to testUnicode :Пval
+    pr :Пval
+end
+
+to testJavaScriptReservedWord :if
+    pr :if
+end
+
+testDoubleQuote "|Double quote ok|
+testSingleQuote "|Single quote ok|
+testSpecialCharacter "|Special characters ok|
+testUnicode "|Unicode ok|
+testJavaScriptReservedWord "|JavaScript reserved words ok|

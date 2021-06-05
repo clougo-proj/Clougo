@@ -199,12 +199,29 @@ $obj.create = function(Logo, sys) {
         failCount++;
     }
 
+    async function tryRunTestMethod(testSrc, runTestMethod) {
+        try {
+            await runTestMethod(testSrc);
+            return true;
+        } catch (e) {
+            Logo.io.stdout("\t\tfailed");
+            if (singleTestMode) {
+                Logo.io.stdout(e.stack);
+            }
+
+            return false;
+        }
+    }
+
     async function testGenericRun(test, runTestMethod) {
         let testSrc = getTestSrc(test);
         extForTest.io.clearBuffers();
         extForTest.canvas.clearBuffer();
 
-        await runTestMethod(testSrc);
+        if (!await tryRunTestMethod(testSrc, runTestMethod)) {
+            failCount++;
+            return;
+        }
 
         const outExpected = getTestOutBase(test);
         const errExpected = getTestErrBase(test);

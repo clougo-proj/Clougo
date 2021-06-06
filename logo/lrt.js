@@ -779,12 +779,40 @@ $obj.create = function(logo, sys) {
         return new Date().getTime();
     }
 
-    function primitiveDefine(procname, text) {
-        let formal = logo.type.unboxList(logo.type.listFirst(text));
+    function getBodyFromText(text) {
         let bodyText = logo.type.unboxList(logo.type.listButFirst(text));
-        let body = logo.type.makeLogoList(logo.type.flattenList(bodyText, logo.type.NEWLINE));
+        return logo.type.makeLogoList(logo.type.flattenList(bodyText, logo.type.NEWLINE));
+    }
 
-        logo.env.defineLogoProc(procname, formal, body);
+    function getBodySrcmapFromText(text) {
+        let srcmap = logo.type.getEmbeddedSrcmap(text);
+        if (srcmap === logo.type.SRCMAP_NULL) {
+            return logo.type.SRCMAP_NULL;
+        }
+
+        let bodyTextSrcmap = logo.type.unboxList(logo.type.listButFirst(srcmap));
+        return logo.type.makeLogoList(logo.type.flattenList(bodyTextSrcmap, logo.type.SRCMAP_NULL));
+    }
+
+    function getFormalFromText(text) {
+        return logo.type.unboxList(logo.type.listFirst(text));
+    }
+
+    function getFormalSrcmapFromText(text) {
+        let srcmap = logo.type.getEmbeddedSrcmap(text);
+        if (srcmap === logo.type.SRCMAP_NULL) {
+            return logo.type.SRCMAP_NULL;
+        }
+
+        return logo.type.unboxList(logo.type.listFirst(srcmap));
+    }
+
+    function primitiveDefine(procname, text) {
+        logo.env.defineLogoProc(procname,
+            getFormalFromText(text),
+            getBodyFromText(text),
+            getFormalSrcmapFromText(text),
+            getBodySrcmapFromText(text));
     }
 
     function primitiveTo() {

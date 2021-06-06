@@ -1,0 +1,11 @@
+to testTo :\*val
+    pr :\*val
+end
+
+testTo "|TO passed|
+
+define "testdefine [[\*val][pr :\*val]]
+testdefine "|DEFINE passed|
+
+define "testdefineusingtext text "testdefine
+testdefineusingtext "|DEFINE using TEXT passed|

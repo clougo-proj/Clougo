@@ -114,7 +114,7 @@ $obj.create = function(logo, sys) {
         _parseLine, _parseCol,
         _parseSource,
         _parseWord, _parseWordLine, _parseWordCol, _parseInvbar, _parseInComment,
-        _parseLastTo, _parseInProc, _parseVbar;
+        _parseLastTo, _parseInProc, _parseLiteralMask;
 
     function reset() {
         resetParseData();
@@ -123,7 +123,7 @@ $obj.create = function(logo, sys) {
         _parseLine = 0;
         _parseCol = 0;
         _parseWord = "";
-        _parseVbar = [];
+        _parseLiteralMask = [];
         _parseWordLine = 0;
         _parseWordCol = 0;
         _parseInvbar = false;
@@ -141,11 +141,11 @@ $obj.create = function(logo, sys) {
     }
 
     function makeWordSrcmap() {
-        return _parseVbar.length == 0 ? [_parseSource, _parseWordLine + 1, _parseWordCol + 1] :
-            [_parseSource, _parseWordLine + 1, _parseWordCol + 1, _parseVbar];
+        return _parseLiteralMask.length == 0 ? [_parseSource, _parseWordLine + 1, _parseWordCol + 1] :
+            [_parseSource, _parseWordLine + 1, _parseWordCol + 1, _parseLiteralMask];
     }
 
-    function getVbarFromSrcmap(srcmap) {
+    function getLiteralMaskFromSrcmap(srcmap) {
         if (Array.isArray(srcmap) && srcmap.length == 4 && Array.isArray(srcmap[3])) {
             return srcmap[3];
         }
@@ -237,8 +237,8 @@ $obj.create = function(logo, sys) {
             let last = 0;
             let ptr = 0;
             let isStringLiteral = false;
-            let vbarMap = getVbarFromSrcmap(srcmap[index]);
-            let vbarMapPtr = 0;
+            let literalMask = getLiteralMaskFromSrcmap(srcmap[index]);
+            let literalMaskPtr = 0;
             let inVbar = false;
             if (word.substring(0, 1) == "\"") {
                 ptr = 1;
@@ -247,9 +247,9 @@ $obj.create = function(logo, sys) {
 
             for (; ptr < word.length; ptr++) {
                 let c = word.charAt(ptr);
-                if (vbarMap.length !== 0 && ptr === vbarMap[vbarMapPtr]) {
+                if (literalMask.length !== 0 && ptr === literalMask[literalMaskPtr]) {
                     inVbar = !inVbar;
-                    vbarMapPtr += 1;
+                    literalMaskPtr += 1;
                 }
 
                 if (inVbar) {
@@ -421,7 +421,7 @@ $obj.create = function(logo, sys) {
             _parseData.push(_parseWord);
             _parseSrcmap.push(makeWordSrcmap());
             _parseWord = "";
-            _parseVbar = [];
+            _parseLiteralMask = [];
         }
 
         function convertFormalParam() {
@@ -470,7 +470,7 @@ $obj.create = function(logo, sys) {
             if (_parseInvbar) {
                 if (c == "|") {
                     _parseInvbar = false;
-                    _parseVbar.push(_parseWord.length);
+                    _parseLiteralMask.push(_parseWord.length);
                     if (isLastChar) {
                         terminateLine();
                         break;
@@ -488,7 +488,7 @@ $obj.create = function(logo, sys) {
 
             if (c == "|") {
                 _parseInvbar = true;
-                _parseVbar.push(_parseWord.length);
+                _parseLiteralMask.push(_parseWord.length);
                 continue;
             }
 
@@ -511,7 +511,9 @@ $obj.create = function(logo, sys) {
                     break; // ignores trailing "\"
                 }
 
+                _parseLiteralMask.push(_parseWord.length);
                 _parseWord += getEscapeChar(s.charAt(++_parseCol));
+                _parseLiteralMask.push(_parseWord.length);
 
                 if (isSecondLastChar) {
                     terminateLine();

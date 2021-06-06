@@ -165,15 +165,22 @@ $obj.create = function(logo, sys, ext) {
     }
     env.getSlotRestValue = getSlotRestValue;
 
-    function getLogoProcText(procName) {
-        let formal = env._ws[procName].formal;
-        let body = env._ws[procName].body;
-        let ret = [logo.type.makeLogoList(formal.slice(0))];
-
+    function splitBodyByLines(body, bodySrcmap) {
+        let bodyByLine = [];
+        let bodyByLineSrcmap = [];
         for (let begin = logo.type.LIST_HEAD_SIZE; begin < body.length;) {
             let end = body.indexOf(logo.type.NEWLINE, begin);
-            let line = (end === -1) ? body.slice(begin) : body.slice(begin, end);
-            ret.push(logo.type.makeLogoList(line));
+            let line, lineSrcmap;
+            if (end === -1) {
+                line = body.slice(begin);
+                lineSrcmap = bodySrcmap.slice(begin);
+            } else {
+                line = body.slice(begin, end);
+                lineSrcmap = bodySrcmap.slice(begin, end);
+            }
+
+            bodyByLine.push(logo.type.makeLogoList(line));
+            bodyByLineSrcmap.push(logo.type.makeLogoList(lineSrcmap));
             if (end === -1) {
                 break;
             }
@@ -181,7 +188,15 @@ $obj.create = function(logo, sys, ext) {
             begin = end + 1;
         }
 
-        return logo.type.makeLogoList(ret);
+        return {"body": bodyByLine, "bodySrcmap": bodyByLineSrcmap};
+    }
+
+    function getLogoProcText(procName) {
+        let bodyComp = splitBodyByLines( env._ws[procName].body,  env._ws[procName].bodySrcmap);
+        let text = [logo.type.makeLogoList(env._ws[procName].formal.slice(0))].concat(bodyComp.body);
+        let textSrcmap = [logo.type.makeLogoList(env._ws[procName].formalSrcmap.slice(0))].concat(bodyComp.bodySrcmap);
+
+        return logo.type.embedSrcmap(logo.type.makeLogoList(text), logo.type.makeLogoList(textSrcmap));
     }
     env.getLogoProcText = getLogoProcText;
 

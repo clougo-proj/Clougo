@@ -467,6 +467,20 @@ $obj.create = function(logo, sys) {
             let isLastChar = (_parseCol == s.length - 1);
             let isSecondLastChar = (_parseCol == s.length - 2);
 
+            if (_parseInComment) {
+                if (!isLastChar) { // ignore everthing except last character
+                    continue;
+                }
+
+                if (c != "~") {
+                    terminateLine();
+                    break;
+                }
+
+                _parseInComment = false;
+                break;
+            }
+
             if (_parseInvbar) {
                 if (c == "|") {
                     _parseInvbar = false;
@@ -492,19 +506,6 @@ $obj.create = function(logo, sys) {
                 continue;
             }
 
-            if (_parseInComment) {
-                if (!isLastChar) { // ignore everthing except last character
-                    continue;
-                }
-
-                if (c != "~") {
-                    terminateLine();
-                    break;
-                }
-
-                _parseInComment = false;
-                break;
-            }
 
             if (c == "\\") {
                 if (isLastChar) {

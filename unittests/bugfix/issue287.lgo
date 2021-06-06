@@ -4,8 +4,8 @@ end
 
 testTo "|TO passed|
 
-define "testdefine [[\*val][pr :\*val]]
-testdefine "|DEFINE passed|
+define "testDefine [[\*val][pr :\*val]]
+testDefine "|DEFINE passed|
 
-define "testdefineusingtext text "testdefine
-testdefineusingtext "|DEFINE using TEXT passed|
+define "testDefineUsingText text "testDefine
+testDefineUsingText "|DEFINE using TEXT passed|

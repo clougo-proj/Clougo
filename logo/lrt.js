@@ -808,7 +808,7 @@ $obj.create = function(logo, sys) {
     }
 
     function primitiveDefine(procname, text) {
-        logo.env.defineLogoProc(procname,
+        logo.env.defineLogoProc(procname.toLowerCase(),
             getFormalFromText(text),
             getBodyFromText(text),
             getFormalSrcmapFromText(text),
@@ -820,7 +820,7 @@ $obj.create = function(logo, sys) {
     }
 
     function primitiveText(procname) {
-        return logo.env.getLogoProcText(procname);
+        return logo.env.getLogoProcText(procname.toLowerCase());
     }
 
     async function primitiveWait(delay) {

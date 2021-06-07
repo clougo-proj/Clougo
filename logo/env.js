@@ -462,7 +462,25 @@ $obj.create = function(logo, sys, ext) {
         return sys.isInteger(number) && number > 0;
     }
 
-    function captureFormalParams(formalParams, formalSrcmap) {
+    function makeFormal(length, minInputCount, defaultInputCount, maxInputCount, params, paramTemplates, restParam) {
+        return {
+            "length": length,
+            "params": params,
+            "paramTemplates": paramTemplates,
+            "restParam": restParam,
+            "minInputCount": minInputCount,
+            "defaultInputCount": defaultInputCount,
+            "maxInputCount": maxInputCount
+        };
+    }
+    env.makeFormal = makeFormal;
+
+    function makeDefaultFormal(length) {
+        return makeFormal(length, length, length, length, Array.from({length: length}, (v, i) => i), [], undefined);
+    }
+    env.makeDefaultFormal = makeDefaultFormal;
+
+    function captureFormalParams(formalParams, formalSrcmap = logo.type.SRCMAP_NULL) {
         let length = formalParams.length;
         let minInputCount = 0;
         let defaultInputCount = 0;
@@ -485,14 +503,7 @@ $obj.create = function(logo, sys, ext) {
             defaultInputCount = minInputCount;
         }
 
-        return {
-            "params": params,
-            "paramTemplates": paramTemplates,
-            "restParam": restParam,
-            "minInputCount": minInputCount,
-            "defaultInputCount": defaultInputCount,
-            "maxInputCount": maxInputCount
-        };
+        return makeFormal(params.length, minInputCount, defaultInputCount, maxInputCount, params, paramTemplates, restParam);
 
         function captureDefaultInputCount() {
             if (ptr >= 0 && isDefaultInputCount(formalParams[ptr])) {
@@ -533,6 +544,7 @@ $obj.create = function(logo, sys, ext) {
             }
         }
     }
+    env.captureFormalParams = captureFormalParams;
 
     function defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap) {
         let code = logo.codegen.genProc(logo.type.makeLogoProc([procName, formal, body]),
@@ -829,8 +841,8 @@ $obj.create = function(logo, sys, ext) {
 
     async function applyNamedProcedure(template, srcmap, slot = {}, inputListSrcmap) {
         if (template in logo.lrt.primitive) {
-            const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(template);
-            const paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(template);
+            const paramListMinLength = logo.lrt.getPrimitiveFormal(template).minInputCount;
+            const paramListMaxLength = logo.lrt.getPrimitiveFormal(template).maxInputCount;
 
             checkSlotLength(template, slot.param, inputListSrcmap, paramListMinLength, paramListMaxLength);
             slot.param.splice(0, 0, template, srcmap);

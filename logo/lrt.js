@@ -531,7 +531,7 @@ $obj.create = function(logo, sys) {
         return logo.type.makeLogoList(Array.from({length: length}, (x, i) => (incr ? i : -i) + from));
     }
 
-    function primitiveThrow(tag, value) {
+    function primitiveThrow(tag, value = undefined) {
         throw logo.type.LogoException.CUSTOM.withParam([tag, value], logo.env.getPrimitiveSrcmap(), logo.env._curProc);
     }
 
@@ -851,6 +851,10 @@ $obj.create = function(logo, sys) {
                 throw e;
             }
         }
+    }
+
+    function dotUndefined() {
+        return undefined;
     }
 
     async function primitiveDemo(name) {
@@ -1192,74 +1196,72 @@ $obj.create = function(logo, sys) {
 
         "help": primitiveHelp,
 
+        ".undefined": dotUndefined,
+
         ".test": dotTest
     };
     lrt.primitive = primitive;
 
+    lrt.getPrimitiveFormal = (function() {
+        const primitiveFormalString = {
+            "ellipse": "radiusX radiusY [fill \"False]",
+            "ellipse2": "radiusX radiusY [fill \"False]",
+
+            "local": "[args] 1",
+            "show": "[args] 1",
+            "print": "[args] 1",
+            "pr": "[args] 1",
+            "type": "[args] 1",
+
+            "sentence": "[args] 2",
+            "se": "[args] 2",
+            "list": "[args] 2",
+            "word": "[args] 2",
+            "sum": "[args] 2",
+            "and": "[args] 2",
+            "or": "[args] 2",
+
+            "listtoarray": "value [origin 1]",
+            "mdarray": "sizeList [origin 1]",
+            "throw": "tag [value .undefined]",
+            "circle": "radius [fill \"False]",
+            "circle2": "radius [fill \"False]",
+            "array": "size [origin 1]",
+
+            "fill": "[fillmode \"False]",
+            "?": "[slotNum 1]",
+
+            "foreach": "[inputs] 2",
+            "invoke": "template [inputs] 2",
+
+            "?rest": "[slotNum 1]",
+
+            "sin": "deg"
+        };
+
+        const primitiveFormal = {};
+
+        return function getPrimitiveFormal(primitiveName) {
+            if (!(primitiveName in primitiveFormal)) {
+                if (primitiveName in primitiveFormalString) {
+                    primitiveFormal[primitiveName] =
+                        logo.env.captureFormalParams(logo.parse.parseSignature(primitiveFormalString[primitiveName]));
+                } else {
+                    sys.assert(primitiveName in primitive);
+                    primitiveFormal[primitiveName] = logo.env.makeDefaultFormal(primitive[primitiveName].length);
+                }
+            }
+
+            return primitiveFormal[primitiveName];
+        };
+    })();
+
     lrt.util = {};
-
-    const primitiveParamCount = {};
-    Object.keys(primitive).map(
-        function(k) {
-            let l = primitive[k].length;
-            primitiveParamCount[k] = [l, l, l]; // [def, min, max]
-        });
-
-    // can take infinite inputs inside ()
-    primitiveParamCount.local =
-    primitiveParamCount.show =
-    primitiveParamCount.pr =
-    primitiveParamCount.print =
-    primitiveParamCount.type = [1, 0, -1];
-
-    primitiveParamCount.se =
-    primitiveParamCount.sentence =
-    primitiveParamCount.list =
-    primitiveParamCount.word = [2, 0, -1];
-
-    primitiveParamCount.sum =
-    primitiveParamCount.and =
-    primitiveParamCount.or = [2, 0, -1];
-
-    primitiveParamCount.listtoarray =
-    primitiveParamCount.mdarray =
-    primitiveParamCount.throw =
-    primitiveParamCount.circle =
-    primitiveParamCount.circle2 =
-    primitiveParamCount.array = [1, 1, 2];
-
-    primitiveParamCount.fill =
-    primitiveParamCount["?"] = [0, 0, 1];
-
-    primitiveParamCount.ellipse =
-    primitiveParamCount.ellipse2 = [2, 2, 3];
-
-    primitiveParamCount.foreach =
-    primitiveParamCount.invoke = [2, 2, -1];
-
-    primitiveParamCount["?rest"] = [0, 0, 1];
-
-    lrt.primitiveParamCount = primitiveParamCount;
 
     function getPrimitiveCallTarget(name) {
         return (name in lrt.primitive) ? lrt.primitive[name] : undefined;
     }
     lrt.util.getPrimitiveCallTarget = getPrimitiveCallTarget;
-
-    function getPrimitiveParamCount(name) {
-        return (name in lrt.primitiveParamCount) ? lrt.primitiveParamCount[name][0] : undefined;
-    }
-    lrt.util.getPrimitiveParamCount = getPrimitiveParamCount;
-
-    function getPrimitiveParamMinCount(name) {
-        return (name in lrt.primitiveParamCount) ? lrt.primitiveParamCount[name][1] : undefined;
-    }
-    lrt.util.getPrimitiveParamMinCount = getPrimitiveParamMinCount;
-
-    function getPrimitiveParamMaxCount(name) {
-        return (name in lrt.primitiveParamCount) ? lrt.primitiveParamCount[name][2] : undefined;
-    }
-    lrt.util.getPrimitiveParamMaxCount = getPrimitiveParamMaxCount;
 
     function logoVar(v, varname, srcmap) {
         if (v === undefined) {

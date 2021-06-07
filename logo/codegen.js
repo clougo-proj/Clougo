@@ -680,7 +680,7 @@ $obj.create = function(logo, sys) {
         }
 
         if (restParamNotEmpty()) {
-            for (let j = formal.params.length; j < formal.defaultInputCount; j++) {
+            for (let j = formal.length; j < formal.defaultInputCount; j++) {
                 evxContext.next();
                 param.push(genProcInput(evxContext, precedence, false, procName, true));
             }
@@ -700,7 +700,7 @@ $obj.create = function(logo, sys) {
         }
 
         function paramNotCompleteWithoutParen() {
-            return !isInParen && j < formal.params.length && j < formal.defaultInputCount;
+            return !isInParen && j < formal.length && j < formal.defaultInputCount;
         }
     }
 
@@ -709,8 +709,8 @@ $obj.create = function(logo, sys) {
     }
 
     function genPrimitiveCall(evxContext, curToken, srcmap, isInParen) {
-        let param = genPrimitiveCallParams(evxContext, curToken, logo.lrt.util.getPrimitivePrecedence(curToken),
-            isInParen);
+        let param = genUserProcCallParams(evxContext, curToken, logo.lrt.getPrimitiveFormal(curToken),
+            logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
 
         if (isAsyncPrimitive(curToken)) {
             logo.env.setAsyncFunctionCall(true);
@@ -787,32 +787,6 @@ $obj.create = function(logo, sys) {
         }
 
         return code;
-    }
-
-    function genPrimitiveCallParams(evxContext, primitiveName, precedence = 0, isInParen = false) {
-        let param = [];
-        let paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
-        let paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
-        let paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
-        let j = 0;
-
-        if (isInParen && (paramListMaxLength > paramListLength || paramListMaxLength == -1)) {
-            for (; (j < paramListMaxLength || paramListMaxLength == -1) &&
-                    (isInParen && evxContext.peekNextToken() != logo.type.CLOSE_PAREN ) && evxContext.next(); j++) {
-                param.push(genProcInput(evxContext, precedence, false, primitiveName));
-            }
-        } else {
-            for (; j < paramListLength && ((isInParen && evxContext.peekNextToken() != logo.type.CLOSE_PAREN ) || !isInParen) &&
-                    evxContext.next(); j++) { // push actual parameters
-                param.push(genProcInput(evxContext, precedence, false, primitiveName));
-            }
-        }
-
-        if (j < paramListMinLength) {
-            param.push(genThrowNotEnoughInputs(evxContext.getSrcmap(), primitiveName));
-        }
-
-        return param;
     }
 
     function genArray(obj) {
@@ -1071,14 +1045,8 @@ $obj.create = function(logo, sys) {
         let bodySrcmap = logo.type.bodySrcmapFromProcText(template);
         _isLambda = false;
         let code = genProcBody(procName,
-            {
-                "params": params,
-                "paramTemplates": [],
-                "restParam": undefined,
-                "minInputCount": params.length,
-                "defaultInputCount": params.length,
-                "maxInputCount": params.length
-            }, logo.type.embedSrcmap(body, bodySrcmap))
+            logo.env.makeFormal(params.length, params.length, params.length, params.length, params, [], undefined),
+            logo.type.embedSrcmap(body, bodySrcmap))
             .prepend("(")
             .append(")");
 
@@ -1108,20 +1076,22 @@ $obj.create = function(logo, sys) {
 
     function genOptionalInputDefault(formal, procName) {
         let code = Code.expr();
-        for (let i = formal.minInputCount; i < formal.params.length; i++) {
-            let instrList = genInstrListFromTemplate(formal.paramTemplates[i], procName);
-            let postfix = logo.config.get("postfix") || instrList.postFix();
+        if (formal.params !== undefined) {
+            for (let i = formal.minInputCount; i < formal.params.length; i++) {
+                let instrList = genInstrListFromTemplate(formal.paramTemplates[i], procName);
+                let postfix = logo.config.get("postfix") || instrList.postFix();
 
-            code.append("if(", toJsVarName(formal.params[i]), "===undefined){");
-            if (!postfix) {
-                code.append(toJsVarName(formal.params[i]))
-                    .append("=")
-                    .append(instrList)
-                    .append(";}\n");
-            } else {
-                code.append(instrList)
-                    .append(toJsVarName(formal.params[i]))
-                    .append("=$ret;}\n");
+                code.append("if(", toJsVarName(formal.params[i]), "===undefined){");
+                if (!postfix) {
+                    code.append(toJsVarName(formal.params[i]))
+                        .append("=")
+                        .append(instrList)
+                        .append(";}\n");
+                } else {
+                    code.append(instrList)
+                        .append(toJsVarName(formal.params[i]))
+                        .append("=$ret;}\n");
+                }
             }
         }
 

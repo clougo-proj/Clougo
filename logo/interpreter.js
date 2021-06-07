@@ -85,9 +85,11 @@ $obj.create = function(logo, sys) {
     }
     interpreter.makeEvalContext = makeEvalContext;
 
-    async function evxProcCallParam(evxContext, procName, formal, precedence = 0, isInParen) {
+    async function evxProcCallParam(evxContext, procName, formal, precedence = 0, isInParen, evalScope = true) {
         let curScope = {};
-        logo.env._scopeStack.push(curScope);
+        if (evalScope) {
+            logo.env._scopeStack.push(curScope);
+        }
 
         let nextActualParam = [];
         let j = 0;
@@ -98,22 +100,26 @@ $obj.create = function(logo, sys) {
         return nextActualParam;
 
         function processRestParam() {
-            if (formal.restParam !== undefined) {
+            if (evalScope && formal.restParam !== undefined) {
                 let restParam = logo.type.makeLogoList(nextActualParam.length > formal.params.length ?
-                    nextActualParam.splice(formal.params.length) : []);
-                nextActualParam.push(restParam);
+                    nextActualParam.slice(formal.params.length) : []);
                 curScope[formal.restParam] = restParam;
             }
         }
 
         async function processOptionalParams() {
-            while (j < formal.params.length) {
-                sys.assert(formal.params[j] !== undefined);
-                sys.assert(formal.paramTemplates[j] !== undefined);
-                let param = await evxInstrList(formal.paramTemplates[j], {}, true, true);
-                nextActualParam.push(param);
-                curScope[formal.params[j]] = param;
-                j += 1;
+            if (formal.params !== undefined) {
+                while (j < formal.params.length) {
+                    sys.assert(formal.params[j] !== undefined);
+                    sys.assert(formal.paramTemplates[j] !== undefined);
+                    let param = await evxInstrList(formal.paramTemplates[j], {}, true, true);
+                    nextActualParam.push(param);
+                    if (evalScope) {
+                        curScope[formal.params[j]] = param;
+                    }
+
+                    j += 1;
+                }
             }
         }
 
@@ -125,7 +131,7 @@ $obj.create = function(logo, sys) {
 
                 let param = await evxParam(evxContext, procName, precedence);
                 nextActualParam.push(param);
-                if (j < formal.params.length) {
+                if (evalScope && formal.params !== undefined && j < formal.params.length) {
                     curScope[formal.params[j]] = param;
                 }
 
@@ -159,38 +165,6 @@ $obj.create = function(logo, sys) {
         }
 
         return evxContext.retVal;
-    }
-
-    async function evxPrimitiveCallParam(evxContext, primitiveName, srcmap, precedence, isInParen) {
-        const paramListLength = logo.lrt.util.getPrimitiveParamCount(primitiveName);
-        const paramListMinLength = logo.lrt.util.getPrimitiveParamMinCount(primitiveName);
-        const paramListMaxLength = logo.lrt.util.getPrimitiveParamMaxCount(primitiveName);
-
-        let nextActualParam = [primitiveName, srcmap];
-
-        let j = 0;
-        for (; paramNotCompleteWithoutParen() || paramNotCompleteWithinParen(); j++) {
-            if (logo.lrt.util.isOnlyBinaryOperator(evxContext.peekNextToken())) {
-                throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([primitiveName], evxContext.peekNextSrcmap());
-            }
-
-            nextActualParam.push(await evxParam(evxContext, primitiveName, precedence));
-        }
-
-        if (j < paramListMinLength) {
-            throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([primitiveName], evxContext.getSrcmap());
-        }
-
-        return nextActualParam;
-
-        function paramNotCompleteWithinParen() {
-            return isInParen && evxContext.peekNextToken() != ")" &&
-                ((paramListMaxLength > paramListLength && j < paramListMaxLength) || paramListMaxLength === -1 || j < paramListLength);
-        }
-
-        function paramNotCompleteWithoutParen() {
-            return !isInParen && j < paramListLength;
-        }
     }
 
     async function evxToken(evxContext, precedence = 0, isInParen = false, stopAtLineEnd = false) {
@@ -243,9 +217,12 @@ $obj.create = function(logo, sys) {
             evxContext.retVal = logo.env.callPrimitive("?", curSrcmap, logo.env.extractSlotNum(curToken));
         } else if (curToken in logo.lrt.primitive) {
             evxContext.proc = curToken;
-            evxContext.retVal = await logo.env.callPrimitiveAsync.apply(undefined,
-                await evxPrimitiveCallParam(evxContext, curToken, curSrcmap,
-                    logo.lrt.util.getPrimitivePrecedence(curToken), isInParen));
+            let actualParam = await evxProcCallParam(evxContext, curToken, logo.lrt.getPrimitiveFormal(curToken),
+                logo.lrt.util.getPrimitivePrecedence(curToken), isInParen, false);
+
+            logo.env.setPrimitiveName(curToken);
+            logo.env.setPrimitiveSrcmap(curSrcmap);
+            evxContext.retVal = await logo.lrt.primitive[curToken].apply(undefined, actualParam);
         } else {
             evxContext.proc = curToken;
             await evxCallProc(evxContext, curToken, curSrcmap, isInParen);

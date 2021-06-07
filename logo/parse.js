@@ -622,12 +622,23 @@ $obj.create = function(logo, sys) {
         }
 
         sys.assert(logo.type.isLogoList(_parseData), "expecting list!");
-
         let comp = parse.parseProc(logo.type.embedSrcmap(_parseData, _parseSrcmap));
         logo.trace.info(JSON.stringify(comp), "parse");
 
         resetParseData();
         return comp;
+    };
+
+    parse.parseSignature = function(s) {
+        _parseLine = 0;
+        _parseCol = 0;
+        _parseSource = 0;
+        _parseLastTo = -1;
+
+        parse.line(s);
+        let ret = _parseData.slice(2, _parseData.length - 1);
+        resetParseData();
+        return ret;
     };
 
     parse.getParserState = function() {

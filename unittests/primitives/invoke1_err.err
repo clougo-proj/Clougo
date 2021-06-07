@@ -6,8 +6,8 @@ Too many inputs to abc
     at 7,2
 Not enough inputs to abc
     at 8,2
-Not enough inputs to invoke
-    at 9,9
+I don't know how to def
+    at 9,2
 I don't know how to def
     at 10,2
 Too many inputs to cos
@@ -18,7 +18,7 @@ Too many inputs to abc
     at 15,22
 Not enough inputs to abc
     at 16,22
-Not enough inputs to invoke
-    at 17,29
+I don't know how to def
+    at 17,22
 I don't know how to def
     at 18,22

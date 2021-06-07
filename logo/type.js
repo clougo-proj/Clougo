@@ -656,7 +656,7 @@ $obj.create = function(logo, sys) {
     type.ifTrueThenThrow = ifTrueThenThrow;
 
     function checkMinInputCount(value) {
-        ifTrueThenThrow(!(value >= logo.lrt.util.getPrimitiveParamMinCount(logo.env.getPrimitiveName())),
+        ifTrueThenThrow(!(value >= logo.lrt.getPrimitiveFormal(logo.env.getPrimitiveName()).minInputCount),
             "NOT_ENOUGH_INPUTS", value);
     }
     type.checkMinInputCount = checkMinInputCount;

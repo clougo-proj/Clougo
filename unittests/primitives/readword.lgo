@@ -6,3 +6,4 @@ end
 repeat 5[a]
 pr (se readword readword readword)
 
+pr count readword

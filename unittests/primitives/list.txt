@@ -4,6 +4,7 @@ show run exec
 type run exec
 sentence run exec
 readword run exec
+readlist run exec
 word run exec
 throw run exec
 throw_uncaught run exec

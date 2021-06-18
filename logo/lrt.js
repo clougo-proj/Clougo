@@ -391,17 +391,6 @@ $obj.create = function(logo, sys) {
         logo.io.stdoutn(args.map(v => logo.type.toString(v)).join(""));
     }
 
-    function primitiveReadlist() {  // eslint-disable-line no-unused-vars
-        let userInput = "";
-        function readListHelper() {
-            if (userInput != "") {
-                return userInput;
-            }
-        }
-
-        return readListHelper();
-    }
-
     function primitiveLessp(a, b) {
         return a < b;
     }
@@ -547,6 +536,15 @@ $obj.create = function(logo, sys) {
     }
 
     async function primitiveReadword() {
+        return await readHelper();
+    }
+
+    async function primitiveReadlist() {
+        let userInput = await readHelper();
+        return logo.type.makeLogoList(userInput.split(" "));
+    }
+
+    async function readHelper() {
         if (logo.env.hasUserInput()) {
             return logo.env.getUserInput();
         }
@@ -837,6 +835,10 @@ $obj.create = function(logo, sys) {
     async function primitiveLoad(name) {
         let src = logo.logofs.get(name);
         await logo.entry.exec(src);
+    }
+
+    function primitiveIgnore(input) { // eslint-disable-line no-unused-vars
+        // Does nothing
     }
 
     function primitiveHelp(topic) {
@@ -1148,6 +1150,8 @@ $obj.create = function(logo, sys) {
 
         "readword": primitiveReadword,
 
+        "readlist": primitiveReadlist,
+
         "apply": primitiveApply,
 
         "invoke": primitiveInvoke,
@@ -1181,6 +1185,8 @@ $obj.create = function(logo, sys) {
         "wait": primitiveWait,
 
         "load": primitiveLoad,
+
+        "ignore": primitiveIgnore,
 
         "demo": primitiveDemo,
 

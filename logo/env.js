@@ -328,7 +328,7 @@ $obj.create = function(logo, sys, ext) {
         env._callstack = [];
         env._curProc = undefined;
         env._curSlot = undefined;
-        logo.turtle.reset();
+        logo.lrt.util.getNamespaceObject("turtle").reset();
         _userInput = [];
         _resolveUserInput = undefined;
 
@@ -643,7 +643,7 @@ $obj.create = function(logo, sys, ext) {
     }
 
     function snapshot() {
-        logo.turtle.snapshot();
+        logo.lrt.util.getNamespaceObject("turtle").snapshot();
         logo.io.canvasSnapshot();
     }
 
@@ -674,7 +674,7 @@ $obj.create = function(logo, sys, ext) {
                     if (isInterpretedCommand(line)) {
                         ret = await logoExecHelper(line.substring(2), false, srcidx, i);
                     } else if (isTurtleCanvasMouseEvent(line)) {
-                        logo.turtle.onMouseEvent(mockEventFromLine(line));
+                        logo.lrt.util.getNamespaceObject("turtle").onMouseEvent(mockEventFromLine(line));
                     } else {
                         ret = await logoExecHelper(line, genjs, srcidx, i);
                     }

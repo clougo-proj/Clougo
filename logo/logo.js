@@ -68,7 +68,6 @@ Logo.create = function(ext, config=undefined) {
 
     logo.constants = constants;
     logo.type = fromJs("./type.js").create(logo, sys);
-    logo.turtle = fromJs("./turtle.js").create(logo, sys);
     logo.lrt = fromJs("./lrt.js").create(logo, sys);
     logo.interpreter = fromJs("./interpreter.js").create(logo, sys);
     logo.codegen = fromJs("./codegen.js").create(logo, sys);

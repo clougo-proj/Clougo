@@ -12,6 +12,8 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const lrt = {};
 
+    const turtle = sys.util.fromJs("./lrt/turtle.js").create(logo, sys);
+
     function primitivePi() {
         return Math.PI;
     }
@@ -881,131 +883,39 @@ $obj.create = function(logo, sys) {
         await logo.entry.runSingleTest(testName, testMethod);
     }
 
+    let primitiveFormalString = {
+        "local": "[args] 1",
+        "show": "[args] 1",
+        "print": "[args] 1",
+        "pr": "[args] 1",
+        "type": "[args] 1",
+
+        "sentence": "[args] 2",
+        "se": "[args] 2",
+        "list": "[args] 2",
+        "word": "[args] 2",
+        "sum": "[args] 2",
+        "and": "[args] 2",
+        "or": "[args] 2",
+
+        "listtoarray": "value [origin 1]",
+        "mdarray": "sizeList [origin 1]",
+        "throw": "tag [value .undefined]",
+        "array": "size [origin 1]",
+
+        "?": "[slotNum 1]",
+
+        "foreach": "[inputs] 2",
+        "invoke": "template [inputs] 2",
+
+        "?rest": "[slotNum 1]"
+    };
+
     let primitive = {
         "pi": primitivePi,
 
         "cleartext": primitiveCleartext,
         "ct": primitiveCleartext,
-
-        "forward": logo.turtle.forward,
-        "fd": logo.turtle.forward,
-
-        "back": logo.turtle.back,
-        "bk": logo.turtle.back,
-
-        "left": logo.turtle.left,
-        "lt": logo.turtle.left,
-
-        "right": logo.turtle.right,
-        "rt": logo.turtle.right,
-
-        "home": logo.turtle.home,
-
-        "clearscreen": logo.turtle.clearscreen,
-        "cs": logo.turtle.clearscreen,
-
-        "draw": logo.turtle.draw,
-
-        "clean": logo.turtle.clean,
-
-        "hideturtle": logo.turtle.hideturtle,
-        "ht": logo.turtle.hideturtle,
-
-        "showturtle": logo.turtle.showturtle,
-        "st": logo.turtle.showturtle,
-
-        "shownp": logo.turtle.shownp,
-        "shown?": logo.turtle.shownp,
-
-        "pendown": logo.turtle.pendown,
-        "pd": logo.turtle.pendown,
-
-        "pendownp": logo.turtle.pendownp,
-        "pendown?": logo.turtle.pendownp,
-
-        "penup": logo.turtle.penup,
-        "pu": logo.turtle.penup,
-
-        "penpaint": logo.turtle.penpaint,
-        "pp": logo.turtle.penpaint,
-        "ppt": logo.turtle.penpaint,
-
-        "penerase": logo.turtle.penerase,
-        "pe": logo.turtle.penerase,
-
-        "penreverse": logo.turtle.penreverse,
-        "px": logo.turtle.penreverse,
-
-        "penmode": logo.turtle.penmode,
-
-        "setbackground": logo.turtle.setbackground,
-        "setbg": logo.turtle.setbackground,
-
-        "setscreencolor": logo.turtle.setbackground,
-        "setsc": logo.turtle.setbackground,
-
-        "setfloodcolor": logo.turtle.setfloodcolor,
-        "setfc": logo.turtle.setfloodcolor,
-
-        "setpencolor": logo.turtle.setpencolor,
-        "setpc": logo.turtle.setpencolor,
-
-        "setpensize": logo.turtle.setpensize,
-
-        "pensize": logo.turtle.pensize,
-
-        "circle": logo.turtle.circle,
-
-        "circle2": logo.turtle.circle2,
-
-        "arc": logo.turtle.arc,
-
-        "arc2": logo.turtle.arc2,
-
-        "ellipse": logo.turtle.ellipse,
-
-        "ellipse2": logo.turtle.ellipse2,
-
-        "ellipsearc": logo.turtle.ellipsearc,
-
-        "ellipsearc2": logo.turtle.ellipsearc2,
-
-        "label": logo.turtle.label,
-
-        "fill": logo.turtle.fill,
-
-        "setxy": logo.turtle.setxy,
-
-        "setpos": logo.turtle.setpos,
-
-        "setx": logo.turtle.setx,
-
-        "sety": logo.turtle.sety,
-
-        "setheading": logo.turtle.setheading,
-        "seth": logo.turtle.setheading,
-
-        "pos": logo.turtle.pos,
-
-        "xcor": logo.turtle.xcor,
-
-        "ycor": logo.turtle.ycor,
-
-        "heading": logo.turtle.heading,
-
-        "towards": logo.turtle.towards,
-
-        "pencolor": logo.turtle.pencolor,
-
-        "pc": logo.turtle.pencolor,
-
-        "floodcolor": logo.turtle.floodcolor,
-
-        "mousepos": logo.turtle.mousepos,
-
-        "clickpos": logo.turtle.clickpos,
-
-        "buttonp": logo.turtle.buttonpp,
 
         " -": primitiveMinus,  // unary minus operator in ambiguous context
 
@@ -1202,45 +1112,10 @@ $obj.create = function(logo, sys) {
     };
     lrt.primitive = primitive;
 
+    turtle.bindProcs(primitive, primitiveFormalString);
+
     lrt.getPrimitiveFormal = (function() {
-        const primitiveFormalString = {
-            "ellipse": "radiusX radiusY [fill \"False]",
-            "ellipse2": "radiusX radiusY [fill \"False]",
-
-            "local": "[args] 1",
-            "show": "[args] 1",
-            "print": "[args] 1",
-            "pr": "[args] 1",
-            "type": "[args] 1",
-
-            "sentence": "[args] 2",
-            "se": "[args] 2",
-            "list": "[args] 2",
-            "word": "[args] 2",
-            "sum": "[args] 2",
-            "and": "[args] 2",
-            "or": "[args] 2",
-
-            "listtoarray": "value [origin 1]",
-            "mdarray": "sizeList [origin 1]",
-            "throw": "tag [value .undefined]",
-            "circle": "radius [fill \"False]",
-            "circle2": "radius [fill \"False]",
-            "array": "size [origin 1]",
-
-            "fill": "[fillmode \"False]",
-            "?": "[slotNum 1]",
-
-            "foreach": "[inputs] 2",
-            "invoke": "template [inputs] 2",
-
-            "?rest": "[slotNum 1]",
-
-            "sin": "deg"
-        };
-
         const primitiveFormal = {};
-
         return function getPrimitiveFormal(primitiveName) {
             if (!(primitiveName in primitiveFormal)) {
                 if (primitiveName in primitiveFormalString) {
@@ -1324,6 +1199,13 @@ $obj.create = function(logo, sys) {
         return binaryOperator[op][2];
     }
     lrt.util.getBinaryOperatorPrimitiveName = getBinaryOperatorPrimitiveName;
+
+    function getNamespaceObject(namespace) {
+        if (namespace == "turtle") {
+            return turtle;
+        }
+    }
+    lrt.util.getNamespaceObject = getNamespaceObject;
 
     return lrt;
 };

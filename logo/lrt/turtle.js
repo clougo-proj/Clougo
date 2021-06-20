@@ -19,6 +19,127 @@ $obj.create = function(logo, sys) {
 
     const MAX_UNDO_DEPTH = logo.constants.MAX_UNDO_DEPTH;
 
+    const procs = {
+        "forward": primitiveForward,
+        "fd": primitiveForward,
+
+        "back": primitiveBack,
+        "bk": primitiveBack,
+
+        "left": primitiveLeft,
+        "lt": primitiveLeft,
+
+        "right": primitiveRight,
+        "rt": primitiveRight,
+
+        "home": primitiveHome,
+
+        "clearscreen": primitiveClearscreen,
+        "cs": primitiveClearscreen,
+
+        "draw": primitiveDraw,
+
+        "clean": primitiveClean,
+
+        "hideturtle": primitiveHideturtle,
+        "ht": primitiveHideturtle,
+
+        "showturtle": primitiveShowturtle,
+        "st": primitiveShowturtle,
+
+        "shownp": primitiveShownp,
+        "shown?": primitiveShownp,
+
+        "pendown": primitivePendown,
+        "pd": primitivePendown,
+
+        "pendownp": primitivePendownp,
+        "pendown?": primitivePendownp,
+
+        "penup": primitivePenup,
+        "pu": primitivePenup,
+
+        "penpaint": primitivePenpaint,
+        "pp": primitivePenpaint,
+        "ppt": primitivePenpaint,
+
+        "penerase": primitivePenerase,
+        "pe": primitivePenerase,
+
+        "penreverse": primitivePenreverse,
+        "px": primitivePenreverse,
+
+        "penmode": primitivePenmode,
+
+        "setbackground": primitiveSetbackground,
+        "setbg": primitiveSetbackground,
+
+        "setscreencolor": primitiveSetbackground,
+        "setsc": primitiveSetbackground,
+
+        "setfloodcolor": primitiveSetfloodcolor,
+        "setfc": primitiveSetfloodcolor,
+
+        "setpencolor": primitiveSetpencolor,
+        "setpc": primitiveSetpencolor,
+
+        "setpensize": primitiveSetpensize,
+
+        "pensize": primitivePensize,
+
+        "circle": [primitiveCircle, "radius [fill \"False]"],
+
+        "circle2": [primitiveCircle2, "radius [fill \"False]"],
+
+        "arc": primitiveArc,
+
+        "arc2": primitiveArc2,
+
+        "ellipse": [primitiveEllipse, "radiusX radiusY [fill \"False]"],
+
+        "ellipse2": [primitiveEllipse2, "radiusX radiusY [fill \"False]"],
+
+        "ellipsearc": primitiveEllipsearc,
+
+        "ellipsearc2": primitiveEllipsearc2,
+
+        "label": primitiveLabel,
+
+        "fill": [primitiveFill, "[fillmode \"False]"],
+
+        "setxy": primitiveSetxy,
+
+        "setpos": primitiveSetpos,
+
+        "setx": primitiveSetx,
+
+        "sety": primitiveSety,
+
+        "setheading": primitiveSetheading,
+        "seth": primitiveSetheading,
+
+        "pos": primitivePos,
+
+        "xcor": primitiveXcor,
+
+        "ycor": primitiveYcor,
+
+        "heading": primitiveHeading,
+
+        "towards": primitiveTowards,
+
+        "pencolor": primitivePencolor,
+        "pc": primitivePencolor,
+
+        "floodcolor": primitiveFloodcolor,
+
+        "mousepos": primitiveMousepos,
+
+        "clickpos": primitiveClickpos,
+
+        "buttonp": primitiveButtonp,
+    };
+
     let _showTurtle = true;
 
     let _turtleX = originX;
@@ -39,76 +160,53 @@ $obj.create = function(logo, sys) {
     let _mouseClickY = originY;
     let _mouseDown = false;
 
-    function primitiveReset() {
-        _turtleX = originX;
-        _turtleY = originY;
-        _turtleHeading = originalHeading;
-
-        _penDown = true;
-        _floodColor = 0;
-        _penColor = 0;
-        _bgColor = 15;
-        _penSize = originalPenSize;
-    }
-    turtle.reset = primitiveReset;
-
     function primitivePendown() {
         _penDown = true;
     }
-    turtle.pendown = primitivePendown;
 
     function primitivePendownp() {
         return _penDown;
     }
-    turtle.pendownp = primitivePendownp;
 
     function primitivePenup() {
         _penDown = false;
     }
-    turtle.penup = primitivePenup;
 
-    function primitivepenPaint() {
+    function primitivePenpaint() {
         _penDown = true;
         _penMode = "paint";
         logo.ext.canvas.sendCmd("penpaint");
     }
-    turtle.penpaint = primitivepenPaint;
 
     function primitivePenerase() {
         _penDown = true;
         _penMode = "erase";
         logo.ext.canvas.sendCmd("penerase");
     }
-    turtle.penerase = primitivePenerase;
 
     function primitivePenreverse() {
         _penDown = true;
         _penMode = "reverse";
         logo.ext.canvas.sendCmd("penreverse");
     }
-    turtle.penreverse = primitivePenreverse;
 
     function primitivePenmode() {
         return _penMode;
     }
-    turtle.penmode = primitivePenmode;
 
     function primitiveShowturtle() {
         _showTurtle = true;
         logo.ext.canvas.sendCmd("showturtle");
     }
-    turtle.showturtle = primitiveShowturtle;
 
     function primitiveHideturtle() {
         _showTurtle = false;
         logo.ext.canvas.sendCmd("hideturtle");
     }
-    turtle.hideturtle = primitiveHideturtle;
 
     function primitiveShownp() {
         return _showTurtle;
     }
-    turtle.shownp = primitiveShownp;
 
     function primitiveForward(distance) {
         logo.type.validateInputNumber(distance);
@@ -119,7 +217,6 @@ $obj.create = function(logo, sys) {
             [_turtleX, _turtleY, _turtleHeading]
         );
     }
-    turtle.forward = primitiveForward;
 
     function primitiveBack(distance) {
         logo.type.validateInputNumber(distance);
@@ -130,7 +227,6 @@ $obj.create = function(logo, sys) {
             [_turtleX, _turtleY, _turtleHeading]
         );
     }
-    turtle.back = primitiveBack;
 
     function primitiveClearscreen() {
         _turtleX = originX;
@@ -139,7 +235,6 @@ $obj.create = function(logo, sys) {
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
         logo.ext.canvas.sendCmd("clean");
     }
-    turtle.clearscreen = primitiveClearscreen;
 
     function primitiveDraw() {
         primitiveClearscreen();
@@ -156,7 +251,6 @@ $obj.create = function(logo, sys) {
     function primitiveClean() {
         logo.ext.canvas.sendCmd("clean");
     }
-    turtle.clean = primitiveClean;
 
     function primitiveSetxy(newX, newY) {
         logo.type.validateInputNumber(newX);
@@ -165,12 +259,10 @@ $obj.create = function(logo, sys) {
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.setxy = primitiveSetxy;
 
     function primitivePos() {
         return logo.type.makeLogoList([sys.logoFround6(_turtleX), sys.logoFround6(_turtleY)]);
     }
-    turtle.pos = primitivePos;
 
     function primitiveSetpos(pos) {
         logo.type.validateInputXY(pos);
@@ -178,43 +270,36 @@ $obj.create = function(logo, sys) {
         _turtleY = logo.type.listItem(2, pos);
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.setpos = primitiveSetpos;
 
     function primitiveXcor() {
         return _turtleX;
     }
-    turtle.xcor = primitiveXcor;
 
     function primitiveSetx(newX) {
         logo.type.validateInputNumber(newX);
         _turtleX = newX;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.setx = primitiveSetx;
 
     function primitiveYcor() {
         return _turtleY;
     }
-    turtle.ycor = primitiveYcor;
 
     function primitiveSety(newY) {
         logo.type.validateInputNumber(newY);
         _turtleY = newY;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.sety = primitiveSety;
 
     function primitiveHeading() {
         return _turtleHeading;
     }
-    turtle.heading = primitiveHeading;
 
     function primitiveSetheading(deg) {
         logo.type.validateInputNumber(deg);
         _turtleHeading = moduloDeg(deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.setheading = primitiveSetheading;
 
     function primitiveTowards(pos) {
         logo.type.validateInputXY(pos);
@@ -232,38 +317,32 @@ $obj.create = function(logo, sys) {
         let deg = logo.type.radToDeg(Math.atan2(dX, dY));
         return (deg < 0) ? deg + 360 : deg;
     }
-    turtle.towards = primitiveTowards;
 
     function primitiveSetbackground(color) {
         logo.type.validateInputRGB(color);
         _bgColor = logo.type.getRGB(color);
         logo.ext.canvas.sendCmd("bgcolor", _bgColor);
     }
-    turtle.setbackground = primitiveSetbackground;
 
     function primitiveSetfloodcolor(color) {
         logo.type.validateInputRGB(color);
         _floodColor = logo.type.isPaletteIndex(color) ? color : logo.type.makeLogoList(logo.type.getRGB(color));
         logo.ext.canvas.sendCmd("fillcolor", logo.type.getRGB(_floodColor));
     }
-    turtle.setfloodcolor = primitiveSetfloodcolor;
 
     function primitiveFloodcolor() {
         return _floodColor;
     }
-    turtle.floodcolor = primitiveFloodcolor;
 
     function primitiveSetpencolor(color) {
         logo.type.validateInputRGB(color);
         _penColor = logo.type.isPaletteIndex(color) ? color : logo.type.makeLogoList(logo.type.getRGB(color));
         logo.ext.canvas.sendCmd("pencolor", logo.type.getRGB(_penColor));
     }
-    turtle.setpencolor = primitiveSetpencolor;
 
     function primitivePencolor() {
         return _penColor;
     }
-    turtle.pencolor = primitivePencolor;
 
     function primitiveSetpensize(size) {
         logo.type.validateInputPensize(size);
@@ -271,12 +350,10 @@ $obj.create = function(logo, sys) {
         _penSize = logo.type.makeLogoList([actualSize, actualSize]);
         logo.ext.canvas.sendCmd("pensize", [actualSize]);
     }
-    turtle.setpensize = primitiveSetpensize;
 
     function primitivePensize() {
         return _penSize;
     }
-    turtle.pensize = primitivePensize;
 
     function primitiveCircle(radius, fill = false) {
         logo.type.validateInputNonNegNumber(radius);
@@ -285,7 +362,6 @@ $obj.create = function(logo, sys) {
             logo.ext.canvas.sendCmd("arc", [_turtleX, _turtleY, radius, 0, 360, false, logo.type.logoBoolean(fill)]);
         }
     }
-    turtle.circle = primitiveCircle;
 
     function primitiveCircle2(radius, fill = false) {
         logo.type.validateInputNonNegNumber(radius);
@@ -301,7 +377,6 @@ $obj.create = function(logo, sys) {
                 logo.type.logoBoolean(fill)]);
         }
     }
-    turtle.circle2 = primitiveCircle2;
 
     function primitiveArc(deg, radius) {
         logo.type.validateInputNonNegNumber(radius);
@@ -324,7 +399,6 @@ $obj.create = function(logo, sys) {
                 false]);
         }
     }
-    turtle.arc = primitiveArc;
 
     function primitiveArc2(deg, radius) {
         logo.type.validateInputNonNegNumber(radius);
@@ -351,7 +425,6 @@ $obj.create = function(logo, sys) {
         _turtleHeading += deg;
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.arc2 = primitiveArc2;
 
     function primitiveEllipse(radiusX, radiusY, fill = false) {
         logo.type.validateInputNonNegNumber(radiusX);
@@ -370,7 +443,6 @@ $obj.create = function(logo, sys) {
                 logo.type.logoBoolean(fill)]);
         }
     }
-    turtle.ellipse = primitiveEllipse;
 
     function primitiveEllipse2(radiusX, radiusY, fill = false) {
         logo.type.validateInputNonNegNumber(radiusX);
@@ -389,7 +461,6 @@ $obj.create = function(logo, sys) {
                 logo.type.logoBoolean(fill)]);
         }
     }
-    turtle.ellipse2 = primitiveEllipse2;
 
     function primitiveEllipsearc(deg, radiusX, radiusY, startDeg) {
         logo.type.validateInputNumber(deg);
@@ -413,7 +484,6 @@ $obj.create = function(logo, sys) {
                 false]);
         }
     }
-    turtle.ellipsearc = primitiveEllipsearc;
 
     function primitiveEllipsearc2(deg, radiusX, radiusY, startDeg) {
         logo.type.validateInputNumber(deg);
@@ -500,7 +570,6 @@ $obj.create = function(logo, sys) {
             return tangentAngle;
         }
     }
-    turtle.ellipsearc2 = primitiveEllipsearc2;
 
     function primitiveLabel(text) {
         if (typeof text === "number") {
@@ -510,13 +579,11 @@ $obj.create = function(logo, sys) {
 
         logo.ext.canvas.sendCmdAsString("drawtext", [logo.type.toString(text)]);
     }
-    turtle.label = primitiveLabel;
 
     function primitiveFill(fillmode = false) {
         logo.type.validateInputBoolean(fillmode);
         logo.ext.canvas.sendCmd("fill", [logo.type.logoBoolean(fillmode)]);
     }
-    turtle.fill = primitiveFill;
 
     function primitiveHome() {
         _turtleX = originX;
@@ -524,52 +591,30 @@ $obj.create = function(logo, sys) {
         _turtleHeading = originalHeading;
         logo.ext.canvas.sendCmd(_penDown ? "drawto" : "moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.home = primitiveHome;
 
     function primitiveLeft(deg) {
         logo.type.validateInputNumber(deg);
         _turtleHeading = moduloDeg(_turtleHeading - deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.left = primitiveLeft;
 
     function primitiveRight(deg) {
         logo.type.validateInputNumber(deg);
         _turtleHeading = moduloDeg(_turtleHeading + deg);
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
-    turtle.right = primitiveRight;
 
     function primitiveMousepos() {
         return logo.type.makeLogoList([_mouseX, _mouseY]);
     }
-    turtle.mousepos = primitiveMousepos;
 
     function primitiveClickpos() {
         return logo.type.makeLogoList([_mouseClickX, _mouseClickY]);
     }
-    turtle.clickpos = primitiveClickpos;
 
     function primitiveButtonp() {
         return _mouseDown;
     }
-    turtle.buttonpp = primitiveButtonp;
-
-    function undo() {
-        if (_undoStack.length > 0) {
-            restoreTurtle(_undoStack.pop());
-            logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
-        }
-    }
-    turtle.undo = undo;
-
-    function snapshot() {
-        _undoStack.push(backupTurtle());
-        if (_undoStack.length > MAX_UNDO_DEPTH) {
-            _undoStack.shift();
-        }
-    }
-    turtle.snapshot = snapshot;
 
     function backupTurtle() {
         return {
@@ -623,6 +668,60 @@ $obj.create = function(logo, sys) {
     function moduloDeg(deg) {
         return deg >= 0 ? deg % 360 : (deg % 360) +360;
     }
+
+    function undo() {
+        if (_undoStack.length > 0) {
+            restoreTurtle(_undoStack.pop());
+            logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
+        }
+    }
+    turtle.undo = undo;
+
+    function snapshot() {
+        _undoStack.push(backupTurtle());
+        if (_undoStack.length > MAX_UNDO_DEPTH) {
+            _undoStack.shift();
+        }
+    }
+    turtle.snapshot = snapshot;
+
+    function reset() {
+        _turtleX = originX;
+        _turtleY = originY;
+        _turtleHeading = originalHeading;
+
+        _penDown = true;
+        _floodColor = 0;
+        _penColor = 0;
+        _bgColor = 15;
+        _penSize = originalPenSize;
+    }
+    turtle.reset = reset;
+
+    function containsFormalString(entry) {
+        return Array.isArray(entry) && entry.length >=2;
+    }
+
+    function getPrimitive(entry) {
+        return entry[0];
+    }
+
+    function getFormal(entry) {
+        return entry[1];
+    }
+
+    function bindProcs(env, formal) {
+        for(let name in procs) {
+            let entry = procs[name];
+            if (containsFormalString(entry)) {
+                env[name] = getPrimitive(entry);
+                formal[name] = getFormal(entry);
+            } else {
+                env[name] = entry;
+            }
+        }
+    }
+    turtle.bindProcs = bindProcs;
 
     return turtle;
 };

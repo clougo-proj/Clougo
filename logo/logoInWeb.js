@@ -115,12 +115,12 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
             postMessage([LOGO_EVENT.BUSY]);
             logo.env.clearWorkspace();
             logo.env.loadDefaultLogoModules();
-            logo.turtle.draw();
+            logo.lrt.util.getNamespaceObject("turtle").draw();
             postMessage([LOGO_EVENT.READY]);
         };
 
         webMsgHandler[LOGO_METHOD.MOUSE_EVENT] = function(e) {
-            logo.turtle.onMouseEvent(getMsgBody(e));
+            logo.lrt.util.getNamespaceObject("turtle").onMouseEvent(getMsgBody(e));
         };
 
         webMsgHandler[LOGO_METHOD.CONFIG] = function(e) {
@@ -129,7 +129,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
         };
 
         webMsgHandler[LOGO_METHOD.TURTLE_UNDO] = function() {
-            logo.turtle.undo();
+            logo.lrt.util.getNamespaceObject("turtle").undo();
         };
 
         // listen to events in the worker

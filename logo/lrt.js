@@ -1065,6 +1065,7 @@ $obj.create = function(logo, sys) {
         "readword": primitiveReadword,
 
         "readlist": primitiveReadlist,
+        "rl": primitiveReadlist,
 
         "apply": primitiveApply,
 

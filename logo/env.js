@@ -580,6 +580,7 @@ $obj.create = function(logo, sys, ext) {
         let parsedCode = logo.parse.parseSrc(logosrc, srcidx, srcLine);
         logo.trace.info(parsedCode, "parse.result");
         setGenJs(genjs);
+        setEnvState(LOGO_EVENT.CONTINUE);
 
         if (genjs) {
             await evalLogoGen(parsedCode);

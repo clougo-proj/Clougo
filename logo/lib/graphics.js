@@ -3,14 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //-------------------------------------------------------------------------------------------------------
 
-// Implements Logo's turtle primitives
+// Implements Logo's graphics primitives
 // Runs in Logo worker thread
 
 "use strict";
 
 var $obj = {};
 $obj.create = function(logo, sys) {
-    const turtle = {};
+    const graphics = {};
 
     const originX = 0;
     const originY = 0;
@@ -19,7 +19,7 @@ $obj.create = function(logo, sys) {
 
     const MAX_UNDO_DEPTH = logo.constants.MAX_UNDO_DEPTH;
 
-    const procs = {
+    const methods = {
         "forward": primitiveForward,
         "fd": primitiveForward,
 
@@ -139,6 +139,7 @@ $obj.create = function(logo, sys) {
 
         "buttonp": primitiveButtonp,
     };
+    graphics.methods = methods;
 
     let _showTurtle = true;
 
@@ -246,7 +247,7 @@ $obj.create = function(logo, sys) {
         primitiveSetfloodcolor(0);
         // setlabelfont [[Arial] -24 0 0 400 0 0 0 0 3 2 1 18]
     }
-    turtle.draw = primitiveDraw;
+    graphics.draw = primitiveDraw;
 
     function primitiveClean() {
         logo.ext.canvas.sendCmd("clean");
@@ -663,7 +664,7 @@ $obj.create = function(logo, sys) {
         sys.assert(getMsgType(msg) in mouseEventHandler);
         mouseEventHandler[getMsgType(msg)](msg);
     }
-    turtle.onMouseEvent = onMouseEvent;
+    graphics.onMouseEvent = onMouseEvent;
 
     function moduloDeg(deg) {
         return deg >= 0 ? deg % 360 : (deg % 360) +360;
@@ -675,7 +676,7 @@ $obj.create = function(logo, sys) {
             logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
         }
     }
-    turtle.undo = undo;
+    graphics.undo = undo;
 
     function snapshot() {
         _undoStack.push(backupTurtle());
@@ -683,7 +684,7 @@ $obj.create = function(logo, sys) {
             _undoStack.shift();
         }
     }
-    turtle.snapshot = snapshot;
+    graphics.snapshot = snapshot;
 
     function reset() {
         _turtleX = originX;
@@ -696,34 +697,9 @@ $obj.create = function(logo, sys) {
         _bgColor = 15;
         _penSize = originalPenSize;
     }
-    turtle.reset = reset;
+    graphics.reset = reset;
 
-    function containsFormalString(entry) {
-        return Array.isArray(entry) && entry.length >=2;
-    }
-
-    function getPrimitive(entry) {
-        return entry[0];
-    }
-
-    function getFormal(entry) {
-        return entry[1];
-    }
-
-    function bindProcs(env, formal) {
-        for(let name in procs) {
-            let entry = procs[name];
-            if (containsFormalString(entry)) {
-                env[name] = getPrimitive(entry);
-                formal[name] = getFormal(entry);
-            } else {
-                env[name] = entry;
-            }
-        }
-    }
-    turtle.bindProcs = bindProcs;
-
-    return turtle;
+    return graphics;
 };
 
 if (typeof exports != "undefined") {

@@ -36,6 +36,17 @@ Constants.LOGO_METHOD = {
 };
 Object.freeze(Constants.LOGO_METHOD);
 
+Constants.LOGO_LIBRARY = {
+    "DATA_STRUCT": "ds",
+    "COMMM": "comm",
+    "ARITHMETIC_LOGIC": "al",
+    "GRAPHICS": "graphics",
+    "WORKSPACE_MGMT": "ws",
+    "CTRL_STRUCT": "ctrl",
+    "OS": "os"
+};
+Object.freeze(Constants.LOGO_LIBRARY);
+
 Constants.MAX_UNDO_DEPTH = 100;
 
 if (typeof exports != "undefined") {

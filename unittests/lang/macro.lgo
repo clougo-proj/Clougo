@@ -1,0 +1,14 @@
+.macro f :a :b
+output (list :a :b)
+end
+
+.macro myRepeat :myRepeat.count :myRepeat.template
+    if (:myRepeat.count = 0) [output []]
+    output (se :myRepeat.template (list "myRepeat :myRepeat.count-1 :myRepeat.template))
+end
+
+f "pr "\"hello
+
+make "count 0
+myRepeat 3[make "count :count+1]
+pr :count

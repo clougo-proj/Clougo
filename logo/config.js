@@ -12,6 +12,7 @@ $obj.create = function create(sys, origConfigMap = undefined) {
         unusedValue : true,  // raise runtime exception for unactionable datum
         genCommand : true,        // use codegen for interactive commands
         dynamicScope: true,
+        eagerJitInstrList: false, // transpile instruction list at first encounter
         verbose: false,
         postfix: false,
         deepCallStack: false,

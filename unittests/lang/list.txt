@@ -31,3 +31,5 @@ to run exec
 to2 run exec
 to2_err runl execl
 stopOutputInd run exec
+macro run exec
+macro_err runl execl execl,+eagerJitInstrList

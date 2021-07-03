@@ -1144,6 +1144,11 @@ $obj.create = function(logo, sys) {
             logo.type.srcmapToJs(srcmap), ",[ \"", escapeProcName(procName), "\"])");
     }
 
+    function genThrowInvalidMacroReturn(srcmap, procName) {
+        return Code.expr("throwRuntimeLogoException(logo.type.LogoException.INVALID_MACRO_RETURN,",
+            logo.type.srcmapToJs(srcmap), ",[$ret, \"", escapeProcName(procName), "\"])");
+    }
+
     function genCompoundObj(curToken, srcmap) {
         let code = Code.expr();
         if (!logo.type.isLogoProc(curToken)) {
@@ -1203,6 +1208,31 @@ $obj.create = function(logo, sys) {
         return genPostfixPrimitiveCall("run", srcmap, [Code.expr("$ret=", deferredCallTemplate)]);
     }
 
+    function genMacroCall(evxContext, curToken, srcmap, isInParen) {
+        let code = Code.expr();
+        let macroOutput = genUserProcCall(evxContext, curToken, srcmap, isInParen);
+
+        logo.env.setAsyncFunctionCall(true);
+        let postfix = logo.config.get("postfix") || macroOutput.postFix();
+        if (!postfix) {
+            code.append("{let $macro=", macroOutput, ";\n");
+        } else {
+            code.append(macroOutput, ";\n", "{let $macro=$ret;\n");
+        }
+
+        code.append("if(!logo.type.isLogoList($macro)){", genThrowInvalidMacroReturn(srcmap, curToken), "}\n");
+
+        if (!postfix) {
+            code.append(genInfixPrimitiveCall("run", logo.type.SRCMAP_NULL, ["$macro"]).prepend("$ret="));
+        } else {
+            code.append(genPostfixPrimitiveCall("run", logo.type.SRCMAP_NULL, ["$ret=$macro"]).prepend("$ret="));
+        }
+
+        code.append("}");
+
+        return code;
+    }
+
     function genCall(evxContext, curToken, srcmap, isInParen) {
         let code = Code.expr();
 
@@ -1216,7 +1246,11 @@ $obj.create = function(logo, sys) {
         } else if (curToken in logo.lrt.primitive) {
             code.append(genPrimitiveCall(evxContext, curToken, srcmap, isInParen));
         } else if (curToken in logo.env._ws) {
-            code.append(genUserProcCall(evxContext, curToken, srcmap, isInParen));
+            if (!logo.env._isMacro[curToken]) {
+                code.append(genUserProcCall(evxContext, curToken, srcmap, isInParen));
+            } else {
+                code.append(genMacroCall(evxContext, curToken, srcmap, isInParen));
+            }
         } else {
             code.append(_isLambda ? genThrowUnknownProc(srcmap, curToken) : genDeferredCall(evxContext, isInParen));
         }

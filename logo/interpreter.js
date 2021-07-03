@@ -95,7 +95,11 @@ $obj.create = function(logo, sys) {
         let j = 0;
 
         await processActualParams();
-        await processOptionalParams();
+
+        if (formal.params !== undefined) {
+            await processOptionalParams();
+        }
+
         processRestParam();
         return nextActualParam;
 
@@ -108,18 +112,21 @@ $obj.create = function(logo, sys) {
         }
 
         async function processOptionalParams() {
-            if (formal.params !== undefined) {
-                while (j < formal.params.length) {
-                    sys.assert(formal.params[j] !== undefined);
-                    sys.assert(formal.paramTemplates[j] !== undefined);
-                    let param = await evxInstrList(formal.paramTemplates[j], {}, true, true);
-                    nextActualParam.push(param);
-                    if (evalScope) {
-                        curScope[formal.params[j]] = param;
-                    }
+            if (!evalScope) {
+                j = formal.params.length;
+                return;
+            }
 
-                    j += 1;
+            while (j < formal.params.length) {
+                sys.assert(formal.params[j] !== undefined);
+                sys.assert(formal.paramTemplates[j] !== undefined);
+                let param = await evxInstrList(formal.paramTemplates[j], {}, true, true);
+                nextActualParam.push(param);
+                if (evalScope) {
+                    curScope[formal.params[j]] = param;
                 }
+
+                j += 1;
             }
         }
 
@@ -241,22 +248,39 @@ $obj.create = function(logo, sys) {
         }
     }
 
+    async function evxMacroOutput(macroOutput, curToken, curSrcmap) {
+        if (!logo.type.isLogoList(macroOutput)) {
+            throw logo.type.LogoException.INVALID_MACRO_RETURN.withParam([macroOutput, curToken], curSrcmap);
+        }
+
+        logo.env.setPrimitiveName("run");
+        logo.env.setPrimitiveSrcmap(logo.type.SRCMAP_NULL);
+
+        return await logo.lrt.primitive["run"].apply(undefined, [macroOutput]);
+    }
+
     async function evxCallProc(evxContext, curToken, curSrcmap, isInParen) {
         if (isProcJsDefined(curToken)) {
             let callTarget = logo.env._user[curToken];
             logo.env.prepareCallProc(curToken, curSrcmap);
-            let callParams =  await evxProcCallParam(evxContext, curToken, logo.env._ws[curToken].formalParams, 0, isInParen);
+            let callParams =  await evxProcCallParam(evxContext, curToken, logo.env._ws[curToken].formalParams, 0, isInParen, false);
             evxContext.retVal = await callTarget.apply(undefined, callParams);
+            logo.env.completeCallProc();
+            if (logo.env._isMacro[curToken]) {
+                evxContext.retVal = await evxMacroOutput(evxContext.retVal, curToken, curSrcmap);
+            }
         } else if (isProcBodyDefined(curToken)) {
             let callTarget = logo.env._ws[curToken];
             logo.env.prepareCallProc(curToken, curSrcmap);
             await evxProcCallParam(evxContext, curToken, callTarget.formalParams, 0, isInParen);
             evxContext.retVal = await evxProcBody(callTarget);
+            logo.env.completeCallProc();
+            if (logo.env._isMacro[curToken]) {
+                evxContext.retVal = await evxMacroOutput(evxContext.retVal, curToken, curSrcmap);
+            }
         } else {
             throw logo.type.LogoException.UNKNOWN_PROC.withParam([curToken], curSrcmap);
         }
-
-        logo.env.completeCallProc();
     }
 
     function isProcBodyDefined(procName) {

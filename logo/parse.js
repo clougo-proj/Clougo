@@ -11,6 +11,12 @@ $obj.create = function(logo, sys) {
 
     const LOGO_EVENT = logo.constants.LOGO_EVENT;
 
+    const PROC_DECL = "to";
+
+    const MACRO_DECL = ".macro";
+
+    const NOT_APPLICABLE = -1;
+
     const Delimiter = (() => {
         const SP_NONE = 0,
             SP_BASE = 0x1,
@@ -351,14 +357,14 @@ $obj.create = function(logo, sys) {
         let retsrcmap = logo.type.makeLogoList();
         let ret = logo.type.makeLogoList(undefined, retsrcmap);
 
-        let lastto = -1;
+        let lastto = NOT_APPLICABLE;
 
         parseCode.forEach((word, index) => {
-            if (sys.equalToken(word, "to") && lastto === -1) {
+            if ((sys.equalToken(word, PROC_DECL) || sys.equalToken(word, MACRO_DECL)) && lastto === NOT_APPLICABLE) {
                 lastto = ret.length;
             }
 
-            if (sys.equalToken(word, "end") && lastto !== -1) {
+            if (sys.equalToken(word, "end") && lastto !== NOT_APPLICABLE) {
                 defineParsedProc();
                 return;
             }
@@ -378,20 +384,20 @@ $obj.create = function(logo, sys) {
         }
 
         function defineParsedProc() {
-            sys.assert(lastto != -1, "end without to?");
+            sys.assert(lastto != NOT_APPLICABLE, "end without to?");
             let procName = ret[lastto + 1].toLowerCase();
             let formal = processFormalParam(ret[lastto + 2]);
             let formalSrcmap = retsrcmap[lastto + 2];
             let body = logo.type.makeLogoList(ret.slice(lastto + 3));
             let bodySrcmap = logo.type.makeLogoList(retsrcmap.slice(lastto + 3));
 
-            logo.env.defineLogoProcSignatureAtParse(procName, formal, formalSrcmap);
+            logo.env.defineLogoProcSignatureAtParse(procName, formal, formalSrcmap, ret[lastto] == MACRO_DECL);
 
             ret.splice(lastto, ret.length - lastto, logo.type.makeLogoProc([procName, formal, body]));
             retsrcmap.splice(lastto, retsrcmap.length - lastto,
                 logo.type.makeLogoProc([procName, formalSrcmap, bodySrcmap]));
 
-            lastto = -1;
+            lastto = NOT_APPLICABLE;
         }
     }; // parse.parseProc
 
@@ -408,8 +414,8 @@ $obj.create = function(logo, sys) {
             }
 
             if (_parseStack.length == 0) {
-                if (sys.equalToken(_parseWord, "to")) {
-                    sys.assert(_parseLastTo == -1, "Nested formal param list?");
+                if (sys.equalToken(_parseWord, PROC_DECL) || sys.equalToken(_parseWord, MACRO_DECL)) {
+                    sys.assert(_parseLastTo == NOT_APPLICABLE, "Nested formal param list?");
                     _parseLastTo = _parseData.length;
                     _parseInProc = true;
                 } else if (sys.equalToken(_parseWord, "end")) {
@@ -442,9 +448,9 @@ $obj.create = function(logo, sys) {
                 insertParseWord();
             }
 
-            if (_parseStack.length == 0 && _parseLastTo != -1) {
+            if (_parseStack.length == 0 && _parseLastTo != NOT_APPLICABLE) {
                 convertFormalParam();
-                _parseLastTo = -1;
+                _parseLastTo = NOT_APPLICABLE;
             } else if (_parseStack.length == 0) {
                 insertParseWord(logo.type.NEWLINE, s.length);
             }
@@ -613,7 +619,7 @@ $obj.create = function(logo, sys) {
         _parseLine = srcLine === undefined ? 0 : srcLine;
         _parseCol = 0;
         _parseSource = srcidx;
-        _parseLastTo = -1;
+        _parseLastTo = NOT_APPLICABLE;
 
         tryParseLines(s.split(/\r?\n/));
 
@@ -633,7 +639,7 @@ $obj.create = function(logo, sys) {
         _parseLine = 0;
         _parseCol = 0;
         _parseSource = 0;
-        _parseLastTo = -1;
+        _parseLastTo = NOT_APPLICABLE;
 
         parse.line(s);
         let ret = _parseData.slice(2, _parseData.length - 1);

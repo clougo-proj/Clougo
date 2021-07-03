@@ -325,8 +325,10 @@ $obj.create = function(logo, sys, ext) {
 
         env._scopeStack = [_globalScope];
         env._ws = {};
+        env._isMacro = {};
         env._user = {};
         env._userBlock = new WeakMap();
+        env._userBlockCalled = new WeakMap();
         env._callstack = [];
         env._curProc = undefined;
         env._curSlot = undefined;
@@ -404,8 +406,9 @@ $obj.create = function(logo, sys, ext) {
     }
     env.defineLogoProc = defineLogoProc;
 
-    function defineLogoProcSignatureAtParse(procName, formal, formalSrcmap = logo.type.SRCMAP_NULL) {
+    function defineLogoProcSignatureAtParse(procName, formal, formalSrcmap = logo.type.SRCMAP_NULL, isMacro = false) {
         env._ws[procName] = makeWorkspaceProcedure(formal, formalSrcmap);
+        env._isMacro[procName] = isMacro;
     }
     env.defineLogoProcSignatureAtParse = defineLogoProcSignatureAtParse;
 
@@ -803,7 +806,7 @@ $obj.create = function(logo, sys, ext) {
             logo.env.checkSlotLength(logo.type.LAMBDA_EXPR, slot.param, inputListSrcmap, formalParam.length);
         }
 
-        if (getGenJs()) {
+        if (getGenJs() && (env._userBlockCalled.has(template) || logo.config.get("eagerJitInstrList"))) {
             let scopeStackLength = env._scopeStack.length;
             if (pushCallStack) {
                 prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
@@ -819,6 +822,7 @@ $obj.create = function(logo, sys, ext) {
             return retVal;
         }
 
+        env._userBlockCalled.set(template, true);
         let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
         if (formalParam === undefined) {
             let scopeStackLength = env._scopeStack.length;

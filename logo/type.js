@@ -1012,6 +1012,10 @@ $obj.create = function(logo, sys) {
             return outterBracket ? "[]" : "";
         }
 
+        if (v === undefined) {
+            return "no value";
+        }
+
         if (!(isLogoList(v) || isLogoArray(v))) {
             return scalarToString(v);
         }
@@ -1039,6 +1043,7 @@ $obj.create = function(logo, sys) {
             "UNEXPECTED_TOKEN"      : 12,
             "UNKNOWN_PROC"          : 13,
             "NESTED_TO"             : 23,
+            "INVALID_MACRO_RETURN"  : 29,
             "CANT_OPEN_FILE"        : 40,
             "NOT_SAME_LENGTH"       : 1022,
             "TOO_MANY_INPUTS"       : 1023,
@@ -1060,6 +1065,7 @@ $obj.create = function(logo, sys) {
             12 : "Unexpected '{0}'",
             13 : "I don't know how to {0}",
             23 : "Can't use TO inside a procedure",
+            29 : "Macro {1} returned {0} instead of a list.",
             40 : "I can't open file {0}",
             1022  : "Inputs of {0} have different lengths",
             1023  : "Too many inputs to {0}",

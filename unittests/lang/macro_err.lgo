@@ -1,0 +1,14 @@
+.macro noOutput
+end
+
+.macro returnsWord
+output "hello
+end
+
+.macro returnsArray
+output {}
+end
+
+noOutput
+returnsWord
+returnsArray

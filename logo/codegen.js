@@ -471,8 +471,8 @@ $obj.create = function(logo, sys) {
         let forStepStmt = forLoopCtrl.hasNext() ? genToken(forLoopCtrl.next()) : Code.expr("$ret=$forDecrease?-1:1");
 
         if (forBeginStmt == CODEGEN_CONSTANTS.NOP || forEndStmt == CODEGEN_CONSTANTS.NOP) {
-            return Code.stmt("throwRuntimeLogoException(logo.type.LogoException.INVALID_INPUT,",
-                logo.type.srcmapToJs(srcmap), ",['for','", logo.type.toString(token, true), "']);\n");
+            return Code.stmt(genThrow(logo.type.LogoException.INVALID_INPUT,
+                srcmap, quoteToken("for"), quoteToken(logo.type.toString(token, true))), ";\n");
         }
 
         if (!logo.type.isLogoList(evxContext.peekNextToken())) {
@@ -482,13 +482,16 @@ $obj.create = function(logo, sys) {
 
         return Code.stmt("{")
             .append(forBeginStmt)
+            .append(";")
             .append(genValidateNumber(srcmap, token))
             .append("const $forBegin=sys.toNumberIfApplicable($ret);\n")
             .append(forEndStmt)
+            .append(";")
             .append(genValidateNumber(srcmap, token))
             .append("const $forEnd=sys.toNumberIfApplicable($ret);\n")
             .append("const $forDecrease = $forEnd < $forBegin;\n")
             .append(forStepStmt)
+            .append(";")
             .append(genValidateNumber(srcmap, token))
             .append("const $forStep=sys.toNumberIfApplicable($ret);\n")
             .append("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n")
@@ -500,7 +503,7 @@ $obj.create = function(logo, sys) {
     }
 
     function genValidateNumber(srcmap, token) {
-        return Code.stmt(";\nlogo.type.validateNumber($ret,logo.type.LogoException.INVALID_INPUT,",
+        return Code.stmt("logo.type.validateNumber($ret,logo.type.LogoException.INVALID_INPUT,",
             logo.type.srcmapToJs(srcmap), ",['for','", logo.type.toString(token, true), "']);\n");
     }
 
@@ -816,9 +819,7 @@ $obj.create = function(logo, sys) {
         if (logo.type.isNumericConstant(curToken)) {
             return Code.expr(Number(curToken)).captureRetVal();
         } else if (logo.type.isStopStmt(curToken)) {
-            return (!_isLambda) ? Code.expr("return") :
-                Code.expr("throwRuntimeLogoException(logo.type.LogoException.STOP,", logo.type.srcmapToJs(srcmap), ",[\"",
-                    curToken, "\"])");
+            return (!_isLambda) ? Code.expr("return") : genThrow(logo.type.LogoException.STOP, srcmap, quoteToken(curToken));
         } else if (logo.type.isOutputStmt(curToken)) {
             return (!_isLambda) ? Code.expr(genToken(evxContext.next())).append(";return $ret") :
                 genThrowOutputException(evxContext);
@@ -845,20 +846,17 @@ $obj.create = function(logo, sys) {
         let nextTokenCode = genToken(evxContext.next());
         let postfix = logo.config.get("postfix") || nextTokenCode.postFix();
         if (!postfix) {
-            return Code.expr("throwRuntimeLogoException(logo.type.LogoException.OUTPUT,", logo.type.srcmapToJs(srcmap), ",[")
-                .append(nextTokenCode)
-                .append("])");
+            return genThrow(logo.type.LogoException.OUTPUT, srcmap, nextTokenCode);
         }
 
         return nextTokenCode.append(";")
-            .append("throwRuntimeLogoException(logo.type.LogoException.OUTPUT,", logo.type.srcmapToJs(srcmap), ",[$ret]);");
+            .append(genThrow(logo.type.LogoException.OUTPUT, srcmap, "$ret"))
+            .append(";");
     }
 
     function genThrowNoOutput(evxContext, procName) {
-        return Code.expr()
-            .append("throwRuntimeLogoException(logo.type.LogoException.NO_OUTPUT,")
-            .append(logo.type.srcmapToJs(evxContext.getSrcmap()))
-            .append(",['", evxContext.proc, "','", procName, "'])");
+        return genThrow(logo.type.LogoException.NO_OUTPUT, evxContext.getSrcmap(),
+            quoteToken(evxContext.proc), quoteToken(procName));
     }
 
     function genProcInput(evxContext, precedence, isInParen, procName, throwsNotEnoughInputs = true) {
@@ -949,11 +947,7 @@ $obj.create = function(logo, sys) {
         code.append(codeFromToken);
 
         if (evxContext.next().getToken() != logo.type.CLOSE_PAREN) {
-            code.append(
-                "(throwRuntimeLogoException(",
-                "logo.type.LogoException.TOO_MUCH_INSIDE_PAREN,",
-                logo.type.srcmapToJs(evxContext.getSrcmap()),
-                "))");
+            code.append(genThrow(logo.type.LogoException.TOO_MUCH_INSIDE_PAREN, evxContext.getSrcmap()));
         }
 
         return code;
@@ -1134,19 +1128,27 @@ $obj.create = function(logo, sys) {
         return code;
     }
 
+    function quoteToken(s) {
+        return "\"" + s + "\"";
+    }
+
     function genThrowNotEnoughInputs(srcmap, procName) {
-        return Code.expr("throwRuntimeLogoException(logo.type.LogoException.NOT_ENOUGH_INPUTS,",
-            logo.type.srcmapToJs(srcmap), ",[ \"", escapeProcName(procName), "\"])");
+        return genThrow(logo.type.LogoException.NOT_ENOUGH_INPUTS, srcmap, quoteToken(escapeProcName(procName)));
     }
 
     function genThrowUnknownProc(srcmap, procName) {
-        return Code.expr("throwRuntimeLogoException(logo.type.LogoException.UNKNOWN_PROC,",
-            logo.type.srcmapToJs(srcmap), ",[ \"", escapeProcName(procName), "\"])");
+        return genThrow(logo.type.LogoException.UNKNOWN_PROC, srcmap, quoteToken(escapeProcName(procName)));
     }
 
     function genThrowInvalidMacroReturn(srcmap, procName) {
-        return Code.expr("throwRuntimeLogoException(logo.type.LogoException.INVALID_MACRO_RETURN,",
-            logo.type.srcmapToJs(srcmap), ",[$ret, \"", escapeProcName(procName), "\"])");
+        return genThrow(logo.type.LogoException.INVALID_MACRO_RETURN, srcmap, "$ret", quoteToken(escapeProcName(procName)));
+    }
+
+    function genThrow(logoException, srcmap, ...param) {
+        return Code.expr("(throwRuntimeLogoException(logo.type.LogoException.", logoException.name(), ",")
+            .append(logo.type.srcmapToJs(srcmap))
+            .append(",[", param.join(","), "]")
+            .append("))");
     }
 
     function genCompoundObj(curToken, srcmap) {

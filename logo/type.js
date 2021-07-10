@@ -9,6 +9,8 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const type = {};
 
+    const LOGO_EXCEPTIONS = logo.constants.LOGO_EXCEPTIONS;
+
     const LIST_HEAD_SIZE = 2;
     const ARRAY_HEAD_SIZE = 2;
     const SRCMAP_NULL = 0;
@@ -1032,48 +1034,20 @@ $obj.create = function(logo, sys) {
     type.toString = toString;
 
     const LogoException = (() => {
-        const codemap = {
-            // name : code
-            "NO_OUTPUT"             : 5,
-            "NOT_ENOUGH_INPUTS"     : 6,
-            "INVALID_INPUT"         : 7,
-            "TOO_MUCH_INSIDE_PAREN" : 8,
-            "UNACTIONABLE_DATUM"    : 9,
-            "VAR_HAS_NO_VALUE"      : 11,
-            "UNEXPECTED_TOKEN"      : 12,
-            "UNKNOWN_PROC"          : 13,
-            "NESTED_TO"             : 23,
-            "INVALID_MACRO_RETURN"  : 29,
-            "CANT_OPEN_FILE"        : 40,
-            "NOT_SAME_LENGTH"       : 1022,
-            "TOO_MANY_INPUTS"       : 1023,
-            "LAST_ERROR_CODE"       : 1024,
-            "NO_HELP_AVAILABLE"     : 65531,
-            "CUSTOM"                : 65532,
-            "OUTPUT"                : 65534,
-            "STOP"                  : 65535
-        };
 
-        const msgmap = {
-            // code : message
-            5  : "{0} didn't output to {1}",
-            6  : "Not enough inputs to {0}",
-            7  : "{0} doesn't like {1} as input",
-            8  : "Too much inside ()'s",
-            9  : "You don't say what to do with {0}",
-            11 : "{0} has no value",
-            12 : "Unexpected '{0}'",
-            13 : "I don't know how to {0}",
-            23 : "Can't use TO inside a procedure",
-            29 : "Macro {1} returned {0} instead of a list.",
-            40 : "I can't open file {0}",
-            1022  : "Inputs of {0} have different lengths",
-            1023  : "Too many inputs to {0}",
-            65531 : "No help available on {0}.",
-            65532 : "Can't find catch tag for {0}",
-            65534 : "Can only use output inside a procedure",
-            65535 : "Can only use stop inside a procedure"
-        };
+        const codemap = {};
+
+        const msgmap = {};
+
+        const namemap = {};
+
+        for (let name in LOGO_EXCEPTIONS) {
+            let code = LOGO_EXCEPTIONS[name][0];
+            let msg = LOGO_EXCEPTIONS[name][1];
+            namemap[code] = name;
+            codemap[name] = code;
+            msgmap[code] = msg;
+        }
 
         const LogoException = {};
 
@@ -1088,6 +1062,7 @@ $obj.create = function(logo, sys) {
         LogoException.getMessage = getMessage;
 
         LogoException.prototype = {
+            name: function() { return namemap[this._code]; },
             isError: function() { return this._code < codemap.LAST_ERROR_CODE; },
             isCustom: function() { return this._code == codemap.CUSTOM; },
             isStop: function() { return this._code == codemap.STOP; },

@@ -6,6 +6,9 @@
 "use strict";
 
 var Constants = {};
+
+Constants.MAX_UNDO_DEPTH = 100;
+
 Constants.LOGO_EVENT = {
     "BUSY": "busy",
     "READY": "ready",
@@ -47,7 +50,27 @@ Constants.LOGO_LIBRARY = {
 };
 Object.freeze(Constants.LOGO_LIBRARY);
 
-Constants.MAX_UNDO_DEPTH = 100;
+Constants.LOGO_EXCEPTIONS = {
+    NO_OUTPUT             : [5, "{0} didn't output to {1}"],
+    NOT_ENOUGH_INPUTS     : [6, "Not enough inputs to {0}"],
+    INVALID_INPUT         : [7, "{0} doesn't like {1} as input"],
+    TOO_MUCH_INSIDE_PAREN : [8, "Too much inside ()'s"],
+    UNACTIONABLE_DATUM    : [9, "You don't say what to do with {0}"],
+    VAR_HAS_NO_VALUE      : [11, "{0} has no value"],
+    UNEXPECTED_TOKEN      : [12, "Unexpected '{0}'"],
+    UNKNOWN_PROC          : [13, "I don't know how to {0}"],
+    NESTED_TO             : [23, "Can't use TO inside a procedure"],
+    INVALID_MACRO_RETURN  : [29, "Macro {1} returned {0} instead of a list."],
+    CANT_OPEN_FILE        : [40, "I can't open file {0}"],
+    NOT_SAME_LENGTH       : [1022, "Inputs of {0} have different lengths"],
+    TOO_MANY_INPUTS       : [1023, "Too many inputs to {0}"],
+    LAST_ERROR_CODE       : [1024],
+    NO_HELP_AVAILABLE     : [65531, "No help available on {0}."],
+    CUSTOM                : [65532, "Can't find catch tag for {0}"],
+    OUTPUT                : [65534, "Can only use output inside a procedure"],
+    STOP                  : [65535, "Can only use stop inside a procedure"]
+};
+Object.freeze(Constants.LOGO_EXCEPTIONS);
 
 if (typeof exports != "undefined") {
     exports.Constants = Constants;

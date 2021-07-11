@@ -602,7 +602,7 @@ $obj.create = function(logo, sys) {
     }
 
     function genUserProcCall(evxContext, curToken, srcmap, isInParen) {
-        let param = genUserProcCallParams(evxContext, curToken, logo.env._ws[curToken].formalParams, 0, isInParen);
+        let param = genUserProcCallParams(evxContext, curToken, logo.env.getProcFormal(curToken), 0, isInParen);
         let postfix = logo.config.get("postfix") || containsPostFix(param);
         return !postfix ? genInfixUserProcCall(curToken, srcmap, param) :
             genPostfixUserProcCall(curToken, srcmap, param);
@@ -1025,9 +1025,7 @@ $obj.create = function(logo, sys) {
         let procName = logo.type.getLogoProcName(proc);
         _isLambda = false;
 
-        sys.assert(logo.env._ws[procName].formalParams !== undefined);
-
-        return genProcBody(procName, logo.env._ws[procName].formalParams, logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
+        return genProcBody(procName, logo.env.getProcFormal(procName), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
             .prepend("logo.env._user[\"", escapeProcName(procName), "\"]=");
     }
     codegen.genProc = genProc;

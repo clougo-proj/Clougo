@@ -935,6 +935,12 @@ $obj.create = function(logo, sys, ext) {
     }
     env.makeSlotObj = makeSlotObj;
 
+    function getProcFormal(procName) {
+        sys.assert(logo.env._ws[procName].formalParams !== undefined);
+        return env._ws[procName].formalParams;
+    }
+    env.getProcFormal = getProcFormal;
+
     return env;
 };
 

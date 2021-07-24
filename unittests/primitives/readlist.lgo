@@ -4,3 +4,5 @@ show :userInput = rl
 pr count :userInput
 show item 1 :userInput
 show item 2 :userInput
+make "userInput2 readlist
+pr count :userInput2

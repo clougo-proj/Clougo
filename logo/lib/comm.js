@@ -49,7 +49,39 @@ $obj.create = function(logo) {
 
     async function primitiveReadlist() {
         let userInput = await readHelper();
-        return logo.type.makeLogoList(userInput.split(" "));
+        let newList = logo.type.makeLogoList();
+        let bs = false;
+        let vb = false;
+        var word = "";
+        for (var i = 0; i < userInput.length; i++) {
+            if (userInput.charAt(i) === "\\" && i + 1 != userInput.length) {
+                bs = true;
+            } else if (bs === true) {
+                word += userInput.charAt(i);
+                bs = false;
+            } else if (vb === true) {
+                if (userInput.charAt(i) === "|") {
+                    vb = false;
+                } else {
+                    word += userInput.charAt(i);
+                }
+            } else if (bs === false && vb === false) {
+                if (userInput.charAt(i) === " ") {
+                    newList.push(word);
+                    word = "";
+                } else if (userInput.charAt(i) === "|") {
+                    vb = true;
+                } else {
+                    word = word + userInput.charAt(i);
+                }
+            }
+        }
+
+        if (word != "") {
+            newList.push(word);
+        }
+
+        return newList;
     }
 
     async function readHelper() {

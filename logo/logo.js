@@ -67,15 +67,15 @@ Logo.create = function(ext, config=undefined) {
     logo.entry = ext.entry;
 
     logo.constants = constants;
+    logo.config = (config === undefined) ? fromJs("./config.js").create(sys) : config;
     logo.type = fromJs("./type.js").create(logo, sys);
-    logo.lrt = fromJs("./lrt.js").create(logo, sys);
+    logo.trace = fromJs("./trace.js").create(logo, sys);
+    logo.env = fromJs("./env.js").create(logo, sys, ext);
     logo.interpreter = fromJs("./interpreter.js").create(logo, sys);
     logo.codegen = fromJs("./codegen.js").create(logo, sys);
     logo.parse = fromJs("./parse.js").create(logo, sys);
-    logo.env = fromJs("./env.js").create(logo, sys, ext);
+    logo.lrt = fromJs("./lrt.js").create(logo, sys);
     logo.logofs = fromJs("./logofs.js").create(logo, sys);
-    logo.config = (config === undefined) ? fromJs("./config.js").create(sys) : config;
-    logo.trace = fromJs("./trace.js").create(logo, sys);
 
     logo.env.initLogoEnv();
 

@@ -30,47 +30,12 @@ $obj.create = function(logo, sys) {
         for (let name in methods) {
             let entry = methods[name];
             if (containsFormalString(entry)) {
-                primitive[name] = getPrimitive(entry);
-                primitiveFormalString[name] = getFormal(entry);
+                logo.env.bindPrimitive(name, getPrimitive(entry), logo.parse.parseSignature(getFormal(entry)));
             } else {
-                primitive[name] = entry;
+                logo.env.bindPrimitive(name, entry);
             }
         }
     }
-
-    async function primitiveDemo(name) {
-        let option = undefined;
-        if (logo.type.isLogoList(name)) {
-            option = logo.type.listItem(2, name).toLowerCase();
-            name = logo.type.listItem(1, name).toLowerCase();
-        } else {
-            name = name.toLowerCase();
-        }
-
-        let demoFileName = name + ".lgo";
-
-        let src = logo.logofs.get("/demo/" + demoFileName);
-
-        if (option !== undefined && option == "load") {
-            logo.io.editorLoad(src);
-        }
-
-        await logo.entry.exec(src);
-    }
-
-    async function dotTest(testName, testMethod) {
-        await logo.entry.runSingleTest(testName, testMethod);
-    }
-
-    let primitiveFormalString = {};
-
-    let primitive = {
-
-        "demo": primitiveDemo,
-
-        ".test": dotTest
-    };
-    lrt.primitive = primitive;
 
     let logoLibrary = {};
 
@@ -86,38 +51,7 @@ $obj.create = function(logo, sys) {
 
     Object.values(LOGO_LIBRARY).forEach((libName) => bindPrimitiveMethods(libName));
 
-    lrt.getPrimitiveFormal = (function() {
-        const primitiveFormal = {};
-        return function getPrimitiveFormal(primitiveName) {
-            if (!(primitiveName in primitiveFormal)) {
-                if (primitiveName in primitiveFormalString) {
-                    primitiveFormal[primitiveName] =
-                        logo.env.captureFormalParams(logo.parse.parseSignature(primitiveFormalString[primitiveName]));
-                } else {
-                    sys.assert(primitiveName in primitive);
-                    primitiveFormal[primitiveName] = logo.env.makeDefaultFormal(primitive[primitiveName].length);
-                }
-            }
-
-            return primitiveFormal[primitiveName];
-        };
-    })();
-
     lrt.util = {};
-
-    function getPrimitiveCallTarget(name) {
-        return (name in lrt.primitive) ? lrt.primitive[name] : undefined;
-    }
-    lrt.util.getPrimitiveCallTarget = getPrimitiveCallTarget;
-
-    function logoVar(v, varname, srcmap) {
-        if (v === undefined) {
-            throw logo.type.LogoException.VAR_HAS_NO_VALUE.withParam([varname], srcmap);
-        }
-
-        return v;
-    }
-    lrt.util.logoVar = logoVar;
 
     const unaryOperator = {
         " -" : 2, // unary minus operator in ambiguous context
@@ -135,16 +69,16 @@ $obj.create = function(logo, sys) {
     lrt.util.getPrimitivePrecedence = getPrimitivePrecedence;
 
     const binaryOperator = {
-        "+" :[2, primitive.sum],
-        "-" :[2, primitive.difference],
-        "*" :[3, primitive.product],
-        "/" :[3, primitive.quotient],
-        "==":[1, primitive.equalp, "equalp"],
-        "<>":[1, primitive.notequalp, "notequalp"],
-        ">=":[1, primitive.greaterequalp],
-        ">" :[1, primitive.greaterp],
-        "<=":[1, primitive.lessequalp],
-        "<" :[1, primitive.lessp]
+        "+" :[2, logo.env.getPrimitive("sum")],
+        "-" :[2, logo.env.getPrimitive("difference")],
+        "*" :[3, logo.env.getPrimitive("product")],
+        "/" :[3, logo.env.getPrimitive("quotient")],
+        "==":[1, logo.env.getPrimitive("equalp"), "equalp"],
+        "<>":[1, logo.env.getPrimitive("notequalp"), "notequalp"],
+        ">=":[1, logo.env.getPrimitive("greaterequalp")],
+        ">" :[1, logo.env.getPrimitive("greaterp")],
+        "<=":[1, logo.env.getPrimitive("lessequalp")],
+        "<" :[1, logo.env.getPrimitive("lessp")]
     };
 
     function isBinaryOperator(op) {

@@ -559,9 +559,9 @@ $obj.create = function(logo, sys) {
     function genLogoVarRef(curToken, srcmap) {
         let varName = logo.env.extractVarName(curToken);
         return _varScopes.isLocalVar(varName) ?
-            Code.expr("logo.lrt.util.logoVar(", toJsVarName(varName), ", \"", varName, "\",", logo.type.srcmapToJs(srcmap),
+            Code.expr("logo.env.logoVar(", toJsVarName(varName), ", \"", varName, "\",", logo.type.srcmapToJs(srcmap),
                 ")") :
-            Code.expr("logo.lrt.util.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"",
+            Code.expr("logo.env.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"",
                 varName, "\"", "], \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")");
     }
 
@@ -611,7 +611,7 @@ $obj.create = function(logo, sys) {
     function genInfixUserProcCall(curToken, srcmap, param) {
         let code = Code.expr()
             .append("(")
-            .append("\"", escapeProcName(curToken), "\" in logo.env._user ? (");
+            .append("logo.env.isJsUserProc(", quoteToken(escapeProcName(curToken)), ")?(");
 
         if (param.length === 0)  {
             code = code.append(genPrepareCall(curToken, srcmap));
@@ -623,7 +623,7 @@ $obj.create = function(logo, sys) {
                 .append("$ret)"));
         }
 
-        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env._user[\"", escapeProcName(curToken), "\"](")
+        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env.getJsUserProc(", quoteToken(escapeProcName(curToken)), ")(")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append(")),")
             .append(genCompleteCall())
@@ -642,7 +642,7 @@ $obj.create = function(logo, sys) {
 
         code.withPostFix(true);
 
-        code.append("if (!(\"", escapeProcName(curToken),"\" in logo.env._user)) {")
+        code.append("if (!logo.env.isJsUserProc(", quoteToken(escapeProcName(curToken)), ")) {")
             .append(genThrowUnknownProc(srcmap, curToken))
             .append("}\n");
 
@@ -655,8 +655,8 @@ $obj.create = function(logo, sys) {
         });
 
         code.append("$ret;\n");
-        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env._user[", "\"", escapeProcName(curToken), "\"",
-            "].apply(undefined,$param.end());\n");
+        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.getJsUserProc(", quoteToken(escapeProcName(curToken)),
+            ").apply(undefined,$param.end());\n");
 
         code.append(genCompleteCall());
         code.append("$ret;\n");
@@ -707,15 +707,11 @@ $obj.create = function(logo, sys) {
         }
     }
 
-    function isAsyncPrimitive(primitiveName) {
-        return logo.lrt.primitive[primitiveName].constructor.name === "AsyncFunction";
-    }
-
     function genPrimitiveCall(evxContext, curToken, srcmap, isInParen) {
-        let param = genUserProcCallParams(evxContext, curToken, logo.lrt.getPrimitiveFormal(curToken),
+        let param = genUserProcCallParams(evxContext, curToken, logo.env.getPrimitiveFormal(curToken),
             logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
 
-        if (isAsyncPrimitive(curToken)) {
+        if (logo.env.isAsyncPrimitive(curToken)) {
             logo.env.setAsyncFunctionCall(true);
         }
 
@@ -967,10 +963,10 @@ $obj.create = function(logo, sys) {
         _varScopes.exit();
 
         let ret = "$scopeCache={};" +
-                "logo.env._user.$ = async function(){\n" +
+                "logo.env.bindJsUserProc('$',async function(){\n" +
                 "let $scope={},$scopeCache={};\n" +
                 "logo.env._scopeStack.push($scope);\n" +
-                code + "logo.env._scopeStack.pop();}";
+                code + "logo.env._scopeStack.pop();})";
 
         _funcName = oldFuncName;
         return ret;
@@ -1026,7 +1022,8 @@ $obj.create = function(logo, sys) {
         _isLambda = false;
 
         return genProcBody(procName, logo.env.getProcFormal(procName), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
-            .prepend("logo.env._user[\"", escapeProcName(procName), "\"]=");
+            .prepend("logo.env.bindJsUserProc(", quoteToken(escapeProcName(procName)), ",(")
+            .append("));");
     }
     codegen.genProc = genProc;
 
@@ -1243,10 +1240,10 @@ $obj.create = function(logo, sys) {
             }
 
             code.append(nativeJsCode);
-        } else if (curToken in logo.lrt.primitive) {
+        } else if (logo.env.isPrimitive(curToken)) {
             code.append(genPrimitiveCall(evxContext, curToken, srcmap, isInParen));
-        } else if (curToken in logo.env._ws) {
-            if (!logo.env._isMacro[curToken]) {
+        } else if (logo.env.isUserProc(curToken)) {
+            if (!logo.env.isMacro(curToken)) {
                 code.append(genUserProcCall(evxContext, curToken, srcmap, isInParen));
             } else {
                 code.append(genMacroCall(evxContext, curToken, srcmap, isInParen));

@@ -213,14 +213,6 @@ $obj.create = function(logo, sys) {
         } else if (logo.type.isLogoSlot(curToken)) {
             evxContext.proc = "?";
             evxContext.retVal = logo.env.callPrimitive("?", curSrcmap, logo.env.extractSlotNum(curToken));
-        } else if (curToken in logo.lrt.primitive) {
-            evxContext.proc = curToken;
-            let actualParam = await evxProcCallRequiredParam(evxContext, curToken, logo.lrt.getPrimitiveFormal(curToken),
-                logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
-
-            logo.env.setPrimitiveName(curToken);
-            logo.env.setPrimitiveSrcmap(curSrcmap);
-            evxContext.retVal = await logo.lrt.primitive[curToken].apply(undefined, actualParam);
         } else {
             evxContext.proc = curToken;
             await evxCallProc(evxContext, curToken, curSrcmap, isInParen);
@@ -244,46 +236,34 @@ $obj.create = function(logo, sys) {
             throw logo.type.LogoException.INVALID_MACRO_RETURN.withParam([macroOutput, curToken], curSrcmap);
         }
 
-        logo.env.setPrimitiveName("run");
-        logo.env.setPrimitiveSrcmap(logo.type.SRCMAP_NULL);
+        logo.env.setProcName("run");
+        logo.env.setProcSrcmap(logo.type.SRCMAP_NULL);
 
-        return await logo.lrt.primitive["run"].apply(undefined, [macroOutput]);
+        return await logo.env.getPrimitive("run").apply(undefined, [macroOutput]);
     }
 
     async function evxCallProcDefault(...callParams) {
         let procName = logo.env.getPrimitiveName();
         await evxProcCallOptionalRestParam(logo.env.getProcFormal(procName), callParams);
-        return await evxProcBody(logo.env._ws[procName]);
+        return await evxProcBody(logo.env.getUserProcMetadata(procName));
     }
     interpreter.evxCallProcDefault = evxCallProcDefault;
 
     async function evxCallProc(evxContext, curToken, curSrcmap, isInParen) {
-        if (isProcUndefined(curToken)) {
+        if (!logo.env.isCallableProc(curToken)) {
             throw logo.type.LogoException.UNKNOWN_PROC.withParam([curToken], curSrcmap);
         }
 
-        let callTarget = isProcJsDefined(curToken) ?  logo.env._user[curToken] : evxCallProcDefault;
+        evxContext.proc = curToken;
         logo.env.prepareCallProc(curToken, curSrcmap);
-        let callParams =  await evxProcCallRequiredParam(evxContext, curToken, logo.env.getProcFormal(curToken), 0, isInParen);
-        logo.env.setPrimitiveName(curToken);
-        logo.env.setPrimitiveSrcmap(curSrcmap);
-        evxContext.retVal = await callTarget.apply(undefined, callParams);
-        logo.env.completeCallProc();
-        if (logo.env._isMacro[curToken]) {
+        let callParams =  await evxProcCallRequiredParam(evxContext, curToken, logo.env.getProcFormal(curToken), logo.env.getPrecedence(curToken), isInParen);
+        logo.env.setProcName(curToken);
+        logo.env.setProcSrcmap(curSrcmap);
+        evxContext.retVal = await logo.env.getCallTarget(curToken).apply(undefined, callParams);
+        logo.env.completeCallProc(curToken);
+        if (logo.env.isMacro(curToken)) {
             evxContext.retVal = await evxMacroOutput(evxContext.retVal, curToken, curSrcmap);
         }
-    }
-
-    function isProcBodyDefined(procName) {
-        return procName in logo.env._ws && logo.env._ws[procName].body !== undefined;
-    }
-
-    function isProcJsDefined(procName) {
-        return procName in logo.env._user;
-    }
-
-    function isProcUndefined(procName) {
-        return !isProcJsDefined(procName) && !isProcBodyDefined(procName);
     }
 
     async function evxCtrlInfixOperator(evxContext, nextOp, nextOpSrcmap, nextPrec) {
@@ -380,7 +360,7 @@ $obj.create = function(logo, sys) {
 
         logo.env.prepareCallProc(logo.type.LAMBDA_EXPR, logo.type.getReferenceSrcmap(bodyComp), slot);
         let retVal = await evxBody(parsedBlock, true);
-        logo.env.completeCallProc();
+        logo.env.completeCallProc(logo.type.LAMBDA_EXPR);
         return retVal;
     }
     interpreter.evxInstrList = evxInstrList;

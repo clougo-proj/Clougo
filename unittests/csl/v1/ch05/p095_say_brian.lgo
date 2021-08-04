@@ -1,0 +1,17 @@
+to say :word
+for [row 1 7] [foreach :word [sayrow :row ?] print []]
+print []
+end
+
+to sayrow :row :letter
+type item :row thing :letter
+type "|  |
+end
+
+make "b [|*****| |*   *| |*   *| |**** | |*   *| |*   *| |*****|]
+make "r [|*****| |*   *| |*   *| |*****| |* *  | |*  * | |*   *|]
+make "i [|*****| |  *  | |  *  | |  *  | |  *  | |  *  | |*****|]
+make "a [|  *  | | * * | |*   *| |*****| |*   *| |*   *| |*   *|]
+make "n [|*   *| |**  *| |**  *| |* * *| |*  **| |*  **| |*   *|]
+
+say "brian

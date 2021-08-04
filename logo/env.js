@@ -384,7 +384,7 @@ $obj.create = function(logo, sys, ext) {
         return env._userBlock.get(block)();
     }
 
-    function prepareCallProc(curToken, curSrcmap, curSlot) {
+    function prepareCallProc(curToken, curSrcmap, curSlot = env._curSlot) {
         if (isPrimitive(curToken)) {
             return;
         }

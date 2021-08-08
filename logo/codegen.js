@@ -185,7 +185,7 @@ $obj.create = function(logo, sys) {
         }
 
         appendInfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) {
-            return this.prepend("(\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), ",")
+            return this.prepend("(", quoteToken(nextOp), ",", logo.type.srcmapToJs(nextOpSrcmap), ",")
                 .prepend(ASYNC_MACRO.CALL_PRIMITIVE_OPERATOR)
                 .prepend("($ret=")
                 .append(",")
@@ -195,7 +195,7 @@ $obj.create = function(logo, sys) {
 
         appendPostfixBinaryOperatorExpr(nextOp, nextOpnd, nextOpSrcmap) {
             return this.withPostFix(true)
-                .prepend("$param.begin([\"", nextOp, "\",", logo.type.srcmapToJs(nextOpSrcmap), "]);\n")
+                .prepend("$param.begin([", quoteToken(nextOp), ",", logo.type.srcmapToJs(nextOpSrcmap), "]);\n")
                 .append(";\n$param.add($ret);\n")
                 .append(nextOpnd)
                 .append(";\n$param.add($ret);\n")
@@ -552,10 +552,10 @@ $obj.create = function(logo, sys) {
     function genLogoVarRef(curToken, srcmap) {
         let varName = logo.env.extractVarName(curToken);
         return _varScopes.isLocalVar(varName) ?
-            Code.expr("logo.env.logoVar(", toJsVarName(varName), ", \"", varName, "\",", logo.type.srcmapToJs(srcmap),
+            Code.expr("logo.env.logoVar(", toJsVarName(varName), ",", quoteToken(varName), ",", logo.type.srcmapToJs(srcmap),
                 ")") :
-            Code.expr("logo.env.logoVar(logo.env.findLogoVarScope(\"", varName, "\", $scopeCache)[\"",
-                varName, "\"", "], \"", varName, "\",", logo.type.srcmapToJs(srcmap), ")");
+            Code.expr("logo.env.logoVar(logo.env.findLogoVarScope(", quoteToken(varName), ",$scopeCache)[",
+                quoteToken(varName), "],", quoteToken(varName), ",", logo.type.srcmapToJs(srcmap), ")");
     }
 
     function genLogoVarLref(varName) {
@@ -565,7 +565,7 @@ $obj.create = function(logo, sys) {
 
     function genLogoSlotRef(curToken, srcmap) {
         let slotNum = logo.env.extractSlotNum(curToken);
-        return Code.expr("logo.env.callJsProc(\"?\",", logo.type.srcmapToJs(srcmap), ",", slotNum, ")");
+        return Code.expr("logo.env.callProc(\"?\",", logo.type.srcmapToJs(srcmap), ",", slotNum, ")");
     }
 
     function genInstrListCall(curToken, srcmap) {
@@ -598,14 +598,14 @@ $obj.create = function(logo, sys) {
         let code = Code.expr("(");
 
         if (!logo.env.isPrimitive(curToken)) {
-            code = code.append("logo.env.isJsProc(", quoteToken(escapeProcName(curToken)), ")?(")
+            code = code.append("logo.env.existsProcJsFunc(", quoteToken(escapeProcName(curToken)), ")?(")
                 .append(genPrepareCall(curToken, srcmap));
 
         } else if (logo.env.requiresStashLocalVar(curToken)) {
             code = code.append(genStashLocalVars());
         }
 
-        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callJsProc(")
+        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callProc(")
             .append(quoteToken(escapeProcName(curToken)), ",", logo.type.srcmapToJs(srcmap), ",")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append("),");
@@ -631,7 +631,7 @@ $obj.create = function(logo, sys) {
         let code = Code.expr().withPostFix(true);
 
         if (!logo.env.isPrimitive(curToken)) {
-            code = code.append("if (!logo.env.isJsProc(", quoteToken(escapeProcName(curToken)), ")) {")
+            code = code.append("if (!logo.env.existsProcJsFunc(", quoteToken(escapeProcName(curToken)), ")) {")
                 .append(genThrowUnknownProc(srcmap, curToken))
                 .append("}\n")
                 .append(genPrepareCall(curToken, srcmap));
@@ -650,7 +650,7 @@ $obj.create = function(logo, sys) {
         });
 
         code.append("$ret;\n");
-        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callJsProc.apply(undefined,$param.end());\n");
+        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callProc.apply(undefined,$param.end());\n");
 
         if (!logo.env.isPrimitive(curToken)) {
             code = code.append(genCompleteCall());
@@ -927,7 +927,7 @@ $obj.create = function(logo, sys) {
         }
 
         code.append("logo.env._callstack.push([logo.env._frameProcName," + logo.type.srcmapToJs(srcmap) + "]),");
-        code.append("logo.env._frameProcName=\"", escapeProcName(target), "\",\n");
+        code.append("logo.env._frameProcName=", quoteToken(escapeProcName(target)), ",\n");
 
         return code;
     }

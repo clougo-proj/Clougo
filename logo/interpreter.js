@@ -212,7 +212,7 @@ $obj.create = function(logo, sys) {
             evxContext.retVal = logo.type.getVarValue(logo.env.extractVarName(curToken), curSrcmap);
         } else if (logo.type.isLogoSlot(curToken)) {
             evxContext.proc = "?";
-            evxContext.retVal = logo.env.callJsProc("?", curSrcmap, logo.env.extractSlotNum(curToken));
+            evxContext.retVal = logo.env.callProc("?", curSrcmap, logo.env.extractSlotNum(curToken));
         } else {
             evxContext.proc = curToken;
             await evxCallProc(evxContext, curToken, curSrcmap, isInParen);
@@ -243,7 +243,7 @@ $obj.create = function(logo, sys) {
     }
 
     async function evxCallProcDefault(...callParams) {
-        let procName = logo.env.getPrimitiveName();
+        let procName = logo.env.getProcName();
         await evxProcCallOptionalRestParam(logo.env.getProcParsedFormal(procName), callParams);
         return await evxProcBody(logo.env.getUserProcMetadata(procName));
     }

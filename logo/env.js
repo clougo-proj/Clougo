@@ -37,6 +37,8 @@ $obj.create = function(logo, sys, ext) {
 
     const LOGO_LIBRARY = logo.constants.LOGO_LIBRARY;
 
+    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
+
     function createParamScope() {
         let _stack = [];
         let obj = {};
@@ -99,10 +101,10 @@ $obj.create = function(logo, sys, ext) {
     }
     env.setProcSrcmap = setProcSrcmap;
 
-    function getPrimitiveSrcmap() {
+    function getProcSrcmap() {
         return $primitiveSrcmap;
     }
-    env.getPrimitiveSrcmap = getPrimitiveSrcmap;
+    env.getProcSrcmap = getProcSrcmap;
 
     function setGenJs(genJs) {
         _genJs = genJs;
@@ -114,19 +116,19 @@ $obj.create = function(logo, sys, ext) {
     }
     env.getGenJs = getGenJs;
 
-    function callPrimitive(name, srcmap, ...args) {
+    function callJsProc(name, srcmap, ...args) {
         setProcName(name);
         setProcSrcmap(srcmap);
-        return _primitive[name].apply(undefined, args);
+        return getJsProc(name).apply(undefined, args);
     }
-    env.callPrimitive = callPrimitive;
+    env.callJsProc = callJsProc;
 
-    async function callPrimitiveAsync(name, srcmap, ...args) {
+    async function callJsProcAsync(name, srcmap, ...args) {
         setProcName(name);
         setProcSrcmap(srcmap);
-        return await _primitive[name].apply(undefined, args);
+        return await getJsProc(name).apply(undefined, args);
     }
-    env.callPrimitiveAsync = callPrimitiveAsync;
+    env.callJsProcAsync = callJsProcAsync;
 
     function callPrimitiveOperator(name, srcmap, ...args) {
         setProcName(name);
@@ -341,7 +343,7 @@ $obj.create = function(logo, sys, ext) {
         env._userBlock = new WeakMap();
         env._userBlockCalled = new WeakMap();
         env._callstack = [];
-        env._curProc = undefined;
+        env._frameProcName = undefined;
         env._curSlot = undefined;
         logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).reset();
         _userInput = [];
@@ -355,7 +357,7 @@ $obj.create = function(logo, sys, ext) {
 
     function resetInterpreterCallStack() {
         env._callstack = [];
-        env._curProc = undefined;
+        env._frameProcName = undefined;
         env._curSlot = undefined;
     }
     env.resetInterpreterCallStack = resetInterpreterCallStack;
@@ -389,8 +391,8 @@ $obj.create = function(logo, sys, ext) {
             return;
         }
 
-        env._callstack.push([env._curProc, curSrcmap, env._curSlot]);
-        env._curProc = curToken;
+        env._callstack.push([env._frameProcName, curSrcmap, env._curSlot]);
+        env._frameProcName = curToken;
         env._curSlot = curSlot;
     }
     env.prepareCallProc = prepareCallProc;
@@ -401,7 +403,7 @@ $obj.create = function(logo, sys, ext) {
         }
 
         let callStackPop = env._callstack.pop();
-        env._curProc = callStackPop[0];
+        env._frameProcName = callStackPop[0];
         env._curSlot = callStackPop[2];
     }
     env.completeCallProc = completeCallProc;
@@ -460,13 +462,18 @@ $obj.create = function(logo, sys, ext) {
             "formal" : formal,
             "formalSrcmap" : formalSrcmap,
             "body" : body,
-            "bodySrcmap" : bodySrcmap
+            "bodySrcmap" : bodySrcmap,
+            "attributes" : PROC_ATTRIBUTE.USER,
+            "precedence" : 0
         };
     }
 
-    function procMetadataFromFormal(formalParams) {
+    function makePrimitiveMetadata(parsedFormal, attributes = PROC_ATTRIBUTE.PRIMITIVE, precedence = 0) {
         return {
-            "formalParams" : formalParams,
+            "parsedFormal" : parsedFormal,
+            "formalSrcmap" : logo.type.SRCMAP_NULL,
+            "attributes"   : attributes,
+            "precedence"   : precedence
         };
     }
 
@@ -505,8 +512,8 @@ $obj.create = function(logo, sys, ext) {
     }
     env.makeDefaultFormal = makeDefaultFormal;
 
-    function captureFormalParams(formalParams, formalSrcmap = logo.type.SRCMAP_NULL) {
-        let length = formalParams.length;
+    function parseFormalParams(formal, formalSrcmap = logo.type.SRCMAP_NULL) {
+        let length = formal.length;
         let minInputCount = 0;
         let defaultInputCount = 0;
         let maxInputCount = 0;
@@ -516,13 +523,13 @@ $obj.create = function(logo, sys, ext) {
         let paramTemplates = [];
         let ptr = length - 1;
 
-        captureDefaultInputCount();
-        captureRestParam();
-        captureOptionalParams();
+        parseDefaultInputCount();
+        parseRestParam();
+        parseOptionalParams();
 
         minInputCount = ptr + 1;
 
-        captureRequiredParams();
+        parseRequiredParams();
 
         if (defaultInputCount === 0) {
             defaultInputCount = minInputCount;
@@ -530,27 +537,27 @@ $obj.create = function(logo, sys, ext) {
 
         return makeFormal(params.length, minInputCount, defaultInputCount, maxInputCount, params, paramTemplates, restParam);
 
-        function captureDefaultInputCount() {
-            if (ptr >= 0 && isDefaultInputCount(formalParams[ptr])) {
-                defaultInputCount = formalParams[ptr];
+        function parseDefaultInputCount() {
+            if (ptr >= 0 && isDefaultInputCount(formal[ptr])) {
+                defaultInputCount = formal[ptr];
                 ptr -= 1;
             }
         }
 
-        function captureRestParam() {
-            if (ptr >= 0 && isRestInput(formalParams[ptr])) {
+        function parseRestParam() {
+            if (ptr >= 0 && isRestInput(formal[ptr])) {
                 maxInputCount = -1;
-                restParam = getInputName(formalParams[ptr]);
+                restParam = getInputName(formal[ptr]);
                 ptr -= 1;
             } else {
                 maxInputCount = ptr + 1;
             }
         }
 
-        function captureOptionalParams() {
-            while (ptr >= -1 && isOptionalInput(formalParams[ptr])) {
-                params[ptr] = getInputName(formalParams[ptr]);
-                let template = logo.type.listButFirst(formalParams[ptr]);
+        function parseOptionalParams() {
+            while (ptr >= -1 && isOptionalInput(formal[ptr])) {
+                params[ptr] = getInputName(formal[ptr]);
+                let template = logo.type.listButFirst(formal[ptr]);
                 if (formalSrcmap !== logo.type.SRCMAP_NULL) {
                     let templateSrcmap = logo.type.listButFirst(formalSrcmap[ptr]);
                     logo.type.embedSrcmap(template, templateSrcmap);
@@ -562,14 +569,13 @@ $obj.create = function(logo, sys, ext) {
             }
         }
 
-        function captureRequiredParams() {
+        function parseRequiredParams() {
             if (minInputCount > 0) {
                 params.splice(0, minInputCount);
-                Array.prototype.unshift.apply(params, formalParams.slice(0, minInputCount));
+                Array.prototype.unshift.apply(params, formal.slice(0, minInputCount));
             }
         }
     }
-    env.captureFormalParams = captureFormalParams;
 
     function defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap) {
         let code = logo.codegen.genProc(logo.type.makeLogoProc([procName, formal, body]),
@@ -740,7 +746,7 @@ $obj.create = function(logo, sys, ext) {
     function errorOnLogoException(e, omitCurProc = true) {
         logo.io.stderr(e.formatMessage());
         if (!omitCurProc) {
-            env._callstack.push([env._curProc, e.getSrcmap()]);
+            env._callstack.push([env._frameProcName, e.getSrcmap()]);
         }
 
         logo.io.stderr(convertToStackDump(env._callstack.slice(0).reverse()));
@@ -868,11 +874,11 @@ $obj.create = function(logo, sys, ext) {
 
     async function applyNamedProcedure(template, srcmap, slot = {}, inputListSrcmap) {
         if (isPrimitive(template)) {
-            const paramListMinLength = getPrimitiveFormal(template).minInputCount;
-            const paramListMaxLength = getPrimitiveFormal(template).maxInputCount;
+            const paramListMinLength = getProcParsedFormal(template).minInputCount;
+            const paramListMaxLength = getProcParsedFormal(template).maxInputCount;
             checkSlotLength(template, slot.param, inputListSrcmap, paramListMinLength, paramListMaxLength);
             slot.param.splice(0, 0, template, srcmap);
-            return await logo.env.callPrimitiveAsync.apply(undefined, slot.param);
+            return await logo.env.callJsProcAsync.apply(undefined, slot.param);
         } else if (isJsUserProc(template)) {
             let callTarget = _userProc[template];
             checkSlotLength(template, slot.param, inputListSrcmap, callTarget.length);
@@ -954,25 +960,38 @@ $obj.create = function(logo, sys, ext) {
     }
     env.makeSlotObj = makeSlotObj;
 
-    function getProcFormal(procName) {
+    function getProcParsedFormal(procName) {
         let procMetaData = isPrimitive(procName) ? _primitiveMetadata[procName] : _userProcMetadata[procName];
-        if (!("formalParams" in procMetaData)) {
-            procMetaData.formalParams = captureFormalParams(procMetaData.formal, procMetaData.formalSrcmap);
+        if (!("parsedFormal" in procMetaData)) {
+            procMetaData.parsedFormal = parseFormalParams(procMetaData.formal, procMetaData.formalSrcmap);
         }
 
-        return procMetaData.formalParams;
+        return procMetaData.parsedFormal;
     }
-    env.getProcFormal = getProcFormal;
+    env.getProcParsedFormal = getProcParsedFormal;
 
-    function getPrimitiveFormal(procName) {
-        let procMetaData = _primitiveMetadata[procName];
-        if (!("formalParams" in procMetaData)) {
-            procMetaData.formalParams = captureFormalParams(procMetaData.formal, procMetaData.formalSrcmap);
-        }
-
-        return procMetaData.formalParams;
+    function getProcAttribute(procName) {
+        return isPrimitive(procName) ? _primitiveMetadata[procName].attributes : _userProcMetadata[procName].attributes;
     }
-    env.getPrimitiveFormal = getPrimitiveFormal;
+
+    function getPrimitivePrecedence(procName) {
+        return _primitiveMetadata[procName].precedence;
+    }
+
+    function procReturnsInLambda(procName) {
+        return getProcAttribute(procName) & PROC_ATTRIBUTE.RETURNS_IN_LAMBDA;
+    }
+    env.procReturnsInLambda = procReturnsInLambda;
+
+    function requiresStashLocalVar(procName) {
+        return getProcAttribute(procName) & PROC_ATTRIBUTE.STASH_LOCAL_VAR;
+    }
+    env.requiresStashLocalVar = requiresStashLocalVar;
+
+    function isJsProc(procName) {
+        return isPrimitive(procName) || isJsUserProc(procName);
+    }
+    env.isJsProc = isJsProc;
 
     function isPrimitive(procName) {
         return procName in _primitive;
@@ -982,7 +1001,11 @@ $obj.create = function(logo, sys, ext) {
     function isUserProc(procName) {
         return procName in _userProcMetadata;
     }
-    env.isUserProc = isUserProc;
+
+    function isProc(procName) {
+        return isPrimitive(procName) || isUserProc(procName);
+    }
+    env.isProc = isProc;
 
     function isDefinedUserProc(procName) {
         return  procName in _userProcMetadata && _userProcMetadata[procName].body !== undefined;
@@ -997,17 +1020,21 @@ $obj.create = function(logo, sys, ext) {
     function getJsUserProc(procName) {
         return _userProc[procName];
     }
-    env.getJsUserProc = getJsUserProc;
+
+    function getJsProc(procName) {
+        return isJsUserProc(procName) ? getJsUserProc(procName) : getPrimitive(procName);
+    }
+    env.getJsProc = getJsProc;
 
     function getUserProcMetadata(procName) {
         return _userProcMetadata[procName];
     }
     env.getUserProcMetadata = getUserProcMetadata;
 
-    function bindPrimitive(primitiveName, primitiveJsFunc, formal = undefined) {
+    function bindPrimitive(primitiveName, primitiveJsFunc, formal = undefined, attributes = PROC_ATTRIBUTE.PRIMITIVE, precedence = 0) {
+        let parsedFormal = (formal !== undefined) ? parseFormalParams(formal) : makeDefaultFormal(primitiveJsFunc.length);
         _primitive[primitiveName] = primitiveJsFunc;
-        _primitiveMetadata[primitiveName] = (formal !== undefined) ? makeProcMetadata(formal, logo.env.SRCMAP_NLL) :
-            procMetadataFromFormal(makeDefaultFormal(primitiveJsFunc.length));
+        _primitiveMetadata[primitiveName] = makePrimitiveMetadata(parsedFormal, attributes, precedence);
     }
     env.bindPrimitive = bindPrimitive;
 
@@ -1016,10 +1043,10 @@ $obj.create = function(logo, sys, ext) {
     }
     env.getPrimitive = getPrimitive;
 
-    function isAsyncPrimitive(primitiveName) {
-        return _primitive[primitiveName].constructor.name === "AsyncFunction";
+    function isAsyncProc(procName) {
+        return isPrimitive(procName) && _primitive[procName].constructor.name === "AsyncFunction";
     }
-    env.isAsyncPrimitive = isAsyncPrimitive;
+    env.isAsyncProc = isAsyncProc;
 
     function isMacro(procName) {
         return _isMacro[procName] === true;
@@ -1044,7 +1071,7 @@ $obj.create = function(logo, sys, ext) {
 
     function getPrecedence(procName) {
         if (isPrimitive(procName)) {
-            return logo.lrt.util.getPrimitivePrecedence(procName);
+            return getPrimitivePrecedence(procName);
         }
 
         return 0;

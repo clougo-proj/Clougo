@@ -1,17 +1,23 @@
-testMake
+testMake1
 false
-false
-true
 true
 
-testLocalmake
+testMake2
 false
-false
-true
 true
 
-testLocalThenMake
-false
+testLocalmake1
 false
 true
+
+testLocalmake2
+false
+true
+
+testLocalThenMake1
+false
+true
+
+testLocalThenMake2
+false
 true

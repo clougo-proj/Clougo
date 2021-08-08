@@ -76,11 +76,6 @@ $obj.create = function(logo, sys) {
         "pi": genPi
     };
 
-    const callLambda = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "repeat", "run"]);
-
-    const needStashLocalVars = new Set(["apply", "catch", "for", "if", "ifelse", "invoke", "make", "namep",
-        "repeat", "run", "thing"]);
-
     const CODE_TYPE = {
         EXPR: 0,
         STMT: 1,
@@ -213,7 +208,6 @@ $obj.create = function(logo, sys) {
     const ASYNC_MACRO = {
         "ASYNC": Code.asyncMacro("ASYNC"),
         "AWAIT": Code.asyncMacro("AWAIT"),
-        "CALL_PRIMITIVE": Code.asyncMacro("CALL_PRIMITIVE"),
         "CALL_PRIMITIVE_OPERATOR": Code.asyncMacro("CALL_PRIMITIVE_OPERATOR"),
         "CALL_LOGO_INSTR_LIST": Code.asyncMacro("CALL_LOGO_INSTR_LIST")
     };
@@ -221,7 +215,6 @@ $obj.create = function(logo, sys) {
     const ASYNC_MACRO_CODE = {
         "ASYNC": ["async ", ""],
         "AWAIT": ["await ", ""],
-        "CALL_PRIMITIVE": ["await logo.env.callPrimitiveAsync", "logo.env.callPrimitive"],
         "CALL_PRIMITIVE_OPERATOR": [ "await logo.env.callPrimitiveOperatorAsync",
             "logo.env.callPrimitiveOperator"],
         "CALL_LOGO_INSTR_LIST": ["await callLogoInstrListAsync(", "callLogoInstrList("]
@@ -572,7 +565,7 @@ $obj.create = function(logo, sys) {
 
     function genLogoSlotRef(curToken, srcmap) {
         let slotNum = logo.env.extractSlotNum(curToken);
-        return Code.expr("logo.env.callPrimitive(\"?\",", logo.type.srcmapToJs(srcmap), ",", slotNum, ")");
+        return Code.expr("logo.env.callJsProc(\"?\",", logo.type.srcmapToJs(srcmap), ",", slotNum, ")");
     }
 
     function genInstrListCall(curToken, srcmap) {
@@ -601,74 +594,78 @@ $obj.create = function(logo, sys) {
             .reduce((acc, cur) => acc || cur, false);
     }
 
-    function genUserProcCall(evxContext, curToken, srcmap, isInParen) {
-        let param = genUserProcCallParams(evxContext, curToken, logo.env.getProcFormal(curToken), 0, isInParen);
-        let postfix = logo.config.get("postfix") || containsPostFix(param);
-        return !postfix ? genInfixUserProcCall(curToken, srcmap, param) :
-            genPostfixUserProcCall(curToken, srcmap, param);
-    }
+    function genInfixProcCall(curToken, srcmap, param) {
+        let code = Code.expr("(");
 
-    function genInfixUserProcCall(curToken, srcmap, param) {
-        let code = Code.expr()
-            .append("(")
-            .append("logo.env.isJsUserProc(", quoteToken(escapeProcName(curToken)), ")?(");
+        if (!logo.env.isPrimitive(curToken)) {
+            code = code.append("logo.env.isJsProc(", quoteToken(escapeProcName(curToken)), ")?(")
+                .append(genPrepareCall(curToken, srcmap));
 
-        if (param.length === 0)  {
-            code = code.append(genPrepareCall(curToken, srcmap));
-        } else {
-            param.unshift(param.shift().prepend("$ret=")
-                .prepend(genPrepareCall(curToken, srcmap))
-                .prepend("(")
-                .append(",")
-                .append("$ret)"));
+        } else if (logo.env.requiresStashLocalVar(curToken)) {
+            code = code.append(genStashLocalVars());
         }
 
-        return code.append("$ret=(", ASYNC_MACRO.AWAIT, "logo.env.getJsUserProc(", quoteToken(escapeProcName(curToken)), ")(")
+        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callJsProc(")
+            .append(quoteToken(escapeProcName(curToken)), ",", logo.type.srcmapToJs(srcmap), ",")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
-            .append(")),")
-            .append(genCompleteCall())
-            .append("$ret)")
-            .append(":")
-            .append(genThrowUnknownProc(srcmap, curToken))
-            .append(")");
+            .append("),");
+
+        if (!logo.env.isPrimitive(curToken)) {
+            code = code.append(genCompleteCall())
+                .append("$ret):", genThrowUnknownProc(srcmap, curToken));
+        } else if (logo.env.requiresStashLocalVar(curToken)) {
+            code = code.append(genApplyLocalVars())
+                .append("$ret");
+        } else {
+            code = code.append("$ret");
+        }
+
+        return code.append(")");
     }
 
     function escapeProcName(token) {
         return token.replace(/"/g, "\\\"");
     }
 
-    function genPostfixUserProcCall(curToken, srcmap, param) {
-        let code = Code.expr();
+    function genPostfixProcCall(curToken, srcmap, param) {
+        let code = Code.expr().withPostFix(true);
 
-        code.withPostFix(true);
+        if (!logo.env.isPrimitive(curToken)) {
+            code = code.append("if (!logo.env.isJsProc(", quoteToken(escapeProcName(curToken)), ")) {")
+                .append(genThrowUnknownProc(srcmap, curToken))
+                .append("}\n")
+                .append(genPrepareCall(curToken, srcmap));
 
-        code.append("if (!logo.env.isJsUserProc(", quoteToken(escapeProcName(curToken)), ")) {")
-            .append(genThrowUnknownProc(srcmap, curToken))
-            .append("}\n");
+        } else if (logo.env.requiresStashLocalVar(curToken)) {
+            code = code.append(genStashLocalVars());
+        }
 
-        code.append(genPrepareCall(curToken, srcmap));
-        code.append("$param.begin([]);\n");
+        code.append("$param.begin([")
+            .append(quoteToken(escapeProcName(curToken)), ",", logo.type.srcmapToJs(srcmap), ",")
+            .append("]);\n");
 
         param.map((p) => {
-            code.append(p);
-            code.append(";\n$param.add($ret);\n");
+            code = code.append(p)
+                .append(";\n$param.add($ret);\n");
         });
 
         code.append("$ret;\n");
-        code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.getJsUserProc(", quoteToken(escapeProcName(curToken)),
-            ").apply(undefined,$param.end());\n");
+        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callJsProc.apply(undefined,$param.end());\n");
 
-        code.append(genCompleteCall());
-        code.append("$ret;\n");
+        if (!logo.env.isPrimitive(curToken)) {
+            code = code.append(genCompleteCall());
+        } else if (logo.env.requiresStashLocalVar(curToken)) {
+            code = code.append(genApplyLocalVars());
+        }
 
-        return code;
+        return code.append("$ret;\n");
     }
 
     function isRequiredParam(formal, index) {
         return formal.paramTemplates[index] === undefined;
     }
 
-    function genUserProcCallParams(evxContext, procName, formal, precedence, isInParen) {
+    function genProcCallParams(evxContext, procName, formal, precedence, isInParen) {
         let param = [];
         let j = 0;
 
@@ -707,24 +704,8 @@ $obj.create = function(logo, sys) {
         }
     }
 
-    function genPrimitiveCall(evxContext, curToken, srcmap, isInParen) {
-        let param = genUserProcCallParams(evxContext, curToken, logo.env.getPrimitiveFormal(curToken),
-            logo.lrt.util.getPrimitivePrecedence(curToken), isInParen);
-
-        if (logo.env.isAsyncPrimitive(curToken)) {
-            logo.env.setAsyncFunctionCall(true);
-        }
-
-        if (!callLambda.has(curToken)) {
-
-            let postfix = logo.config.get("postfix") || containsPostFix(param);
-
-            return !postfix ? genInfixPrimitiveCall(curToken, srcmap, param).prepend("$ret=") :
-                genPostfixPrimitiveCall(curToken, srcmap, param).prepend("$ret=");
-        }
-
-        return genPostfixPrimitiveCall(curToken, srcmap, param)
-            .prepend("try {\n$ret=")
+    function genReturnInLambda(code) {
+        return code.prepend("try {")
             .append("} catch (e) {\n")
             .append("if(logo.type.LogoException.is(e)){")
             .append((_funcName === TOP_LEVEL_FUNC) ?
@@ -734,58 +715,23 @@ $obj.create = function(logo, sys) {
             .append("throw e;}\n");
     }
 
-    function genInfixPrimitiveCall(curToken, srcmap, param) {
-        let code = Code.expr();
+    function genProcCall(evxContext, curToken, srcmap, isInParen) {
+        let param = genProcCallParams(evxContext, curToken, logo.env.getProcParsedFormal(curToken),
+            logo.env.getPrecedence(curToken), isInParen);
 
-        code.append("(");
-        if (needStashLocalVars.has(curToken)) {
-            code.append(genStashLocalVars());
+        if (logo.env.isAsyncProc(curToken)) {
+            logo.env.setAsyncFunctionCall(true);
         }
 
-        code.append("($ret=");
-        code.append(ASYNC_MACRO.CALL_PRIMITIVE);
-        code.append("(\"");
-
-        code.append(curToken, "\", ", logo.type.srcmapToJs(srcmap), ",");
-        code.append(Code.expr.apply(undefined, insertDelimiters(param, ",")));
-        code.append("))");
-
-        if (needStashLocalVars.has(curToken)) {
-            code.append(",");
-            code.append(genApplyLocalVars());
-            code.append("$ret");
+        if (logo.env.procReturnsInLambda(curToken)) {
+            return genReturnInLambda(genPostfixProcCall(curToken, srcmap, param));
         }
 
-        code.append(")");
-
-        return code;
-    }
-
-    function genPostfixPrimitiveCall(curToken, srcmap, param) {
-        let code = Code.expr();
-
-        code.withPostFix(true);
-        if  (needStashLocalVars.has(curToken)) {
-            code.append(genStashLocalVars());
+        if (logo.config.get("postfix") || containsPostFix(param)) {
+            return genPostfixProcCall(curToken, srcmap, param);
         }
 
-        code.append("$param.begin([\"", curToken,"\",", logo.type.srcmapToJs(srcmap), "]);\n");
-
-        param.map((p) => {
-            code.append(p);
-            code.append(";\n$param.add($ret);\n");
-        });
-
-        code.append("$ret=");
-        code.append(ASYNC_MACRO.CALL_PRIMITIVE);
-        code.append(".apply(undefined,$param.end());\n");
-
-        if  (needStashLocalVars.has(curToken)) {
-            code.append(genApplyLocalVars());
-            code.append("$ret;");
-        }
-
-        return code;
+        return genInfixProcCall(curToken, srcmap, param).prepend("$ret=");
     }
 
     function genArray(obj) {
@@ -980,15 +926,15 @@ $obj.create = function(logo, sys) {
             code.append(genStashLocalVars());
         }
 
-        code.append("logo.env._callstack.push([logo.env._curProc," + logo.type.srcmapToJs(srcmap) + "]),");
-        code.append("logo.env._curProc=\"", escapeProcName(target), "\",\n");
+        code.append("logo.env._callstack.push([logo.env._frameProcName," + logo.type.srcmapToJs(srcmap) + "]),");
+        code.append("logo.env._frameProcName=\"", escapeProcName(target), "\",\n");
 
         return code;
     }
 
     function genCompleteCall() {
         let code = Code.expr();
-        code.append("logo.env._curProc=logo.env._callstack.pop()[0],");
+        code.append("logo.env._frameProcName=logo.env._callstack.pop()[0],");
         if (logo.config.get("dynamicScope")) {
             code.append(genApplyLocalVars());
         }
@@ -1021,7 +967,7 @@ $obj.create = function(logo, sys) {
         let procName = logo.type.getLogoProcName(proc);
         _isLambda = false;
 
-        return genProcBody(procName, logo.env.getProcFormal(procName), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
+        return genProcBody(procName, logo.env.getProcParsedFormal(procName), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
             .prepend("logo.env.bindJsUserProc(", quoteToken(escapeProcName(procName)), ",(")
             .append("));");
     }
@@ -1202,12 +1148,12 @@ $obj.create = function(logo, sys) {
             genDeferredCallTemplateWithoutParen(evxContext);
 
         logo.env.setAsyncFunctionCall(true);
-        return genPostfixPrimitiveCall("run", srcmap, [Code.expr("$ret=", deferredCallTemplate)]);
+        return genPostfixProcCall("run", srcmap, [Code.expr("$ret=", deferredCallTemplate)]);
     }
 
     function genMacroCall(evxContext, curToken, srcmap, isInParen) {
         let code = Code.expr();
-        let macroOutput = genUserProcCall(evxContext, curToken, srcmap, isInParen);
+        let macroOutput = genProcCall(evxContext, curToken, srcmap, isInParen);
 
         logo.env.setAsyncFunctionCall(true);
         let postfix = logo.config.get("postfix") || macroOutput.postFix();
@@ -1220,9 +1166,9 @@ $obj.create = function(logo, sys) {
         code.append("if(!logo.type.isLogoList($macro)){", genThrowInvalidMacroReturn(srcmap, curToken), "}\n");
 
         if (!postfix) {
-            code.append(genInfixPrimitiveCall("run", logo.type.SRCMAP_NULL, ["$macro"]).prepend("$ret="));
+            code.append(genInfixProcCall("run", logo.type.SRCMAP_NULL, ["$macro"]).prepend("$ret="));
         } else {
-            code.append(genPostfixPrimitiveCall("run", logo.type.SRCMAP_NULL, ["$ret=$macro"]).prepend("$ret="));
+            code.append(genPostfixProcCall("run", logo.type.SRCMAP_NULL, ["$ret=$macro"]));
         }
 
         code.append("}");
@@ -1240,14 +1186,10 @@ $obj.create = function(logo, sys) {
             }
 
             code.append(nativeJsCode);
-        } else if (logo.env.isPrimitive(curToken)) {
-            code.append(genPrimitiveCall(evxContext, curToken, srcmap, isInParen));
-        } else if (logo.env.isUserProc(curToken)) {
-            if (!logo.env.isMacro(curToken)) {
-                code.append(genUserProcCall(evxContext, curToken, srcmap, isInParen));
-            } else {
-                code.append(genMacroCall(evxContext, curToken, srcmap, isInParen));
-            }
+        } else if (logo.env.isMacro(curToken)) {
+            code.append(genMacroCall(evxContext, curToken, srcmap, isInParen));
+        } else if (logo.env.isProc(curToken)) {
+            code.append(genProcCall(evxContext, curToken, srcmap, isInParen));
         } else {
             code.append(_isLambda ? genThrowUnknownProc(srcmap, curToken) : genDeferredCall(evxContext, isInParen));
         }

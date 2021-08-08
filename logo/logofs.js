@@ -82,7 +82,7 @@ $obj.create = function(logo, sys) {
         }
 
         function throwCantOpenFile() {
-            throw logo.type.LogoException.CANT_OPEN_FILE.withParam([filePath], logo.env.getPrimitiveSrcmap());
+            throw logo.type.LogoException.CANT_OPEN_FILE.withParam([filePath], logo.env.getProcSrcmap());
         }
     }
     logofs.get = get;

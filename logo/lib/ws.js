@@ -12,6 +12,8 @@ var $obj = {};
 $obj.create = function(logo) {
     const ws = {};
 
+    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
+
     const methods = {
 
         "to": primitiveTo,
@@ -20,16 +22,16 @@ $obj.create = function(logo) {
 
         "text": primitiveText,
 
-        "make": primitiveMake,
+        "make": {jsFunc: primitiveMake, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR},
 
         "local": [primitiveLocal, "[args] 1"],
 
         "localmake": primitiveLocalmake,
 
-        "namep": primitiveNamep,
-        "name?": primitiveNamep,
+        "namep": {jsFunc: primitiveNamep, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR},
+        "name?": {jsFunc: primitiveNamep, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR},
 
-        "thing": primitiveThing,
+        "thing": {jsFunc: primitiveThing, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR},
 
         "load": primitiveLoad,
 
@@ -73,7 +75,7 @@ $obj.create = function(logo) {
 
     function primitiveThing(name) {
         logo.type.validateInputWord(name);
-        return logo.type.getVarValue(logo.type.toString(name).toLowerCase(), logo.env.getPrimitiveSrcmap());
+        return logo.type.getVarValue(logo.type.toString(name).toLowerCase(), logo.env.getProcSrcmap());
     }
 
     function primitiveMake(varname, val) {
@@ -101,7 +103,7 @@ $obj.create = function(logo) {
     }
 
     function primitiveTo() {
-        throw logo.type.LogoException.NESTED_TO.withParam([], logo.env.getPrimitiveSrcmap());
+        throw logo.type.LogoException.NESTED_TO.withParam([], logo.env.getProcSrcmap());
     }
 
     function primitiveText(procname) {
@@ -118,7 +120,7 @@ $obj.create = function(logo) {
             logo.io.stdout(logo.logofs.get("/ucblogo/HELPFILE/" + topic.toLowerCase()));
         } catch (e) {
             if (logo.type.LogoException.is(e) && logo.type.LogoException.CANT_OPEN_FILE.equalsByCode(e)) {
-                throw logo.type.LogoException.NO_HELP_AVAILABLE.withParam([topic], logo.env.getPrimitiveSrcmap());
+                throw logo.type.LogoException.NO_HELP_AVAILABLE.withParam([topic], logo.env.getProcSrcmap());
             } else {
                 throw e;
             }

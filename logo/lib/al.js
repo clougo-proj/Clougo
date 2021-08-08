@@ -12,8 +12,6 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const al = {};
 
-    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
-
     const methods = {
 
         // unary minus operator in ambiguous context

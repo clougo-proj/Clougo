@@ -12,10 +12,14 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const al = {};
 
-    const methods = {
-        " -": primitiveMinus,  // unary minus operator in ambiguous context
+    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
 
-        "-": primitiveMinus,
+    const methods = {
+
+        // unary minus operator in ambiguous context
+        " -": {jsFunc: primitiveMinus, precedence: 2},
+
+        "-": {jsFunc: primitiveMinus, precedence: 2},
 
         "minus": primitiveMinus,
 

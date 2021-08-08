@@ -1,33 +1,55 @@
-to testMake
+to testMake1
     show namep "a ; false
-    show name? "a ; false
     make "a 1
     show namep "a ; true
-    show name? "a ; true
 end
 
-to testLocalmake
+to testMake2
+    show name? "d ; false
+    make "d 1
+    show name? "d ; true
+end
+
+to testLocalmake1
     show namep "b ; false
-    show name? "b ; false
     localmake "b "Xyz
     show namep "b ; true
+end
+
+to testLocalmake2
+    show name? "b ; false
+    localmake "b "Xyz
     show name? "b ; true
 end
 
-to testLocalThenMake
+to testLocalThenMake1
     local "b
     show namep "b ; false
-    show name? "b ; false
     make "b {}
     show namep "b ; true
+end
+
+to testLocalThenMake2
+    local "b
+    show name? "b ; false
+    make "b {}
     show name? "b ; true
 end
 
-pr "testMake
-testMake
+pr "testMake1
+testMake1
 
-pr "\ntestLocalmake
-testLocalmake
+pr "\ntestMake2
+testMake2
 
-pr "\ntestLocalThenMake
-testLocalThenMake
+pr "\ntestLocalmake1
+testLocalmake1
+
+pr "\ntestLocalmake2
+testLocalmake2
+
+pr "\ntestLocalThenMake1
+testLocalThenMake1
+
+pr "\ntestLocalThenMake2
+testLocalThenMake2

@@ -14,25 +14,45 @@ $obj.create = function(logo, sys) {
 
     const LOGO_LIBRARY = logo.constants.LOGO_LIBRARY;
 
-    function containsFormalString(entry) {
-        return Array.isArray(entry) && entry.length >= 2;
+    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
+
+    function isSimplePrimitiveDef(entry) {
+        return entry instanceof Function;
     }
 
     function getPrimitive(entry) {
-        return entry[0];
+        return Array.isArray(entry) ? entry[0] : entry.jsFunc;
     }
 
-    function getFormal(entry) {
-        return entry[1];
+    function getPrimitiveFormalString(entry) {
+        return Array.isArray(entry) ? entry[1] : entry.formal;
+    }
+
+    function getPrimitiveAttributes(entry) {
+        return Array.isArray(entry) ? PROC_ATTRIBUTE.PRIMITIVE : entry.attributes;
+    }
+
+    function getPrimitivePrecedence(entry) {
+        return Array.isArray(entry) ? 0 : entry.precedence;
     }
 
     function bindMethods(methods) {
         for (let name in methods) {
             let entry = methods[name];
-            if (containsFormalString(entry)) {
-                logo.env.bindPrimitive(name, getPrimitive(entry), logo.parse.parseSignature(getFormal(entry)));
-            } else {
+            if (isSimplePrimitiveDef(entry)) {
                 logo.env.bindPrimitive(name, entry);
+            } else {
+                let primitive = getPrimitive(entry);
+                let formalString = getPrimitiveFormalString(entry);
+                let formal = formalString ? logo.parse.parseSignature(formalString) : undefined;
+                let attributes = getPrimitiveAttributes(entry);
+                let precedence = getPrimitivePrecedence(entry);
+
+                if (formal || attributes || precedence) {
+                    logo.env.bindPrimitive(name, primitive, formal, attributes, precedence);
+                } else {
+                    logo.env.bindPrimitive(name, primitive);
+                }
             }
         }
     }
@@ -53,21 +73,6 @@ $obj.create = function(logo, sys) {
 
     lrt.util = {};
 
-    const unaryOperator = {
-        " -" : 2, // unary minus operator in ambiguous context
-        "-" : 2
-    };
-
-    function isUnaryOperator(op) {
-        return op in unaryOperator;
-    }
-    lrt.util.isUnaryOperator = isUnaryOperator;
-
-    function getPrimitivePrecedence(op) {
-        return isUnaryOperator(op) ? unaryOperator[op] : 0;
-    }
-    lrt.util.getPrimitivePrecedence = getPrimitivePrecedence;
-
     const binaryOperator = {
         "+" :[2, logo.env.getPrimitive("sum")],
         "-" :[2, logo.env.getPrimitive("difference")],
@@ -87,7 +92,7 @@ $obj.create = function(logo, sys) {
     lrt.util.isBinaryOperator = isBinaryOperator;
 
     function isOnlyBinaryOperator(op) {
-        return isBinaryOperator(op) && !isUnaryOperator(op);
+        return isBinaryOperator(op) && !logo.env.isProc(op);
     }
     lrt.util.isOnlyBinaryOperator = isOnlyBinaryOperator;
 

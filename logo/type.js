@@ -652,13 +652,13 @@ $obj.create = function(logo, sys) {
         if (predicate) {
             throw exception.withParam(
                 [logo.env.getPrimitiveName(), logo.type.toString(value, true)],
-                logo.env.getPrimitiveSrcmap());
+                logo.env.getProcSrcmap());
         }
     }
     type.ifTrueThenThrow = ifTrueThenThrow;
 
     function checkMinInputCount(value) {
-        ifTrueThenThrow(!(value >= logo.env.getPrimitiveFormal(logo.env.getPrimitiveName()).minInputCount),
+        ifTrueThenThrow(!(value >= logo.env.getProcParsedFormal(logo.env.getPrimitiveName()).minInputCount),
             "NOT_ENOUGH_INPUTS", value);
     }
     type.checkMinInputCount = checkMinInputCount;

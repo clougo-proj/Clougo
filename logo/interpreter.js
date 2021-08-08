@@ -212,7 +212,7 @@ $obj.create = function(logo, sys) {
             evxContext.retVal = logo.type.getVarValue(logo.env.extractVarName(curToken), curSrcmap);
         } else if (logo.type.isLogoSlot(curToken)) {
             evxContext.proc = "?";
-            evxContext.retVal = logo.env.callPrimitive("?", curSrcmap, logo.env.extractSlotNum(curToken));
+            evxContext.retVal = logo.env.callJsProc("?", curSrcmap, logo.env.extractSlotNum(curToken));
         } else {
             evxContext.proc = curToken;
             await evxCallProc(evxContext, curToken, curSrcmap, isInParen);
@@ -244,7 +244,7 @@ $obj.create = function(logo, sys) {
 
     async function evxCallProcDefault(...callParams) {
         let procName = logo.env.getPrimitiveName();
-        await evxProcCallOptionalRestParam(logo.env.getProcFormal(procName), callParams);
+        await evxProcCallOptionalRestParam(logo.env.getProcParsedFormal(procName), callParams);
         return await evxProcBody(logo.env.getUserProcMetadata(procName));
     }
     interpreter.evxCallProcDefault = evxCallProcDefault;
@@ -256,7 +256,9 @@ $obj.create = function(logo, sys) {
 
         evxContext.proc = curToken;
         logo.env.prepareCallProc(curToken, curSrcmap);
-        let callParams =  await evxProcCallRequiredParam(evxContext, curToken, logo.env.getProcFormal(curToken), logo.env.getPrecedence(curToken), isInParen);
+        let callParams = await evxProcCallRequiredParam(evxContext, curToken, logo.env.getProcParsedFormal(curToken),
+            logo.env.getPrecedence(curToken), isInParen);
+
         logo.env.setProcName(curToken);
         logo.env.setProcSrcmap(curSrcmap);
         evxContext.retVal = await logo.env.getCallTarget(curToken).apply(undefined, callParams);
@@ -296,12 +298,12 @@ $obj.create = function(logo, sys) {
     }
 
     function assignParams(proc, actualParams) {
-        const formalParams = proc.formal;
+        const formal = proc.formal;
         let curScope = {};
         logo.env._scopeStack.push(curScope);
 
-        for (let i = 0; i < formalParams.length; i++) {
-            curScope[formalParams[i]] = actualParams[i];
+        for (let i = 0; i < formal.length; i++) {
+            curScope[formal[i]] = actualParams[i];
         }
     }
 

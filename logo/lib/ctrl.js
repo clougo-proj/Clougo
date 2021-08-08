@@ -12,17 +12,19 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const ctrl = {};
 
+    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
+
     const methods = {
 
-        "run": primitiveRun,
+        "run": {jsFunc: primitiveRun, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
-        "repeat": primitiveRepeat,
+        "repeat": {jsFunc: primitiveRepeat, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
-        "if": primitiveIf,
+        "if": {jsFunc: primitiveIf, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
-        "ifelse": primitiveIfelse,
+        "ifelse": {jsFunc: primitiveIfelse, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
-        "catch": primitiveCatch,
+        "catch": {jsFunc: primitiveCatch, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
         "throw": [primitiveThrow, "tag [value .novalue]"],
 
@@ -30,11 +32,12 @@ $obj.create = function(logo, sys) {
 
         "ignore": primitiveIgnore,
 
-        "for": primitiveFor,
+        "for": {jsFunc: primitiveFor, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
-        "apply": primitiveApply,
+        "apply": {jsFunc: primitiveApply, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
-        "invoke": [primitiveInvoke, "template [inputs] 2"],
+        "invoke": {jsFunc: primitiveInvoke, formal: "template [inputs] 2",
+            attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
         "foreach": [primitiveForeach, "[inputs] 2"],
 
@@ -54,7 +57,7 @@ $obj.create = function(logo, sys) {
         logo.type.validateInputList(inputList);
 
         let unboxedInputList = logo.type.unbox(inputList);
-        let srcmap = logo.env.getPrimitiveSrcmap();
+        let srcmap = logo.env.getProcSrcmap();
         let slot = logo.env.makeSlotObj(unboxedInputList, index, unboxedRestList);
 
         let inputListSrcmap = logo.type.getEmbeddedSrcmap(inputList);
@@ -91,11 +94,11 @@ $obj.create = function(logo, sys) {
             logo.type.toString(input).split(""));
 
         if (!sameLength(inputs)) {
-            throw logo.type.LogoException.NOT_SAME_LENGTH.withParam(["foreach"], logo.env.getPrimitiveSrcmap());
+            throw logo.type.LogoException.NOT_SAME_LENGTH.withParam(["foreach"], logo.env.getProcSrcmap());
         }
 
         let length = inputs[0].length;
-        let srcmap = logo.env.getPrimitiveSrcmap();
+        let srcmap = logo.env.getProcSrcmap();
         for (let i = 0; i < length; i++) {
             let retVal = await applyHelper(template, logo.type.makeLogoList(inputs.map(v => v[i])), i + 1,
                 inputs.map(v => v.slice(i + 1)));
@@ -108,7 +111,7 @@ $obj.create = function(logo, sys) {
         logo.type.validateInputPosNumber(count);
         logo.type.validateInputList(template);
 
-        let srcmap = logo.env.getPrimitiveSrcmap();
+        let srcmap = logo.env.getProcSrcmap();
 
         for (let i = 0; i < count; i++) {
             let ret = await logo.env.applyInstrList(template, srcmap);
@@ -126,7 +129,7 @@ $obj.create = function(logo, sys) {
     }
 
     async function callTemplate(template) {
-        let srcmap = logo.env.getPrimitiveSrcmap();
+        let srcmap = logo.env.getProcSrcmap();
         let ret = await logo.env.applyInstrList(template, srcmap,
             !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
         logo.env.checkUnusedValue(ret, srcmap);
@@ -171,7 +174,7 @@ $obj.create = function(logo, sys) {
         logo.type.validateInputList(template);
 
         try {
-            let srcmap = logo.env.getPrimitiveSrcmap();
+            let srcmap = logo.env.getProcSrcmap();
             let retVal = await logo.env.applyInstrList(template, srcmap,
                 !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
             if (logo.config.get("unusedValue")) {
@@ -197,11 +200,11 @@ $obj.create = function(logo, sys) {
     }
 
     function primitiveThrow(tag, value = undefined) {
-        throw logo.type.LogoException.CUSTOM.withParam([tag, value], logo.env.getPrimitiveSrcmap(), logo.env._curProc);
+        throw logo.type.LogoException.CUSTOM.withParam([tag, value], logo.env.getProcSrcmap(), logo.env._frameProcName);
     }
 
     async function primitiveFor(forCtrlComp, bodyComp) {
-        let srcmap = logo.env.getPrimitiveSrcmap();
+        let srcmap = logo.env.getProcSrcmap();
 
         let forCtrlSrcmap = logo.type.getEmbeddedSrcmap(forCtrlComp);
         if (forCtrlSrcmap === logo.type.SRCMAP_NULL) {
@@ -252,7 +255,7 @@ $obj.create = function(logo, sys) {
         } catch (e) {
             if (logo.type.LogoException.is(e)) {
                 throw e.withParam(e.getValue(),
-                    e.getSrcmap() === logo.type.SRCMAP_NULL || logo.env._curProc === undefined ? srcmap : e.getSrcmap());
+                    e.getSrcmap() === logo.type.SRCMAP_NULL || logo.env._frameProcName === undefined ? srcmap : e.getSrcmap());
             }
 
             throw e;

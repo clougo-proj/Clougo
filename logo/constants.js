@@ -76,9 +76,8 @@ Object.freeze(Constants.LOGO_EXCEPTIONS);
 const PROC_ATTRIBUTE = {
     EMPTY                   : 0,
     PRIMITIVE               : 1,
-    USER                    : 1 << 1,
-    RETURNS_IN_LAMBDA       : 1 << 2,
-    STASH_LOCAL_VAR         : 1 << 3
+    RETURNS_IN_LAMBDA       : 1 << 1,
+    STASH_LOCAL_VAR         : 1 << 2
 };
 Object.freeze(PROC_ATTRIBUTE);
 Constants.PROC_ATTRIBUTE = PROC_ATTRIBUTE;

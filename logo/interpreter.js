@@ -245,7 +245,7 @@ $obj.create = function(logo, sys) {
     async function evxCallProcDefault(...callParams) {
         let procName = logo.env.getProcName();
         await evxProcCallOptionalRestParam(logo.env.getProcParsedFormal(procName), callParams);
-        return await evxProcBody(logo.env.getUserProcMetadata(procName));
+        return await evxProcBody(logo.env.getProcMetadata(procName));
     }
     interpreter.evxCallProcDefault = evxCallProcDefault;
 

@@ -909,7 +909,7 @@ $obj.create = function(logo, sys) {
         _varScopes.exit();
 
         let ret = "$scopeCache={};" +
-                "logo.env.bindJsUserProc('$',async function(){\n" +
+                "logo.env.bindJsProc('$',async function(){\n" +
                 "let $scope={},$scopeCache={};\n" +
                 "logo.env._scopeStack.push($scope);\n" +
                 code + "logo.env._scopeStack.pop();})";
@@ -968,7 +968,7 @@ $obj.create = function(logo, sys) {
         _isLambda = false;
 
         return genProcBody(procName, logo.env.getProcParsedFormal(procName), logo.type.getLogoProcBodyWithSrcmap(proc, srcmap))
-            .prepend("logo.env.bindJsUserProc(", quoteToken(escapeProcName(procName)), ",(")
+            .prepend("logo.env.bindJsProc(", quoteToken(escapeProcName(procName)), ",(")
             .append("));");
     }
     codegen.genProc = genProc;

@@ -12,15 +12,15 @@ var $obj = {};
 $obj.create = function(logo, sys, ext) {
     const env = {};
 
-    let _userProcJsFunc = {};
-
-    let _userProcMetadata = {};
-
     let _isMacro = {};
 
     let _primitiveJsFunc = {};
 
     let _primitiveMetadata = {};
+
+    let _procJsFunc;
+
+    let _procMetadata;
 
     const LogoMode = {
         "BATCH": 0,
@@ -202,9 +202,9 @@ $obj.create = function(logo, sys, ext) {
     }
 
     function getLogoProcText(procName) {
-        let bodyComp = splitBodyByLines(_userProcMetadata[procName].body,  _userProcMetadata[procName].bodySrcmap);
-        let text = [logo.type.makeLogoList(_userProcMetadata[procName].formal.slice(0))].concat(bodyComp.body);
-        let textSrcmap = [logo.type.makeLogoList(_userProcMetadata[procName].formalSrcmap.slice(0))].concat(bodyComp.bodySrcmap);
+        let bodyComp = splitBodyByLines(_procMetadata[procName].body,  _procMetadata[procName].bodySrcmap);
+        let text = [logo.type.makeLogoList(_procMetadata[procName].formal.slice(0))].concat(bodyComp.body);
+        let textSrcmap = [logo.type.makeLogoList(_procMetadata[procName].formalSrcmap.slice(0))].concat(bodyComp.bodySrcmap);
 
         return logo.type.embedSrcmap(logo.type.makeLogoList(text), logo.type.makeLogoList(textSrcmap));
     }
@@ -330,8 +330,8 @@ $obj.create = function(logo, sys, ext) {
     function clearWorkspace() {
 
         _globalScope = {"_global": 1 };
-        _userProcJsFunc = {};
-        _userProcMetadata = {};
+        _procJsFunc = Object.create(_primitiveJsFunc);
+        _procMetadata = Object.create(_primitiveMetadata);
         _isMacro = {};
 
         env._scopeStack = [_globalScope];
@@ -414,7 +414,7 @@ $obj.create = function(logo, sys, ext) {
 
         defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap);
 
-        if (getGenJs() || existsUserProcJsFunc(procName)) {
+        if (getGenJs() || existsProcJsFunc(procName)) {
             defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap);
         }
 
@@ -423,13 +423,13 @@ $obj.create = function(logo, sys, ext) {
     env.defineLogoProc = defineLogoProc;
 
     function defineLogoProcSignatureAtParse(procName, formal, formalSrcmap = logo.type.SRCMAP_NULL, isMacro = false) {
-        _userProcMetadata[procName] = makeProcMetadata(formal, formalSrcmap);
+        _procMetadata[procName] = makeProcMetadata(formal, formalSrcmap);
         _isMacro[procName] = isMacro;
     }
     env.defineLogoProcSignatureAtParse = defineLogoProcSignatureAtParse;
 
     function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap) {
-        _userProcMetadata[procName] = makeProcMetadata(formal, formalSrcmap, body, bodySrcmap);
+        _procMetadata[procName] = makeProcMetadata(formal, formalSrcmap, body, bodySrcmap);
     }
     env.defineLogoProcCode = defineLogoProcCode;
 
@@ -438,11 +438,11 @@ $obj.create = function(logo, sys, ext) {
         let formal = logo.type.getLogoProcParams(proc);
         let body = logo.type.getLogoProcBody(proc);
 
-        if (existsUserProcJsFunc(procName)) {
-            delete _userProcJsFunc[procName];
+        if (existsProcJsFunc(procName)) {
+            delete _procJsFunc[procName];
         }
 
-        if (isUserProc(procName) && getUserProcMetadata(procName).formal === formal && getUserProcMetadata(procName).body === body) {
+        if (isProc(procName) && getProcMetadata(procName).formal === formal && getProcMetadata(procName).body === body) {
             return;
         }
 
@@ -783,7 +783,7 @@ $obj.create = function(logo, sys, ext) {
         try {
             $ret = undefined; // eslint-disable-line no-unused-vars
             eval(logoJsSrc);
-            await _userProcJsFunc.$();
+            await _procJsFunc.$();
         } catch(e) {
             if (!logo.type.LogoException.is(e)) {
                 throw e;
@@ -950,7 +950,7 @@ $obj.create = function(logo, sys, ext) {
     env.makeSlotObj = makeSlotObj;
 
     function getProcParsedFormal(procName) {
-        let procMetaData = isPrimitive(procName) ? _primitiveMetadata[procName] : _userProcMetadata[procName];
+        let procMetaData = _procMetadata[procName];
         if (!("parsedFormal" in procMetaData)) {
             procMetaData.parsedFormal = parseFormalParams(procMetaData.formal, procMetaData.formalSrcmap);
         }
@@ -960,11 +960,7 @@ $obj.create = function(logo, sys, ext) {
     env.getProcParsedFormal = getProcParsedFormal;
 
     function getProcAttribute(procName) {
-        return isPrimitive(procName) ? _primitiveMetadata[procName].attributes : _userProcMetadata[procName].attributes;
-    }
-
-    function getPrimitivePrecedence(procName) {
-        return _primitiveMetadata[procName].precedence;
+        return procName in _procMetadata ? _procMetadata[procName].attributes : PROC_ATTRIBUTE.EMPTY;
     }
 
     function procReturnsInLambda(procName) {
@@ -977,48 +973,39 @@ $obj.create = function(logo, sys, ext) {
     }
     env.requiresStashLocalVar = requiresStashLocalVar;
 
-    function existsProcJsFunc(procName) {
-        return isPrimitive(procName) || existsUserProcJsFunc(procName);
-    }
-    env.existsProcJsFunc = existsProcJsFunc;
-
     function isPrimitive(procName) {
-        return procName in _primitiveJsFunc;
+        return getProcAttribute(procName) & PROC_ATTRIBUTE.PRIMITIVE;
     }
     env.isPrimitive = isPrimitive;
 
-    function isUserProc(procName) {
-        return procName in _userProcMetadata;
-    }
-
     function isProc(procName) {
-        return isPrimitive(procName) || isUserProc(procName);
+        return procName in _procMetadata;
     }
     env.isProc = isProc;
 
-    function isDefinedUserProc(procName) {
-        return  procName in _userProcMetadata && _userProcMetadata[procName].body !== undefined;
+    function isProcBodyDefined(procName) {
+        return isProc(procName) && _procMetadata[procName].body !== undefined;
     }
-    env.isDefinedUserProc = isDefinedUserProc;
+    env.isProcBodyDefined = isProcBodyDefined;
 
-    function existsUserProcJsFunc(procName) {
-        return procName in _userProcJsFunc;
+    function existsProcJsFunc(procName) {
+        return procName in _procJsFunc;
     }
-    env.existsUserProcJsFunc = existsUserProcJsFunc;
+    env.existsProcJsFunc = existsProcJsFunc;
 
-    function getUserProcJsFunc(procName) {
-        return _userProcJsFunc[procName];
+    function getProcJsFunc(procName) {
+        return _procJsFunc[procName];
     }
 
-    function getUserProcMetadata(procName) {
-        return _userProcMetadata[procName];
+    function getProcMetadata(procName) {
+        return _procMetadata[procName];
     }
-    env.getUserProcMetadata = getUserProcMetadata;
+    env.getProcMetadata = getProcMetadata;
 
     function bindPrimitive(primitiveName, primitiveJsFunc, formal = undefined, attributes = PROC_ATTRIBUTE.PRIMITIVE, precedence = 0) {
         let parsedFormal = (formal !== undefined) ? parseFormalParams(formal) : makeDefaultFormal(primitiveJsFunc.length);
         _primitiveJsFunc[primitiveName] = primitiveJsFunc;
-        _primitiveMetadata[primitiveName] = makePrimitiveMetadata(parsedFormal, attributes, precedence);
+        _primitiveMetadata[primitiveName] = makePrimitiveMetadata(parsedFormal, attributes | PROC_ATTRIBUTE.PRIMITIVE, precedence);
     }
     env.bindPrimitive = bindPrimitive;
 
@@ -1028,7 +1015,7 @@ $obj.create = function(logo, sys, ext) {
     env.getPrimitive = getPrimitive;
 
     function isAsyncProc(procName) {
-        return isPrimitive(procName) && _primitiveJsFunc[procName].constructor.name === "AsyncFunction";
+        return existsProcJsFunc(procName) && getProcJsFunc(procName).constructor.name === "AsyncFunction";
     }
     env.isAsyncProc = isAsyncProc;
 
@@ -1037,33 +1024,23 @@ $obj.create = function(logo, sys, ext) {
     }
     env.isMacro = isMacro;
 
-    function bindJsUserProc(procName, proc) {
-        _userProcJsFunc[procName] = proc;
+    function bindJsProc(procName, proc) {
+        _procJsFunc[procName] = proc;
     }
-    env.bindJsUserProc = bindJsUserProc;
+    env.bindJsProc = bindJsProc;
 
     function getCallTarget(procName) {
-        if (isPrimitive(procName)) {
-            return getPrimitive(procName);
-        } else if (existsUserProcJsFunc(procName)) {
-            return getUserProcJsFunc(procName);
-        } else {
-            return logo.interpreter.evxCallProcDefault;
-        }
+        return existsProcJsFunc(procName) ? getProcJsFunc(procName) : logo.interpreter.evxCallProcDefault;
     }
     env.getCallTarget = getCallTarget;
 
     function getPrecedence(procName) {
-        if (isPrimitive(procName)) {
-            return getPrimitivePrecedence(procName);
-        }
-
-        return 0;
+        return _procMetadata[procName].precedence;
     }
     env.getPrecedence = getPrecedence;
 
     function isCallableProc(procName) {
-        return isPrimitive(procName) || existsUserProcJsFunc(procName) || isDefinedUserProc(procName);
+        return existsProcJsFunc(procName) || isProcBodyDefined(procName);
     }
     env.isCallableProc = isCallableProc;
 

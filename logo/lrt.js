@@ -20,19 +20,19 @@ $obj.create = function(logo, sys) {
         return entry instanceof Function;
     }
 
-    function getPrimitive(entry) {
+    function getMethodName(entry) {
         return Array.isArray(entry) ? entry[0] : entry.jsFunc;
     }
 
-    function getPrimitiveFormalString(entry) {
+    function getMethodFormalString(entry) {
         return Array.isArray(entry) ? entry[1] : entry.formal;
     }
 
-    function getPrimitiveAttributes(entry) {
+    function getMethodAttributes(entry) {
         return Array.isArray(entry) ? PROC_ATTRIBUTE.PRIMITIVE : entry.attributes;
     }
 
-    function getPrimitivePrecedence(entry) {
+    function getMethodPrecedence(entry) {
         return Array.isArray(entry) ? 0 : entry.precedence;
     }
 
@@ -42,11 +42,11 @@ $obj.create = function(logo, sys) {
             if (isSimplePrimitiveDef(entry)) {
                 logo.env.bindPrimitive(name, entry);
             } else {
-                let primitive = getPrimitive(entry);
-                let formalString = getPrimitiveFormalString(entry);
+                let primitive = getMethodName(entry);
+                let formalString = getMethodFormalString(entry);
                 let formal = formalString ? logo.parse.parseSignature(formalString) : undefined;
-                let attributes = getPrimitiveAttributes(entry);
-                let precedence = getPrimitivePrecedence(entry);
+                let attributes = getMethodAttributes(entry);
+                let precedence = getMethodPrecedence(entry);
 
                 if (formal || attributes || precedence) {
                     logo.env.bindPrimitive(name, primitive, formal, attributes, precedence);

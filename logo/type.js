@@ -11,6 +11,8 @@ $obj.create = function(logo, sys) {
 
     const LOGO_EXCEPTIONS = logo.constants.LOGO_EXCEPTIONS;
 
+    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
+
     const LIST_HEAD_SIZE = 2;
     const ARRAY_HEAD_SIZE = 2;
     const SRCMAP_NULL = 0;
@@ -590,8 +592,8 @@ $obj.create = function(logo, sys) {
     }
     type.asciiToChar = asciiToChar;
 
-    function makeLogoProc(val) {
-        return makeObject(OBJTYPE.PROC, val);
+    function makeLogoProc(procName, formal, body, attributes = PROC_ATTRIBUTE.EMPTY) {
+        return makeObject(OBJTYPE.PROC, [procName, formal, body, attributes]);
     }
     type.makeLogoProc = makeLogoProc;
 
@@ -614,6 +616,11 @@ $obj.create = function(logo, sys) {
         return proc[3];
     }
     type.getLogoProcBody = getLogoProcBody;
+
+    function getLogoProcAttributes(proc) {
+        return proc[4];
+    }
+    type.getLogoProcAttributes = getLogoProcAttributes;
 
     function getLogoProcBodyWithSrcmap(proc, srcmap) {
         return embedSrcmap(proc[3], srcmap[3]);

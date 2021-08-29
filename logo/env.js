@@ -12,8 +12,6 @@ var $obj = {};
 $obj.create = function(logo, sys, ext) {
     const env = {};
 
-    let _isMacro = {};
-
     let _primitiveJsFunc = {};
 
     let _primitiveMetadata = {};
@@ -332,7 +330,6 @@ $obj.create = function(logo, sys, ext) {
         _globalScope = {"_global": 1 };
         _procJsFunc = Object.create(_primitiveJsFunc);
         _procMetadata = Object.create(_primitiveMetadata);
-        _isMacro = {};
 
         env._scopeStack = [_globalScope];
         env._userBlock = new WeakMap();
@@ -422,14 +419,13 @@ $obj.create = function(logo, sys, ext) {
     }
     env.defineLogoProc = defineLogoProc;
 
-    function defineLogoProcSignatureAtParse(procName, formal, formalSrcmap = logo.type.SRCMAP_NULL, isMacro = false) {
-        _procMetadata[procName] = makeProcMetadata(formal, formalSrcmap);
-        _isMacro[procName] = isMacro;
+    function defineLogoProcSignatureAtParse(procName, formal, formalSrcmap = logo.type.SRCMAP_NULL, attributes = PROC_ATTRIBUTE.EMPTY) {
+        _procMetadata[procName] = makeProcMetadata(formal, formalSrcmap, undefined, undefined, attributes);
     }
     env.defineLogoProcSignatureAtParse = defineLogoProcSignatureAtParse;
 
-    function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap) {
-        _procMetadata[procName] = makeProcMetadata(formal, formalSrcmap, body, bodySrcmap);
+    function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap, attributes = PROC_ATTRIBUTE.EMPTY) {
+        _procMetadata[procName] = makeProcMetadata(formal, formalSrcmap, body, bodySrcmap, attributes);
     }
     env.defineLogoProcCode = defineLogoProcCode;
 
@@ -437,6 +433,7 @@ $obj.create = function(logo, sys, ext) {
         let procName = logo.type.getLogoProcName(proc);
         let formal = logo.type.getLogoProcParams(proc);
         let body = logo.type.getLogoProcBody(proc);
+        let attributes = logo.type.getLogoProcAttributes(proc);
 
         if (existsProcJsFunc(procName)) {
             delete _procJsFunc[procName];
@@ -448,17 +445,17 @@ $obj.create = function(logo, sys, ext) {
 
         let formalSrcmap = logo.type.getLogoProcParams(srcmap);
         let bodySrcmap = logo.type.getLogoProcBody(srcmap);
-        logo.env.defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap);
+        defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap, attributes);
     }
     env.defineLogoProcBody = defineLogoProcBody;
 
-    function makeProcMetadata(formal, formalSrcmap, body = undefined, bodySrcmap = undefined) {
+    function makeProcMetadata(formal, formalSrcmap, body = undefined, bodySrcmap = undefined, attributes = PROC_ATTRIBUTE.EMPTY) {
         return {
             "formal" : formal,
             "formalSrcmap" : formalSrcmap,
             "body" : body,
             "bodySrcmap" : bodySrcmap,
-            "attributes" : PROC_ATTRIBUTE.USER,
+            "attributes" : attributes,
             "precedence" : 0
         };
     }
@@ -573,8 +570,8 @@ $obj.create = function(logo, sys, ext) {
     }
 
     function defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap) {
-        let code = logo.codegen.genProc(logo.type.makeLogoProc([procName, formal, body]),
-            logo.type.makeLogoProc([procName, formalSrcmap, bodySrcmap]));
+        let code = logo.codegen.genProc(logo.type.makeLogoProc(procName, formal, body),
+            logo.type.makeLogoProc(procName, formalSrcmap, bodySrcmap));
 
         let mergedCode = code.merge();
         eval(mergedCode);
@@ -1020,7 +1017,7 @@ $obj.create = function(logo, sys, ext) {
     env.isAsyncProc = isAsyncProc;
 
     function isMacro(procName) {
-        return _isMacro[procName] === true;
+        return getProcAttribute(procName) & PROC_ATTRIBUTE.MACRO;
     }
     env.isMacro = isMacro;
 

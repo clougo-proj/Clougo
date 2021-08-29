@@ -11,6 +11,8 @@ $obj.create = function(logo, sys) {
 
     const LOGO_EVENT = logo.constants.LOGO_EVENT;
 
+    const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
+
     const PROC_DECL = "to";
 
     const MACRO_DECL = ".macro";
@@ -390,12 +392,13 @@ $obj.create = function(logo, sys) {
             let formalSrcmap = retsrcmap[lastto + 2];
             let body = logo.type.makeLogoList(ret.slice(lastto + 3));
             let bodySrcmap = logo.type.makeLogoList(retsrcmap.slice(lastto + 3));
+            let attributes = (ret[lastto] == MACRO_DECL) ? PROC_ATTRIBUTE.MACRO : PROC_ATTRIBUTE.EMPTY;
 
-            logo.env.defineLogoProcSignatureAtParse(procName, formal, formalSrcmap, ret[lastto] == MACRO_DECL);
+            logo.env.defineLogoProcSignatureAtParse(procName, formal, formalSrcmap, attributes);
 
-            ret.splice(lastto, ret.length - lastto, logo.type.makeLogoProc([procName, formal, body]));
+            ret.splice(lastto, ret.length - lastto, logo.type.makeLogoProc(procName, formal, body, attributes));
             retsrcmap.splice(lastto, retsrcmap.length - lastto,
-                logo.type.makeLogoProc([procName, formalSrcmap, bodySrcmap]));
+                logo.type.makeLogoProc(procName, formalSrcmap, bodySrcmap, attributes));
 
             lastto = NOT_APPLICABLE;
         }

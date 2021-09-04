@@ -20,7 +20,7 @@ SETFC :N
 End
 
 to DATE
-LOCALMAKE "A0 [Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec]
+LOCALMAKE "A0 [Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec]
 LOCALMAKE "A1 ITEM 3 TIME
 LOCALMAKE "A2 ITEM 2 TIME
 LOCALMAKE "A3 LAST TIME

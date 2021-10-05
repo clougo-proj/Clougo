@@ -31,3 +31,4 @@ issue287 exec run
 issue289 exec run
 issue291 exec run
 issue316 exec,+eagerJitInstrList exec run
+issue325 exec run

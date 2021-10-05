@@ -286,7 +286,8 @@ $obj.create = function(logo, sys) {
             code.append(genThrowNotEnoughInputs(srcmap, procName));
         } else if (logo.type.isLogoList(curToken)) {
             let comp = logo.parse.parseBlock(logo.type.embedSrcmap(curToken, srcmap));
-            code.append(genBody(logo.interpreter.makeEvalContext(comp), allowUnusedValue));
+            code.append(genBody(logo.interpreter.makeEvalContext(comp), allowUnusedValue))
+                .prepend("$ret=undefined;");
         } else {
             code.append(genInstrListCall(curToken, parentSrcmap));
         }
@@ -1016,17 +1017,10 @@ $obj.create = function(logo, sys) {
                 let instrList = genInstrListFromTemplate(formal.paramTemplates[i], procName);
                 let postfix = logo.config.get("postfix") || instrList.postFix();
 
-                code.append("if(", toJsVarName(formal.params[i]), "===undefined){");
-                if (!postfix) {
-                    code.append(toJsVarName(formal.params[i]))
-                        .append("=")
-                        .append(instrList)
-                        .append(";}\n");
-                } else {
-                    code.append(instrList)
-                        .append(toJsVarName(formal.params[i]))
-                        .append("=$ret;}\n");
-                }
+                code.append("if(", toJsVarName(formal.params[i]), "===undefined){")
+                    .append(instrList)
+                    .append(toJsVarName(formal.params[i]))
+                    .append("=$ret;}\n");
             }
         }
 
@@ -1059,6 +1053,7 @@ $obj.create = function(logo, sys) {
         formal.params.forEach(v => _varScopes.addVar(v));
         code.append(genOptionalInputDefault(formal, procName));
         code.append(genConvertRestParamToLogoList(formal));
+        code.append(";$ret=undefined;")
         code.append(genBody(evxContext));
         _varScopes.exit();
 

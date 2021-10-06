@@ -1,0 +1,6 @@
+pr macrop "f
+
+.macro f :a :b
+end
+
+pr macrop "f

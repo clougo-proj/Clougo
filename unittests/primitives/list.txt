@@ -131,3 +131,4 @@ iseq run exec
 iseq_err runl execl
 run run exec
 run_err runl execl
+macrop run exec

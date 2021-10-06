@@ -1017,7 +1017,7 @@ $obj.create = function(logo, sys, ext) {
     env.isAsyncProc = isAsyncProc;
 
     function isMacro(procName) {
-        return getProcAttribute(procName) & PROC_ATTRIBUTE.MACRO;
+        return !!(getProcAttribute(procName) & PROC_ATTRIBUTE.MACRO);
     }
     env.isMacro = isMacro;
 
@@ -1037,7 +1037,7 @@ $obj.create = function(logo, sys, ext) {
     env.getPrecedence = getPrecedence;
 
     function isCallableProc(procName) {
-        return existsProcJsFunc(procName) || isProcBodyDefined(procName);
+        return existsProcJsFunc(procName) || (!getGenJs() && isProcBodyDefined(procName));
     }
     env.isCallableProc = isCallableProc;
 

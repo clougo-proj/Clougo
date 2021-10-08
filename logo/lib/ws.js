@@ -37,6 +37,8 @@ $obj.create = function(logo) {
 
         "help": primitiveHelp,
 
+        "procedurep": primitiveProcedurep,
+
         "macrop": primitiveMacrop,
     };
     ws.methods = methods;
@@ -127,6 +129,10 @@ $obj.create = function(logo) {
                 throw e;
             }
         }
+    }
+
+    function primitiveProcedurep(name) {
+        return logo.env.isProc(name) && logo.env.isCallableProc(name);
     }
 
     function primitiveMacrop(name) {

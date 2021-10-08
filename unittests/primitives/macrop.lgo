@@ -1,6 +1,11 @@
-pr macrop "f
+pr macrop "p
+pr macrop "a
 
-.macro f :a :b
+to a
 end
 
-pr macrop "f
+.macro p
+end
+
+pr macrop "p
+pr macrop "a

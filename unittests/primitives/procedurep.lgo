@@ -1,0 +1,11 @@
+show procedurep "p
+show procedurep "a
+
+to a
+end
+
+.macro p
+end
+
+show procedurep "p
+show procedurep "a

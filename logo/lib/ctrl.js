@@ -130,29 +130,29 @@ $obj.create = function(logo, sys) {
         return Array.isArray(templateSrcmap) ? templateSrcmap[0] : templateSrcmap;
     }
 
-    async function callTemplate(template, macroExpand = false) {
+    async function callTemplate(template, macroExpand = false, allowRetVal = false) {
         let srcmap = logo.env.getProcSrcmap();
         let ret = await logo.env.applyInstrList(template, srcmap,
-            !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)), {}, undefined, macroExpand);
+            !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)), {}, undefined, macroExpand, allowRetVal);
 
-        if (!macroExpand) {
+        if (!allowRetVal) {
             logo.env.checkUnusedValue(ret, srcmap);
         }
 
         return ret;
     }
 
-    async function primitiveRun(template) {
+    async function primitiveRun(template, allowRetVal = false) {
         template = wordTemplateToList(template);
         logo.type.validateInputList(template);
-        await callTemplate(template);
+        return await callTemplate(template, false, allowRetVal);
     }
 
     async function primitiveMacroexpand(template) {
         template = wordTemplateToList(template);
         logo.type.validateInputList(template);
         logo.type.validateInputMacro(logo.type.listFirst(template));
-        return await callTemplate(template, true);
+        return await callTemplate(template, true, true);
     }
 
     async function primitiveIf(predicate, template) {

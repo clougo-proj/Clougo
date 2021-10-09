@@ -817,7 +817,9 @@ $obj.create = function(logo, sys, ext) {
     }
     env.codegenOnly = codegenOnly;
 
-    async function applyInstrList(template, srcmap, pushCallStack = true, slot = {}, inputListSrcmap = undefined, macroExpand = false) {
+    async function applyInstrList(template, srcmap, pushCallStack = true, slot = {}, inputListSrcmap = undefined, macroExpand = false,
+        allowRetVal = false) {
+
         let formalParam = getInstrListFormalParam(template);
 
         if (formalParam !== undefined) {
@@ -844,7 +846,7 @@ $obj.create = function(logo, sys, ext) {
         let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
         if (formalParam === undefined) {
             let scopeStackLength = env._scopeStack.length;
-            let ret = await logo.interpreter.evxInstrList(bodyComp, slot, pushCallStack, macroExpand, macroExpand);
+            let ret = await logo.interpreter.evxInstrList(bodyComp, slot, pushCallStack, allowRetVal, macroExpand);
             env._scopeStack.splice(scopeStackLength);
 
             return ret;

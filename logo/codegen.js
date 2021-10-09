@@ -1147,28 +1147,12 @@ $obj.create = function(logo, sys) {
     }
 
     function genMacroCall(evxContext, curToken, srcmap, isInParen) {
-        let code = Code.expr();
-        let macroOutput = genProcCall(evxContext, curToken, srcmap, isInParen);
-
         logo.env.setAsyncFunctionCall(true);
-        let postfix = logo.config.get("postfix") || macroOutput.postFix();
-        if (!postfix) {
-            code.append("{let $macro=", macroOutput, ";\n");
-        } else {
-            code.append(macroOutput, ";\n", "{let $macro=$ret;\n");
-        }
-
-        code.append("if(!logo.type.isLogoList($macro)){", genThrowInvalidMacroReturn(srcmap, curToken), "}\n");
-
-        if (!postfix) {
-            code.append(genInfixProcCall("run", logo.type.SRCMAP_NULL, ["$macro"]).prepend("$ret="));
-        } else {
-            code.append(genPostfixProcCall("run", logo.type.SRCMAP_NULL, ["$ret=$macro"]));
-        }
-
-        code.append("}");
-
-        return code;
+        return genProcCall(evxContext, curToken, srcmap, isInParen)
+            .append(";\n", "{let $macro=$ret;\n")
+            .append("if(!logo.type.isLogoList($macro)){", genThrowInvalidMacroReturn(srcmap, curToken), "}\n")
+            .append(genPostfixProcCall("run", logo.type.SRCMAP_NULL, ["$ret=$macro", true]))
+            .append("}");
     }
 
     function genCall(evxContext, curToken, srcmap, isInParen) {

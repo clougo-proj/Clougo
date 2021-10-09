@@ -239,7 +239,7 @@ $obj.create = function(logo, sys) {
         logo.env.setProcName("run");
         logo.env.setProcSrcmap(logo.type.SRCMAP_NULL);
 
-        return await logo.env.getPrimitive("run").apply(undefined, [macroOutput]);
+        return await logo.env.getPrimitive("run").apply(undefined, [macroOutput, true]);
     }
 
     async function evxCallProcDefault(...callParams) {

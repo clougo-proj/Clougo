@@ -18,6 +18,8 @@ $obj.create = function(logo, sys) {
 
         "run": {jsFunc: primitiveRun, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
+        "macroexpand": {jsFunc: primitiveMacroexpand, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
+
         "repeat": {jsFunc: primitiveRepeat, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
         "if": {jsFunc: primitiveIf, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
@@ -128,17 +130,29 @@ $obj.create = function(logo, sys) {
         return Array.isArray(templateSrcmap) ? templateSrcmap[0] : templateSrcmap;
     }
 
-    async function callTemplate(template) {
+    async function callTemplate(template, macroExpand = false) {
         let srcmap = logo.env.getProcSrcmap();
         let ret = await logo.env.applyInstrList(template, srcmap,
-            !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
-        logo.env.checkUnusedValue(ret, srcmap);
+            !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)), {}, undefined, macroExpand);
+
+        if (!macroExpand) {
+            logo.env.checkUnusedValue(ret, srcmap);
+        }
+
+        return ret;
     }
 
     async function primitiveRun(template) {
         template = wordTemplateToList(template);
         logo.type.validateInputList(template);
         await callTemplate(template);
+    }
+
+    async function primitiveMacroexpand(template) {
+        template = wordTemplateToList(template);
+        logo.type.validateInputList(template);
+        logo.type.validateInputMacro(logo.type.listFirst(template));
+        return await callTemplate(template, true);
     }
 
     async function primitiveIf(predicate, template) {

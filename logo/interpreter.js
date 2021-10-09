@@ -165,7 +165,7 @@ $obj.create = function(logo, sys) {
         return evxContext.retVal;
     }
 
-    async function evxToken(evxContext, precedence = 0, isInParen = false, stopAtLineEnd = false) {
+    async function evxToken(evxContext, precedence = 0, isInParen = false, stopAtLineEnd = false, macroExpand = false) {
         evxContext.retVal = undefined;
         let curToken = evxContext.getToken();
 
@@ -215,7 +215,7 @@ $obj.create = function(logo, sys) {
             evxContext.retVal = logo.env.callProc("?", curSrcmap, logo.env.extractSlotNum(curToken));
         } else {
             evxContext.proc = curToken;
-            await evxCallProc(evxContext, curToken, curSrcmap, isInParen);
+            await evxCallProc(evxContext, curToken, curSrcmap, isInParen, macroExpand);
         }
 
         while(evxContext.isNextTokenBinaryOperator()) {
@@ -249,7 +249,7 @@ $obj.create = function(logo, sys) {
     }
     interpreter.evxCallProcDefault = evxCallProcDefault;
 
-    async function evxCallProc(evxContext, curToken, curSrcmap, isInParen) {
+    async function evxCallProc(evxContext, curToken, curSrcmap, isInParen, macroExpand) {
         if (!logo.env.isCallableProc(curToken)) {
             throw logo.type.LogoException.UNKNOWN_PROC.withParam([curToken], curSrcmap);
         }
@@ -263,7 +263,7 @@ $obj.create = function(logo, sys) {
         logo.env.setProcSrcmap(curSrcmap);
         evxContext.retVal = await logo.env.getCallTarget(curToken).apply(undefined, callParams);
         logo.env.completeCallProc(curToken);
-        if (logo.env.isMacro(curToken)) {
+        if (!macroExpand && logo.env.isMacro(curToken)) {
             evxContext.retVal = await evxMacroOutput(evxContext.retVal, curToken, curSrcmap);
         }
     }
@@ -275,11 +275,11 @@ $obj.create = function(logo, sys) {
         evxContext.retVal = await logo.env.callPrimitiveOperatorAsync.apply(undefined, actualParam);
     }
 
-    async function evxBody(body, allowRetVal = false) {
+    async function evxBody(body, allowRetVal = false, macroExpand = false) {
         let evxContext = makeEvalContext(body);
 
         do {
-            await evxToken(evxContext);
+            await evxToken(evxContext, 0, false, false, macroExpand);
             if (logo.config.get("unusedValue") && (!allowRetVal || evxContext.hasNext())) {
                 logo.env.checkUnusedValue(evxContext.retVal, evxContext.getSrcmap());
             }
@@ -353,11 +353,11 @@ $obj.create = function(logo, sys) {
     }
     interpreter.evxInstrListWithFormalParam = evxInstrListWithFormalParam;
 
-    async function evxInstrList(bodyComp, slot = {}, pushStack = true, allowRetVal = false) {
+    async function evxInstrList(bodyComp, slot = {}, pushStack = true, allowRetVal = false, macroExpand = false) {
         logo.type.validateInputList(bodyComp);
         let parsedBlock = logo.parse.parseBlock(bodyComp);
         if (!logo.type.hasReferenceSrcmap(bodyComp) || !pushStack) {
-            return await evxBody(parsedBlock, allowRetVal);
+            return await evxBody(parsedBlock, allowRetVal, macroExpand);
         }
 
         logo.env.prepareCallProc(logo.type.LAMBDA_EXPR, logo.type.getReferenceSrcmap(bodyComp), slot);

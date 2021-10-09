@@ -63,6 +63,7 @@ Constants.LOGO_EXCEPTIONS = {
     NESTED_TO             : [23, "Can't use TO inside a procedure"],
     INVALID_MACRO_RETURN  : [29, "Macro {1} returned {0} instead of a list."],
     CANT_OPEN_FILE        : [40, "I can't open file {0}"],
+    NOT_MACRO             : [101, "{1} is not a macro."],
     NOT_SAME_LENGTH       : [1022, "Inputs of {0} have different lengths"],
     TOO_MANY_INPUTS       : [1023, "Too many inputs to {0}"],
     LAST_ERROR_CODE       : [1024],

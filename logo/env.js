@@ -817,14 +817,14 @@ $obj.create = function(logo, sys, ext) {
     }
     env.codegenOnly = codegenOnly;
 
-    async function applyInstrList(template, srcmap, pushCallStack = true, slot = {}, inputListSrcmap = undefined) {
+    async function applyInstrList(template, srcmap, pushCallStack = true, slot = {}, inputListSrcmap = undefined, macroExpand = false) {
         let formalParam = getInstrListFormalParam(template);
 
         if (formalParam !== undefined) {
             logo.env.checkSlotLength(logo.type.LAMBDA_EXPR, slot.param, inputListSrcmap, formalParam.length);
         }
 
-        if (getGenJs() && (env._userBlockCalled.has(template) || logo.config.get("eagerJitInstrList"))) {
+        if (getGenJs() && !macroExpand && (env._userBlockCalled.has(template) || logo.config.get("eagerJitInstrList"))) {
             let scopeStackLength = env._scopeStack.length;
             if (pushCallStack) {
                 prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
@@ -844,7 +844,7 @@ $obj.create = function(logo, sys, ext) {
         let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
         if (formalParam === undefined) {
             let scopeStackLength = env._scopeStack.length;
-            let ret = await logo.interpreter.evxInstrList(bodyComp, slot, pushCallStack);
+            let ret = await logo.interpreter.evxInstrList(bodyComp, slot, pushCallStack, macroExpand, macroExpand);
             env._scopeStack.splice(scopeStackLength);
 
             return ret;

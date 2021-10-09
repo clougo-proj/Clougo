@@ -761,6 +761,11 @@ $obj.create = function(logo, sys) {
     }
     type.validateInputXY = validateInputXY;
 
+    function validateInputMacro(name) {
+        ifTrueThenThrow(!(logo.env.isMacro(name) && logo.env.isCallableProc(name)), type.LogoException.NOT_MACRO, name);
+    }
+    type.validateInputMacro = validateInputMacro;
+
     function validateIndexWithinListRange(index, list) {
         ifTrueThenThrow(!logo.type.listIndexWithinRange(index, list), type.LogoException.INVALID_INPUT, index);
     }

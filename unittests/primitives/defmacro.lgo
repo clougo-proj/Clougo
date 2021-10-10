@@ -1,0 +1,21 @@
+.defmacro "f [[a b][
+    output (list :a :b)]]
+
+.defmacro "myRepeat [[myRepeat.count myRepeat.template][
+    if (:myRepeat.count = 0) [output []]
+    output (se :myRepeat.template (list "myRepeat :myRepeat.count-1 :myRepeat.template)) ]]
+
+f "pr "\"hello
+
+make "count 0
+myRepeat 3[make "count :count+1]
+pr :count
+
+.defmacro "a [[][
+    op ["abc] ]]
+
+.defmacro "b [[][
+    op [word "de "f]]]
+
+show (a)
+show (b)

@@ -385,19 +385,28 @@ $obj.create = function(logo, sys) {
     type.listFirst = listFirst;
 
     function listButFirst(list) {
+        return listHelper(list, list => list.splice(LIST_HEAD_SIZE, 1));
+    }
+    type.listButFirst = listButFirst;
+
+    function listUnshift(list, item, itemSrcmap = SRCMAP_NULL) {
+        return listHelper(list, list => list.splice(LIST_HEAD_SIZE, 0, item), srcmap => srcmap.splice(LIST_HEAD_SIZE, 0, itemSrcmap));
+    }
+    type.listUnshift = listUnshift;
+
+    function listHelper(list, helperFunc, srcmapHelperFunc = helperFunc) {
         let ret = list.slice(0);
         let embeddedSrcmap = getEmbeddedSrcmap(list);
 
-        ret.splice(LIST_HEAD_SIZE, 1);
+        helperFunc(ret);
         if (embeddedSrcmap === SRCMAP_NULL) {
             return ret;
         }
 
         embeddedSrcmap = embeddedSrcmap.slice(0);
-        embeddedSrcmap.splice(LIST_HEAD_SIZE, 1);
+        srcmapHelperFunc(embeddedSrcmap);
         return embedSrcmap(ret, embeddedSrcmap);
     }
-    type.listButFirst = listButFirst;
 
     function listButLast(list) {
         return makeLogoList(list.slice(LIST_HEAD_SIZE, list.length - 1));

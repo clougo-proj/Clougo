@@ -20,6 +20,8 @@ $obj.create = function(logo) {
 
         "define": primitiveDefine,
 
+        ".defmacro": primitiveDefmacro,
+
         "text": primitiveText,
 
         "make": {jsFunc: primitiveMake, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR},
@@ -59,7 +61,21 @@ $obj.create = function(logo) {
     }
 
     function getFormalFromText(text) {
-        return logo.type.unboxList(logo.type.listFirst(text));
+        let ret = logo.type.unboxList(logo.type.listFirst(text)).map(v => {
+            if (typeof v === "string") {
+                return v.toLowerCase();
+            }
+
+            if (logo.type.isLogoList(v) && logo.type.listLength(v) > 0) {
+                let name = logo.type.listFirst(v);
+                let param = logo.type.listButFirst(v);
+                return logo.type.listUnshift(param, name.toLowerCase());
+            }
+
+            throw logo.type.LogoException.INVALID_INPUT.withParam([logo.env.getProcName(), v], logo.env.getProcSrcmap());
+        });
+
+        return ret;
     }
 
     function getFormalSrcmapFromText(text) {
@@ -104,6 +120,15 @@ $obj.create = function(logo) {
             getBodyFromText(text),
             getFormalSrcmapFromText(text),
             getBodySrcmapFromText(text));
+    }
+
+    function primitiveDefmacro(procname, text) {
+        logo.env.defineLogoProc(procname.toLowerCase(),
+            getFormalFromText(text),
+            getBodyFromText(text),
+            getFormalSrcmapFromText(text),
+            getBodySrcmapFromText(text),
+            PROC_ATTRIBUTE.MACRO);
     }
 
     function primitiveTo() {

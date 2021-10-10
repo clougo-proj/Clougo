@@ -16,5 +16,5 @@ Too much inside ()'s
     at 9,11
 Too much inside ()'s
     at 13,5
-define doesn't like {} as input
+.defmacro doesn't like {} as input
     at 15,1

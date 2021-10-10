@@ -428,9 +428,9 @@ $obj.create = function(logo, sys, ext) {
     env.callLogoInstrListAsync = callLogoInstrListAsync;
 
     function defineLogoProc(procName, formal, body, formalSrcmap = logo.type.SRCMAP_NULL,
-        bodySrcmap = logo.type.SRCMAP_NULL) {
+        bodySrcmap = logo.type.SRCMAP_NULL, attributes = PROC_ATTRIBUTE.EMPTY) {
 
-        defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap);
+        defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap, attributes);
 
         if (getGenJs() || existsProcJsFunc(procName)) {
             defineLogoProcJs(procName, formal, body, formalSrcmap, bodySrcmap);
@@ -445,10 +445,9 @@ $obj.create = function(logo, sys, ext) {
     }
     env.defineLogoProcSignatureAtParse = defineLogoProcSignatureAtParse;
 
-    function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap, attributes = PROC_ATTRIBUTE.EMPTY) {
+    function defineLogoProcCode(procName, formal, body, formalSrcmap, bodySrcmap, attributes) {
         _procMetadata[procName] = makeProcMetadata(formal, formalSrcmap, body, bodySrcmap, attributes);
     }
-    env.defineLogoProcCode = defineLogoProcCode;
 
     function defineLogoProcBody(proc, srcmap) {
         let procName = logo.type.getLogoProcName(proc);

@@ -732,6 +732,11 @@ $obj.create = function(logo, sys) {
     }
     type.validateInputList = validateInputList;
 
+    function validateInputNonEmptyList(value) {
+        ifTrueThenThrow(!logo.type.isLogoList(value) || logo.type.listLength(value) === 0, type.LogoException.INVALID_INPUT, value);
+    }
+    type.validateInputNonEmptyList = validateInputNonEmptyList;
+
     function validateInputWordOrList(value) {
         ifTrueThenThrow(!logo.type.isLogoWord(value) && !logo.type.isLogoList(value), type.LogoException.INVALID_INPUT, value);
     }

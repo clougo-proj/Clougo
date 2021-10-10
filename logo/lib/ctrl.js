@@ -150,7 +150,7 @@ $obj.create = function(logo, sys) {
 
     async function primitiveMacroexpand(template) {
         template = wordTemplateToList(template);
-        logo.type.validateInputList(template);
+        logo.type.validateInputNonEmptyList(template);
         logo.type.validateInputMacro(logo.type.listFirst(template));
         return await callTemplate(template, true, true);
     }

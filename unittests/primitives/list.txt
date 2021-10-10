@@ -134,3 +134,4 @@ run_err runl execl
 macrop run exec
 procedurep run exec
 macroexpand run runl exec execl
+macroexpand_err runl execl

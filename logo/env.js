@@ -37,6 +37,13 @@ $obj.create = function(logo, sys, ext) {
 
     const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
 
+    const PROC_PARAM = logo.constants.PROC_PARAM;
+
+    const DEFAULT_PRECEDENCE = 0;
+
+    const UNDEFINED_PROC_DEFAULT_FORMAL = makeFormal(
+        PROC_PARAM.DEFAULT, PROC_PARAM.DEFAULT_MIN,  PROC_PARAM.DEFAULT, PROC_PARAM.UNLIMITED, [], [], undefined);
+
     function createParamScope() {
         let _stack = [];
         let obj = {};
@@ -124,9 +131,23 @@ $obj.create = function(logo, sys, ext) {
     async function callProcAsync(name, srcmap, ...args) {
         setProcName(name);
         setProcSrcmap(srcmap);
-        return await getCallTarget(name).apply(undefined, args);
+        let retVal = await getCallTarget(name).apply(undefined, args);
+
+        if (isMacro(name)) {
+            validateMacroOutput(retVal, name, srcmap);
+            return await logo.env.getPrimitive("run").apply(undefined, [retVal, true]);
+        }
+
+        return retVal;
     }
     env.callProcAsync = callProcAsync;
+
+    function validateMacroOutput(val, name, srcmap) {
+        if (!logo.type.isLogoList(val)) {
+            env._frameProcName = env._callstack.pop()[0];
+            throwRuntimeLogoException(logo.type.LogoException.INVALID_MACRO_RETURN, srcmap, [val, name]);
+        }
+    }
 
     function callPrimitiveOperator(name, srcmap, ...args) {
         setProcName(name);
@@ -499,10 +520,9 @@ $obj.create = function(logo, sys, ext) {
     }
     env.makeFormal = makeFormal;
 
-    function makeDefaultFormal(length) {
-        return makeFormal(length, length, length, length, Array.from({length: length}, (v, i) => i), [], undefined);
+    function makeFixedLengthPrimitiveFormal(length) {
+        return makeFormal(length, length, length, length, [], [], undefined);
     }
-    env.makeDefaultFormal = makeDefaultFormal;
 
     function parseFormalParams(formal, formalSrcmap = logo.type.SRCMAP_NULL) {
         let length = formal.length;
@@ -538,7 +558,7 @@ $obj.create = function(logo, sys, ext) {
 
         function parseRestParam() {
             if (ptr >= 0 && isRestInput(formal[ptr])) {
-                maxInputCount = -1;
+                maxInputCount = PROC_PARAM.UNLIMITED;
                 restParam = getInputName(formal[ptr]);
                 ptr -= 1;
             } else {
@@ -917,7 +937,7 @@ $obj.create = function(logo, sys, ext) {
             throw logo.type.LogoException.NOT_ENOUGH_INPUTS.withParam([template], srcmap);
         }
 
-        if (maxLength !== -1 && (slot.length > length || (maxLength !== undefined && slot.length > maxLength))) {
+        if (maxLength !== PROC_PARAM.UNLIMITED && (slot.length > length || (maxLength !== undefined && slot.length > maxLength))) {
             throw logo.type.LogoException.TOO_MANY_INPUTS.withParam([template], srcmap);
         }
     }
@@ -949,6 +969,10 @@ $obj.create = function(logo, sys, ext) {
     env.makeSlotObj = makeSlotObj;
 
     function getProcParsedFormal(procName) {
+        if (!isProc(procName)) {
+            return UNDEFINED_PROC_DEFAULT_FORMAL;
+        }
+
         let procMetaData = _procMetadata[procName];
         if (!("parsedFormal" in procMetaData)) {
             procMetaData.parsedFormal = parseFormalParams(procMetaData.formal, procMetaData.formalSrcmap);
@@ -959,7 +983,7 @@ $obj.create = function(logo, sys, ext) {
     env.getProcParsedFormal = getProcParsedFormal;
 
     function getProcAttribute(procName) {
-        return procName in _procMetadata ? _procMetadata[procName].attributes : PROC_ATTRIBUTE.EMPTY;
+        return isProc(procName) ? _procMetadata[procName].attributes : PROC_ATTRIBUTE.EMPTY;
     }
 
     function procReturnsInLambda(procName) {
@@ -1002,7 +1026,7 @@ $obj.create = function(logo, sys, ext) {
     env.getProcMetadata = getProcMetadata;
 
     function bindPrimitive(primitiveName, primitiveJsFunc, formal = undefined, attributes = PROC_ATTRIBUTE.PRIMITIVE, precedence = 0) {
-        let parsedFormal = (formal !== undefined) ? parseFormalParams(formal) : makeDefaultFormal(primitiveJsFunc.length);
+        let parsedFormal = (formal !== undefined) ? parseFormalParams(formal) : makeFixedLengthPrimitiveFormal(primitiveJsFunc.length);
         _primitiveJsFunc[primitiveName] = primitiveJsFunc;
         _primitiveMetadata[primitiveName] = makePrimitiveMetadata(parsedFormal, attributes | PROC_ATTRIBUTE.PRIMITIVE, precedence);
     }
@@ -1034,7 +1058,7 @@ $obj.create = function(logo, sys, ext) {
     env.getCallTarget = getCallTarget;
 
     function getPrecedence(procName) {
-        return _procMetadata[procName].precedence;
+        return isProc(procName) ? _procMetadata[procName].precedence : DEFAULT_PRECEDENCE;
     }
     env.getPrecedence = getPrecedence;
 

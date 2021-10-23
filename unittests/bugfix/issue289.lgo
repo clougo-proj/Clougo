@@ -1,5 +1,5 @@
 define "F [[][pr "pass]]
-F
+(F)
 
 define "G text "f
-g
+(g)

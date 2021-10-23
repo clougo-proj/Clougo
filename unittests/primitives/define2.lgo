@@ -3,7 +3,7 @@ define "f1 [[[x "hello]] [
     pr :x]]
 
 pr "test:f1
-f1
+(f1)
 (f1 "yes)
 
 ; expression in optional input's default value
@@ -12,7 +12,7 @@ define "f2 [[[x (first :y)]] [
 
 make "y [abc 2]
 pr "\ntest:f2
-f2
+(f2)
 (f2 "yes)
 
 ; default input count
@@ -33,7 +33,7 @@ define "f4 [[y [x word (first :y) :z]] [
 make "y [abc 2]
 make "z "ghi
 pr "\ntest:f4
-f4 [def 2]
+(f4 [def 2])
 (f4 "yes)
 
 ; having required input, optional input, rest input, and default input count
@@ -41,16 +41,16 @@ define "f5 [[y [z :y-1] [x] 1] [
     pr (list "y= :y ", "z= :z ", "x= :x)]]
 
 pr "\ntest:f5
-f5 1
+(f5 1)
 (f5 1 2)
 (f5 1 2 3)
 (f5 1 2 3 4)
 (f5 1 2 3 4 5)
 
 ; :y passed in as a input shadows the global :y
-define "f6 [[y [x g]]]
+define "f6 [[y [x (g)]]]
 define "g [[] [pr :y]]
 
 make "y 1
 pr "\ntest:f6
-f6 2
+(f6 2)

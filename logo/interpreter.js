@@ -12,6 +12,8 @@ var $obj = {};
 $obj.create = function(logo, sys) {
     const interpreter = {};
 
+    const PROC_PARAM = logo.constants.PROC_PARAM;
+
     function makeEvalContext(body) {
         const obj = Object.create({
             next: function() {
@@ -108,7 +110,7 @@ $obj.create = function(logo, sys) {
         function paramNotCompleteWithinParen() {
             return isInParen && evxContext.peekNextToken() != ")" &&
                 ((formal.maxInputCount > formal.defaultInputCount && paramPtr < formal.maxInputCount) ||
-                    formal.maxInputCount === -1 || paramPtr < formal.defaultInputCount);
+                    formal.maxInputCount === PROC_PARAM.UNLIMITED || paramPtr < formal.defaultInputCount);
         }
 
         function paramNotCompleteWithoutParen() {
@@ -236,7 +238,7 @@ $obj.create = function(logo, sys) {
             throw logo.type.LogoException.INVALID_MACRO_RETURN.withParam([macroOutput, curToken], curSrcmap);
         }
 
-        logo.env.setProcName("run");
+        logo.env.setProcName(curToken);
         logo.env.setProcSrcmap(logo.type.SRCMAP_NULL);
 
         return await logo.env.getPrimitive("run").apply(undefined, [macroOutput, true]);

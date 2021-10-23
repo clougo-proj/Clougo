@@ -84,6 +84,14 @@ const PROC_ATTRIBUTE = {
 Object.freeze(PROC_ATTRIBUTE);
 Constants.PROC_ATTRIBUTE = PROC_ATTRIBUTE;
 
+const PROC_PARAM = {
+    UNLIMITED               : -1,
+    DEFAULT_MIN             : 0,
+    DEFAULT                 : 2
+};
+Object.freeze(PROC_PARAM);
+Constants.PROC_PARAM = PROC_PARAM;
+
 if (typeof exports != "undefined") {
     exports.Constants = Constants;
 }

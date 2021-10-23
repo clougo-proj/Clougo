@@ -240,15 +240,15 @@ $obj.create = function(logo) {
     function primitiveMemberp(candidate, group) {
         if (logo.type.isLogoWord(group)) {
             logo.type.validateInputCharacter(candidate);
-            return logo.type.wordFindItem(candidate, group) != -1;
+            return logo.type.wordFindItem(candidate, group) !== -1;
         }
 
         if (logo.type.isLogoList(group)) {
-            return logo.type.listFindItem(candidate, group) != -1;
+            return logo.type.listFindItem(candidate, group) !== -1;
         }
 
         logo.type.validateInputArray(group);
-        return logo.type.arrayFindItem(candidate, group) != -1;
+        return logo.type.arrayFindItem(candidate, group) !== -1;
     }
     function primitiveButfirst(thing) {
         if (logo.type.isLogoWord(thing)) {

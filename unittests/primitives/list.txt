@@ -94,8 +94,6 @@ define_err1 run exec
 define_err2 run exec
 define_err3 run exec
 define_err4 run exec
-define_err5 run exec
-define_err6 run exec
 text_define run exec
 mouse_queries runl execl
 load run exec

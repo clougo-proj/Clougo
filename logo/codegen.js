@@ -13,6 +13,8 @@ $obj.create = function(logo, sys) {
 
     const TOP_LEVEL_FUNC = "";
 
+    const PROC_PARAM = logo.constants.PROC_PARAM;
+
     const codegen = {};
 
     let _funcName = TOP_LEVEL_FUNC;
@@ -208,6 +210,7 @@ $obj.create = function(logo, sys) {
     const ASYNC_MACRO = {
         "ASYNC": Code.asyncMacro("ASYNC"),
         "AWAIT": Code.asyncMacro("AWAIT"),
+        "CALL_PROC": Code.asyncMacro("CALL_PROC"),
         "CALL_PRIMITIVE_OPERATOR": Code.asyncMacro("CALL_PRIMITIVE_OPERATOR"),
         "CALL_LOGO_INSTR_LIST": Code.asyncMacro("CALL_LOGO_INSTR_LIST")
     };
@@ -215,6 +218,7 @@ $obj.create = function(logo, sys) {
     const ASYNC_MACRO_CODE = {
         "ASYNC": ["async ", ""],
         "AWAIT": ["await ", ""],
+        "CALL_PROC": ["callProcAsync", "callProc"],
         "CALL_PRIMITIVE_OPERATOR": [ "await logo.env.callPrimitiveOperatorAsync",
             "logo.env.callPrimitiveOperator"],
         "CALL_LOGO_INSTR_LIST": ["await callLogoInstrListAsync(", "callLogoInstrList("]
@@ -606,7 +610,7 @@ $obj.create = function(logo, sys) {
             code = code.append(genStashLocalVars());
         }
 
-        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callProc(")
+        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.", ASYNC_MACRO.CALL_PROC, "(")
             .append(quoteToken(escapeProcName(curToken)), ",", logo.type.srcmapToJs(srcmap), ",")
             .append(Code.expr.apply(undefined, insertDelimiters(param, ",")))
             .append("),");
@@ -651,7 +655,7 @@ $obj.create = function(logo, sys) {
         });
 
         code.append("$ret;\n");
-        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.callProc.apply(undefined,$param.end());\n");
+        code = code.append("$ret=", ASYNC_MACRO.AWAIT, "logo.env.", ASYNC_MACRO.CALL_PROC, ".apply(undefined,$param.end());\n");
 
         if (!logo.env.isPrimitive(curToken)) {
             code = code.append(genCompleteCall());
@@ -697,7 +701,7 @@ $obj.create = function(logo, sys) {
         function paramNotCompleteWithinParen() {
             return isInParen && evxContext.peekNextToken() != logo.type.CLOSE_PAREN &&
                 ((formal.maxInputCount > formal.defaultInputCount && j < formal.maxInputCount) ||
-                    formal.maxInputCount === -1 || j < formal.defaultInputCount);
+                    formal.maxInputCount === PROC_PARAM.UNLIMITED || j < formal.defaultInputCount);
         }
 
         function paramNotCompleteWithoutParen() {
@@ -717,12 +721,12 @@ $obj.create = function(logo, sys) {
     }
 
     function genProcCall(evxContext, curToken, srcmap, isInParen) {
-        let param = genProcCallParams(evxContext, curToken, logo.env.getProcParsedFormal(curToken),
-            logo.env.getPrecedence(curToken), isInParen);
-
-        if (logo.env.isAsyncProc(curToken)) {
+        if (logo.env.isAsyncProc(curToken) || logo.env.isMacro(curToken) || !logo.env.isProc(curToken)) {
             logo.env.setAsyncFunctionCall(true);
         }
+
+        let param = genProcCallParams(evxContext, curToken, logo.env.getProcParsedFormal(curToken),
+            logo.env.getPrecedence(curToken), isInParen);
 
         if (logo.env.procReturnsInLambda(curToken)) {
             return genReturnInLambda(genPostfixProcCall(curToken, srcmap, param));
@@ -1076,10 +1080,6 @@ $obj.create = function(logo, sys) {
         return genThrow(logo.type.LogoException.UNKNOWN_PROC, srcmap, quoteToken(escapeProcName(procName)));
     }
 
-    function genThrowInvalidMacroReturn(srcmap, procName) {
-        return genThrow(logo.type.LogoException.INVALID_MACRO_RETURN, srcmap, "$ret", quoteToken(escapeProcName(procName)));
-    }
-
     function genThrow(logoException, srcmap, ...param) {
         return Code.expr("(throwRuntimeLogoException(logo.type.LogoException.", logoException.name(), ",")
             .append(logo.type.srcmapToJs(srcmap))
@@ -1106,74 +1106,15 @@ $obj.create = function(logo, sys) {
         return code;
     }
 
-    function genDeferredCallTemplateWithoutParen(evxContext) {
-        let srcmap = evxContext.getSrcmap();
-        let template = [];
-        let templateSrcmap = [];
-        while (!evxContext.isEol() && evxContext.getToken() != logo.type.NEWLINE) {
-            template.push(evxContext.getToken());
-            templateSrcmap.push(evxContext.getSrcmap());
-            evxContext.next();
-        }
-
-        template.push(logo.type.NEWLINE);
-        templateSrcmap.push(evxContext.getSrcmap());
-        return logo.type.makeCompList(template, srcmap, templateSrcmap);
-    }
-
-    function genDeferredCallTemplateWithinParen(evxContext) {
-        let srcmap = evxContext.getSrcmap();
-        let template = ["(", evxContext.getToken()];
-        let templateSrcmap = [logo.type.SRCMAP_NULL, evxContext.getSrcmap()];
-        while (!evxContext.isEol() && evxContext.peekNextToken() != logo.type.CLOSE_PAREN) {
-            evxContext.next();
-            template.push(evxContext.getToken());
-            templateSrcmap.push(evxContext.getSrcmap());
-        }
-
-        template.push(logo.type.CLOSE_PAREN);
-        templateSrcmap.push(logo.type.SRCMAP_NULL);
-        return logo.type.makeCompList(template, srcmap, templateSrcmap);
-    }
-
-
-    function genDeferredCall(evxContext, isInParen) {
-        let srcmap = evxContext.getSrcmap();
-        let deferredCallTemplate = isInParen ? genDeferredCallTemplateWithinParen(evxContext) :
-            genDeferredCallTemplateWithoutParen(evxContext);
-
-        logo.env.setAsyncFunctionCall(true);
-        return genPostfixProcCall("run", srcmap, [Code.expr("$ret=", deferredCallTemplate)]);
-    }
-
-    function genMacroCall(evxContext, curToken, srcmap, isInParen) {
-        logo.env.setAsyncFunctionCall(true);
-        return genProcCall(evxContext, curToken, srcmap, isInParen)
-            .append(";\n", "{let $macro=$ret;\n")
-            .append("if(!logo.type.isLogoList($macro)){", genThrowInvalidMacroReturn(srcmap, curToken), "}\n")
-            .append(genPostfixProcCall("run", logo.type.SRCMAP_NULL, ["$ret=$macro", true]))
-            .append("}");
-    }
-
     function genCall(evxContext, curToken, srcmap, isInParen) {
-        let code = Code.expr();
-
-        let nativeJsCode = undefined;
-        if (curToken in genNativeJs && (nativeJsCode = genNativeJs[curToken](evxContext, isInParen)) !== undefined) {
-            if (nativeJsCode.isExpr()) {
-                code.append("$ret=");
+        if (curToken in genNativeJs) {
+            let code = genNativeJs[curToken](evxContext, isInParen);
+            if (code !== undefined) {
+                return code;
             }
-
-            code.append(nativeJsCode);
-        } else if (logo.env.isMacro(curToken)) {
-            code.append(genMacroCall(evxContext, curToken, srcmap, isInParen));
-        } else if (logo.env.isProc(curToken)) {
-            code.append(genProcCall(evxContext, curToken, srcmap, isInParen));
-        } else {
-            code.append(_isLambda ? genThrowUnknownProc(srcmap, curToken) : genDeferredCall(evxContext, isInParen));
         }
 
-        return code;
+        return genProcCall(evxContext, curToken, srcmap, isInParen);
     }
 
     return codegen;

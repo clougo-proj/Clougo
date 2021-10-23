@@ -5,7 +5,7 @@ end
 testTo "|TO passed|
 
 define "testDefine [[\*val][pr :\*val]]
-testDefine "|DEFINE passed|
+(testDefine "|DEFINE passed|)
 
 define "testDefineUsingText text "testDefine
-testDefineUsingText "|DEFINE using TEXT passed|
+(testDefineUsingText "|DEFINE using TEXT passed|)

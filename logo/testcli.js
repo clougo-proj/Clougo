@@ -15,6 +15,8 @@ const MESSAGE_TAG = {
 
 const TIME_OUT = 2000; // ms
 
+const ERROR = -1;
+
 function unescapeSpecialChar(str) {
     return str.replace(/\\n/g, "\n")
         .replace(/\\r/g, "\r")
@@ -52,7 +54,7 @@ const createTestStub = function(cliut, cliSequence, resolve) {
     function checkIncomplete() {
         if (ptr < cliSequence.length) {
             console.error(formatMessage(MESSAGE_TAG.EXPECT, cliSequence[ptr].text));
-            resolve(-1);
+            resolve(ERROR);
         }
     }
 
@@ -60,7 +62,7 @@ const createTestStub = function(cliut, cliSequence, resolve) {
         if (ptr >= cliSequence.length) {
             console.error("Unexpcted output!");
             console.error(formatMessage(MESSAGE_TAG.ACTUAL, data));
-            resolve(-1);
+            resolve(ERROR);
             return;
         }
 
@@ -68,7 +70,7 @@ const createTestStub = function(cliut, cliSequence, resolve) {
         if (goldenData.type != IO_TYPE.OUTPUT || data != goldenData.text) {
             console.error(formatMessage(MESSAGE_TAG.EXPECT, goldenData.text));
             console.error(formatMessage(MESSAGE_TAG.ACTUAL, data));
-            resolve(-1);
+            resolve(ERROR);
         }
 
         ptr += 1;
@@ -80,7 +82,7 @@ const createTestStub = function(cliut, cliSequence, resolve) {
 
     testStub.onStderr = function(data) {
         console.error(formatMessage(MESSAGE_TAG.ERROR, data));
-        resolve(-1);
+        resolve(ERROR);
     };
 
     testStub.onClose = function(code) {
@@ -137,5 +139,5 @@ runCliTests(process.argv[2])
     })
     .catch(e => {
         console.error(e);
-        process.exit(-1);
+        process.exit(ERROR);
     });

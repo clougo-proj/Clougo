@@ -505,6 +505,10 @@ $obj.create = function(logo, sys) {
             logo.type.srcmapToJs(srcmap), ",['for','", logo.type.toString(token, true), "']);\n");
     }
 
+    function genCheckAndThrowNoOutput(evxContext, funcName) {
+        return Code.expr("=($ret===undefined?", genThrowNoOutput(evxContext, funcName), ":$ret)");
+    }
+
     function genMake(evxContext) {
         evxContext.setAnchor();
         let token = evxContext.next().getToken();
@@ -519,14 +523,16 @@ $obj.create = function(logo, sys) {
             return Code.stmt(nextTokenCode)
                 .append(";\n")
                 .append(genLogoVarLref(varName))
-                .append("=$ret;$ret=undefined;");
+                .append(genCheckAndThrowNoOutput(evxContext, "make"))
+                .append(";$ret=undefined;");
         }
 
         return Code.expr(nextTokenCode)
             .prepend("(")
             .append(",")
             .append(genLogoVarLref(varName))
-            .append("=$ret,$ret=undefined)");
+            .append(genCheckAndThrowNoOutput(evxContext, "make"))
+            .append(",$ret=undefined)");
     }
 
     function genLocalmake(evxContext) {
@@ -551,7 +557,8 @@ $obj.create = function(logo, sys) {
         }
 
         return code.append(Code.expr(toJsVarName(varName)))
-            .append("=$ret;$ret=undefined;");
+            .append(genCheckAndThrowNoOutput(evxContext, "localmake"))
+            .append(";$ret=undefined;");
     }
 
     function genLogoVarRef(curToken, srcmap) {

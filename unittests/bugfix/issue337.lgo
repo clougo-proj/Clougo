@@ -1,0 +1,41 @@
+to f
+end
+
+make "result f
+make "result run [f]
+
+run f
+run run [f]
+
+if f []
+if run [f] []
+if "true f
+if "true run [f]
+
+catch f []
+catch run [f] []
+catch "label f
+catch "label run [f]
+
+ifelse f[][]
+ifelse run[f][][]
+ifelse "true f []
+ifelse "true run[f] []
+ifelse "true [] f
+ifelse "true [] run[f]
+
+localmake "result f
+localmake "result run [f]
+
+local f
+local run[f]
+
+repeat f[]
+repeat run[f][]
+repeat 1 f
+repeat 1 run[f]
+
+for f[]
+for run[f][]
+for [i 1 1] f
+for [i 1 1] run [f]

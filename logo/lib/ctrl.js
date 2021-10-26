@@ -18,6 +18,8 @@ $obj.create = function(logo, sys) {
 
         "run": {jsFunc: primitiveRun, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
+        "runresult": {jsFunc: primitiveRunresult, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
+
         "macroexpand": {jsFunc: primitiveMacroexpand, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
         "repeat": {jsFunc: primitiveRepeat, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
@@ -146,6 +148,21 @@ $obj.create = function(logo, sys) {
         template = wordTemplateToList(template);
         logo.type.validateInputList(template);
         return await callTemplate(template, false, allowRetVal);
+    }
+
+    async function primitiveRunresult(template) {
+        try {
+            let retVal = await primitiveRun(template, true);
+            if (retVal === undefined) {
+                return logo.type.makeLogoList([]);
+            }
+
+            return logo.type.makeLogoList([retVal]);
+        } catch (e) {
+            if (logo.type.LogoException.OUTPUT.equalsByCode(e) || logo.type.LogoException.STOP.equalsByCode(e)) {
+                throw logo.type.LogoException.OUTPUT_STOP_RUNRESULT.withParam([], logo.env.getProcSrcmap());
+            }
+        }
     }
 
     async function primitiveMacroexpand(template) {

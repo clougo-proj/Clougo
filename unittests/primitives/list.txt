@@ -124,6 +124,8 @@ iseq run exec
 iseq_err runl execl
 run run exec
 run_err runl execl
+runresult run exec
+runresult_err runl execl
 macrop run exec
 procedurep run exec
 macroexpand run runl exec execl

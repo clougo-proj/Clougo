@@ -1,0 +1,26 @@
+to assert :predicate
+if :predicate = "false [
+    throw "error
+]
+end
+
+to assert_list :val :len
+assert listp :val
+assert (count :val) = :len
+end
+
+assert_list (runresult [ignore 1]) 0
+assert_list (runresult (list "ignore 1)) 0
+assert_list (runresult pi) 1
+
+to testLocalvar :template
+  localmake "x 10
+  assert_list runresult :template 0
+  output :x
+end
+
+make "x 1
+assert (testLocalvar [make "x :x+1]) = 11
+assert :x = 1
+
+pr "passed

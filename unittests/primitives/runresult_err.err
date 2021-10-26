@@ -1,0 +1,10 @@
+Can’t use OUTPUT or STOP inside RUNRESULT
+    at 1,1
+Can’t use OUTPUT or STOP inside RUNRESULT
+    [] at 2,1
+    at 2,1
+Can’t use OUTPUT or STOP inside RUNRESULT
+    at 3,1
+Can’t use OUTPUT or STOP inside RUNRESULT
+    [] at 4,1
+    at 4,1

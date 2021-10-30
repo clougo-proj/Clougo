@@ -921,7 +921,7 @@ $obj.create = function(logo, sys) {
     type.isStopStmt = isStopStmt;
 
     function isOutputStmt(curToken) {
-        return sys.equalToken(curToken, "output") || sys.equalToken(curToken, "op");
+        return sys.equalToken(curToken, "output") || sys.equalToken(curToken, "op") || sys.equalToken(curToken, ".maybeoutput");
     }
     type.isOutputStmt = isOutputStmt;
 

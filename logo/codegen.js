@@ -670,7 +670,7 @@ $obj.create = function(logo, sys) {
             code = code.append(genApplyLocalVars());
         }
 
-        return code.append("$ret;\n");
+        return code.append("$ret;\n")
     }
 
     function isRequiredParam(formal, index) {

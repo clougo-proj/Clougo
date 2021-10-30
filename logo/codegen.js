@@ -681,7 +681,9 @@ $obj.create = function(logo, sys) {
         let param = [];
         let j = 0;
 
-        while (paramNotCompleteWithoutParen() || paramNotCompleteWithinParen()) {
+        while (evxContext.peekNextToken() !== logo.type.CLOSE_PAREN &&
+            (paramNotCompleteWithoutParen() || paramNotCompleteWithinParen())) {
+
             evxContext.next();
             param.push(genProcInput(evxContext, precedence, false, procName, isRequiredParam(formal, j)));
             j++;

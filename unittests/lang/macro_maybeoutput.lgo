@@ -1,0 +1,20 @@
+.macro my.repeat :num :instructions
+catch "repeat.catchtag ~
+        [op repeat.done runresult [repeat1 :num :instructions]]
+op []
+end
+
+to repeat1 :num :instructions
+if :num=0 [throw "repeat.catchtag]
+run :instructions
+.maybeoutput repeat1 :num-1 :instructions
+end
+
+to repeat.done :repeat.result
+if emptyp :repeat.result [op [stop]]
+op list "output quoted first :repeat.result
+end
+
+make "count 0
+my.repeat 3[make "count :count+1]
+pr :count

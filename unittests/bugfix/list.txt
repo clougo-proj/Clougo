@@ -34,3 +34,4 @@ issue316 exec,+eagerJitInstrList exec run
 issue325 exec run
 issue333 exec run
 issue337 execl runl
+issue341 exec run

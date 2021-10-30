@@ -162,6 +162,8 @@ $obj.create = function(logo, sys) {
             if (logo.type.LogoException.OUTPUT.equalsByCode(e) || logo.type.LogoException.STOP.equalsByCode(e)) {
                 throw logo.type.LogoException.OUTPUT_STOP_RUNRESULT.withParam([], logo.env.getProcSrcmap());
             }
+
+            throw e;
         }
     }
 

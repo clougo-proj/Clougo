@@ -1,0 +1,5 @@
+catch "tag1 [
+    show runresult [throw "tag1]
+]
+
+pr "passed

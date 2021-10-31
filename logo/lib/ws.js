@@ -35,6 +35,10 @@ $obj.create = function(logo) {
 
         "thing": {jsFunc: primitiveThing, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR},
 
+        "pprop": primitivePprop,
+
+        "gprop": primitiveGprop,
+
         "load": primitiveLoad,
 
         "help": primitiveHelp,
@@ -96,6 +100,18 @@ $obj.create = function(logo) {
     function primitiveThing(name) {
         logo.type.validateInputWord(name);
         return logo.type.getVarValue(logo.type.toString(name).toLowerCase(), logo.env.getProcSrcmap());
+    }
+
+    function primitivePprop(plist, propName, val) {
+        logo.type.validateInputWord(plist);
+        logo.type.validateInputWord(propName);
+        logo.env.setProplistPropertyValue(plist, propName, val);
+    }
+
+    function primitiveGprop(plist, propName) {
+        logo.type.validateInputWord(plist);
+        logo.type.validateInputWord(propName);
+        return logo.env.getProplistPropertyValue(plist, propName);
     }
 
     function primitiveMake(varname, val) {

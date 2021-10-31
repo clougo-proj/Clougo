@@ -69,6 +69,7 @@ $obj.create = function(logo, sys, ext) {
 
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime, _userInput, _resolveUserInput;
+    let _globalProplist;
     let _asyncFunctionCall;
     let _genJs;
     let $primitiveName, $primitiveSrcmap;
@@ -120,6 +121,21 @@ $obj.create = function(logo, sys, ext) {
         return _genJs === true;
     }
     env.getGenJs = getGenJs;
+
+    function setProplistPropertyValue(plistName, propName, val) {
+        if (!(plistName in _globalProplist)) {
+            _globalProplist[plistName] = {};
+        }
+
+        _globalProplist[plistName][propName] = val;
+    }
+    env.setProplistPropertyValue = setProplistPropertyValue;
+
+    function getProplistPropertyValue(plistName, propName) {
+        return (plistName in _globalProplist) && (propName in _globalProplist[plistName]) ?
+            _globalProplist[plistName][propName] : logo.type.EMPTY_LIST;
+    }
+    env.getProplistPropertyValue = getProplistPropertyValue;
 
     function callProc(name, srcmap, ...args) {
         setProcName(name);
@@ -351,6 +367,7 @@ $obj.create = function(logo, sys, ext) {
         _globalScope = {"_global": 1 };
         _procJsFunc = Object.create(_primitiveJsFunc);
         _procMetadata = Object.create(_primitiveMetadata);
+        _globalProplist = {};
 
         env._scopeStack = [_globalScope];
         env._userBlock = new WeakMap();

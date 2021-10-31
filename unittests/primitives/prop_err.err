@@ -1,0 +1,16 @@
+gprop doesn't like [] as input
+    at 1,1
+gprop doesn't like {} as input
+    at 2,1
+gprop doesn't like [] as input
+    at 3,1
+gprop doesn't like {} as input
+    at 4,1
+pprop doesn't like [] as input
+    at 6,1
+pprop doesn't like {} as input
+    at 7,1
+pprop doesn't like [] as input
+    at 8,1
+pprop doesn't like {} as input
+    at 9,1

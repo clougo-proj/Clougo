@@ -154,7 +154,7 @@ $obj.create = function(logo, sys) {
         try {
             let retVal = await primitiveRun(template, true);
             if (retVal === undefined) {
-                return logo.type.makeLogoList([]);
+                return logo.type.EMPTY_LIST;
             }
 
             return logo.type.makeLogoList([retVal]);

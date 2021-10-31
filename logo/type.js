@@ -39,6 +39,10 @@ $obj.create = function(logo, sys) {
         MAX_VALUE: 7
     };
 
+    const EMPTY_LIST = makeLogoList([]);
+
+    type.EMPTY_LIST = EMPTY_LIST;
+
     const PALETTE = {
         0: [0, 0, 0],
         1: [0, 0, 255],

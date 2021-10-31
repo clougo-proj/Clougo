@@ -1,0 +1,3 @@
+show gprop "propList1 "key
+pprop "propList1 "key "value
+show gprop "propList1 "key

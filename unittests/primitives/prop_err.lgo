@@ -1,0 +1,9 @@
+gprop [] "key
+gprop {} "key
+gprop "list []
+gprop "list {}
+
+pprop [] "key 1
+pprop {} "key 1
+pprop "list [] 1
+pprop "list {} 1

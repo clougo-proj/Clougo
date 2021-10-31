@@ -134,3 +134,5 @@ defmacro run runl exec execl
 defmacro2 run exec
 defmacro_err runl execl
 text_defmacro run exec
+prop run exec
+prop_err runl execl

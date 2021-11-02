@@ -14,3 +14,11 @@ pprop doesn't like [] as input
     at 8,1
 pprop doesn't like {} as input
     at 9,1
+remprop doesn't like [] as input
+    at 11,1
+remprop doesn't like {} as input
+    at 12,1
+remprop doesn't like [] as input
+    at 13,1
+remprop doesn't like {} as input
+    at 14,1

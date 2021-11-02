@@ -137,6 +137,16 @@ $obj.create = function(logo, sys, ext) {
     }
     env.getProplistPropertyValue = getProplistPropertyValue;
 
+    function unsetProplistPropertyValue(plistName, propName) {
+        if (!(plistName in _globalProplist)) {
+            _globalProplist[plistName] = {};
+            return;
+        }
+
+        _globalProplist[plistName][propName] = logo.type.EMPTY_LIST;
+    }
+    env.unsetProplistPropertyValue = unsetProplistPropertyValue;
+
     function callProc(name, srcmap, ...args) {
         setProcName(name);
         setProcSrcmap(srcmap);

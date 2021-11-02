@@ -7,3 +7,8 @@ pprop [] "key 1
 pprop {} "key 1
 pprop "list [] 1
 pprop "list {} 1
+
+remprop [] "key
+remprop {} "key
+remprop "list []
+remprop "list {}

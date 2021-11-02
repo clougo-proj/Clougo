@@ -39,6 +39,8 @@ $obj.create = function(logo) {
 
         "gprop": primitiveGprop,
 
+        "remprop": primitiveRemprop,
+
         "load": primitiveLoad,
 
         "help": primitiveHelp,
@@ -112,6 +114,12 @@ $obj.create = function(logo) {
         logo.type.validateInputWord(plist);
         logo.type.validateInputWord(propName);
         return logo.env.getProplistPropertyValue(plist, propName);
+    }
+
+    function primitiveRemprop(plist, propName) {
+        logo.type.validateInputWord(plist);
+        logo.type.validateInputWord(propName);
+        return logo.env.unsetProplistPropertyValue(plist, propName);
     }
 
     function primitiveMake(varname, val) {

@@ -12,3 +12,6 @@ remprop [] "key
 remprop {} "key
 remprop "list []
 remprop "list {}
+
+plist []
+plist {}

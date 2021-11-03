@@ -1,3 +1,28 @@
+Test 1 - GPROP, PPROP, REMPROP
 []
 value
+value
 []
+[]
+
+Test 2 - Non-existing property lists and keys
+
+Test 3 - Booleans and numbers as property list names and keys
+[]
+foo
+bar
+[100 foo abc xyz]
+[false bar xyz abc]
+[]
+[]
+[abc xyz]
+[xyz abc]
+
+Test 4 - PLIST
+[def 100]
+[def 100 ghi 200]
+[def 100 ghi 200 jkl []]
+200
+[]
+100
+[ghi 200 jkl []]

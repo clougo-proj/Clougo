@@ -22,3 +22,7 @@ remprop doesn't like [] as input
     at 13,1
 remprop doesn't like {} as input
     at 14,1
+plist doesn't like [] as input
+    at 16,1
+plist doesn't like {} as input
+    at 17,1

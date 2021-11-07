@@ -833,6 +833,36 @@ $obj.create = function(logo, sys) {
     }
     type.arrayFindItem = arrayFindItem;
 
+    function makePlist() {
+        return {};
+    }
+    type.makePlist = makePlist;
+
+    function plistSet(plist, propName, val) {
+        plist[propName] = val;
+    }
+    type.plistSet = plistSet;
+
+    function plistUnset(plist, propName) {
+        if (propName in plist) {
+            delete plist[propName];
+        }
+    }
+    type.plistUnset = plistUnset;
+
+    function plistGet(plist, propName) {
+        return (propName in plist) ? plist[propName] : EMPTY_LIST;
+    }
+    type.plistGet = plistGet;
+
+    function plistToList(plist) {
+        return makeLogoList(Object.keys(plist)
+            .sort()
+            .map((k) => [k, plist[k]])
+            .flat());
+    }
+    type.plistToList = plistToList;
+
     function wordToString(word) {
         switch (typeof word) {
         case "string": return word;
@@ -842,6 +872,11 @@ $obj.create = function(logo, sys) {
         }
     }
     type.wordToString = wordToString;
+
+    function wordToStringCaseInsensitive(word) {
+        return wordToString(word).toLowerCase();
+    }
+    type.wordToStringCaseInsensitive = wordToStringCaseInsensitive;
 
     function isLogoNumber(s) {
         return (typeof s === "number") || (typeof s === "string" && !isNaN(Number(s)));

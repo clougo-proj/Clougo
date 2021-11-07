@@ -122,43 +122,40 @@ $obj.create = function(logo, sys, ext) {
     }
     env.getGenJs = getGenJs;
 
+    function existsGlobalPlist(plistName) {
+        return plistName in _globalProplist;
+    }
+
     function setProplistPropertyValue(plistName, propName, val) {
-        plistName = logo.type.wordToString(plistName).toLowerCase();
+        plistName = logo.type.wordToStringCaseInsensitive(plistName);
         propName = logo.type.wordToString(propName);
-        if (!(plistName in _globalProplist)) {
-            _globalProplist[plistName] = {};
+        if (!existsGlobalPlist(plistName)) {
+            _globalProplist[plistName] = logo.type.makePlist();
         }
 
-        _globalProplist[plistName][propName] = val;
+        logo.type.plistSet(_globalProplist[plistName], propName, val);
     }
     env.setProplistPropertyValue = setProplistPropertyValue;
 
     function getProplistPropertyValue(plistName, propName) {
-        plistName = logo.type.wordToString(plistName).toLowerCase();
+        plistName = logo.type.wordToStringCaseInsensitive(plistName);
         propName = logo.type.wordToString(propName);
-        return (plistName in _globalProplist) && (propName in _globalProplist[plistName]) ?
-            _globalProplist[plistName][propName] : logo.type.EMPTY_LIST;
+        return (existsGlobalPlist(plistName)) ? logo.type.plistGet(_globalProplist[plistName], propName) : logo.type.EMPTY_LIST;
     }
     env.getProplistPropertyValue = getProplistPropertyValue;
 
     function unsetProplistPropertyValue(plistName, propName) {
-        plistName = logo.type.wordToString(plistName).toLowerCase();
+        plistName = logo.type.wordToStringCaseInsensitive(plistName);
         propName = logo.type.wordToString(propName);
-        if (plistName in _globalProplist) {
-            delete _globalProplist[plistName][propName];
+        if (existsGlobalPlist(plistName)) {
+            logo.type.plistUnset(_globalProplist[plistName], propName);
         }
     }
     env.unsetProplistPropertyValue = unsetProplistPropertyValue;
 
     function proplistToList(plistName) {
-        plistName = logo.type.wordToString(plistName).toLowerCase();
-        if (plistName in _globalProplist) {
-            return logo.type.makeLogoList(Object.keys(_globalProplist[plistName])
-                .sort()
-                .map((k) => [k, _globalProplist[plistName][k]]).flat());
-        }
-
-        return logo.type.EMPTY_LIST;
+        plistName = logo.type.wordToStringCaseInsensitive(plistName);
+        return (existsGlobalPlist(plistName)) ? logo.type.plistToList(_globalProplist[plistName]) : logo.type.EMPTY_LIST;
     }
     env.proplistToList = proplistToList;
 

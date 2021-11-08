@@ -69,7 +69,7 @@ $obj.create = function(logo, sys, ext) {
 
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime, _userInput, _resolveUserInput;
-    let _globalProplist;
+    let _globalPlists;
     let _asyncFunctionCall;
     let _genJs;
     let $primitiveName, $primitiveSrcmap;
@@ -123,41 +123,38 @@ $obj.create = function(logo, sys, ext) {
     env.getGenJs = getGenJs;
 
     function existsGlobalPlist(plistName) {
-        return plistName in _globalProplist;
+        return plistName in _globalPlists;
     }
 
-    function setProplistPropertyValue(plistName, propName, val) {
+    function setPlistPropertyValue(plistName, propName, val) {
         plistName = logo.type.wordToStringCaseInsensitive(plistName);
-        propName = logo.type.wordToString(propName);
         if (!existsGlobalPlist(plistName)) {
-            _globalProplist[plistName] = logo.type.makePlist();
+            _globalPlists[plistName] = logo.type.makePlist();
         }
 
-        logo.type.plistSet(_globalProplist[plistName], propName, val);
+        logo.type.plistSet(_globalPlists[plistName], propName, val);
     }
-    env.setProplistPropertyValue = setProplistPropertyValue;
+    env.setPlistPropertyValue = setPlistPropertyValue;
 
-    function getProplistPropertyValue(plistName, propName) {
+    function getPlistPropertyValue(plistName, propName) {
         plistName = logo.type.wordToStringCaseInsensitive(plistName);
-        propName = logo.type.wordToString(propName);
-        return (existsGlobalPlist(plistName)) ? logo.type.plistGet(_globalProplist[plistName], propName) : logo.type.EMPTY_LIST;
+        return (existsGlobalPlist(plistName)) ? logo.type.plistGet(_globalPlists[plistName], propName) : logo.type.EMPTY_LIST;
     }
-    env.getProplistPropertyValue = getProplistPropertyValue;
+    env.getPlistPropertyValue = getPlistPropertyValue;
 
-    function unsetProplistPropertyValue(plistName, propName) {
+    function unsetPlistPropertyValue(plistName, propName) {
         plistName = logo.type.wordToStringCaseInsensitive(plistName);
-        propName = logo.type.wordToString(propName);
         if (existsGlobalPlist(plistName)) {
-            logo.type.plistUnset(_globalProplist[plistName], propName);
+            logo.type.plistUnset(_globalPlists[plistName], propName);
         }
     }
-    env.unsetProplistPropertyValue = unsetProplistPropertyValue;
+    env.unsetPlistPropertyValue = unsetPlistPropertyValue;
 
-    function proplistToList(plistName) {
+    function plistToList(plistName) {
         plistName = logo.type.wordToStringCaseInsensitive(plistName);
-        return (existsGlobalPlist(plistName)) ? logo.type.plistToList(_globalProplist[plistName]) : logo.type.EMPTY_LIST;
+        return (existsGlobalPlist(plistName)) ? logo.type.plistToList(_globalPlists[plistName]) : logo.type.EMPTY_LIST;
     }
-    env.proplistToList = proplistToList;
+    env.plistToList = plistToList;
 
     function callProc(name, srcmap, ...args) {
         setProcName(name);
@@ -389,7 +386,7 @@ $obj.create = function(logo, sys, ext) {
         _globalScope = {"_global": 1 };
         _procJsFunc = Object.create(_primitiveJsFunc);
         _procMetadata = Object.create(_primitiveMetadata);
-        _globalProplist = {};
+        _globalPlists = {};
 
         env._scopeStack = [_globalScope];
         env._userBlock = new WeakMap();

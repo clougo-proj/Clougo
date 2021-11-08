@@ -18,6 +18,7 @@ $obj.create = function create(sys, origConfigMap = undefined) {
         deepCallStack: false,
         pclogo: false,
         clougo: true,
+        scopedPlist: true,
         trace: true
     } : Object.assign({}, origConfigMap);
 

@@ -1,0 +1,28 @@
+to compare :x :y
+output :x = :y
+end
+
+to make_plist :list
+output listtoplist :list
+end
+
+make "a listtoplist [1 2]
+show :a
+pprop :a "xyz 100
+show :a
+show gprop :a "xyz
+remprop :a 1
+show :a
+
+make "b make_plist [xyz 100]
+show :a = :b
+show compare :a :b
+
+show plistp :a
+show plist? :b
+show plist? plist :a
+show plistp plist :b
+
+make "c make_plist [{} [1 2 3]]
+show gprop :c "\{\}
+show listp gprop :c "\{\}

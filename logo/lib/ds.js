@@ -32,6 +32,8 @@ $obj.create = function(logo) {
 
         "arraytolist": primitiveArrayToList,
 
+        "listtoplist": primitiveListtoplist,
+
         "reverse": primitiveReverse,
 
         "first": primitiveFirst,
@@ -71,6 +73,9 @@ $obj.create = function(logo) {
 
         "memberp": primitiveMemberp,
         "member?": primitiveMemberp,
+
+        "plistp": primitivePlistp,
+        "plist?": primitivePlistp,
 
         "count": primitiveCount,
 
@@ -114,6 +119,11 @@ $obj.create = function(logo) {
     function primitiveArrayToList(value) {
         logo.type.validateInputArray(value);
         return logo.type.arrayToList(value);
+    }
+
+    function primitiveListtoplist(value) {
+        logo.type.validateInputList(value);
+        return logo.type.listToPlist(value);
     }
 
     function primitiveAscii(value) {
@@ -250,6 +260,11 @@ $obj.create = function(logo) {
         logo.type.validateInputArray(group);
         return logo.type.arrayFindItem(candidate, group) !== -1;
     }
+
+    function primitivePlistp(val) {
+        return logo.type.isLogoPlist(val);
+    }
+
     function primitiveButfirst(thing) {
         if (logo.type.isLogoWord(thing)) {
             if (typeof thing === "boolean") {

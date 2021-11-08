@@ -1,0 +1,12 @@
+[1 2]
+[1 2 xyz 100]
+100
+[xyz 100]
+true
+true
+true
+true
+false
+false
+[1 2 3]
+true

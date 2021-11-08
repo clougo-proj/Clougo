@@ -833,17 +833,24 @@ $obj.create = function(logo, sys) {
     }
     type.arrayFindItem = arrayFindItem;
 
+    function isLogoPlist(val) {
+        return typeof val === "object" && val !== null && !Array.isArray(val);
+    }
+    type.isLogoPlist = isLogoPlist;
+
     function makePlist() {
         return {};
     }
     type.makePlist = makePlist;
 
     function plistSet(plist, propName, val) {
+        propName = wordToString(propName);
         plist[propName] = val;
     }
     type.plistSet = plistSet;
 
     function plistUnset(plist, propName) {
+        propName = wordToString(propName);
         if (propName in plist) {
             delete plist[propName];
         }
@@ -851,6 +858,7 @@ $obj.create = function(logo, sys) {
     type.plistUnset = plistUnset;
 
     function plistGet(plist, propName) {
+        propName = wordToString(propName);
         return (propName in plist) ? plist[propName] : EMPTY_LIST;
     }
     type.plistGet = plistGet;
@@ -862,6 +870,23 @@ $obj.create = function(logo, sys) {
             .flat());
     }
     type.plistToList = plistToList;
+
+    function listToPlist(list) {
+        if (listEqual(list, EMPTY_LIST)) {
+            return {};
+        }
+
+        let unboxed = unboxList(list);
+        let plist = {};
+        while (unboxed.length > 0) {
+            let key = toString(unboxed.shift());
+            let value = (unboxed.length > 0) ? unboxed.shift() : key;
+            plist[key] = value;
+        }
+
+        return plist;
+    }
+    type.listToPlist = listToPlist;
 
     function wordToString(word) {
         switch (typeof word) {
@@ -1026,8 +1051,12 @@ $obj.create = function(logo, sys) {
     type.getVarValue = getVarValue;
 
     function equal(a, b) {
-        if (isLogoList(a) && isLogoList(b) && listLength(a) == listLength(b)) {
+        if (isLogoList(a) && isLogoList(b)) {
             return listEqual(a, b);
+        }
+
+        if (isLogoPlist(a) && isLogoPlist(b)) {
+            return listEqual(plistToList(a), plistToList(b));
         }
 
         if (isLogoBoolean(a) || isLogoBoolean(b)) {
@@ -1078,17 +1107,18 @@ $obj.create = function(logo, sys) {
             return "no value";
         }
 
-        if (!(isLogoList(v) || isLogoArray(v))) {
+        if (!(isLogoList(v) || isLogoArray(v) || isLogoPlist(v))) {
             return scalarToString(v);
         }
 
         function toStringHelper(v) {
             return type.isLogoList(v) ? "[" +  unboxList(v).map(toStringHelper).join(" ") + "]" :
                 type.isLogoArray(v) ? "{" +  unboxArray(v).map(toStringHelper).join(" ") + "}" :
-                    v === null ? "[]" : scalarToString(v);
+                    type.isLogoPlist(v) ? toStringHelper(plistToList(v)) :
+                        v === null ? "[]" : scalarToString(v);
         }
 
-        return type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) ? toStringHelper(v) :
+        return (type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) || isLogoPlist(v)) ? toStringHelper(v) :
             unboxList(v).map(toStringHelper).join(" ");
     }
     type.toString = toString;

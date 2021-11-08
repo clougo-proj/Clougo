@@ -107,26 +107,43 @@ $obj.create = function(logo) {
     }
 
     function primitivePprop(plist, propName, val) {
-        logo.type.validateInputWord(plist);
         logo.type.validateInputWord(propName);
-        logo.env.setProplistPropertyValue(plist, propName, val);
+        if (logo.config.get("scopedPlist") && logo.type.isLogoPlist(plist)) {
+            logo.type.plistSet(plist, propName, val);
+            return;
+        }
+
+        logo.type.validateInputWord(plist);
+        logo.env.setPlistPropertyValue(plist, propName, val);
     }
 
     function primitiveGprop(plist, propName) {
-        logo.type.validateInputWord(plist);
         logo.type.validateInputWord(propName);
-        return logo.env.getProplistPropertyValue(plist, propName);
+        if (logo.config.get("scopedPlist") && logo.type.isLogoPlist(plist)) {
+            return logo.type.plistGet(plist, propName);
+        }
+
+        logo.type.validateInputWord(plist);
+        return logo.env.getPlistPropertyValue(plist, propName);
     }
 
     function primitiveRemprop(plist, propName) {
-        logo.type.validateInputWord(plist);
         logo.type.validateInputWord(propName);
-        return logo.env.unsetProplistPropertyValue(plist, propName);
+        if (logo.config.get("scopedPlist") && logo.type.isLogoPlist(plist)) {
+            return logo.type.plistUnset(plist, propName);
+        }
+
+        logo.type.validateInputWord(plist);
+        return logo.env.unsetPlistPropertyValue(plist, propName);
     }
 
     function primitivePlist(plist) {
+        if (logo.config.get("scopedPlist") && logo.type.isLogoPlist(plist)) {
+            return logo.type.plistToList(plist);
+        }
+
         logo.type.validateInputWord(plist);
-        return logo.env.proplistToList(plist);
+        return logo.env.plistToList(plist);
     }
 
     function primitiveMake(varname, val) {

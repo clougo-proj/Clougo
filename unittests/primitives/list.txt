@@ -137,3 +137,7 @@ text_defmacro run exec
 prop run exec
 prop_err runl execl
 prop_var run,+scopedPlist exec,+scopedPlist
+lowercase run exec
+lowercase_err runl execl
+uppercase run exec
+uppercase_err runl execl

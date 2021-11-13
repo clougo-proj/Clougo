@@ -82,6 +82,10 @@ $obj.create = function(logo) {
         "ascii": primitiveAscii,
 
         "char": primitiveChar,
+
+        "lowercase": primitiveLowercase,
+
+        "uppercase": primitiveUppercase,
     };
     ds.methods = methods;
 
@@ -134,6 +138,16 @@ $obj.create = function(logo) {
     function primitiveChar(value) {
         logo.type.validateInputByte(value);
         return logo.type.asciiToChar(value);
+    }
+
+    function primitiveLowercase(value) {
+        logo.type.validateInputWord(value);
+        return logo.type.wordLowerCase(value);
+    }
+
+    function primitiveUppercase(value) {
+        logo.type.validateInputWord(value);
+        return logo.type.wordUpperCase(value);
     }
 
     function mdarrayHelper(sizeList, index, maxIndex, origin) {

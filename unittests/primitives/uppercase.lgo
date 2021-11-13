@@ -1,0 +1,4 @@
+show uppercase "Abc
+show uppercase 1=2
+show uppercase 1=1
+show uppercase -100

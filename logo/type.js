@@ -641,7 +641,7 @@ $obj.create = function(logo, sys) {
     type.getLogoProcBodyWithSrcmap = getLogoProcBodyWithSrcmap;
 
     function isProcText(template) {
-        return isLogoList(template) &&
+        return isLogoList(template) && listLength(template) === 2 &&
             unboxList(template).reduce((acc, item) => acc && isLogoList(item), true);
     }
     type.isProcText = isProcText;

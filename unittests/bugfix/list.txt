@@ -36,3 +36,4 @@ issue333 exec run
 issue337 execl runl
 issue341 exec run
 issue344 exec run
+issue357 exec run

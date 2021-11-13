@@ -147,7 +147,8 @@ $obj.create = function(logo) {
     }
 
     function primitiveMake(varname, val) {
-        logo.env.findLogoVarScope(varname)[varname.toLowerCase()] = val;
+        varname = varname.toLowerCase();
+        logo.env.findLogoVarScope(varname)[varname] = val;
     }
 
     function primitiveLocal(...args) {

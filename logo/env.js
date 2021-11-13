@@ -127,7 +127,7 @@ $obj.create = function(logo, sys, ext) {
     }
 
     function setPlistPropertyValue(plistName, propName, val) {
-        plistName = logo.type.wordToStringCaseInsensitive(plistName);
+        plistName = logo.type.wordLowerCase(plistName);
         if (!existsGlobalPlist(plistName)) {
             _globalPlists[plistName] = logo.type.makePlist();
         }
@@ -137,13 +137,13 @@ $obj.create = function(logo, sys, ext) {
     env.setPlistPropertyValue = setPlistPropertyValue;
 
     function getPlistPropertyValue(plistName, propName) {
-        plistName = logo.type.wordToStringCaseInsensitive(plistName);
+        plistName = logo.type.wordLowerCase(plistName);
         return (existsGlobalPlist(plistName)) ? logo.type.plistGet(_globalPlists[plistName], propName) : logo.type.EMPTY_LIST;
     }
     env.getPlistPropertyValue = getPlistPropertyValue;
 
     function unsetPlistPropertyValue(plistName, propName) {
-        plistName = logo.type.wordToStringCaseInsensitive(plistName);
+        plistName = logo.type.wordLowerCase(plistName);
         if (existsGlobalPlist(plistName)) {
             logo.type.plistUnset(_globalPlists[plistName], propName);
         }
@@ -151,7 +151,7 @@ $obj.create = function(logo, sys, ext) {
     env.unsetPlistPropertyValue = unsetPlistPropertyValue;
 
     function plistToList(plistName) {
-        plistName = logo.type.wordToStringCaseInsensitive(plistName);
+        plistName = logo.type.wordLowerCase(plistName);
         return (existsGlobalPlist(plistName)) ? logo.type.plistToList(_globalPlists[plistName]) : logo.type.EMPTY_LIST;
     }
     env.plistToList = plistToList;

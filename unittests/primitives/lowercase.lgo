@@ -1,0 +1,4 @@
+show lowercase "Abc
+show lowercase 1=2
+show lowercase 1=1
+show lowercase -100

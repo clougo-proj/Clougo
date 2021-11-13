@@ -898,10 +898,15 @@ $obj.create = function(logo, sys) {
     }
     type.wordToString = wordToString;
 
-    function wordToStringCaseInsensitive(word) {
+    function wordLowerCase(word) {
         return wordToString(word).toLowerCase();
     }
-    type.wordToStringCaseInsensitive = wordToStringCaseInsensitive;
+    type.wordLowerCase = wordLowerCase;
+
+    function wordUpperCase(word) {
+        return wordToString(word).toUpperCase();
+    }
+    type.wordUpperCase = wordUpperCase;
 
     function isLogoNumber(s) {
         return (typeof s === "number") || (typeof s === "string" && !isNaN(Number(s)));

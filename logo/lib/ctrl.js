@@ -43,7 +43,8 @@ $obj.create = function(logo, sys) {
         "invoke": {jsFunc: primitiveInvoke, formal: "template [inputs] 2",
             attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
-        "foreach": [primitiveForeach, "[inputs] 2"],
+        "foreach": {jsFunc: primitiveForeach, formal: "[inputs] 2",
+            attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
         "?": [primitiveQuestionMark, "[slotNum 1]"],
 

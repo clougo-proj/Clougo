@@ -1,0 +1,11 @@
+to find :list :item
+    foreach :list [[x]
+        if (:x = :item) [
+            output :x
+        ]
+    ]
+    output []
+end
+
+show find [1 2 3] 2
+show find [1 2 3] 5

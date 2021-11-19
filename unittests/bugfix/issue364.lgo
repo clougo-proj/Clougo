@@ -1,0 +1,7 @@
+to f :x
+    catch "idea [run :instr]
+    pr :x
+end
+
+make "instr [make "x "bar throw "idea]
+f "foo

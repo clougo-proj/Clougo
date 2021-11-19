@@ -721,6 +721,7 @@ $obj.create = function(logo, sys) {
     function genReturnInLambda(code) {
         return code.prepend("try {")
             .append("} catch (e) {\n")
+            .append(genApplyLocalVars(), "$ret;\n")
             .append("if(logo.type.LogoException.is(e)){")
             .append((_funcName === TOP_LEVEL_FUNC) ?
                 "if(e.isStop() || e.isOutput()){errorOnLogoException(e);return;}\n" :

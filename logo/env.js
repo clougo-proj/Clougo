@@ -28,6 +28,9 @@ $obj.create = function(logo, sys, ext) {
     const defaultModules = {
         "pclogo": [
             "/mod/pclogo/pclogo.lgo"
+        ],
+        "class": [
+            "/mod/class/class.lgo"
         ]
     };
 
@@ -980,7 +983,7 @@ $obj.create = function(logo, sys, ext) {
 
     async function loadLogoModules(modules) {
         for (let mod of modules) {
-            logo.io.stdout("LOAD \"" + mod);
+            logo.io.stderr("LOAD \"" + mod);
             await logo.entry.exec(logo.logofs.get(mod));
         }
     }

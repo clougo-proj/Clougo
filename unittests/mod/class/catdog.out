@@ -1,0 +1,5 @@
+[class animal name cat]
+[class animal name dog]
+[new [[name] [pprop :this "name :name]] tellname [[] [pr gprop :this "name]]]
+cat
+dog

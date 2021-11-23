@@ -1,0 +1,20 @@
+class "Animal [
+    new Animal.new
+    tellname Animal.tellname
+]
+
+to animal.new :name
+pprop :this "name :name
+end
+
+to animal.tellname
+pr gprop :this "name
+end
+
+make "cat (new "animal "cat)
+make "dog (new "animal "dog)
+show :cat
+show :dog
+show gprop "CLASSDEF "animal
+invokem :cat "tellname
+invokem :dog "tellname

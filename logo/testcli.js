@@ -3,14 +3,21 @@ const { spawn } = require("child_process");
 const clitests = require("../generated/clitests.js").$obj;
 
 const IO_TYPE = {
-    "INPUT": "input",
-    "OUTPUT": "output"
+    "STDIN": "stdin",
+    "STDOUT": "stdout",
+    "STDERR": "stderr"
 };
 
 const MESSAGE_TAG = {
     "EXPECT": "expect",
     "ACTUAL": "actual",
     "ERROR":  "error"
+};
+
+const CHAR_IO_TYPE = {
+    "<": IO_TYPE.STDIN,
+    ">": IO_TYPE.STDOUT,
+    "!": IO_TYPE.STDERR
 };
 
 const TIME_OUT = 2000; // ms
@@ -31,10 +38,12 @@ function parseTestCase(testCaseString) {
     let lines = testCaseString.split(/\r?\n/);
     let args = lines.shift().split(/ /);
     lines.forEach(line => {
-        let text = unescapeSpecialChar(line.substring(1));
-        let direction = line.charAt(0);
-        let type = direction == ">" ? IO_TYPE.OUTPUT : IO_TYPE.INPUT;
-        cliSequence.push({"type": type, "text": text});
+        if (line.length > 0) {
+            cliSequence.push({
+                "type": CHAR_IO_TYPE[line.charAt(0)],
+                "text": unescapeSpecialChar(line.substring(1))
+            });
+        }
     });
 
     return {
@@ -58,7 +67,7 @@ const createTestStub = function(cliut, cliSequence, resolve) {
         }
     }
 
-    testStub.onStdout = function(data) {
+    function checkOutput(data, ioType) {
         if (ptr >= cliSequence.length) {
             console.error("Unexpcted output!");
             console.error(formatMessage(MESSAGE_TAG.ACTUAL, data));
@@ -67,24 +76,21 @@ const createTestStub = function(cliut, cliSequence, resolve) {
         }
 
         let goldenData = cliSequence[ptr];
-        if (goldenData.type != IO_TYPE.OUTPUT || data != goldenData.text) {
+        if (goldenData.type != ioType || data != goldenData.text) {
             console.error(formatMessage(MESSAGE_TAG.EXPECT, goldenData.text));
             console.error(formatMessage(MESSAGE_TAG.ACTUAL, data));
             resolve(ERROR);
         }
 
         ptr += 1;
-        while(ptr < cliSequence.length && cliSequence[ptr].type == IO_TYPE.INPUT) {
+        while(ptr < cliSequence.length && cliSequence[ptr].type == IO_TYPE.STDIN) {
             cliut.stdin.write(cliSequence[ptr].text);
             ptr += 1;
         }
-    };
+    }
 
-    testStub.onStderr = function(data) {
-        console.error(formatMessage(MESSAGE_TAG.ERROR, data));
-        resolve(ERROR);
-    };
-
+    testStub.onStdout = (data) => checkOutput(data, IO_TYPE.STDOUT);
+    testStub.onStderr = (data) => checkOutput(data, IO_TYPE.STDERR);
     testStub.onClose = function(code) {
         checkIncomplete();
         resolve(code);

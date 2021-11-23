@@ -1,0 +1,53 @@
+to $toInternalName :name
+    output lowercase :name
+end
+
+to $getClassMethod :className :methodName
+    localmake "classDef (gprop "CLASSDEF :className)
+    localmake "classMethod $toInternalMethod (gprop :classDef :methodName)
+    while [:classMethod = []] [
+        make "classDef (gprop "CLASSDEF $toInternalName (gprop :classDef "isa))
+        make "classMethod $toInternalMethod (gprop :classDef :methodName)
+    ]
+    output :classMethod
+end
+
+to $getSuperClass :className
+    output $toInternalName (gprop (gprop "CLASSDEF :className) "isa)
+end
+
+to $toInternalMethod :method
+    if wordp :method [output $toInternalName :method]
+    output :method
+end
+
+to class :className :classDef
+    make "className $toInternalName :className
+    localmake "classDef listtoplist :classDef
+    pprop "CLASSDEF :className :classDef
+end
+
+to new :className [:args]
+    localmake "className $toInternalName :className
+    localmake "this listtoplist []
+    pprop :this "class :className
+    apply ($getClassMethod :className "new) :args
+    output :this
+end
+
+to super [:args]
+    make "className $getSuperClass :className
+    output apply ($getClassMethod :className "new) :args
+end
+
+to invokesuper :methodName [:args]
+    make "className $getSuperClass :className
+    output apply ($getClassMethod :className :methodName) :args
+end
+
+to invokem :obj :methodName [:args]
+    localmake "className (gprop :obj "class)
+    localmake "method $getClassMethod :className :methodName
+    localmake "this :obj
+    output apply :method :args
+end

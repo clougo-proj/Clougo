@@ -1,0 +1,54 @@
+class "Animal [
+    new [[name][
+        pprop :this "name :name
+    ]]
+    tellname [[][
+        pr invokem :this "to_string
+    ]]
+    to_string [[][output gprop :this "name]]
+]
+
+class "DomesticAnimal [
+    isa Animal
+    new [[name][(super :name)]]
+]
+
+class "WildAnimal [
+    isa Animal
+]
+
+class "Pet [
+    isa DomesticAnimal
+    new [[name species][
+        (super :name)
+        pprop :this "species :species
+    ]]
+    to_string Pet.to_string
+]
+
+to Pet.to_string
+    output (word
+        invokesuper "to_string
+        "| |
+        gprop :this "species
+    )
+end
+
+show gprop "CLASSDEF "animal
+show gprop "CLASSDEF "pet
+
+make "cat (new "Pet "Tom "Cat)
+make "dog (new "Pet "Spike "Dog)
+make "tiger (new "WildAnimal "Tigger)
+
+show :cat
+show :dog
+show :tiger
+
+invokem :cat "tellname
+invokem :dog "tellname
+invokem :tiger "tellname
+
+show invokem :cat "to_string
+show invokem :dog "to_string
+show invokem :tiger "to_string

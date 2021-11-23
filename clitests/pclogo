@@ -1,3 +1,3 @@
 logo --on:pclogo ../unittests/mod/pclogo/getxy.lgo
->LOAD "/mod/pclogo/pclogo.lgo\n
+!LOAD "/mod/pclogo/pclogo.lgo\n
 >[0 0]\n

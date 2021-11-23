@@ -24,6 +24,8 @@ $obj.create = function(logo, sys) {
 
         "repeat": {jsFunc: primitiveRepeat, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
+        "while": {jsFunc: primitiveWhile, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
+
         "if": {jsFunc: primitiveIf, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
 
         "ifelse": {jsFunc: primitiveIfelse, attributes: PROC_ATTRIBUTE.STASH_LOCAL_VAR | PROC_ATTRIBUTE.RETURNS_IN_LAMBDA},
@@ -182,6 +184,17 @@ $obj.create = function(logo, sys) {
         logo.type.validateInputList(template);
 
         if (logo.type.logoBoolean(predicate)) {
+            await callTemplate(template);
+        }
+    }
+
+    async function primitiveWhile(predicate, template) {
+        logo.type.validateInputList(predicate);
+
+        template = wordTemplateToList(template);
+        logo.type.validateInputList(template);
+
+        while (await callTemplate(predicate, false, true)) {
             await callTemplate(template);
         }
     }

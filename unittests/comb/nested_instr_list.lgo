@@ -1,0 +1,44 @@
+to test1 :x
+    catch "idea [
+        while ["true] [
+            make "x "bar
+            throw "idea
+        ]
+    ]
+    pr :x
+end
+
+to test2 :x
+    catch "idea [
+        make "x "bar
+        throw "idea
+    ]
+    pr :x
+end
+
+to test3 :x
+    localmake "instr [make "x "bar]
+    catch "idea :instr
+    pr :x
+end
+
+to test4 :x
+    localmake "instr [make "x "bar throw "idea]
+    catch "idea :instr
+    pr :x
+end
+
+to test5 :x
+    repeat 1 [
+        repeat 1 [
+            make "x "bar
+        ]
+    ]
+    pr :x
+end
+
+test1 "foo
+test2 "foo
+test3 "foo
+test4 "foo
+test5 "foo

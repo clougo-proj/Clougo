@@ -11,6 +11,7 @@ if_else run exec
 repeat run exec
 repeat1 run exec
 repeat_err runl execl
+while run exec
 tilde run exec
 forloop run exec
 for run exec

@@ -1,5 +1,5 @@
 logo --on:pclogo
->LOAD "/mod/pclogo/pclogo.lgo\n
+!LOAD "/mod/pclogo/pclogo.lgo\n
 >Welcome to Logo\n?\s
 <show getxy\n
 >[0 0]\n

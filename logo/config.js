@@ -17,6 +17,7 @@ $obj.create = function create(sys, origConfigMap = undefined) {
         postfix: false,
         deepCallStack: false,
         pclogo: false,
+        class: false,
         clougo: true,
         scopedPlist: true,
         trace: true

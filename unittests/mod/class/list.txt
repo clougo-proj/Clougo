@@ -1,0 +1,5 @@
+configOverride:,+class
+catdog run exec
+catdog2 run exec
+catdogtiger run exec
+catdogtiger2 run exec

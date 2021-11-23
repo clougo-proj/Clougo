@@ -68,6 +68,7 @@ $obj.create = function(logo, sys) {
     const genNativeJs = {
         "run": genRun,
         "if": genIf,
+        "while": genWhile,
         "catch": genCatch,
         "ifelse": genIfElse,
         "make": genMake,
@@ -273,17 +274,17 @@ $obj.create = function(logo, sys) {
         return "_" + varName.replace(/([^1-9a-z])/g, (p1) => "_" + p1.charCodeAt(0) + "_");
     }
 
-    function genInstrList(evxContext, procName, generateCheckUnusedValue = true, parentSrcmap = undefined) {
+    function genInstrList(evxContext, procName, parentSrcmap = undefined, allowUnusedValue = false) {
         return genInstrListHelper(evxContext.getToken(), evxContext.getSrcmap(), procName,
-            generateCheckUnusedValue, parentSrcmap);
+            parentSrcmap, allowUnusedValue);
     }
 
     function genInstrListFromTemplate(template, procName) {
-        return genInstrListHelper(template, logo.type.getEmbeddedSrcmap(template), procName, false,
+        return genInstrListHelper(template, logo.type.getEmbeddedSrcmap(template), procName,
             logo.type.getEmbeddedSrcmap(template), true);
     }
 
-    function genInstrListHelper(curToken, srcmap, procName, generateCheckUnusedValue, parentSrcmap, allowUnusedValue = false) {
+    function genInstrListHelper(curToken, srcmap, procName, parentSrcmap, allowUnusedValue = false) {
         let code = Code.expr();
 
         if (sys.isUndefined(curToken) || curToken === logo.type.NEWLINE) {
@@ -296,10 +297,6 @@ $obj.create = function(logo, sys) {
             code.append(genInstrListCall(curToken, parentSrcmap));
         }
 
-        if (generateCheckUnusedValue && logo.config.get("unusedValue")) {
-            code.append(";checkUnusedValue($ret,", logo.type.srcmapToJs(parentSrcmap), ");\n");
-        }
-
         return code;
     }
 
@@ -308,7 +305,7 @@ $obj.create = function(logo, sys) {
             return;
         }
 
-        return Code.stmt("{", genInstrList(evxContext.next(), "run",), "}")
+        return Code.stmt("{", genInstrList(evxContext.next(), "run"), "}")
             .append("\n;$ret=undefined;");
     }
 
@@ -336,6 +333,30 @@ $obj.create = function(logo, sys) {
         return code;
     }
 
+
+    function genWhile(evxContext) {
+        evxContext.setAnchor();
+
+        let srcmap = evxContext.getSrcmap();
+
+        let code = Code.stmt().append("let $while_cond=", ASYNC_MACRO.ASYNC, "()=>{")
+            .append(genInstrList(evxContext.next(), "while", undefined, true).captureRetVal())
+            .append("return $ret};\n")
+            .append("while (logo.type.isLogoBooleanTrue(")
+            .append(ASYNC_MACRO.AWAIT, "$while_cond(),'while',")
+            .append(logo.type.srcmapToJs(srcmap))
+            .append(")) {\n");
+
+        if (!logo.type.isLogoList(evxContext.peekNextToken())) {
+            evxContext.rewindToAnchor();
+            return;
+        }
+
+        return code.append(genInstrList(evxContext.next(), "if"))
+            .append("}")
+            .append("\n;$ret=undefined;");
+    }
+
     function genCatch(evxContext) {
         let code = Code.stmt();
 
@@ -361,9 +382,8 @@ $obj.create = function(logo, sys) {
             return;
         }
 
-        code.append(genInstrList(evxContext.next(), "catch", false));
+        code.append(genInstrList(evxContext.next(), "catch"));
         code.append("} catch (e) {\n");
-
         code.append("if (logo.type.LogoException.is(e) && e.isCustom()) {\n");
         code.append("if (sys.equalToken(");
         code.append("$label");
@@ -495,7 +515,7 @@ $obj.create = function(logo, sys) {
             .append("if ((!$forDecrease && $forStep > 0) || ($forDecrease && $forStep < 0))\n")
             .append("for(", forVarName, "=$forBegin; ($forDecrease && ", forVarName, ">=$forEnd) || (!$forDecrease &&",
                 forVarName, "<=$forEnd); ", forVarName, "+=$forStep) {\n")
-            .append(genInstrList(evxContext.next(), "for", true, forSrcmap))
+            .append(genInstrList(evxContext.next(), "for", forSrcmap))
             .append("}}")
             .append("\n;$ret=undefined;");
     }

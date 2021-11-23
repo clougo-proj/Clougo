@@ -1,0 +1,15 @@
+to f :x
+    catch "idea [
+        while [:x > 0] [
+            type (word :x "| |)
+            make "x :x - 1
+            if (:x = 2) [
+                pr "
+                throw "idea
+            ]
+        ]
+    ]
+    pr (word "x= :x)
+end
+
+f 10

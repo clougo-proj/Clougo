@@ -247,7 +247,7 @@ $obj.create = function(logo, sys) {
     }
 
     function primitiveThrow(tag, value = undefined) {
-        throw logo.type.LogoException.CUSTOM.withParam([tag, value], logo.env.getProcSrcmap(), logo.env._frameProcName);
+        throw logo.type.LogoException.CUSTOM.withParam([tag, value], logo.env.getProcSrcmap(), logo.env.getFrameProcName());
     }
 
     async function primitiveFor(forCtrlComp, bodyComp) {
@@ -276,7 +276,7 @@ $obj.create = function(logo, sys) {
             await evxForNextNumberExpr(evxContext, forCtrlComp, forCtrlSrcmap);
         }
 
-        let curScope = logo.env._scopeStack[logo.env._scopeStack.length - 1];
+        let curScope = logo.env.curScope();
         let isDecrease = forEnd < forBegin;
         let forStep = !sys.isUndefined(evxContext.retVal) ? evxContext.retVal : isDecrease ? -1 : 1;
 
@@ -302,7 +302,7 @@ $obj.create = function(logo, sys) {
         } catch (e) {
             if (logo.type.LogoException.is(e)) {
                 throw e.withParam(e.getValue(),
-                    e.getSrcmap() === logo.type.SRCMAP_NULL || logo.env._frameProcName === undefined ? srcmap : e.getSrcmap());
+                    e.getSrcmap() === logo.type.SRCMAP_NULL || logo.env.getFrameProcName() === undefined ? srcmap : e.getSrcmap());
             }
 
             throw e;

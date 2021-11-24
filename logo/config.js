@@ -18,6 +18,7 @@ $obj.create = function create(sys, origConfigMap = undefined) {
         asyncCall: false,
         pclogo: false,
         class: false,
+        module: false,
         clougo: true,
         scopedPlist: true,
         trace: true

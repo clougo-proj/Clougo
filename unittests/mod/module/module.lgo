@@ -1,0 +1,22 @@
+to f
+    pr "main.f
+end
+
+f
+make "a 1
+show :a
+
+module "abc
+
+to f
+    pr "abc.f
+end
+
+f
+make "a 100
+show :a
+
+endmodule
+
+f
+show :a

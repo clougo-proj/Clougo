@@ -1,0 +1,13 @@
+define "f [[][pr "main.f]]
+define "g [[][(f) show :a]]
+make "a 1
+(g)
+
+module "abc
+define "f [[][pr "abc.f]]
+define "g [[][(f) show :a]]
+make "a 100
+(g)
+endmodule
+
+(g)

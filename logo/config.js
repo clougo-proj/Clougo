@@ -15,7 +15,7 @@ $obj.create = function create(sys, origConfigMap = undefined) {
         eagerJitInstrList: false, // transpile instruction list at first encounter
         verbose: false,
         postfix: false,
-        deepCallStack: false,
+        asyncCall: false,
         pclogo: false,
         class: false,
         clougo: true,

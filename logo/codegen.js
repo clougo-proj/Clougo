@@ -21,6 +21,8 @@ $obj.create = function(logo, sys) {
 
     let _isLambda = false;
 
+    let _async = false;
+
     const _varScopes = (() => {
         let self = {};
 
@@ -146,7 +148,7 @@ $obj.create = function(logo, sys) {
         merge() {
             if (this.isAsyncMacro()) {
                 let key = this._code[0];
-                return logo.env.getAsyncFunctionCall() ? ASYNC_MACRO_CODE[key][0] : ASYNC_MACRO_CODE[key][1];
+                return (_async || logo.config.get("asyncCall")) ? ASYNC_MACRO_CODE[key][0] : ASYNC_MACRO_CODE[key][1];
             }
 
             return this._code.map((v) => (v instanceof Code) ? v.merge() :
@@ -752,7 +754,7 @@ $obj.create = function(logo, sys) {
 
     function genProcCall(evxContext, curToken, srcmap, isInParen) {
         if (logo.env.isAsyncProc(curToken) || logo.env.isMacro(curToken) || !logo.env.isProc(curToken)) {
-            logo.env.setAsyncFunctionCall(true);
+            _async = true;
         }
 
         let param = genProcCallParams(evxContext, curToken, logo.env.getProcParsedFormal(curToken),
@@ -877,6 +879,7 @@ $obj.create = function(logo, sys) {
 
     function genInstrListLambdaDeclCode(evxContext, param) {
         _isLambda = true;
+        _async = false;
         _varScopes.enter();
         let code = Code.expr();
         code.append("(", ASYNC_MACRO.ASYNC, "(");
@@ -938,6 +941,7 @@ $obj.create = function(logo, sys) {
 
         let evxContext = logo.interpreter.makeEvalContext(logo.parse.parseBlock(p));
 
+        _async = false;
         _varScopes.enter();
         let code = genBody(evxContext).merge();
         logo.trace.info(code, "codegen");

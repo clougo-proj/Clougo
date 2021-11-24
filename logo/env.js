@@ -73,7 +73,6 @@ $obj.create = function(logo, sys, ext) {
     let _logoMode = LogoMode.BATCH;
     let _globalScope, _envState, _runTime, _userInput, _resolveUserInput;
     let _globalPlists;
-    let _asyncFunctionCall;
     let _genJs;
     let $primitiveName, $primitiveSrcmap;
     let $ret, $scopeCache; // eslint-disable-line no-unused-vars
@@ -316,16 +315,6 @@ $obj.create = function(logo, sys, ext) {
     }
     env.prepareToBeBlocked = prepareToBeBlocked;
 
-    function setAsyncFunctionCall(val) {
-        _asyncFunctionCall = val;
-    }
-    env.setAsyncFunctionCall = setAsyncFunctionCall;
-
-    function getAsyncFunctionCall() {
-        return _asyncFunctionCall || logo.config.get("deepCallStack");
-    }
-    env.getAsyncFunctionCall = getAsyncFunctionCall;
-
     function registerOnStdinCallback() {
         if ("io" in ext && "onstdin" in ext.io && typeof ext.io.onstdin == "function") {
             ext.io.onstdin(async function(d){ // logoUserInputListener
@@ -400,8 +389,6 @@ $obj.create = function(logo, sys, ext) {
         logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).reset();
         _userInput = [];
         _resolveUserInput = undefined;
-
-        setAsyncFunctionCall(false);
 
         $ret = undefined; // eslint-disable-line no-unused-vars
     }

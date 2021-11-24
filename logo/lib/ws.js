@@ -50,6 +50,10 @@ $obj.create = function(logo) {
         "procedurep": primitiveProcedurep,
 
         "macrop": primitiveMacrop,
+
+        "module": primitiveModule,
+
+        "endmodule": primitiveEndmodule,
     };
     ws.methods = methods;
 
@@ -152,15 +156,12 @@ $obj.create = function(logo) {
     }
 
     function primitiveLocal(...args) {
-        let ptr = logo.env._scopeStack.length - 1;
-
-        args.forEach(varname =>
-            logo.env._scopeStack[ptr][varname.toLowerCase()] = undefined);
+        let scope = logo.env.curScope();
+        args.forEach(varname => scope[varname.toLowerCase()] = undefined);
     }
 
     function primitiveLocalmake(varname, val) {
-        let ptr = logo.env._scopeStack.length - 1;
-        logo.env._scopeStack[ptr][varname.toLowerCase()] = val;
+        logo.env.curScope()[varname.toLowerCase()] = val;
     }
 
     function primitiveDefine(procname, text) {
@@ -211,6 +212,18 @@ $obj.create = function(logo) {
 
     function primitiveMacrop(name) {
         return logo.env.isMacro(name) && logo.env.isCallableProc(name);
+    }
+
+    function primitiveModule(moduleName) {
+        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["module"]));
+        logo.type.throwIf(!logo.env.inDefaultModule(), logo.type.LogoException.NESTED_MODULE);
+        logo.env.setModule(moduleName);
+    }
+
+    function primitiveEndmodule() {
+        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["endmodule"]));
+        logo.type.throwIf(logo.env.inDefaultModule(), logo.type.LogoException.UNMATCHED_ENDMODULE);
+        logo.env.setModule();
     }
 
     return ws;

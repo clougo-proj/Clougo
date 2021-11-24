@@ -120,7 +120,7 @@ $obj.create = function(logo, sys) {
 
     async function evxProcCallOptionalRestParam(formal, actualParam) {
         let curScope = {};
-        logo.env._scopeStack.push(curScope);
+        logo.env.scopeStackPush(curScope);
         let paramPtr = actualParam.length;
 
         if (formal.params !== undefined) {
@@ -302,7 +302,7 @@ $obj.create = function(logo, sys) {
     function assignParams(proc, actualParams) {
         const formal = proc.formal;
         let curScope = {};
-        logo.env._scopeStack.push(curScope);
+        logo.env.scopeStackPush(curScope);
 
         for (let i = 0; i < formal.length; i++) {
             curScope[formal[i]] = actualParams[i];
@@ -324,7 +324,7 @@ $obj.create = function(logo, sys) {
             }
         }
 
-        logo.env._scopeStack.pop();
+        logo.env.scopeStackPop();
 
         return retVal;
     }
@@ -344,13 +344,13 @@ $obj.create = function(logo, sys) {
 
     async function evxInstrListWithFormalParam(bodyComp, formalParam, slot) {
         let curScope = {};
-        logo.env._scopeStack.push(curScope);
+        logo.env.scopeStackPush(curScope);
         for (let i = 0; i < formalParam.length; i++) {
             curScope[formalParam[i]] = slot.param[i];
         }
 
         let retVal = await evxInstrList(bodyComp, slot);
-        logo.env._scopeStack.pop();
+        logo.env.scopeStackPop();
         return retVal;
     }
     interpreter.evxInstrListWithFormalParam = evxInstrListWithFormalParam;

@@ -894,9 +894,9 @@ $obj.create = function(logo, sys) {
         code.append("let $scopeCache = {};\n");
 
         if (param !== undefined) {
-            code.append("let $scope = {}; logo.env._scopeStack.push($scope);\n");
+            code.append("let $scope = {}; logo.env.scopeStackPush($scope);\n");
         } else {
-            code.append("let $scope = logo.env._scopeStack[logo.env._scopeStack.length - 1];\n");
+            code.append("let $scope = logo.env.curScope();\n");
         }
 
         code.append("$ret=undefined;\n");
@@ -907,7 +907,7 @@ $obj.create = function(logo, sys) {
         code.append("$ret);");
 
         if (param !== undefined) {
-            code.append("logo.env._scopeStack.pop();\n");
+            code.append("logo.env.scopeStackPop();\n");
         }
 
         code.append("return $ret;");
@@ -950,8 +950,8 @@ $obj.create = function(logo, sys) {
         let ret = "$scopeCache={};" +
                 "logo.env.bindJsProc('$',async function(){\n" +
                 "let $scope={},$scopeCache={};\n" +
-                "logo.env._scopeStack.push($scope);\n" +
-                code + "logo.env._scopeStack.pop();})";
+                "logo.env.scopeStackPush($scope);\n" +
+                code + "logo.env.scopeStackPop();})";
 
         _funcName = oldFuncName;
         return ret;
@@ -965,15 +965,14 @@ $obj.create = function(logo, sys) {
             code.append(genStashLocalVars());
         }
 
-        code.append("logo.env._callstack.push([logo.env._frameProcName," + logo.type.srcmapToJs(srcmap) + "]),");
-        code.append("logo.env._frameProcName=", quoteToken(escapeProcName(target)), ",\n");
-
+        code.append("logo.env.callStackPush(", quoteToken(escapeProcName(target)), ",", logo.type.srcmapToJs(srcmap), "),");
         return code;
     }
 
     function genCompleteCall() {
         let code = Code.expr();
-        code.append("logo.env._frameProcName=logo.env._callstack.pop()[0],");
+        code.append("logo.env.callStackPop(),");
+
         if (logo.config.get("dynamicScope")) {
             code.append(genApplyLocalVars());
         }
@@ -1081,7 +1080,7 @@ $obj.create = function(logo, sys) {
 
         if (logo.config.get("dynamicScope")) {
             code.append("let $scope = {}, $scopeCache = {};\n");
-            code.append("logo.env._scopeStack.push($scope);\n");
+            code.append("logo.env.scopeStackPush($scope);\n");
         }
 
         _varScopes.enter();
@@ -1092,7 +1091,7 @@ $obj.create = function(logo, sys) {
         code.append(genBody(evxContext));
         _varScopes.exit();
 
-        code.append("logo.env._scopeStack.pop();\n");
+        code.append("logo.env.scopeStackPop();\n");
         code.append("}\n");
 
         _funcName = oldFuncName;

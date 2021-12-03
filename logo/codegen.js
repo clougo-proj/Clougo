@@ -960,19 +960,17 @@ $obj.create = function(logo, sys) {
 
     function genPrepareCall(target, srcmap) {
         let code = Code.expr();
-
         if (logo.config.get("dynamicScope")) {
             code.append(genStashLocalVars());
         }
 
-        code.append("logo.env.callStackPush(", quoteToken(escapeProcName(target)), ",", logo.type.srcmapToJs(srcmap), "),");
+        code.append("logo.env.prepareCallProc(", quoteToken(escapeProcName(target)), ",", logo.type.srcmapToJs(srcmap), "),");
         return code;
     }
 
     function genCompleteCall() {
         let code = Code.expr();
-        code.append("logo.env.callStackPop(),");
-
+        code.append("logo.env.completeCallProc(),");
         if (logo.config.get("dynamicScope")) {
             code.append(genApplyLocalVars());
         }

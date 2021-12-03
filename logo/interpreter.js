@@ -257,14 +257,20 @@ $obj.create = function(logo, sys) {
         }
 
         evxContext.proc = curToken;
-        logo.env.prepareCallProc(curToken, curSrcmap);
+        if (!logo.env.isPrimitive(curToken)) {
+            logo.env.prepareCallProc(curToken, curSrcmap);
+        }
+
         let callParams = await evxProcCallRequiredParam(evxContext, curToken, logo.env.getProcParsedFormal(curToken),
             logo.env.getPrecedence(curToken), isInParen);
 
         logo.env.setProcName(curToken);
         logo.env.setProcSrcmap(curSrcmap);
         evxContext.retVal = await logo.env.getCallTarget(curToken).apply(undefined, callParams);
-        logo.env.completeCallProc(curToken);
+        if (!logo.env.isPrimitive(curToken)) {
+            logo.env.completeCallProc();
+        }
+
         if (!macroExpand && logo.env.isMacro(curToken)) {
             evxContext.retVal = await evxMacroOutput(evxContext.retVal, curToken, curSrcmap);
         }
@@ -364,7 +370,7 @@ $obj.create = function(logo, sys) {
 
         logo.env.prepareCallProc(logo.type.LAMBDA_EXPR, logo.type.getReferenceSrcmap(bodyComp), slot);
         let retVal = await evxBody(parsedBlock, true);
-        logo.env.completeCallProc(logo.type.LAMBDA_EXPR);
+        logo.env.completeCallProc();
         return retVal;
     }
     interpreter.evxInstrList = evxInstrList;

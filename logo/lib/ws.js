@@ -54,6 +54,8 @@ $obj.create = function(logo) {
         "module": primitiveModule,
 
         "endmodule": primitiveEndmodule,
+
+        "export": primitiveExport,
     };
     ws.methods = methods;
 
@@ -224,6 +226,11 @@ $obj.create = function(logo) {
         logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["endmodule"]));
         logo.type.throwIf(logo.env.inDefaultModule(), logo.type.LogoException.UNMATCHED_ENDMODULE);
         logo.env.setModule();
+    }
+
+    function primitiveExport(procs) {
+        logo.type.validateInputList(procs);
+        logo.env.exportProcs(logo.type.unbox(procs));
     }
 
     return ws;

@@ -75,11 +75,17 @@ $obj.create = function(logo, sys, ext) {
     let _genJs;
     let _procName, _procSrcmap;
     let _moduleContext = {};
+    let _moduleExport = {};
     let _module = DEFAULT_MODULE;
     let _primitiveJsFunc = {};
     let _primitiveMetadata = {};
+    let _globalJsFunc = Object.create(_primitiveJsFunc);
+    let _globalMetadata = Object.create(_primitiveMetadata);
     let _abortExecution;
     let _scopeStackModule = [];
+    let _curSlot;
+    let _userBlock = new WeakMap();
+    let _userBlockCalled = new WeakMap();
 
     let $ret, $scopeCache; // eslint-disable-line no-unused-vars
     let $param = createParamScope(); // eslint-disable-line no-unused-vars
@@ -177,17 +183,6 @@ $obj.create = function(logo, sys, ext) {
     }
     env.plistToList = plistToList;
 
-    function callStackPush(target, srcmapJs) {
-        _callStack.push([_frameProcName, srcmapJs]);
-        _frameProcName = target;
-    }
-    env.callStackPush = callStackPush;
-
-    function callStackPop() {
-        _frameProcName = _callStack.pop()[0];
-    }
-    env.callStackPop = callStackPop;
-
     function getFrameProcName() {
         return _frameProcName;
     }
@@ -216,7 +211,7 @@ $obj.create = function(logo, sys, ext) {
 
     function validateMacroOutput(val, name, srcmap) {
         if (!logo.type.isLogoList(val)) {
-            callStackPop();
+            completeCallProc();
             throwRuntimeLogoException(logo.type.LogoException.INVALID_MACRO_RETURN, srcmap, [val, name]);
         }
     }
@@ -246,23 +241,23 @@ $obj.create = function(logo, sys, ext) {
     env.extractSlotNum = extractSlotNum;
 
     function getSlotValue(slotNum) {
-        logo.type.throwIf(moduleContext().curSlot === undefined || slotNum > moduleContext().curSlot.param.length,
+        logo.type.throwIf(_curSlot === undefined || slotNum > _curSlot.param.length,
             logo.type.LogoException.INVALID_INPUT, slotNum);
 
-        return moduleContext().curSlot.param[slotNum - 1];
+        return _curSlot.param[slotNum - 1];
     }
     env.getSlotValue = getSlotValue;
 
     function getSlotIndex() {
-        return moduleContext().curSlot.index;
+        return _curSlot.index;
     }
     env.getSlotIndex = getSlotIndex;
 
     function getSlotRestValue(slotNum) {
-        logo.type.throwIf(moduleContext().curSlot === undefined || slotNum > moduleContext().curSlot.rest.length,
+        logo.type.throwIf(_curSlot === undefined || slotNum > _curSlot.rest.length,
             logo.type.LogoException.INVALID_INPUT, slotNum);
 
-        return logo.type.makeLogoList(moduleContext().curSlot.rest[slotNum - 1]);
+        return logo.type.makeLogoList(_curSlot.rest[slotNum - 1]);
     }
     env.getSlotRestValue = getSlotRestValue;
 
@@ -371,7 +366,7 @@ $obj.create = function(logo, sys, ext) {
                     if (sys.equalToken(userInput, "quit") || sys.equalToken(userInput, "exit") || sys.equalToken(userInput, "bye")) {
                         _envState = LOGO_EVENT.EXIT;
                         ext.io.exit();
-                        return; // exit
+                        return;
                     }
 
                     let ret = await exec(userInput, logo.config.get("genCommand"), 0);
@@ -416,20 +411,19 @@ $obj.create = function(logo, sys, ext) {
         context.moduleScope = {};
         context.scopeStack = [context.moduleScope];
 
-        context.procJsFunc = Object.create(_primitiveJsFunc);
-        context.procMetadata = Object.create(_primitiveMetadata);
+        context.procJsFunc = Object.create(_globalJsFunc);
+        context.procMetadata = Object.create(_globalMetadata);
 
         context.modulePlist = {};
-
-        context.userBlock = new WeakMap();
-        context.userBlockCalled = new WeakMap();
-        context.curSlot = undefined;
 
         return context;
     }
 
     function clearWorkspace() {
 
+        _module = DEFAULT_MODULE;
+        _moduleContext = {};
+        _moduleExport = {};
         _moduleContext[_module] = newModuleContext();
 
         _callStack = [];
@@ -437,6 +431,9 @@ $obj.create = function(logo, sys, ext) {
         logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).reset();
         _userInput = [];
         _resolveUserInput = undefined;
+
+        _userBlock = new WeakMap();
+        _userBlockCalled = new WeakMap();
 
         $ret = undefined; // eslint-disable-line no-unused-vars
     }
@@ -462,9 +459,25 @@ $obj.create = function(logo, sys, ext) {
     function resetInterpreterCallStack() {
         _callStack = [];
         _frameProcName = undefined;
-        moduleContext().curSlot = undefined;
+        _curSlot = undefined;
     }
     env.resetInterpreterCallStack = resetInterpreterCallStack;
+
+    function exportProcs(procs) {
+        procs.forEach(proc => {
+            if (!(_module in _moduleExport)) {
+                _moduleExport[_module] = {};
+            }
+
+            let globalProcName = _module + "." + proc;
+            _moduleExport[_module][proc] = globalProcName;
+            _globalMetadata[globalProcName] = moduleContext().procMetadata[proc];
+            if (moduleContext().procJsFunc[proc] !== undefined) {
+                _globalJsFunc[globalProcName] = moduleContext().procJsFunc[proc];
+            }
+        });
+    }
+    env.exportProcs = exportProcs;
 
     function setEnvState(val) {
         _envState = val;
@@ -487,34 +500,32 @@ $obj.create = function(logo, sys, ext) {
 
     function callLogoInstrList(block) { // eslint-disable-line no-unused-vars
         justInTimeTranspileInstrList(block);
-        return moduleContext().userBlock.get(block)();
+        return _userBlock.get(block)();
     }
 
-    function prepareCallProc(curToken, curSrcmap, curSlot = moduleContext().curSlot) {
-        if (isPrimitive(curToken)) {
-            return;
+    function prepareCallProc(curToken, curSrcmap, curSlot = _curSlot) {
+        _callStack.push([_frameProcName, curSrcmap, _curSlot, _module]);
+        let metadata = getProcMetadata(curToken);
+        if (metadata !== undefined) {
+            _module = getProcMetadata(curToken).module;
         }
 
-        _callStack.push([_frameProcName, curSrcmap, moduleContext().curSlot]);
         _frameProcName = curToken;
-        moduleContext().curSlot = curSlot;
+        _curSlot = curSlot;
     }
     env.prepareCallProc = prepareCallProc;
 
-    function completeCallProc(procName) {
-        if (isPrimitive(procName)) {
-            return;
-        }
-
+    function completeCallProc() {
         let callStackPop = _callStack.pop();
+        _module = callStackPop[3];
         _frameProcName = callStackPop[0];
-        moduleContext().curSlot = callStackPop[2];
+        _curSlot = callStackPop[2];
     }
     env.completeCallProc = completeCallProc;
 
     async function callLogoInstrListAsync(block, param) {
         justInTimeTranspileInstrList(block);
-        return await moduleContext().userBlock.get(block).apply(undefined, param);
+        return await _userBlock.get(block).apply(undefined, param);
     }
     env.callLogoInstrListAsync = callLogoInstrListAsync;
 
@@ -562,6 +573,7 @@ $obj.create = function(logo, sys, ext) {
 
     function makeProcMetadata(formal, formalSrcmap, body = undefined, bodySrcmap = undefined, attributes = PROC_ATTRIBUTE.EMPTY) {
         return {
+            "module" : _module,
             "formal" : formal,
             "formalSrcmap" : formalSrcmap,
             "body" : body,
@@ -688,22 +700,22 @@ $obj.create = function(logo, sys, ext) {
     }
 
     function justInTimeTranspileInstrList(block) {
-        if (!moduleContext().userBlock.has(block)) {
+        if (!_userBlock.has(block)) {
             let blockComp = logo.parse.parseBlock(block);
             let formalParam = getInstrListFormalParam(blockComp);
             if (formalParam === undefined) {
                 let evxContext = logo.interpreter.makeEvalContext(blockComp);
-                moduleContext().userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext)));
+                _userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext)));
             } else {
                 let evxContext = logo.interpreter.makeEvalContext(logo.type.listButFirst(blockComp));
-                moduleContext().userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext, formalParam)));
+                _userBlock.set(block, eval(logo.codegen.genInstrListLambdaDeclCode(evxContext, formalParam)));
             }
         }
     }
 
     function justInTimeTranspileProcText(template) {
-        if (!moduleContext().userBlock.has(template)) {
-            moduleContext().userBlock.set(template, eval(logo.codegen.genProcText(template).merge()));
+        if (!_userBlock.has(template)) {
+            _userBlock.set(template, eval(logo.codegen.genProcText(template).merge()));
         }
     }
 
@@ -941,7 +953,7 @@ $obj.create = function(logo, sys, ext) {
             logo.env.checkSlotLength(logo.type.LAMBDA_EXPR, slot.param, inputListSrcmap, formalParam.length);
         }
 
-        if (getGenJs() && !macroExpand && (moduleContext().userBlockCalled.has(template) || logo.config.get("eagerJitInstrList"))) {
+        if (getGenJs() && !macroExpand && (_userBlockCalled.has(template) || logo.config.get("eagerJitInstrList"))) {
             let scopeStackLength = moduleContext().scopeStack.length;
             if (pushCallStack) {
                 prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
@@ -950,14 +962,14 @@ $obj.create = function(logo, sys, ext) {
             let retVal = await callLogoInstrListAsync(template, slot.param);
 
             if (pushCallStack) {
-                completeCallProc(logo.type.LAMBDA_EXPR);
+                completeCallProc();
             }
 
             moduleContext().scopeStack.splice(scopeStackLength);
             return retVal;
         }
 
-        moduleContext().userBlockCalled.set(template, true);
+        _userBlockCalled.set(template, true);
         let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
         if (formalParam === undefined) {
             let scopeStackLength = moduleContext().scopeStack.length;
@@ -989,14 +1001,14 @@ $obj.create = function(logo, sys, ext) {
         checkSlotLength(template, slot.param, inputListSrcmap, parsedFormal.minInputCount, parsedFormal.maxInputCount);
 
         if (!isPrimitive(template)) {
-            prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
+            prepareCallProc(template, srcmap, slot);
         }
 
         slot.param.splice(0, 0, template, srcmap);
         let retVal = await logo.env.callProcAsync.apply(undefined, slot.param);
 
         if (!isPrimitive(template)) {
-            completeCallProc(logo.type.LAMBDA_EXPR);
+            completeCallProc();
         }
 
         return retVal;
@@ -1016,14 +1028,14 @@ $obj.create = function(logo, sys, ext) {
         let retVal = getGenJs() ? await callLogoProcTextAsync(template, slot.param) :
             await logo.interpreter.evxProc(proc, slot.param);
 
-        completeCallProc(logo.type.LAMBDA_EXPR);
+        completeCallProc();
         return retVal;
     }
     env.applyProcText = applyProcText;
 
     async function callLogoProcTextAsync(template, param) {
         justInTimeTranspileProcText(template);
-        return await moduleContext().userBlock.get(template).apply(undefined, param);
+        return await _userBlock.get(template).apply(undefined, param);
     }
 
     function checkSlotLength(template, slot, srcmap, length, maxLength) {

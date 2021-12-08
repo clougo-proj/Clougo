@@ -65,6 +65,7 @@ Constants.LOGO_EXCEPTIONS = {
     OUTPUT_STOP_RUNRESULT : [38, "Can't use OUTPUT or STOP inside RUNRESULT"],
     CANT_OPEN_FILE        : [40, "I can't open file {0}"],
     NOT_MACRO             : [101, "{1} is not a macro."],
+    MODULE_HAS_NO_EXPORT  : [1018, "Module {0} has no export {1}"],
     UNMATCHED_ENDMODULE   : [1019, "Can't use ENDMODULE outside a module."],
     NESTED_MODULE         : [1020, "Can't use MODULE inside a module."],
     NOT_ENABLED           : [1021, "{0} is not enabled."],

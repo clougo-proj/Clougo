@@ -3,3 +3,5 @@ module run exec
 module2 run exec
 module_err runl execl
 export run exec
+import run exec
+no_module_err runl,-module execl,-module

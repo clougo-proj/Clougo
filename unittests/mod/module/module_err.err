@@ -2,3 +2,7 @@ Can't use MODULE inside a module.
     at 2,1
 Can't use ENDMODULE outside a module.
     at 4,1
+module doesn't like [] as input
+    at 5,1
+module doesn't like {} as input
+    at 6,1

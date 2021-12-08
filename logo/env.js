@@ -479,6 +479,29 @@ $obj.create = function(logo, sys, ext) {
     }
     env.exportProcs = exportProcs;
 
+    function importProcs(moduleName, procs) {
+        if (!(moduleName in _moduleExport)) {
+            throw logo.type.LogoException.MODULE_HAS_NO_EXPORTS.withParam([moduleName, ""], getProcSrcmap());
+        }
+
+        if (procs.length === 0) {
+            procs = Object.keys(_moduleExport[moduleName]);
+        }
+
+        procs.forEach(proc => {
+            if (!(proc in _moduleExport[moduleName])) {
+                throw logo.type.LogoException.MODULE_HAS_NO_EXPORTS.withParam([moduleName, proc], getProcSrcmap());
+            }
+
+            let globalProcName = _moduleExport[moduleName][proc];
+            moduleContext().procMetadata[proc] = _globalMetadata[globalProcName];
+            if (_globalJsFunc[globalProcName] !== undefined) {
+                moduleContext().procJsFunc[proc] = _globalJsFunc[globalProcName];
+            }
+        });
+    }
+    env.importProcs = importProcs;
+
     function setEnvState(val) {
         _envState = val;
     }
@@ -737,7 +760,7 @@ $obj.create = function(logo, sys, ext) {
     }
 
     function isEagerEval(logosrc) {
-        return (/^\s*\(?\s*(load|module|endmodule)\b/i).test(logosrc);
+        return (/^\s*\(?\s*(load|module|endmodule|export|import)\b/i).test(logosrc);
     }
 
     async function timedExec(f) {
@@ -1079,12 +1102,12 @@ $obj.create = function(logo, sys, ext) {
             return UNDEFINED_PROC_DEFAULT_FORMAL;
         }
 
-        let procMetaData = moduleContext().procMetadata[procName];
-        if (!("parsedFormal" in procMetaData)) {
-            procMetaData.parsedFormal = parseFormalParams(procMetaData.formal, procMetaData.formalSrcmap);
+        let procMetadata = moduleContext().procMetadata[procName];
+        if (!("parsedFormal" in procMetadata)) {
+            procMetadata.parsedFormal = parseFormalParams(procMetadata.formal, procMetadata.formalSrcmap);
         }
 
-        return procMetaData.parsedFormal;
+        return procMetadata.parsedFormal;
     }
     env.getProcParsedFormal = getProcParsedFormal;
 

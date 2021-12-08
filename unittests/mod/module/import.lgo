@@ -1,0 +1,75 @@
+module "module_a
+
+to test_dereference
+    pr "\nmodule_a.test_dereference
+    pr :m
+end
+
+to test_assign :new_value
+    pr "\nmodule_a.test_assign
+    pr namep "m   ; false
+    make "m :new_value
+    pr namep "m   ; true
+    pr :m         ; bar
+end
+
+to test_template :template
+    pr "\nmodule_a.test_template
+    (invoke :template)
+end
+
+export [test_dereference test_assign test_template]
+
+endmodule ; module_a
+
+module "test_module
+
+import "module_a [test_dereference test_assign test_template]
+
+to template1
+    pr "\ntest_module.template1
+    pr :m
+end
+
+to test_top
+    pr "test_module.test_top
+    localmake "m "xyz
+    pr :m ; foo
+    test_assign "abc
+    pr "\ntest_module.test_top
+    pr :m ; foo
+    test_dereference
+    pr "\ntest_module.test_top
+    pr :m
+    test_template "test_module.template1
+end
+
+export [template1 test_top]
+
+endmodule ; test_module
+
+import "module_a []
+import "test_module [test_top]
+
+to template1
+    pr "\ntemplate1
+    pr :m
+end
+
+to test_top
+    pr "test_top
+    localmake "m "foo
+    pr :m ; foo
+    test_assign "bar
+    pr "\ntest_top
+    pr :m ; foo
+    test_dereference
+    pr "\ntest_top
+    pr :m
+    test_template "main.template1
+end
+
+export [template1]
+
+test_top
+test_module.test_top

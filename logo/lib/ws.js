@@ -56,6 +56,8 @@ $obj.create = function(logo) {
         "endmodule": primitiveEndmodule,
 
         "export": primitiveExport,
+
+        "import": primitiveImport,
     };
     ws.methods = methods;
 
@@ -219,6 +221,7 @@ $obj.create = function(logo) {
     function primitiveModule(moduleName) {
         logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["module"]));
         logo.type.throwIf(!logo.env.inDefaultModule(), logo.type.LogoException.NESTED_MODULE);
+        logo.type.validateInputWord(moduleName);
         logo.env.setModule(moduleName);
     }
 
@@ -229,8 +232,16 @@ $obj.create = function(logo) {
     }
 
     function primitiveExport(procs) {
+        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["export"]));
         logo.type.validateInputList(procs);
         logo.env.exportProcs(logo.type.unbox(procs));
+    }
+
+    function primitiveImport(moduleName, procs) {
+        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["import"]));
+        logo.type.validateInputWord(moduleName);
+        logo.type.validateInputList(procs);
+        logo.env.importProcs(moduleName, logo.type.unbox(procs));
     }
 
     return ws;

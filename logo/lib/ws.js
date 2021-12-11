@@ -49,15 +49,7 @@ $obj.create = function(logo) {
 
         "procedurep": primitiveProcedurep,
 
-        "macrop": primitiveMacrop,
-
-        "module": primitiveModule,
-
-        "endmodule": primitiveEndmodule,
-
-        "export": primitiveExport,
-
-        "import": primitiveImport,
+        "macrop": primitiveMacrop
     };
     ws.methods = methods;
 
@@ -216,32 +208,6 @@ $obj.create = function(logo) {
 
     function primitiveMacrop(name) {
         return logo.env.isMacro(name) && logo.env.isCallableProc(name);
-    }
-
-    function primitiveModule(moduleName) {
-        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["module"]));
-        logo.type.throwIf(!logo.env.inDefaultModule(), logo.type.LogoException.NESTED_MODULE);
-        logo.type.validateInputWord(moduleName);
-        logo.env.setModule(moduleName);
-    }
-
-    function primitiveEndmodule() {
-        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["endmodule"]));
-        logo.type.throwIf(logo.env.inDefaultModule(), logo.type.LogoException.UNMATCHED_ENDMODULE);
-        logo.env.setModule();
-    }
-
-    function primitiveExport(procs) {
-        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["export"]));
-        logo.type.validateInputList(procs);
-        logo.env.exportProcs(logo.type.unbox(procs));
-    }
-
-    function primitiveImport(moduleName, procs) {
-        logo.type.throwIf(!logo.config.get("module"), logo.type.LogoException.NOT_ENABLED.withParam(["import"]));
-        logo.type.validateInputWord(moduleName);
-        logo.type.validateInputList(procs);
-        logo.env.importProcs(moduleName, logo.type.unbox(procs));
     }
 
     return ws;

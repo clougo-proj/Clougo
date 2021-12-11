@@ -47,7 +47,8 @@ Constants.LOGO_LIBRARY = {
     "WORKSPACE_MGMT": "ws",
     "CTRL_STRUCT": "ctrl",
     "OS": "os",
-    "MISC": "misc"
+    "MISC": "misc",
+    "CLOUGO": "clougo"
 };
 Object.freeze(Constants.LOGO_LIBRARY);
 

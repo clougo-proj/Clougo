@@ -1,9 +1,9 @@
 class "Animal [
-    new [[name][
+    new [[this name][
         pprop :this "name :name
     ]]
 
-    tellname [[][
+    tellname [[this][
         pr gprop :this "name
     ]]
 ]

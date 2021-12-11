@@ -1,5 +1,5 @@
-[new [[name] [pprop :this "name :name]] tellname [[] [pr invokem :this "toString]] toString [[] [output gprop :this "name]]]
-[isa Animal new Pet.new toString [[] [output (word invokesuper "toString "  gprop :this "species )]]]
+[new [[this name] [pprop :this "name :name]] tellname [[this] [pr invokem :this "toString]] toString [[this] [output gprop :this "name]]]
+[isa Animal new Pet.new toString [[this] [output (word (invokesuper :this "toString) "  gprop :this "species )]]]
 [class pet name Tom species Cat]
 [class pet name Spike species Dog]
 [class animal name Tigger]

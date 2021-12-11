@@ -1,16 +1,16 @@
 class "Animal [
-    new [[name][
+    new [[this name][
         pprop :this "name :name
     ]]
-    tellname [[][
+    tellname [[this][
         pr invokem :this "to_string
     ]]
-    to_string [[][output gprop :this "name]]
+    to_string [[this][output gprop :this "name]]
 ]
 
 class "DomesticAnimal [
     isa Animal
-    new [[name][(super :name)]]
+    new [[this name][(super :this :name)]]
 ]
 
 class "WildAnimal [
@@ -19,16 +19,16 @@ class "WildAnimal [
 
 class "Pet [
     isa DomesticAnimal
-    new [[name species][
-        (super :name)
+    new [[this name species][
+        (super :this :name)
         pprop :this "species :species
     ]]
     to_string Pet.to_string
 ]
 
-to Pet.to_string
+to Pet.to_string :this
     output (word
-        invokesuper "to_string
+        (invokesuper :this "to_string)
         "| |
         gprop :this "species
     )

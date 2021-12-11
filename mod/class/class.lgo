@@ -31,7 +31,7 @@ to new :className [:args]
     localmake "className $toInternalName :className
     localmake "this listtoplist []
     pprop :this "class :className
-    apply ($getClassMethod :className "new) :args
+    apply ($getClassMethod :className "new) (fput :this :args)
     output :this
 end
 
@@ -40,14 +40,13 @@ to super [:args]
     output apply ($getClassMethod :className "new) :args
 end
 
-to invokesuper :methodName [:args]
+to invokesuper :this :methodName [:args]
     make "className $getSuperClass :className
-    output apply ($getClassMethod :className :methodName) :args
+    output apply ($getClassMethod :className :methodName) (fput :this :args)
 end
 
-to invokem :obj :methodName [:args]
-    localmake "className (gprop :obj "class)
+to invokem :this :methodName [:args]
+    localmake "className (gprop :this "class)
     localmake "method $getClassMethod :className :methodName
-    localmake "this :obj
-    output apply :method :args
+    output apply :method (fput :this :args)
 end

@@ -3,11 +3,11 @@ class "Animal [
     tellname Animal.tellname
 ]
 
-to animal.new :name
+to animal.new :this :name
 pprop :this "name :name
 end
 
-to animal.tellname
+to animal.tellname :this
 pr gprop :this "name
 end
 

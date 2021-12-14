@@ -1,0 +1,2 @@
+make "a listToPlist []
+show gprop :a "toString

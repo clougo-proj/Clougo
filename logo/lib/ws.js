@@ -108,6 +108,7 @@ $obj.create = function(logo) {
 
     function primitivePprop(plist, propName, val) {
         logo.type.validateInputWord(propName);
+        propName = logo.type.toInternalPropertyName(propName);
         if (logo.config.get("scopedPlist") && logo.type.isLogoPlist(plist)) {
             logo.type.plistSet(plist, propName, val);
             return;
@@ -119,6 +120,7 @@ $obj.create = function(logo) {
 
     function primitiveGprop(plist, propName) {
         logo.type.validateInputWord(propName);
+        propName = logo.type.toInternalPropertyName(propName);
         if (logo.config.get("scopedPlist") && logo.type.isLogoPlist(plist)) {
             return logo.type.plistGet(plist, propName);
         }
@@ -129,6 +131,7 @@ $obj.create = function(logo) {
 
     function primitiveRemprop(plist, propName) {
         logo.type.validateInputWord(propName);
+        propName = logo.type.toInternalPropertyName(propName);
         if (logo.config.get("scopedPlist") && logo.type.isLogoPlist(plist)) {
             return logo.type.plistUnset(plist, propName);
         }

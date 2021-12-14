@@ -40,3 +40,4 @@ issue357 exec run
 issue360 exec run
 issue362 exec run
 issue364 exec run
+issue374 exec run

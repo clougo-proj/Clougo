@@ -866,7 +866,7 @@ $obj.create = function(logo, sys) {
     function plistToList(plist) {
         return makeLogoList(Object.keys(plist)
             .sort()
-            .map((k) => [k, plist[k]])
+            .map((k) => [fromInternalPropertyName(k), plist[k]])
             .flat());
     }
     type.plistToList = plistToList;
@@ -879,7 +879,7 @@ $obj.create = function(logo, sys) {
         let unboxed = unboxList(list);
         let plist = {};
         while (unboxed.length > 0) {
-            let key = toString(unboxed.shift());
+            let key = toInternalPropertyName(toString(unboxed.shift()));
             let value = (unboxed.length > 0) ? unboxed.shift() : key;
             plist[key] = value;
         }
@@ -933,6 +933,15 @@ $obj.create = function(logo, sys) {
             .replace(/"/g, "\\\"") + "\"";
     }
     type.quotedLogoWordToJsStringLiteral = quotedLogoWordToJsStringLiteral;
+
+    function toInternalPropertyName(propName) {
+        return "_" + propName;
+    }
+    type.toInternalPropertyName = toInternalPropertyName;
+
+    function fromInternalPropertyName(propName) {
+        return propName.substring(1);
+    }
 
     function isLogoBoolean(token) {
         return typeof token === "boolean" || sys.equalToken(token, "true") || sys.equalToken(token, "false");

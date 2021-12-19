@@ -8,6 +8,7 @@
 var Constants = {};
 
 Constants.MAX_UNDO_DEPTH = 100;
+Constants.CLASSNAME = "$CLASSNAME";
 
 Constants.LOGO_EVENT = {
     "BUSY": "busy",
@@ -66,9 +67,10 @@ Constants.LOGO_EXCEPTIONS = {
     OUTPUT_STOP_RUNRESULT : [38, "Can't use OUTPUT or STOP inside RUNRESULT"],
     CANT_OPEN_FILE        : [40, "I can't open file {0}"],
     NOT_MACRO             : [101, "{1} is not a macro."],
+    UNKNOWN_PROC_MODULE   : [1017, "{0} can't find method {1}"],
     MODULE_HAS_NO_EXPORT  : [1018, "Module {0} has no export {1}"],
-    UNMATCHED_ENDMODULE   : [1019, "Can't use ENDMODULE outside a module."],
-    NESTED_MODULE         : [1020, "Can't use MODULE inside a module."],
+    ONLY_IN_MODULE        : [1019, "Can't use {0} outside a module."],
+    NOT_ALLOWD_IN_MODULE  : [1020, "Can't use {0} inside a module."],
     NOT_ENABLED           : [1021, "{0} is not enabled."],
     NOT_SAME_LENGTH       : [1022, "Inputs of {0} have different lengths"],
     TOO_MANY_INPUTS       : [1023, "Too many inputs to {0}"],

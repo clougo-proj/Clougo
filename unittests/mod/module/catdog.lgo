@@ -1,0 +1,24 @@
+make "class_name "animal
+
+class :class_name
+
+to constructor :this :name
+    pprop :this "name :name
+end
+
+to tellname :this
+    pr gprop :this "name
+end
+
+export [constructor tellname]
+
+endclass
+
+import :class_name []
+
+make "cat (new :class_name "cat)
+make "dog (new :class_name "dog)
+show :cat
+show :dog
+invokem :cat "tellname
+invokem :dog "tellname

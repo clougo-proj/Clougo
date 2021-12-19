@@ -1,0 +1,6 @@
+class "class_a
+
+endclass
+
+make "a0 (new "class_a)
+show :a0

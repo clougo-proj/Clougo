@@ -13,6 +13,8 @@ $obj.create = function(logo, sys, ext) {
 
     const DEFAULT_MODULE = "main";
 
+    const CLASSNAME = logo.constants.CLASSNAME;
+
     const env = {};
 
     const LogoMode = {
@@ -74,21 +76,21 @@ $obj.create = function(logo, sys, ext) {
     let _callStack, _frameProcName;
     let _genJs;
     let _procName, _procSrcmap;
-    let _moduleContext = {};
-    let _moduleExport = {};
-    let _module = DEFAULT_MODULE;
-    let _primitiveJsFunc = {};
-    let _primitiveMetadata = {};
-    let _globalJsFunc = Object.create(_primitiveJsFunc);
-    let _globalMetadata = Object.create(_primitiveMetadata);
+
+    let _moduleContext, _moduleExport, _super, _subClass, _module;
+    let _globalJsFunc, _globalMetadata;
+    let _scopeStackModule, _userBlock, _userBlockCalled;
+
     let _abortExecution;
-    let _scopeStackModule = [];
     let _curSlot;
-    let _userBlock = new WeakMap();
-    let _userBlockCalled = new WeakMap();
 
     let $ret, $scopeCache; // eslint-disable-line no-unused-vars
     let $param = createParamScope(); // eslint-disable-line no-unused-vars
+
+    let _primitiveJsFunc = {};
+    let _primitiveMetadata = {};
+
+    clearWorkspace();
 
     function registerUserInputResolver(resolve) {
         _resolveUserInput = resolve;
@@ -136,6 +138,11 @@ $obj.create = function(logo, sys, ext) {
     }
     env.getGenJs = getGenJs;
 
+    function getModule() {
+        return _module;
+    }
+    env.getModule = getModule;
+
     function setModule(module = DEFAULT_MODULE) {
         _module = module;
         if (!(_module in _moduleContext)) {
@@ -143,6 +150,74 @@ $obj.create = function(logo, sys, ext) {
         }
     }
     env.setModule = setModule;
+
+    function setIsa(isa, module = _module) {
+        _super[module] = isa;
+    }
+    env.setIsa = setIsa;
+
+    function getIsa(module = _module) {
+        return Object.prototype.hasOwnProperty.call(_super, module) ? _super[module] : [];
+    }
+    env.getIsa = getIsa;
+
+    function getSuperClassMethod(className, methodName) {
+        for (let isaClass of getIsa(className)) {
+            let procName = getClassMethod(isaClass, methodName);
+            if (procName !== undefined) {
+                return procName;
+            }
+        }
+
+        return undefined;
+    }
+    env.getSuperClassMethod = getSuperClassMethod;
+
+    function getClassMethod(className, methodName) {
+        let procName = className + "." + methodName;
+        if (isProc(procName)) {
+            return procName;
+        }
+
+        return getSuperClassMethod(className, methodName);
+    }
+    env.getClassMethod = getClassMethod;
+
+    function isSubClassOf(subClass, superClass) {
+        if (subClass === superClass) {
+            return true;
+        }
+
+        if (!Object.prototype.hasOwnProperty.call(subClass, superClass)) {
+            _subClass[superClass] = {};
+        }
+
+        if (Object.prototype.hasOwnProperty.call(_subClass[superClass], subClass)) {
+            return _subClass[superClass][subClass];
+        }
+
+        for(let isaClass of getIsa(subClass)) {
+            if (isSubClassOf(isaClass, superClass)) {
+                _subClass[superClass][subClass] = true;
+                return true;
+            }
+        }
+
+        _subClass[superClass][subClass] = false;
+        return false;
+    }
+
+    function isLogoClassObj(obj, className = undefined) {
+        return typeof obj === "object" && obj !== null && !Array.isArray(obj) &&
+            (Object.prototype.hasOwnProperty.call(obj, CLASSNAME) &&
+            (className === undefined || isSubClassOf(obj[CLASSNAME], className)));
+    }
+    env.isLogoClassObj = isLogoClassObj;
+
+    function canAccessProperties(obj) {
+        return logo.type.isLogoPlist(obj) || isLogoClassObj(obj, _module);
+    }
+    env.canAccessProperties = canAccessProperties;
 
     function inDefaultModule() {
         return _module === DEFAULT_MODULE;
@@ -399,14 +474,14 @@ $obj.create = function(logo, sys, ext) {
     function initLogoEnv() {
         clearWorkspace();
 
+        logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).reset();
+
         registerOnStdinCallback();
     }
     env.initLogoEnv = initLogoEnv;
 
     function newModuleContext() {
         let context = {};
-        context.procJsFunc = {};
-        context.procMetadata = {};
 
         context.moduleScope = {};
         context.scopeStack = [context.moduleScope];
@@ -421,14 +496,18 @@ $obj.create = function(logo, sys, ext) {
 
     function clearWorkspace() {
 
-        _module = DEFAULT_MODULE;
         _moduleContext = {};
         _moduleExport = {};
+        _super = {};
+        _subClass = {};
+        _module = DEFAULT_MODULE;
+        _globalJsFunc = Object.create(_primitiveJsFunc);
+        _globalMetadata = Object.create(_primitiveMetadata);
         _moduleContext[_module] = newModuleContext();
 
         _callStack = [];
+        _scopeStackModule = [];
         _frameProcName = undefined;
-        logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).reset();
         _userInput = [];
         _resolveUserInput = undefined;
 
@@ -471,8 +550,13 @@ $obj.create = function(logo, sys, ext) {
 
             let globalProcName = _module + "." + proc;
             _moduleExport[_module][proc] = globalProcName;
+
+            if (!Object.prototype.hasOwnProperty.call(moduleContext().procMetadata, proc)) {
+                throw logo.type.LogoException.UNKNOWN_PROC_MODULE.withParam([getProcName(), proc], getProcSrcmap());
+            }
+
             _globalMetadata[globalProcName] = moduleContext().procMetadata[proc];
-            if (moduleContext().procJsFunc[proc] !== undefined) {
+            if (Object.prototype.hasOwnProperty.call(moduleContext().procJsFunc, proc)) {
                 _globalJsFunc[globalProcName] = moduleContext().procJsFunc[proc];
             }
         });
@@ -760,7 +844,7 @@ $obj.create = function(logo, sys, ext) {
     }
 
     function isEagerEval(logosrc) {
-        return (/^\s*\(?\s*(load|module|endmodule|export|import)\b/i).test(logosrc);
+        return (/^\s*\(?\s*(load|module|endmodule|class|endclass|export|import)\b/i).test(logosrc);
     }
 
     async function timedExec(f) {
@@ -1153,6 +1237,12 @@ $obj.create = function(logo, sys, ext) {
         return moduleContext().procMetadata[procName];
     }
     env.getProcMetadata = getProcMetadata;
+
+    function getClassDefaultExportedProcs(module = _module) {
+        return Object.keys( _moduleContext[module].procMetadata)
+            .filter(procName => !procName.match(/^_/));
+    }
+    env.getClassDefaultExportedProcs = getClassDefaultExportedProcs;
 
     function bindPrimitive(primitiveName, primitiveJsFunc, formal = undefined, attributes = PROC_ATTRIBUTE.PRIMITIVE, precedence = 0) {
         let parsedFormal = (formal !== undefined) ? parseFormalParams(formal) : makeFixedLengthPrimitiveFormal(primitiveJsFunc.length);

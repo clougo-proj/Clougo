@@ -1,0 +1,45 @@
+class "animal
+
+to constructor :this :name
+    pprop :this "name :name
+end
+
+to tellname :this
+    pr invokem :this "to_string
+end
+
+to to_string :this
+    output gprop :this "name
+end
+
+endclass
+
+class "pet isa [animal]
+
+to constructor :this :name :species
+    (super.constructor :this :name)
+    pprop :this "species :species
+end
+
+to to_string :this
+    output (word
+        (super.invoke :this "to_string)
+        "| |
+        gprop :this "species
+    )
+end
+
+endclass
+
+make "cat (new "pet "Tom "cat)
+make "mouse (new "pet "Jerry "mouse)
+make "tiger (new "animal "Tigger)
+show :cat
+show :mouse
+show :tiger
+invokem :cat "tellname
+invokem :mouse "tellname
+invokem :tiger "tellname
+show invokem :cat "to_string
+show invokem :mouse "to_string
+show invokem :tiger "to_string

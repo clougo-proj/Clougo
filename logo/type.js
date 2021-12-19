@@ -13,6 +13,8 @@ $obj.create = function(logo, sys) {
 
     const PROC_ATTRIBUTE = logo.constants.PROC_ATTRIBUTE;
 
+    const CLASSNAME = logo.constants.CLASSNAME;
+
     const LIST_HEAD_SIZE = 2;
     const ARRAY_HEAD_SIZE = 2;
     const SRCMAP_NULL = 0;
@@ -834,7 +836,7 @@ $obj.create = function(logo, sys) {
     type.arrayFindItem = arrayFindItem;
 
     function isLogoPlist(val) {
-        return typeof val === "object" && val !== null && !Array.isArray(val);
+        return typeof val === "object" && val !== null && !Array.isArray(val) && !(CLASSNAME in val);
     }
     type.isLogoPlist = isLogoPlist;
 
@@ -865,6 +867,7 @@ $obj.create = function(logo, sys) {
 
     function plistToList(plist) {
         return makeLogoList(Object.keys(plist)
+            .filter(isInternalPropertyName)
             .sort()
             .map((k) => [fromInternalPropertyName(k), plist[k]])
             .flat());
@@ -887,6 +890,17 @@ $obj.create = function(logo, sys) {
         return plist;
     }
     type.listToPlist = listToPlist;
+
+    function makeLogoClassObj(className, plist) {
+        plist[CLASSNAME] = className;
+        return plist;
+    }
+    type.makeLogoClassObj = makeLogoClassObj;
+
+    function getLogoClassName(value) {
+        return value[CLASSNAME];
+    }
+    type.getLogoClassName = getLogoClassName;
 
     function wordToString(word) {
         switch (typeof word) {
@@ -933,6 +947,10 @@ $obj.create = function(logo, sys) {
             .replace(/"/g, "\\\"") + "\"";
     }
     type.quotedLogoWordToJsStringLiteral = quotedLogoWordToJsStringLiteral;
+
+    function isInternalPropertyName(propName) {
+        return propName.charAt(0) === "_";
+    }
 
     function toInternalPropertyName(propName) {
         return "_" + propName;
@@ -1119,6 +1137,10 @@ $obj.create = function(logo, sys) {
 
         if (v === undefined) {
             return "no value";
+        }
+
+        if (logo.env.isLogoClassObj(v)) {
+            return "[ClassObj " + getLogoClassName(v) + "]";
         }
 
         if (!(isLogoList(v) || isLogoArray(v) || isLogoPlist(v))) {

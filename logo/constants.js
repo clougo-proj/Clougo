@@ -95,7 +95,7 @@ Constants.PROC_ATTRIBUTE = PROC_ATTRIBUTE;
 const PROC_PARAM = {
     UNLIMITED               : -1,
     DEFAULT_MIN             : 0,
-    DEFAULT                 : 2
+    DEFAULT                 : 0
 };
 Object.freeze(PROC_PARAM);
 Constants.PROC_PARAM = PROC_PARAM;

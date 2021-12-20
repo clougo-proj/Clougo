@@ -5,10 +5,10 @@
     if (:myRepeat.count = 0) [output []]
     output (se :myRepeat.template (list "myRepeat :myRepeat.count-1 :myRepeat.template)) ]]
 
-f "pr "\"hello
+(f "pr "\"hello)
 
 make "count 0
-myRepeat 3[make "count :count+1]
+(myRepeat 3[make "count :count+1])
 pr :count
 
 .defmacro "a [[][

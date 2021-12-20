@@ -10,4 +10,4 @@ to clone :f :g
 end
 
 clone "t2 "t1
-t1 10 11
+(t1 10 11)

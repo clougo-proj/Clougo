@@ -10,11 +10,7 @@ to tellname :this
     pr gprop :this "name
 end
 
-export [constructor tellname]
-
 endclass
-
-import :class_name []
 
 make "cat (new :class_name "cat)
 make "dog (new :class_name "dog)

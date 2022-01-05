@@ -55,7 +55,7 @@ function readFile(fileName) {
         return [];
     }
 
-    return  fs.readFileSync(fileName, "utf8").split(/\r?\n/);
+    return fs.readFileSync(fileName, "utf8").split(/\r?\n/);
 }
 exports.readFile = readFile;
 

@@ -10,7 +10,7 @@
         "clean": "rm generated/*.js",
         "eslint": "eslint logo",
         "pkmod": "node tools/pkdir mod > generated/mod.js",
-        "pkut": "node tools/pkut unittests > generated/unittests.js",
+        "pkut": "node tools/pkdir unittests > generated/unittests.js",
         "pkct": "node tools/pkdir clitests > generated/clitests.js",
         "pkdemo": "node tools/pkdir demo > generated/demo.js",
         "pkucblogohelp": "node tools/pkdir UCBLogo > generated/UCBLogo.js",

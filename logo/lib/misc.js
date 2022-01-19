@@ -31,7 +31,7 @@ $obj.create = function(logo) {
 
         let demoFileName = name + ".lgo";
 
-        let src = logo.logofs.get("/demo/" + demoFileName);
+        let src = logo.logofs.readFile("/demo/" + demoFileName);
 
         if (option !== undefined && option == "load") {
             logo.io.editorLoad(src);

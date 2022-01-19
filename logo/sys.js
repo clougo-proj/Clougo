@@ -30,11 +30,6 @@ $obj.create = function(isNodeJsEnvFlag, util) {
         return (typeof x === "number") && (x % 1 === 0);
     };
 
-    function emptyStringIfUndefined(v) {
-        return isUndefined(v) ? "" : v;
-    }
-    sys.emptyStringIfUndefined = emptyStringIfUndefined;
-
     function makeMatchListRegexp(v) {
         assert(Array.isArray(v));
         return new RegExp(

@@ -13,6 +13,8 @@ $obj.create = function logoInNode(Logo, sys) {
 
     const LOGO_EVENT = Logo.constants.LOGO_EVENT;
 
+    const fs = require("fs");
+
     const stdout = console.log; // eslint-disable-line no-console
     const stdoutn = function(v) { process.stdout.write(v); };
     const stderr = console.error; // eslint-disable-line no-console
@@ -34,7 +36,6 @@ $obj.create = function logoInNode(Logo, sys) {
 
     function postCreation() {
         const srcRunner = makeSrcRunner();
-        const fs = require("fs");
 
         if (!("file" in cmd) && cmd.op === Logo.mode.EXEC) {
             cmd.op = Logo.mode.CONSOLE;
@@ -56,7 +57,7 @@ $obj.create = function logoInNode(Logo, sys) {
         }
 
         if (cmd.op === Logo.mode.TEST) {
-            Logo.testRunner.runTests(Logo.getUnitTests(), "file" in cmd ? [cmd.file] : [], logo)
+            Logo.testRunner.runTests("file" in cmd ? [cmd.file] : [], logo)
                 .then(failCount => process.exit(failCount !== 0))
                 .catch(e => {
                     stderr(e);
@@ -157,7 +158,7 @@ $obj.create = function logoInNode(Logo, sys) {
             "entry": {
                 "exec": async function(logoSrc) { await logo.env.exec(logoSrc, true, 1); },
                 "runSingleTest": async function(testName, testMethod) {
-                    await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, logo);
+                    await Logo.testRunner.runSingleTest(testName, testMethod, logo);
                 }
             },
             "io": {
@@ -165,6 +166,7 @@ $obj.create = function logoInNode(Logo, sys) {
                 "stdoutn": function(v) { process.stdout.write(v); },
                 "stderr": console.error,  // eslint-disable-line no-console
                 "stderrn": function(v) { process.stderr.write(v); },
+                "readfile": fileName => fs.readFileSync(fileName, "utf8"),
                 "drawflush": function() {},
                 "editorLoad": function() {},
                 "canvasSnapshot": function() {},

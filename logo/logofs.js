@@ -15,6 +15,7 @@ $obj.create = function(logo, sys) {
     };
 
     const jsonFile = {
+        "unittests": sys.global.unitTestsJsSrcFile,
         "demo": sys.global.demoJsSrcFile,
         "ucblogo": sys.global.ucbLogoJsSrcFile,
         "mod": sys.global.modJsSrcFile
@@ -47,45 +48,83 @@ $obj.create = function(logo, sys) {
         }
     }
 
+    function exists(obj) {
+        return obj !== undefined;
+    }
+    logofs.exists = exists;
+
     function isFile(obj) {
         return typeof obj === "string";
     }
+    logofs.isFile = isFile;
 
-    function get(filePath) {
-        sys.assert(!isRelativePath(filePath)); // relative path will be supported in the future
-        let path = filePath.split("/");
+    function isDir(obj) {
+        return typeof obj === "object";
+    }
+    logofs.isDir = isDir;
+
+    function getLocalFile(filePath) {
+        try {
+            return logo.io.readfile(filePath);
+        } catch (e) {
+            throwCantOpenFile(filePath);
+        }
+    }
+
+    function throwCantOpenFile(filePath) {
+        throw logo.type.LogoException.CANT_OPEN_FILE.withParam([filePath], logo.env.getProcSrcmap());
+    }
+
+    function tryGetObj(objPath) {
+        sys.assert(!isRelativePath(objPath));
+
+        let path = objPath.split("/");
         path.shift();
         let top = path.shift();
         mountIfNeeded(top);
         if (!(top in root)) {
-            throwCantOpenFile();
+            return undefined;
         }
 
-        return getFileObj(top, path);
-
-        function getFileObj(top, path) {
-            let currentObj =  root[top].JSON;
-            while (path.length > 0) {
-                let objName = path.shift();
-                if (!(objName in currentObj)) {
-                    throwCantOpenFile();
-                }
-
-                currentObj = currentObj[objName];
+        let currentObj =  root[top].JSON;
+        while (path.length > 0) {
+            let objName = path.shift();
+            if (!(objName in currentObj)) {
+                return undefined;
             }
 
-            if (!isFile(currentObj)) {
-                throwCantOpenFile();
-            }
-
-            return currentObj;
+            currentObj = currentObj[objName];
         }
 
-        function throwCantOpenFile() {
-            throw logo.type.LogoException.CANT_OPEN_FILE.withParam([filePath], logo.env.getProcSrcmap());
+        if (!exists(currentObj)) {
+            return undefined;
         }
+
+        return currentObj;
     }
-    logofs.get = get;
+    logofs.tryGetObj = tryGetObj;
+
+    function readFile(filePath) {
+        if (isRelativePath(filePath)) {
+            return getLocalFile(filePath);
+        }
+
+        let obj = tryGetObj(filePath);
+        if (obj === undefined || !isFile(obj)) {
+            throwCantOpenFile(filePath);
+        }
+
+        return obj;
+    }
+    logofs.readFile = readFile;
+
+    function readSubDirs(dirPath) {
+        sys.assert(!isRelativePath(dirPath));
+        let obj = tryGetObj(dirPath);
+        sys.assert(isDir(obj));
+        return Object.keys(obj).filter(key => isDir(obj[key]));
+    }
+    logofs.readSubDirs = readSubDirs;
 
     function isRelativePath(filePath) {
         return filePath.substring(0, 1) !== "/";

@@ -44,17 +44,6 @@ Logo.modeName = ((mode) => {
     return modeName;
 })(Logo.mode);
 
-Logo.getUnitTests = (() => {
-    let unitTests = undefined;
-    return function() {
-        if (unitTests === undefined) {
-            unitTests = sys.util.fromJs(sys.global.unitTestsJsSrcFile);
-        }
-
-        return unitTests;
-    };
-})();
-
 Logo.create = function(ext, config=undefined) {
 
     const logo = {};

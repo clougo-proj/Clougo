@@ -82,7 +82,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
     }
 
     async function webRunSingleTest(testName, testMethod) {
-        await Logo.testRunner.runSingleTest(Logo.getUnitTests(), testName, testMethod, logo);
+        await Logo.testRunner.runSingleTest(testName, testMethod, logo);
         postMessage([logo.env.getEnvState()]);
     }
 
@@ -91,7 +91,7 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
 
         webMsgHandler[LOGO_METHOD.TEST] = async function() {
             postMessage([LOGO_EVENT.BUSY]);
-            await Logo.testRunner.runTests(Logo.getUnitTests(), undefined, logo);
+            await Logo.testRunner.runTests(undefined, logo);
             postMessage([LOGO_EVENT.READY]);
 
         };

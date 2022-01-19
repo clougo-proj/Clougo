@@ -1159,7 +1159,7 @@ $obj.create = function(logo, sys, ext) {
     async function loadLogoModules(modules) {
         for (let mod of modules) {
             logo.io.stderr("LOAD \"" + mod);
-            await logo.entry.exec(logo.logofs.get(mod));
+            await logo.entry.exec(logo.logofs.readFile(mod));
         }
     }
 

@@ -12,9 +12,10 @@ $obj.create = function(Logo, sys) {
     let extForTest, logoForUnitTests;
     let count, failCount;
     let reFilter;
+    let curDirName;
     let singleTestMode = false;
 
-    async function runTests(unitTests, testNamePatterns, logo) {
+    async function runTests(testNamePatterns, logo) {
         initializeTestEnv(logo);
         singleTestMode = logoForUnitTests.config.get("verbose");
 
@@ -23,26 +24,21 @@ $obj.create = function(Logo, sys) {
         count = 0;
         failCount = 0;
 
-        await runUnitTestDir(unitTests);
+        await runUnitTestDir();
         Logo.io.stdout("Total:" + count + "\tFailed:" + failCount);
         return failCount;
     }
     testRunner.runTests = runTests;
 
-    async function runSingleTest(unitTests, fullTestName, testMethod, logo) {
+    async function runSingleTest(fullTestName, testMethod, logo) {
         initializeTestEnv(logo);
         singleTestMode = true;
 
-        let testInfo = getTestInfo(unitTests, fullTestName);
+        let testInfo = getTestInfo(fullTestName);
         let prefix = testInfo[0];
         let testName = testInfo[1];
-        let testDir = testInfo[2];
-        if (testDir === undefined) {
-            Logo.io.stderr("Test not found: " + fullTestName);
-            return;
-        }
 
-        await runTestHelper(testDir, prefix, testName, testMethod);
+        await runTestHelper(prefix, testName, testMethod);
     }
     testRunner.runSingleTest = runSingleTest;
 
@@ -51,26 +47,19 @@ $obj.create = function(Logo, sys) {
         logoForUnitTests = Logo.create(extForTest, logo.config);
     }
 
-    function getTestInfo(unitTests, fullTestName) {
+    function getTestInfo(fullTestName) {
         let testPath = fullTestName.split(".");
-        let testDir = unitTests;
         let prefix = testPath.slice(0, -1).join(".");
         let testName =  testPath[testPath.length - 1];
-        while(testPath.length > 1) {
-            let prefix = testPath.shift();
-            if (!(prefix in testDir)) {
-                return undefined;
-            }
-
-            testDir = testDir[prefix];
-        }
-
-        return [prefix, testName, testDir];
+        return [prefix, testName];
     }
 
-    function listToTests(list) {
-        let cases = list.split(/\r?\n/);
+    function parseTestList(obj) {
+        if (!logoForUnitTests.logofs.exists(obj)) {
+            return [];
+        }
 
+        let cases = obj.split(/\r?\n/);
         if (cases.length === 0) {
             return [];
         }
@@ -89,23 +78,25 @@ $obj.create = function(Logo, sys) {
             .map(line => [line[0], line.slice(1).map(mode => mode + configOverride)]);
     }
 
-    async function runUnitTestDir(curDir, prefix) {
-        if ("list.txt" in curDir) {
-            let tests = listToTests(curDir["list.txt"]);
-            for (let test of tests) {
-                let testName = prefix + "." + test[0];
-                if (sys.isUndefined(reFilter) || testName.match(reFilter)) {
-                    await runTest(curDir, prefix, test);
-                }
+    async function runUnitTestsInCurrentDir(prefix) {
+        let tests = parseTestList(logoForUnitTests.logofs.tryGetObj(getDirName(prefix) + "/list.txt"));
+        for (let test of tests) {
+            let testName = prefix + "." + test[0];
+            if (sys.isUndefined(reFilter) || testName.match(reFilter)) {
+                await runTest(prefix, test);
             }
         }
+    }
 
-        for(let subKey in curDir) {
-            let subDir = curDir[subKey];
-            if (typeof subDir == "object") {
-                await runUnitTestDir(subDir, sys.isUndefined(prefix) ? subKey : prefix + "." + subKey);
-            }
+    async function runUnitTestsInSubDirs(prefix) {
+        for (let subDir of logoForUnitTests.logofs.readSubDirs(getDirName(prefix))) {
+            await runUnitTestDir(sys.isUndefined(prefix) ? subDir : prefix + "." + subDir);
         }
+    }
+
+    async function runUnitTestDir(prefix) {
+        await runUnitTestsInCurrentDir(prefix);
+        await runUnitTestsInSubDirs(prefix);
     }
 
     function makeLogoDependenciesForTest(ext) {
@@ -118,7 +109,7 @@ $obj.create = function(Logo, sys) {
             "entry": {
                 "exec": async function(logoSrc) { await logoForUnitTests.env.exec(logoSrc, true, 1); },
                 "runSingleTest": async function(testName, testMethod) {
-                    await runSingleTest(Logo.getUnitTests(), testName, testMethod, ext);
+                    await runSingleTest(testName, testMethod, ext);
                 }
             },
             "io": {
@@ -140,6 +131,7 @@ $obj.create = function(Logo, sys) {
                 "stderrn": function(text) {
                     stderrBuffer += text;
                 },
+                "readfile": fileName => logoForUnitTests.logofs.readFile(curDirName + "/" + fileName),
                 "drawflush": function() {},
                 "cleartext": function() {
                     stdoutBuffer += sys.getCleartextChar();
@@ -170,50 +162,53 @@ $obj.create = function(Logo, sys) {
         return extForTest;
     }
 
-    async function runTest(curDir, prefix, test) {
+    async function runTest(prefix, test) {
         let testName = test[0];
-        let testCmd = test[1];
-        if (!hasTestSrc(curDir, testName)) {
-            Logo.io.stderr("ERROR: Missing lgo file for test " + testName);
-            return;
-        }
-
-        for (let i = 0; i < testCmd.length; i++) {
-            await runTestHelper(curDir, prefix, testName, testCmd[i]);
+        let testCmds = test[1];
+        for (let testCmd of testCmds) {
+            await runTestHelper(prefix, testName, testCmd);
         }
     }
 
-    function hasTestSrc(curDir, testName) {
-        return (testName + ".lgo") in curDir;
+    function getTestFile(fileName) {
+        try {
+            return logoForUnitTests.logofs.readFile(curDirName + "/" + fileName);
+        } catch (e) {
+            if (logoForUnitTests.type.LogoException.CANT_OPEN_FILE.equalsByCode(e)) {
+                return "";
+            }
+
+            throw e;
+        }
     }
 
-    function getTestSrc(curDir, testName) {
-        return curDir[testName + ".lgo"];
+    function getTestSrc(testName) {
+        return getTestFile(testName + ".lgo");
     }
 
-    function getTestInBase(curDir, testName) {
-        return sys.emptyStringIfUndefined(curDir[testName + ".in"]);
+    function getTestInBase(testName) {
+        return getTestFile(testName + ".in");
     }
 
-    function getTestOutBase(curDir, testName) {
-        return expandBuiltInMacros(sys.emptyStringIfUndefined(curDir[testName + ".out"]));
+    function getTestOutBase(testName) {
+        return expandBuiltInMacros(getTestFile(testName + ".out"));
     }
 
-    function getTestErrBase(curDir, testName) {
-        return expandBuiltInMacros(sys.emptyStringIfUndefined(curDir[testName + ".err"]));
+    function getTestErrBase(testName) {
+        return expandBuiltInMacros(getTestFile(testName + ".err"));
     }
 
-    function getTestDrawBase(curDir, testName) {
-        return sys.emptyStringIfUndefined(curDir[testName + ".draw"]);
+    function getTestDrawBase(testName) {
+        return getTestFile(testName + ".draw");
     }
 
-    function getTestParseBase(curDir, testName) {
-        return sys.emptyStringIfUndefined(curDir[testName + ".parse"]);
+    function getTestParseBase(testName) {
+        return getTestFile(testName + ".parse");
     }
 
-    function testParse(curDir, testName) {
-        let testSrc = getTestSrc(curDir, testName);
-        let testParseBase = getTestParseBase(curDir, testName);
+    function testParse(testName) {
+        let testSrc = getTestSrc(testName);
+        let testParseBase = getTestParseBase(testName);
         let parseResult = JSON.stringify(logoForUnitTests.parse.parseBlock(logoForUnitTests.parse.parseSrc(testSrc, 1))) + logoForUnitTests.type.NEWLINE;
         if (parseResult == testParseBase) {
             Logo.io.stdout("\t\tpassed ");
@@ -242,8 +237,8 @@ $obj.create = function(Logo, sys) {
         }
     }
 
-    async function testGenericRun(curDir, testName, runTestMethod) {
-        let testSrc = getTestSrc(curDir, testName);
+    async function testGenericRun(testName, runTestMethod) {
+        let testSrc = getTestSrc(testName);
         extForTest.io.clearBuffers();
         extForTest.canvas.clearBuffer();
 
@@ -252,9 +247,9 @@ $obj.create = function(Logo, sys) {
             return;
         }
 
-        const outExpected = getTestOutBase(curDir, testName);
-        const errExpected = getTestErrBase(curDir, testName);
-        const drawExpected = getTestDrawBase(curDir, testName);
+        const outExpected = getTestOutBase(testName);
+        const errExpected = getTestErrBase(testName);
+        const drawExpected = getTestDrawBase(testName);
 
         const outActual = extForTest.io.getStdoutBuffer();
         const errActual = extForTest.io.getStderrBuffer();
@@ -348,8 +343,13 @@ $obj.create = function(Logo, sys) {
         logo.config = config;
     }
 
-    async function runTestHelper(curDir, prefix, testName, testMethod) {
-        extForTest.io.mockStdin(getTestInBase(curDir, testName));
+    function getDirName(prefix) {
+        return prefix === undefined ? "/unittests" : "/unittests/" + prefix.replace(/\./g, "/");
+    }
+
+    async function runTestHelper(prefix, testName, testMethod) {
+        curDirName = getDirName(prefix);
+        extForTest.io.mockStdin(getTestInBase(testName));
         logoForUnitTests.env.initLogoEnv();
         count++;
 
@@ -360,19 +360,19 @@ $obj.create = function(Logo, sys) {
 
         switch(testSettings.mode) {
         case Logo.mode.PARSE:
-            testParse(curDir, testName);
+            testParse(testName);
             break;
         case Logo.mode.RUNL:
-            await testGenericRun(curDir, testName, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, false, 1); });
+            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, false, 1); });
             break;
         case Logo.mode.EXECL:
-            await testGenericRun(curDir, testName, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, true, 1); });
+            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, true, 1); });
             break;
         case Logo.mode.RUN:
-            await testGenericRun(curDir, testName, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, false, 1); });
+            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, false, 1); });
             break;
         case Logo.mode.EXEC:
-            await testGenericRun(curDir, testName, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, true, 1); });
+            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, true, 1); });
             break;
         default:
             Logo.io.stdout("\t\t" + testSettings.mode + " not found");

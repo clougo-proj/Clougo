@@ -1,8 +1,8 @@
 butlast doesn't like  as input
-    at 1,1
+    at 1,1	butlast_err.lgo
 bl doesn't like [] as input
-    at 2,1
+    at 2,1	butlast_err.lgo
 Not enough inputs to bl
-    at 3,2
+    at 3,2	butlast_err.lgo
 butlast doesn't like {0} as input
-    at 4,1
+    at 4,1	butlast_err.lgo

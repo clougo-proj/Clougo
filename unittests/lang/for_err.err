@@ -1,18 +1,18 @@
 Not enough inputs to for
-    at 1,4
+    at 1,4	for_err.lgo
 Not enough inputs to for
-    at 2,12
+    at 2,12	for_err.lgo
 for doesn't like [i] as input
-    at 3,5
+    at 3,5	for_err.lgo
 for doesn't like [i 0] as input
-    at 4,5
+    at 4,5	for_err.lgo
 for doesn't like [i "a "b] as input
-    at 5,5
+    at 5,5	for_err.lgo
 for doesn't like [i "0 "b] as input
-    at 6,5
+    at 6,5	for_err.lgo
 for doesn't like [i 0 1 "a] as input
-    at 7,4
+    at 7,4	for_err.lgo
 for doesn't like {} as input
-    at 8,1
+    at 8,1	for_err.lgo
 for doesn't like [ab 6 "a4] as input
-    at 9,1
+    at 9,1	for_err.lgo

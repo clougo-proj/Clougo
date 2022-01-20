@@ -1031,46 +1031,45 @@ $obj.create = function(logo, sys) {
     }
     type.isCompoundObj = isCompoundObj;
 
+    function isNullSrcmap(value) {
+        return value === undefined || value === SRCMAP_NULL;
+    }
+    type.isNullSrcmap = isNullSrcmap;
+
+    function isCompositeSrcmap(value) {
+        return Array.isArray(value) && value.length > 0 && Array.isArray(value[0]);
+    }
+
+    function extractFromCompositeSrcmap(value) {
+        return value[0];
+    }
+
+    function srcmapToLineRow(srcmap) {
+        return simpleSrcmapToLineRow(isCompositeSrcmap(srcmap) ? extractFromCompositeSrcmap(srcmap) : srcmap);
+    }
+    type.srcmapToLineRow = srcmapToLineRow;
+
+    function simpleSrcmapToLineRow(srcmap) {
+        return srcmap[1] + "," + srcmap[2];
+    }
+
+    function srcmapToSrcidx(srcmap) {
+        return isCompositeSrcmap(srcmap) ? extractFromCompositeSrcmap(srcmap)[0] : srcmap[0];
+    }
+    type.srcmapToSrcidx = srcmapToSrcidx;
+
     function srcmapToJs(srcmap) {
-        return isCompositeSrcmap(srcmap) ? compositeSrcmapToJs(srcmap) : simpleSrcmapToJs(srcmap);
+        return simpleSrcmapToJs(isCompositeSrcmap(srcmap) ? extractFromCompositeSrcmap(srcmap) : srcmap);
     }
     type.srcmapToJs = srcmapToJs;
-
-    function compositeSrcmapToJs(srcmap) {
-        return simpleSrcmapToJs(srcmap[0]);
-    }
 
     function simpleSrcmapToJs(srcmap) {
         if (srcmap === SRCMAP_NULL || srcmap === undefined) {
             return SRCMAP_NULL;
         }
 
-        while (srcmap.length > 1 && Array.isArray(srcmap[1])) {
-            srcmap = srcmap[1];
-        }
-
         return JSON.stringify(srcmap);
     }
-
-    function srcmapToString(srcmap) {
-        return isCompositeSrcmap(srcmap) ? compositeSrcmapToString(srcmap) : simpleSrcmapToString(srcmap);
-    }
-    type.srcmapToString = srcmapToString;
-
-    function isCompositeSrcmap(value) {
-        return Array.isArray(value) && value.length > 0 && Array.isArray(value[0]);
-    }
-    type.isCompositeSrcmap = isCompositeSrcmap;
-
-    function compositeSrcmapToString(srcmap) {
-        return simpleSrcmapToString(srcmap[0]);
-    }
-    type.compositeSrcmapToString = compositeSrcmapToString;
-
-    function simpleSrcmapToString(srcmap) {
-        return srcmap[1] + "," + srcmap[2];
-    }
-    type.simpleSrcmapToString = simpleSrcmapToString;
 
     function getVarValue(varname, srcmap) {
         const curScope = logo.env.findLogoVarScope(varname);

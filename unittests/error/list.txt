@@ -5,6 +5,7 @@ noproc_forbody run exec
 noproc_ifbody run exec
 noproc_ifpred run exec
 noproc_recur run exec
+noproc_load run exec
 toomuch_inside_parens run exec
 novalue run exec
 unactionable_const run exec

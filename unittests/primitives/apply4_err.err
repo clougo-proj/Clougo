@@ -1,34 +1,34 @@
 Too many inputs to []
-    at 2,20
+    at 2,20	apply4_err.lgo
 Too many inputs to []
-    at 3,1
+    at 3,1	apply4_err.lgo
 Not enough inputs to []
-    at 4,25
+    at 4,25	apply4_err.lgo
 Too many inputs to []
-    at 5,25
+    at 5,25	apply4_err.lgo
 You don't say what to do with [1 3]
-    at 6,33
+    at 6,33	apply4_err.lgo
 y has no value
-    [] at 7,17
-    at 7,1
+    [] at 7,17	apply4_err.lgo
+    at 7,1	apply4_err.lgo
 y has no value
-    at 8,39
+    at 8,39	apply4_err.lgo
 x has no value
-    at 9,4
+    at 9,4	apply4_err.lgo
 Too many inputs to []
-    at 12,45
+    at 12,45	apply4_err.lgo
 Too many inputs to []
-    at 13,29
+    at 13,29	apply4_err.lgo
 Not enough inputs to []
-    at 14,50
+    at 14,50	apply4_err.lgo
 Too many inputs to []
-    at 15,50
+    at 15,50	apply4_err.lgo
 You don't say what to do with [1 3]
-    at 16,58
+    at 16,58	apply4_err.lgo
 y has no value
-    [] at 17,26
-    at 17,31
+    [] at 17,26	apply4_err.lgo
+    at 17,31	apply4_err.lgo
 y has no value
-    at 18,64
+    at 18,64	apply4_err.lgo
 x has no value
-    at 19,4
+    at 19,4	apply4_err.lgo

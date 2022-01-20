@@ -1,82 +1,82 @@
 forward doesn't like abc as input
-    at 1,1
+    at 1,1	turtle_movement_err.lgo
 forward doesn't like {} as input
-    at 2,1
+    at 2,1	turtle_movement_err.lgo
 forward doesn't like [] as input
-    at 3,1
+    at 3,1	turtle_movement_err.lgo
 back doesn't like abc as input
-    at 5,1
+    at 5,1	turtle_movement_err.lgo
 back doesn't like {} as input
-    at 6,1
+    at 6,1	turtle_movement_err.lgo
 back doesn't like [] as input
-    at 7,1
+    at 7,1	turtle_movement_err.lgo
 left doesn't like abc as input
-    at 9,1
+    at 9,1	turtle_movement_err.lgo
 lt doesn't like {} as input
-    at 10,1
+    at 10,1	turtle_movement_err.lgo
 lt doesn't like [] as input
-    at 11,1
+    at 11,1	turtle_movement_err.lgo
 right doesn't like abc as input
-    at 13,1
+    at 13,1	turtle_movement_err.lgo
 rt doesn't like {} as input
-    at 14,1
+    at 14,1	turtle_movement_err.lgo
 rt doesn't like [] as input
-    at 15,1
+    at 15,1	turtle_movement_err.lgo
 setxy doesn't like abc as input
-    at 17,1
+    at 17,1	turtle_movement_err.lgo
 setxy doesn't like abc as input
-    at 18,1
+    at 18,1	turtle_movement_err.lgo
 setxy doesn't like {} as input
-    at 19,1
+    at 19,1	turtle_movement_err.lgo
 setxy doesn't like {} as input
-    at 20,1
+    at 20,1	turtle_movement_err.lgo
 setxy doesn't like [] as input
-    at 21,1
+    at 21,1	turtle_movement_err.lgo
 setxy doesn't like [] as input
-    at 22,1
+    at 22,1	turtle_movement_err.lgo
 setpos doesn't like 0 as input
-    at 24,1
+    at 24,1	turtle_movement_err.lgo
 setpos doesn't like abc as input
-    at 25,1
+    at 25,1	turtle_movement_err.lgo
 setpos doesn't like [] as input
-    at 26,1
+    at 26,1	turtle_movement_err.lgo
 setpos doesn't like {} as input
-    at 27,1
+    at 27,1	turtle_movement_err.lgo
 setpos doesn't like [abc 0] as input
-    at 28,1
+    at 28,1	turtle_movement_err.lgo
 setpos doesn't like [0 abc] as input
-    at 29,1
+    at 29,1	turtle_movement_err.lgo
 setpos doesn't like [[] 0] as input
-    at 30,1
+    at 30,1	turtle_movement_err.lgo
 setpos doesn't like [0 []] as input
-    at 31,1
+    at 31,1	turtle_movement_err.lgo
 setpos doesn't like [{} 0] as input
-    at 32,1
+    at 32,1	turtle_movement_err.lgo
 setpos doesn't like [0 {}] as input
-    at 33,1
+    at 33,1	turtle_movement_err.lgo
 setpos doesn't like [0 0 0] as input
-    at 34,1
+    at 34,1	turtle_movement_err.lgo
 setx doesn't like abc as input
-    at 36,1
+    at 36,1	turtle_movement_err.lgo
 setx doesn't like {} as input
-    at 37,1
+    at 37,1	turtle_movement_err.lgo
 setx doesn't like [] as input
-    at 38,1
+    at 38,1	turtle_movement_err.lgo
 sety doesn't like abc as input
-    at 40,1
+    at 40,1	turtle_movement_err.lgo
 sety doesn't like {} as input
-    at 41,1
+    at 41,1	turtle_movement_err.lgo
 sety doesn't like [] as input
-    at 42,1
+    at 42,1	turtle_movement_err.lgo
 setheading doesn't like abc as input
-    at 44,1
+    at 44,1	turtle_movement_err.lgo
 seth doesn't like {} as input
-    at 45,1
+    at 45,1	turtle_movement_err.lgo
 seth doesn't like [] as input
-    at 46,1
+    at 46,1	turtle_movement_err.lgo
 towards doesn't like abc as input
-    at 48,1
+    at 48,1	turtle_movement_err.lgo
 towards doesn't like {} as input
-    at 49,1
+    at 49,1	turtle_movement_err.lgo
 towards doesn't like [] as input
-    at 50,1
+    at 50,1	turtle_movement_err.lgo

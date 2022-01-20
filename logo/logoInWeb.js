@@ -10,7 +10,7 @@
 
 /* global importScripts, CanvasCommon */
 
-importScripts("CanvasCommon.js");
+importScripts("canvasCommon.js");
 
 var $obj = {};
 $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-vars
@@ -75,9 +75,9 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
         postMessage([envState]);
     }
 
-    async function webExec(src, srcidx) {
+    async function webExec(src, srcPath) {
         postMessage([LOGO_EVENT.BUSY]);
-        await logo.env.exec(src, true, srcidx);
+        await logo.env.exec(src, true, srcPath);
         postMessage([logo.env.getEnvState()]);
     }
 

@@ -1,6 +1,6 @@
 macroexpand doesn't like {} as input
-    at 1,1
+    at 1,1	macroexpand_err.lgo
 macroexpand doesn't like [] as input
-    at 2,1
+    at 2,1	macroexpand_err.lgo
 m is not a macro.
-    at 3,1
+    at 3,1	macroexpand_err.lgo

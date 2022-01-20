@@ -1,28 +1,28 @@
 Not enough inputs to sin
-    at 1,2
+    at 1,2	sincos_err.lgo
 Too much inside ()'s
-    at 2,8
+    at 2,8	sincos_err.lgo
 sin doesn't like [] as input
-    at 3,1
+    at 3,1	sincos_err.lgo
 sin doesn't like {} as input
-    at 4,1
+    at 4,1	sincos_err.lgo
 sin doesn't like abc as input
-    at 5,1
+    at 5,1	sincos_err.lgo
 sin doesn't like false as input
-    at 6,1
+    at 6,1	sincos_err.lgo
 sin doesn't like true as input
-    at 7,1
+    at 7,1	sincos_err.lgo
 Not enough inputs to cos
-    at 9,2
+    at 9,2	sincos_err.lgo
 Too much inside ()'s
-    at 10,8
+    at 10,8	sincos_err.lgo
 cos doesn't like [] as input
-    at 11,1
+    at 11,1	sincos_err.lgo
 cos doesn't like {} as input
-    at 12,1
+    at 12,1	sincos_err.lgo
 cos doesn't like abc as input
-    at 13,1
+    at 13,1	sincos_err.lgo
 cos doesn't like false as input
-    at 14,1
+    at 14,1	sincos_err.lgo
 cos doesn't like true as input
-    at 15,1
+    at 15,1	sincos_err.lgo

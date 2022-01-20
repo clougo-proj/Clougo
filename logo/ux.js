@@ -345,10 +345,10 @@ function createLogoWorker(eventHandler) {
 
     return {
         "console": function(param) {
-            worker.postMessage([LOGO_METHOD.CONSOLE, param, 0]);
+            worker.postMessage([LOGO_METHOD.CONSOLE, param, "** Console **"]);
         },
         "exec": function(param) {
-            worker.postMessage([LOGO_METHOD.EXEC, param, 1]);
+            worker.postMessage([LOGO_METHOD.EXEC, param, "** Editor buffer **"]);
         },
         "run": function(param) {
             worker.postMessage([LOGO_METHOD.RUN, param, 1]);

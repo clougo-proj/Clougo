@@ -1,172 +1,172 @@
 Not enough inputs to circle
-    at 1,7
+    at 1,7	circles_err.lgo
 circle doesn't like abc as input
-    at 2,1
+    at 2,1	circles_err.lgo
 circle doesn't like {} as input
-    at 3,1
+    at 3,1	circles_err.lgo
 circle doesn't like [] as input
-    at 4,1
+    at 4,1	circles_err.lgo
 circle doesn't like -100 as input
-    at 5,1
+    at 5,1	circles_err.lgo
 circle doesn't like abc as input
-    at 6,2
+    at 6,2	circles_err.lgo
 Not enough inputs to circle2
-    at 8,8
+    at 8,8	circles_err.lgo
 circle2 doesn't like abc as input
-    at 9,1
+    at 9,1	circles_err.lgo
 circle2 doesn't like {} as input
-    at 10,1
+    at 10,1	circles_err.lgo
 circle2 doesn't like [] as input
-    at 11,1
+    at 11,1	circles_err.lgo
 circle2 doesn't like -100 as input
-    at 12,1
+    at 12,1	circles_err.lgo
 circle2 doesn't like abc as input
-    at 13,2
+    at 13,2	circles_err.lgo
 Not enough inputs to arc
-    at 15,4
+    at 15,4	circles_err.lgo
 Not enough inputs to arc
-    at 16,8
+    at 16,8	circles_err.lgo
 arc doesn't like abc as input
-    at 17,1
+    at 17,1	circles_err.lgo
 arc doesn't like {} as input
-    at 18,1
+    at 18,1	circles_err.lgo
 arc doesn't like [] as input
-    at 19,1
+    at 19,1	circles_err.lgo
 arc doesn't like -200 as input
-    at 20,1
+    at 20,1	circles_err.lgo
 arc doesn't like abc as input
-    at 21,1
+    at 21,1	circles_err.lgo
 arc doesn't like {} as input
-    at 22,1
+    at 22,1	circles_err.lgo
 arc doesn't like [] as input
-    at 23,1
+    at 23,1	circles_err.lgo
 Not enough inputs to arc2
-    at 25,5
+    at 25,5	circles_err.lgo
 Not enough inputs to arc2
-    at 26,9
+    at 26,9	circles_err.lgo
 arc2 doesn't like abc as input
-    at 27,1
+    at 27,1	circles_err.lgo
 arc2 doesn't like {} as input
-    at 28,1
+    at 28,1	circles_err.lgo
 arc2 doesn't like [] as input
-    at 29,1
+    at 29,1	circles_err.lgo
 arc2 doesn't like -200 as input
-    at 30,1
+    at 30,1	circles_err.lgo
 arc2 doesn't like abc as input
-    at 31,1
+    at 31,1	circles_err.lgo
 arc2 doesn't like {} as input
-    at 32,1
+    at 32,1	circles_err.lgo
 arc2 doesn't like [] as input
-    at 33,1
+    at 33,1	circles_err.lgo
 Not enough inputs to ellipse
-    at 35,8
+    at 35,8	circles_err.lgo
 Not enough inputs to ellipse
-    at 36,12
+    at 36,12	circles_err.lgo
 ellipse doesn't like abc as input
-    at 37,1
+    at 37,1	circles_err.lgo
 ellipse doesn't like {} as input
-    at 38,1
+    at 38,1	circles_err.lgo
 ellipse doesn't like [] as input
-    at 39,1
+    at 39,1	circles_err.lgo
 ellipse doesn't like -200 as input
-    at 40,1
+    at 40,1	circles_err.lgo
 ellipse doesn't like abc as input
-    at 41,1
+    at 41,1	circles_err.lgo
 ellipse doesn't like {} as input
-    at 42,1
+    at 42,1	circles_err.lgo
 ellipse doesn't like [] as input
-    at 43,1
+    at 43,1	circles_err.lgo
 ellipse doesn't like abc as input
-    at 44,2
+    at 44,2	circles_err.lgo
 Not enough inputs to ellipse2
-    at 46,9
+    at 46,9	circles_err.lgo
 Not enough inputs to ellipse2
-    at 47,13
+    at 47,13	circles_err.lgo
 ellipse2 doesn't like abc as input
-    at 48,1
+    at 48,1	circles_err.lgo
 ellipse2 doesn't like {} as input
-    at 49,1
+    at 49,1	circles_err.lgo
 ellipse2 doesn't like [] as input
-    at 50,1
+    at 50,1	circles_err.lgo
 ellipse2 doesn't like -200 as input
-    at 51,1
+    at 51,1	circles_err.lgo
 ellipse2 doesn't like abc as input
-    at 52,1
+    at 52,1	circles_err.lgo
 ellipse2 doesn't like {} as input
-    at 53,1
+    at 53,1	circles_err.lgo
 ellipse2 doesn't like [] as input
-    at 54,1
+    at 54,1	circles_err.lgo
 ellipse2 doesn't like abc as input
-    at 55,2
+    at 55,2	circles_err.lgo
 Not enough inputs to ellipsearc
-    at 57,11
+    at 57,11	circles_err.lgo
 Not enough inputs to ellipsearc
-    at 58,14
+    at 58,14	circles_err.lgo
 Not enough inputs to ellipsearc
-    at 59,18
+    at 59,18	circles_err.lgo
 Not enough inputs to ellipsearc
-    at 60,22
+    at 60,22	circles_err.lgo
 ellipsearc doesn't like abc as input
-    at 61,1
+    at 61,1	circles_err.lgo
 ellipsearc doesn't like abc as input
-    at 62,1
+    at 62,1	circles_err.lgo
 ellipsearc doesn't like -200 as input
-    at 63,1
+    at 63,1	circles_err.lgo
 ellipsearc doesn't like abc as input
-    at 64,1
+    at 64,1	circles_err.lgo
 ellipsearc doesn't like -100 as input
-    at 65,1
+    at 65,1	circles_err.lgo
 ellipsearc doesn't like abc as input
-    at 66,1
+    at 66,1	circles_err.lgo
 ellipsearc doesn't like {} as input
-    at 67,1
+    at 67,1	circles_err.lgo
 ellipsearc doesn't like {} as input
-    at 68,1
+    at 68,1	circles_err.lgo
 ellipsearc doesn't like {} as input
-    at 69,1
+    at 69,1	circles_err.lgo
 ellipsearc doesn't like {} as input
-    at 70,1
+    at 70,1	circles_err.lgo
 ellipsearc doesn't like [] as input
-    at 71,1
+    at 71,1	circles_err.lgo
 ellipsearc doesn't like [] as input
-    at 72,1
+    at 72,1	circles_err.lgo
 ellipsearc doesn't like [] as input
-    at 73,1
+    at 73,1	circles_err.lgo
 ellipsearc doesn't like [] as input
-    at 74,1
+    at 74,1	circles_err.lgo
 Not enough inputs to ellipsearc2
-    at 76,12
+    at 76,12	circles_err.lgo
 Not enough inputs to ellipsearc2
-    at 77,15
+    at 77,15	circles_err.lgo
 Not enough inputs to ellipsearc2
-    at 78,19
+    at 78,19	circles_err.lgo
 Not enough inputs to ellipsearc2
-    at 79,23
+    at 79,23	circles_err.lgo
 ellipsearc2 doesn't like abc as input
-    at 80,1
+    at 80,1	circles_err.lgo
 ellipsearc2 doesn't like abc as input
-    at 81,1
+    at 81,1	circles_err.lgo
 ellipsearc2 doesn't like -200 as input
-    at 82,1
+    at 82,1	circles_err.lgo
 ellipsearc2 doesn't like abc as input
-    at 83,1
+    at 83,1	circles_err.lgo
 ellipsearc2 doesn't like -100 as input
-    at 84,1
+    at 84,1	circles_err.lgo
 ellipsearc2 doesn't like abc as input
-    at 85,1
+    at 85,1	circles_err.lgo
 ellipsearc2 doesn't like {} as input
-    at 86,1
+    at 86,1	circles_err.lgo
 ellipsearc2 doesn't like {} as input
-    at 87,1
+    at 87,1	circles_err.lgo
 ellipsearc2 doesn't like {} as input
-    at 88,1
+    at 88,1	circles_err.lgo
 ellipsearc2 doesn't like {} as input
-    at 89,1
+    at 89,1	circles_err.lgo
 ellipsearc2 doesn't like [] as input
-    at 90,1
+    at 90,1	circles_err.lgo
 ellipsearc2 doesn't like [] as input
-    at 91,1
+    at 91,1	circles_err.lgo
 ellipsearc2 doesn't like [] as input
-    at 92,1
+    at 92,1	circles_err.lgo
 ellipsearc2 doesn't like [] as input
-    at 93,1
+    at 93,1	circles_err.lgo

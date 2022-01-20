@@ -1,46 +1,46 @@
 sum doesn't like abc as input
-    at 1,2
+    at 1,2	sum_err.lgo
 sum doesn't like true as input
-    at 2,2
+    at 2,2	sum_err.lgo
 sum doesn't like false as input
-    at 3,2
+    at 3,2	sum_err.lgo
 sum doesn't like [] as input
-    at 4,2
+    at 4,2	sum_err.lgo
 sum doesn't like {} as input
-    at 5,2
+    at 5,2	sum_err.lgo
 sum doesn't like true as input
-    at 6,1
+    at 6,1	sum_err.lgo
 sum doesn't like abc as input
-    at 7,1
+    at 7,1	sum_err.lgo
 sum doesn't like true as input
-    at 8,1
+    at 8,1	sum_err.lgo
 sum doesn't like false as input
-    at 9,1
+    at 9,1	sum_err.lgo
 sum doesn't like true as input
-    at 10,1
+    at 10,1	sum_err.lgo
 sum doesn't like false as input
-    at 11,1
+    at 11,1	sum_err.lgo
 sum doesn't like [] as input
-    at 12,1
+    at 12,1	sum_err.lgo
 sum doesn't like {} as input
-    at 13,1
+    at 13,1	sum_err.lgo
 + doesn't like true as input
-    at 14,7
+    at 14,7	sum_err.lgo
 + doesn't like false as input
-    at 15,2
+    at 15,2	sum_err.lgo
 + doesn't like true as input
-    at 16,2
+    at 16,2	sum_err.lgo
 + doesn't like [] as input
-    at 17,2
+    at 17,2	sum_err.lgo
 + doesn't like [] as input
-    at 18,4
+    at 18,4	sum_err.lgo
 + doesn't like false as input
-    at 19,2
+    at 19,2	sum_err.lgo
 + doesn't like false as input
-    at 20,4
+    at 20,4	sum_err.lgo
 + doesn't like [] as input
-    at 21,3
+    at 21,3	sum_err.lgo
 + doesn't like {} as input
-    at 22,3
+    at 22,3	sum_err.lgo
 Not enough inputs to +
-    at 23,3
+    at 23,3	sum_err.lgo

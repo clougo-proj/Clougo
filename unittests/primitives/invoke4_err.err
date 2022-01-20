@@ -1,30 +1,30 @@
 Too many inputs to []
-    at 2,2
+    at 2,2	invoke4_err.lgo
 Not enough inputs to []
-    at 3,1
+    at 3,1	invoke4_err.lgo
 Too many inputs to []
-    at 4,2
+    at 4,2	invoke4_err.lgo
 You don't say what to do with [1 3]
-    at 5,38
+    at 5,38	invoke4_err.lgo
 y has no value
-    [] at 6,18
-    at 6,1
+    [] at 6,18	invoke4_err.lgo
+    at 6,1	invoke4_err.lgo
 y has no value
-    at 7,38
+    at 7,38	invoke4_err.lgo
 x has no value
-    at 8,4
+    at 8,4	invoke4_err.lgo
 Too many inputs to []
-    at 11,30
+    at 11,30	invoke4_err.lgo
 Not enough inputs to []
-    at 12,34
+    at 12,34	invoke4_err.lgo
 Too many inputs to []
-    at 13,35
+    at 13,35	invoke4_err.lgo
 You don't say what to do with [1 3]
-    at 14,42
+    at 14,42	invoke4_err.lgo
 y has no value
-    [] at 15,26
-    at 15,31
+    [] at 15,26	invoke4_err.lgo
+    at 15,31	invoke4_err.lgo
 y has no value
-    at 16,63
+    at 16,63	invoke4_err.lgo
 x has no value
-    at 17,4
+    at 17,4	invoke4_err.lgo

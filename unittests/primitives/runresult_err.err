@@ -1,10 +1,10 @@
 Can't use OUTPUT or STOP inside RUNRESULT
-    at 1,1
+    at 1,1	runresult_err.lgo
 Can't use OUTPUT or STOP inside RUNRESULT
-    [] at 2,1
-    at 2,1
+    [] at 2,1	runresult_err.lgo
+    at 2,1	runresult_err.lgo
 Can't use OUTPUT or STOP inside RUNRESULT
-    at 3,1
+    at 3,1	runresult_err.lgo
 Can't use OUTPUT or STOP inside RUNRESULT
-    [] at 4,1
-    at 4,1
+    [] at 4,1	runresult_err.lgo
+    at 4,1	runresult_err.lgo

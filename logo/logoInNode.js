@@ -37,6 +37,10 @@ $obj.create = function logoInNode(Logo, sys) {
     function postCreation() {
         const srcRunner = makeSrcRunner();
 
+        let cwd = process.cwd();
+
+        cwd.replace(/\\/, "/");
+
         if (!("file" in cmd) && cmd.op === Logo.mode.EXEC) {
             cmd.op = Logo.mode.CONSOLE;
         }
@@ -44,9 +48,9 @@ $obj.create = function logoInNode(Logo, sys) {
         if (cmd.op in srcRunner) {
             logo.env.getGlobalScope().argv = logo.type.makeLogoList(cmd.argv);
 
-            const logoSrc = fs.readFileSync(cmd.file, "utf8"); // logo source file (.lgo)
+            const logoSrc = fs.readFileSync(cwd + "/" + cmd.file, "utf8"); // logo source file (.lgo)
 
-            srcRunner[cmd.op](logoSrc)
+            srcRunner[cmd.op](logoSrc, cmd.file)
                 .then(() => process.exit())
                 .catch(e => {
                     stderr(e);
@@ -137,10 +141,10 @@ $obj.create = function logoInNode(Logo, sys) {
     function makeSrcRunner() {
         const srcRunner = {};
 
-        srcRunner[Logo.mode.RUN] = async function(src) { await logo.env.exec(src, false, 1); };
-        srcRunner[Logo.mode.RUNL] = async function(src) { await logo.env.execByLine(src, false, 1); };
-        srcRunner[Logo.mode.EXEC] = async function(src) { await logo.env.exec(src, true, 1); };
-        srcRunner[Logo.mode.EXECL] = async function(src) { await logo.env.execByLine(src, true, 1); };
+        srcRunner[Logo.mode.RUN] = async function(src, srcPath) { await logo.env.exec(src, false, srcPath); };
+        srcRunner[Logo.mode.RUNL] = async function(src, srcPath) { await logo.env.execByLine(src, false, srcPath); };
+        srcRunner[Logo.mode.EXEC] = async function(src, srcPath) { await logo.env.exec(src, true, srcPath); };
+        srcRunner[Logo.mode.EXECL] = async function(src, srcPath) { await logo.env.execByLine(src, true, srcPath); };
         srcRunner[Logo.mode.EXECJS] = async function(src) { await logo.env.evalLogoJsTimed(src); };
         srcRunner[Logo.mode.PARSE] = async function(src) {
             stdout(JSON.stringify(logo.parse.parseBlock(logo.parse.parseSrc(src, 1))));
@@ -156,7 +160,7 @@ $obj.create = function logoInNode(Logo, sys) {
     function makeLogoDependencies() {
         return  {
             "entry": {
-                "exec": async function(logoSrc) { await logo.env.exec(logoSrc, true, 1); },
+                "exec": async function(logoSrc, srcPath) { await logo.env.exec(logoSrc, true, srcPath); },
                 "runSingleTest": async function(testName, testMethod) {
                     await Logo.testRunner.runSingleTest(testName, testMethod, logo);
                 }

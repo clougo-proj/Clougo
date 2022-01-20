@@ -37,7 +37,7 @@ $obj.create = function(logo) {
             logo.io.editorLoad(src);
         }
 
-        await logo.entry.exec(src);
+        await logo.entry.exec(src, "/demo/" + demoFileName);
     }
 
     async function dotTest(testName, testMethod) {

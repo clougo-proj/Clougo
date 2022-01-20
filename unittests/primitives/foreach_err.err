@@ -1,20 +1,20 @@
 Not enough inputs to foreach
-    at 4,8
+    at 4,8	foreach_err.lgo
 Not enough inputs to foreach
-    at 6,11
+    at 6,11	foreach_err.lgo
 foreach doesn't like {} as input
-    at 8,1
+    at 8,1	foreach_err.lgo
 foreach doesn't like {} as input
-    at 10,1
+    at 10,1	foreach_err.lgo
 Too many inputs to f
-    at 12,1
+    at 12,1	foreach_err.lgo
 Too many inputs to []
-    at 14,2
+    at 14,2	foreach_err.lgo
 Too many inputs to []
-    at 16,2
+    at 16,2	foreach_err.lgo
 Inputs of foreach have different lengths
-    at 18,2
+    at 18,2	foreach_err.lgo
 Inputs of foreach have different lengths
-    at 20,2
+    at 20,2	foreach_err.lgo
 Inputs of foreach have different lengths
-    at 22,2
+    at 22,2	foreach_err.lgo

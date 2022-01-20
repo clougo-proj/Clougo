@@ -44,6 +44,40 @@ $obj.create = function(logo, sys, ext) {
     const UNDEFINED_PROC_DEFAULT_FORMAL = makeFormal(
         PROC_PARAM.DEFAULT, PROC_PARAM.DEFAULT_MIN,  PROC_PARAM.DEFAULT, PROC_PARAM.UNLIMITED, [], [], undefined);
 
+    const SourceIndex = (function() {
+        const self = {};
+        let pathByIndex, indexByPath;
+
+        self.reset = function() {
+            pathByIndex = [];
+            indexByPath = {};
+        };
+
+        self.getSrcIndex = function(path) {
+            sys.assert(path !== undefined);
+            if (Object.prototype.hasOwnProperty.call(indexByPath, path)) {
+                return indexByPath[path];
+            }
+
+            let idx = pathByIndex.length + 1;
+            indexByPath[path] = idx;
+            pathByIndex.push(path);
+            return indexByPath[path];
+        };
+
+        self.getSrcPath = function(index) {
+            if (index === 0) {
+                return undefined;
+            }
+
+            sys.assert(index < pathByIndex.length + 1);
+            return pathByIndex[index - 1];
+        };
+
+        self.reset();
+        return self;
+    })();
+
     function moduleContext() {
         return _moduleContext[_module];
     }
@@ -514,6 +548,8 @@ $obj.create = function(logo, sys, ext) {
         _userBlock = new WeakMap();
         _userBlockCalled = new WeakMap();
 
+        SourceIndex.reset();
+
         $ret = undefined; // eslint-disable-line no-unused-vars
     }
     env.clearWorkspace = clearWorkspace;
@@ -900,7 +936,8 @@ $obj.create = function(logo, sys, ext) {
         logo.io.canvasSnapshot();
     }
 
-    async function exec(logoSrc, genjs, srcidx) {
+    async function exec(logoSrc, genjs, srcPath) {
+        let srcidx = SourceIndex.getSrcIndex(srcPath);
         snapshot();
         return await timedExec(
             async function() {
@@ -918,7 +955,8 @@ $obj.create = function(logo, sys, ext) {
     }
     env.exec = exec;
 
-    async function execByLine(logoSrc, genjs, srcidx) {
+    async function execByLine(logoSrc, genjs, srcPath) {
+        let srcidx = SourceIndex.getSrcIndex(srcPath);
         return await timedExec(
             async function() {
                 let ret;
@@ -996,13 +1034,22 @@ $obj.create = function(logo, sys, ext) {
     env.evalLogo = evalLogo;
 
     function convertToStackDump(stack) {
-        return sys.isUndefined(stack) ? "" :
-            stack.map(v => !Array.isArray(v[1]) || v[1][0] == 0 ? "" :
-                typeof v[0] !== "undefined" ?
-                    "    " + v[0] + " at " + logo.type.srcmapToString(v[1]) :
-                    "    at " + logo.type.srcmapToString(v[1]))
-                .filter(v => v !== "")
-                .join(logo.type.NEWLINE);
+        return sys.isUndefined(stack) ? "" : stack.map(stackFrameToString)
+            .filter(v => v !== "")
+            .join(logo.type.NEWLINE);
+    }
+
+    function srcmapToString(srcmap) {
+        return logo.type.srcmapToLineRow(srcmap) +  "\t" + SourceIndex.getSrcPath(logo.type.srcmapToSrcidx(srcmap));
+    }
+
+    function stackFrameToString(frame) {
+        let procName = frame[0];
+        let srcmap = frame[1];
+        return logo.type.isNullSrcmap(srcmap) ? "" :
+            typeof procName !== "undefined" ?
+                "    " + procName + " at " + srcmapToString(srcmap) :
+                "    at " + srcmapToString(srcmap);
     }
 
     async function evalLogoJs(logoJsSrc) {
@@ -1159,7 +1206,7 @@ $obj.create = function(logo, sys, ext) {
     async function loadLogoModules(modules) {
         for (let mod of modules) {
             logo.io.stderr("LOAD \"" + mod);
-            await logo.entry.exec(logo.logofs.readFile(mod));
+            await logo.entry.exec(logo.logofs.readFile(mod), mod);
         }
     }
 

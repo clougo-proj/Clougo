@@ -107,7 +107,7 @@ $obj.create = function(Logo, sys) {
 
         const extForTest = {
             "entry": {
-                "exec": async function(logoSrc) { await logoForUnitTests.env.exec(logoSrc, true, 1); },
+                "exec": async function(logoSrc, srcPath) { await logoForUnitTests.env.exec(logoSrc, true, srcPath); },
                 "runSingleTest": async function(testName, testMethod) {
                     await runSingleTest(testName, testMethod, ext);
                 }
@@ -223,9 +223,9 @@ $obj.create = function(Logo, sys) {
         failCount++;
     }
 
-    async function tryRunTestMethod(testSrc, runTestMethod) {
+    async function tryRunTestMethod(testSrc, testName, runTestMethod) {
         try {
-            await runTestMethod(testSrc);
+            await runTestMethod(testSrc, testName);
             return true;
         } catch (e) {
             Logo.io.stdout("\t\tfailed");
@@ -238,11 +238,12 @@ $obj.create = function(Logo, sys) {
     }
 
     async function testGenericRun(testName, runTestMethod) {
+        let testSrcName = testName + ".lgo";
         let testSrc = getTestSrc(testName);
         extForTest.io.clearBuffers();
         extForTest.canvas.clearBuffer();
 
-        if (!await tryRunTestMethod(testSrc, runTestMethod)) {
+        if (!await tryRunTestMethod(testSrc, testSrcName, runTestMethod)) {
             failCount++;
             return;
         }
@@ -363,16 +364,28 @@ $obj.create = function(Logo, sys) {
             testParse(testName);
             break;
         case Logo.mode.RUNL:
-            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, false, 1); });
+            await testGenericRun(testName,
+                async function(testSrc, srcPath) {
+                    await logoForUnitTests.env.execByLine(testSrc, false, srcPath);
+                });
             break;
         case Logo.mode.EXECL:
-            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.execByLine(testSrc, true, 1); });
+            await testGenericRun(testName,
+                async function(testSrc, srcPath) {
+                    await logoForUnitTests.env.execByLine(testSrc, true, srcPath);
+                });
             break;
         case Logo.mode.RUN:
-            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, false, 1); });
+            await testGenericRun(testName,
+                async function(testSrc, srcPath) {
+                    await logoForUnitTests.env.exec(testSrc, false, srcPath);
+                });
             break;
         case Logo.mode.EXEC:
-            await testGenericRun(testName, async function(testSrc) { await logoForUnitTests.env.exec(testSrc, true, 1); });
+            await testGenericRun(testName,
+                async function(testSrc, srcPath) {
+                    await logoForUnitTests.env.exec(testSrc, true, srcPath);
+                });
             break;
         default:
             Logo.io.stdout("\t\t" + testSettings.mode + " not found");

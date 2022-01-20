@@ -1,4 +1,4 @@
 Not enough inputs to arrayp
-    at 1,2
+    at 1,2	arrayp_err.lgo
 Too much inside ()'s
-    at 2,17
+    at 2,17	arrayp_err.lgo

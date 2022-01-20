@@ -190,7 +190,7 @@ $obj.create = function(logo) {
 
     async function primitiveLoad(name) {
         let src = logo.logofs.readFile(name);
-        await logo.entry.exec(src);
+        await logo.entry.exec(src, name);
     }
 
     function primitiveHelp(topic) {

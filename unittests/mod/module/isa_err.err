@@ -1,2 +1,2 @@
 Can't use isa outside a module.
-    at 1,1
+    at 1,1	isa_err.lgo

@@ -1,14 +1,14 @@
 and doesn't like 1 as input
-    at 1,2
+    at 1,2	and_err.lgo
 and doesn't like 2 as input
-    at 2,2
+    at 2,2	and_err.lgo
 and doesn't like abc as input
-    at 3,2
+    at 3,2	and_err.lgo
 and doesn't like [] as input
-    at 4,2
+    at 4,2	and_err.lgo
 and doesn't like {} as input
-    at 5,2
+    at 5,2	and_err.lgo
 and doesn't like abc as input
-    at 6,1
+    at 6,1	and_err.lgo
 and doesn't like def as input
-    at 7,1
+    at 7,1	and_err.lgo

@@ -1,8 +1,8 @@
 Not enough inputs to thing
-    at 1,11
+    at 1,11	thing_err.lgo
 thing doesn't like {} as input
-    at 2,6
+    at 2,6	thing_err.lgo
 thing doesn't like [] as input
-    at 3,6
+    at 3,6	thing_err.lgo
 xy has no value
-    at 4,6
+    at 4,6	thing_err.lgo

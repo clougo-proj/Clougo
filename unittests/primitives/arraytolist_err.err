@@ -1,12 +1,12 @@
 Not enough inputs to arraytolist
-    at 1,2
+    at 1,2	arraytolist_err.lgo
 Too much inside ()'s
-    at 2,20
+    at 2,20	arraytolist_err.lgo
 arraytolist doesn't like 0.1 as input
-    at 3,1
+    at 3,1	arraytolist_err.lgo
 arraytolist doesn't like abc as input
-    at 4,1
+    at 4,1	arraytolist_err.lgo
 arraytolist doesn't like false as input
-    at 5,1
+    at 5,1	arraytolist_err.lgo
 arraytolist doesn't like [] as input
-    at 6,1
+    at 6,1	arraytolist_err.lgo

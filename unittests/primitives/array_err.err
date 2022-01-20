@@ -1,6 +1,6 @@
 Not enough inputs to array
-    at 1,2
+    at 1,2	array_err.lgo
 array doesn't like 1.2e10 as input
-    at 2,2
+    at 2,2	array_err.lgo
 array doesn't like 1.2 as input
-    at 3,1
+    at 3,1	array_err.lgo

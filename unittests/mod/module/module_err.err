@@ -1,8 +1,8 @@
 Can't use module inside a module.
-    at 2,1
+    at 2,1	module_err.lgo
 Can't use endmodule outside a module.
-    at 4,1
+    at 4,1	module_err.lgo
 module doesn't like [] as input
-    at 5,1
+    at 5,1	module_err.lgo
 module doesn't like {} as input
-    at 6,1
+    at 6,1	module_err.lgo

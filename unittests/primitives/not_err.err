@@ -1,16 +1,16 @@
 Not enough inputs to not
-    at 1,2
+    at 1,2	not_err.lgo
 not doesn't like 1 as input
-    at 2,2
+    at 2,2	not_err.lgo
 not doesn't like 2 as input
-    at 3,2
+    at 3,2	not_err.lgo
 not doesn't like abc as input
-    at 4,2
+    at 4,2	not_err.lgo
 not doesn't like [] as input
-    at 5,2
+    at 5,2	not_err.lgo
 not doesn't like {} as input
-    at 6,2
+    at 6,2	not_err.lgo
 Too much inside ()'s
-    at 7,12
+    at 7,12	not_err.lgo
 Too much inside ()'s
-    at 8,13
+    at 8,13	not_err.lgo

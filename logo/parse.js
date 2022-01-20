@@ -613,7 +613,7 @@ $obj.create = function(logo, sys) {
                     throw e;
                 } else {
                     logo.io.stderr(e.formatMessage());
-                    logo.io.stderr("    at " + logo.type.srcmapToString(e.getSrcmap()));
+                    logo.io.stderr("    at " + logo.type.srcmapToLineRow(e.getSrcmap()));
                     reset();
                 }
             }

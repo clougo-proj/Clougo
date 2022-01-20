@@ -1,8 +1,8 @@
 z has no value
-    f1 at 2,30
-    at 6,1
+    f1 at 2,30	to2_err.lgo
+    at 6,1	to2_err.lgo
 Not enough inputs to f2
-    f2 at 13,3
-    at 13,1
+    f2 at 13,3	to2_err.lgo
+    at 13,1	to2_err.lgo
 You don't say what to do with 2
-    at 14,6
+    at 14,6	to2_err.lgo

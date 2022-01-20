@@ -1,24 +1,24 @@
 Too many inputs to cos
-    at 5,2
+    at 5,2	invoke1_err.lgo
 Not enough inputs to quotient
-    at 6,2
+    at 6,2	invoke1_err.lgo
 Too many inputs to abc
-    at 7,2
+    at 7,2	invoke1_err.lgo
 Not enough inputs to abc
-    at 8,2
+    at 8,2	invoke1_err.lgo
 I don't know how to def
-    at 9,2
+    at 9,2	invoke1_err.lgo
 I don't know how to def
-    at 10,2
+    at 10,2	invoke1_err.lgo
 Too many inputs to cos
-    at 13,22
+    at 13,22	invoke1_err.lgo
 Not enough inputs to quotient
-    at 14,27
+    at 14,27	invoke1_err.lgo
 Too many inputs to abc
-    at 15,22
+    at 15,22	invoke1_err.lgo
 Not enough inputs to abc
-    at 16,22
+    at 16,22	invoke1_err.lgo
 I don't know how to def
-    at 17,22
+    at 17,22	invoke1_err.lgo
 I don't know how to def
-    at 18,22
+    at 18,22	invoke1_err.lgo

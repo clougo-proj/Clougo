@@ -1,0 +1,16 @@
+{
+    "name": "Clougo",
+    "short_name" : "Clougo",
+    "start_url": "/",
+    "scope" : "./",
+    "icons": [
+        {
+            "src": "./icon/clougo-icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#ffee00",
+    "background_color": "#ffee00",
+    "display": "standalone"
+}

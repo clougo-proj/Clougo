@@ -41,6 +41,8 @@ $obj.create = function(logo, sys, ext) {
 
     const DEFAULT_PRECEDENCE = 0;
 
+    const NULL_SRC_INDEX = 0;
+
     const UNDEFINED_PROC_DEFAULT_FORMAL = makeFormal(
         PROC_PARAM.DEFAULT, PROC_PARAM.DEFAULT_MIN,  PROC_PARAM.DEFAULT, PROC_PARAM.UNLIMITED, [], [], undefined);
 
@@ -54,7 +56,10 @@ $obj.create = function(logo, sys, ext) {
         };
 
         self.getSrcIndex = function(path) {
-            sys.assert(path !== undefined);
+            if (path === undefined) {
+                return NULL_SRC_INDEX;
+            }
+
             if (Object.prototype.hasOwnProperty.call(indexByPath, path)) {
                 return indexByPath[path];
             }
@@ -66,7 +71,7 @@ $obj.create = function(logo, sys, ext) {
         };
 
         self.getSrcPath = function(index) {
-            if (index === 0) {
+            if (index === NULL_SRC_INDEX) {
                 return undefined;
             }
 
@@ -456,8 +461,8 @@ $obj.create = function(logo, sys, ext) {
 
     function registerOnStdinCallback() {
         if ("io" in ext && "onstdin" in ext.io && typeof ext.io.onstdin == "function") {
-            ext.io.onstdin(async function(d){ // logoUserInputListener
-                setUserInput(d.toString());
+            ext.io.onstdin(async function(userInputBody){ // logoUserInputListener
+                setUserInput(userInputBody.toString());
 
                 if (isPendingUserInput()) {
                     resolveUserInput();
@@ -478,7 +483,7 @@ $obj.create = function(logo, sys, ext) {
                         return;
                     }
 
-                    let ret = await exec(userInput, logo.config.get("genCommand"), 0);
+                    let ret = await exec(userInput, logo.config.get("genCommand"));
                     if (!sys.isUndefined(ret)) {
                         logo.io.stdout("Result:" + logo.type.toString(ret));
                     }
@@ -1009,7 +1014,10 @@ $obj.create = function(logo, sys, ext) {
             _callStack.push([_frameProcName, e.getSrcmap()]);
         }
 
-        logo.io.stderr(convertToStackDump(_callStack.slice(0).reverse()));
+        let stackDump = stackToDump(_callStack.slice(0).reverse());
+        if (stackDump) {
+            logo.io.stderr(stackDump);
+        }
     }
     env.errorOnLogoException = errorOnLogoException;
 
@@ -1033,20 +1041,24 @@ $obj.create = function(logo, sys, ext) {
     }
     env.evalLogo = evalLogo;
 
-    function convertToStackDump(stack) {
+    function stackToDump(stack) {
         return sys.isUndefined(stack) ? "" : stack.map(stackFrameToString)
             .filter(v => v !== "")
             .join(logo.type.NEWLINE);
     }
 
+    function isNullSrcpath(srcmap) {
+        return logo.type.srcmapToSrcidx(srcmap) === NULL_SRC_INDEX;
+    }
+
     function srcmapToString(srcmap) {
-        return logo.type.srcmapToLineRow(srcmap) +  "\t" + SourceIndex.getSrcPath(logo.type.srcmapToSrcidx(srcmap));
+        return logo.type.srcmapToLineRow(srcmap) + "\t" + SourceIndex.getSrcPath(logo.type.srcmapToSrcidx(srcmap));
     }
 
     function stackFrameToString(frame) {
         let procName = frame[0];
         let srcmap = frame[1];
-        return logo.type.isNullSrcmap(srcmap) ? "" :
+        return logo.type.isNullSrcmap(srcmap) || isNullSrcpath(srcmap) ? "" :
             typeof procName !== "undefined" ?
                 "    " + procName + " at " + srcmapToString(srcmap) :
                 "    at " + srcmapToString(srcmap);

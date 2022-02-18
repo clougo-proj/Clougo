@@ -1,0 +1,20 @@
+ht
+pu
+rt 90
+show labelfont
+label "Arial
+
+setxy 0 30
+setlabelfont [[Times New Roman] 16 0 0 900 0 0 0 1 0 0 0 0]
+show labelfont
+label "|Times New Roman|
+
+setxy 0 80
+setlabelfont [[Serif] 36 0 0 200 1 0 0 1 0 0 0 0]
+show labelfont
+label "Serif
+
+setxy 0 110
+setlabelfont "|24px futura|
+show labelfont
+label "Futura

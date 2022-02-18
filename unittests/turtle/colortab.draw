@@ -20,7 +20,7 @@ moveto -202.928932 -22.928932 0
 moveto -202.928932 53.071068 0
 moveto -212.928932 53.071068 0
 moveto -212.928932 53.071068 90
-drawtext 0
+drawtext 0 24px arial
 moveto -212.928932 53.071068 0
 pencolor 0 0 0
 moveto -180 -30 0
@@ -40,7 +40,7 @@ moveto -172.928932 -22.928932 0
 moveto -172.928932 53.071068 0
 moveto -182.928932 53.071068 0
 moveto -182.928932 53.071068 90
-drawtext 1
+drawtext 1 24px arial
 moveto -182.928932 53.071068 0
 pencolor 0 0 0
 moveto -150 -30 0
@@ -60,7 +60,7 @@ moveto -142.928932 -22.928932 0
 moveto -142.928932 53.071068 0
 moveto -152.928932 53.071068 0
 moveto -152.928932 53.071068 90
-drawtext 2
+drawtext 2 24px arial
 moveto -152.928932 53.071068 0
 pencolor 0 0 0
 moveto -120 -30 0
@@ -80,7 +80,7 @@ moveto -112.928932 -22.928932 0
 moveto -112.928932 53.071068 0
 moveto -122.928932 53.071068 0
 moveto -122.928932 53.071068 90
-drawtext 3
+drawtext 3 24px arial
 moveto -122.928932 53.071068 0
 pencolor 0 0 0
 moveto -90 -30 0
@@ -100,7 +100,7 @@ moveto -82.928932 -22.928932 0
 moveto -82.928932 53.071068 0
 moveto -92.928932 53.071068 0
 moveto -92.928932 53.071068 90
-drawtext 4
+drawtext 4 24px arial
 moveto -92.928932 53.071068 0
 pencolor 0 0 0
 moveto -60 -30 0
@@ -120,7 +120,7 @@ moveto -52.928932 -22.928932 0
 moveto -52.928932 53.071068 0
 moveto -62.928932 53.071068 0
 moveto -62.928932 53.071068 90
-drawtext 5
+drawtext 5 24px arial
 moveto -62.928932 53.071068 0
 pencolor 0 0 0
 moveto -30 -30 0
@@ -140,7 +140,7 @@ moveto -22.928932 -22.928932 0
 moveto -22.928932 53.071068 0
 moveto -32.928932 53.071068 0
 moveto -32.928932 53.071068 90
-drawtext 6
+drawtext 6 24px arial
 moveto -32.928932 53.071068 0
 pencolor 0 0 0
 moveto 0 -30 0
@@ -160,7 +160,7 @@ moveto 7.071068 -22.928932 0
 moveto 7.071068 53.071068 0
 moveto -2.928932 53.071068 0
 moveto -2.928932 53.071068 90
-drawtext 7
+drawtext 7 24px arial
 moveto -2.928932 53.071068 0
 pencolor 0 0 0
 moveto 30 -30 0
@@ -180,7 +180,7 @@ moveto 37.071068 -22.928932 0
 moveto 37.071068 53.071068 0
 moveto 27.071068 53.071068 0
 moveto 27.071068 53.071068 90
-drawtext 8
+drawtext 8 24px arial
 moveto 27.071068 53.071068 0
 pencolor 0 0 0
 moveto 60 -30 0
@@ -200,7 +200,7 @@ moveto 67.071068 -22.928932 0
 moveto 67.071068 53.071068 0
 moveto 57.071068 53.071068 0
 moveto 57.071068 53.071068 90
-drawtext 9
+drawtext 9 24px arial
 moveto 57.071068 53.071068 0
 pencolor 0 0 0
 moveto 90 -30 0
@@ -220,7 +220,7 @@ moveto 97.071068 -22.928932 0
 moveto 97.071068 53.071068 0
 moveto 87.071068 53.071068 0
 moveto 87.071068 53.071068 90
-drawtext 10
+drawtext 10 24px arial
 moveto 87.071068 53.071068 0
 pencolor 0 0 0
 moveto 120 -30 0
@@ -240,7 +240,7 @@ moveto 127.071068 -22.928932 0
 moveto 127.071068 53.071068 0
 moveto 117.071068 53.071068 0
 moveto 117.071068 53.071068 90
-drawtext 11
+drawtext 11 24px arial
 moveto 117.071068 53.071068 0
 pencolor 0 0 0
 moveto 150 -30 0
@@ -260,7 +260,7 @@ moveto 157.071068 -22.928932 0
 moveto 157.071068 53.071068 0
 moveto 147.071068 53.071068 0
 moveto 147.071068 53.071068 90
-drawtext 12
+drawtext 12 24px arial
 moveto 147.071068 53.071068 0
 pencolor 0 0 0
 moveto 180 -30 0
@@ -280,7 +280,7 @@ moveto 187.071068 -22.928932 0
 moveto 187.071068 53.071068 0
 moveto 177.071068 53.071068 0
 moveto 177.071068 53.071068 90
-drawtext 13
+drawtext 13 24px arial
 moveto 177.071068 53.071068 0
 pencolor 0 0 0
 moveto 210 -30 0
@@ -300,7 +300,7 @@ moveto 217.071068 -22.928932 0
 moveto 217.071068 53.071068 0
 moveto 207.071068 53.071068 0
 moveto 207.071068 53.071068 90
-drawtext 14
+drawtext 14 24px arial
 moveto 207.071068 53.071068 0
 pencolor 0 0 0
 moveto 240 -30 0
@@ -320,4 +320,4 @@ moveto 247.071068 -22.928932 0
 moveto 247.071068 53.071068 0
 moveto 237.071068 53.071068 0
 moveto 237.071068 53.071068 90
-drawtext 15
+drawtext 15 24px arial

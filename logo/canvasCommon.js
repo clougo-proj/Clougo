@@ -24,7 +24,7 @@ CanvasCommon.primitive = {
     "fillcolor": [11, 3],
     "arc": [12, 7],
     "ellipse": [13, 9],
-    "drawtext": [14, 1],
+    "drawtext": [14, 2],
     "fill": [15, 1],
     "pensize": [16, 1]
 };

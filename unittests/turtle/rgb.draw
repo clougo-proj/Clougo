@@ -56,43 +56,43 @@ drawto 180 -69 0
 drawto 180 -64 0
 moveto 180 -64 90
 moveto -220 75 90
-drawtext 255
+drawtext 255 24px arial
 moveto -220 -70 90
 moveto -185 -70 90
 moveto -185 -70 90
-drawtext 0
+drawtext 0 24px arial
 moveto -185 -70 90
 moveto -140 -70 90
 moveto -140 -70 90
-drawtext 45
+drawtext 45 24px arial
 moveto -140 -70 90
 moveto -95 -70 90
 moveto -95 -70 90
-drawtext 90
+drawtext 90 24px arial
 moveto -95 -70 90
 moveto -50 -70 90
 moveto -50 -70 90
-drawtext 135
+drawtext 135 24px arial
 moveto -50 -70 90
 moveto -5 -70 90
 moveto -5 -70 90
-drawtext 180
+drawtext 180 24px arial
 moveto -5 -70 90
 moveto 40 -70 90
 moveto 40 -70 90
-drawtext 225
+drawtext 225 24px arial
 moveto 40 -70 90
 moveto 85 -70 90
 moveto 85 -70 90
-drawtext 270
+drawtext 270 24px arial
 moveto 85 -70 90
 moveto 130 -70 90
 moveto 130 -70 90
-drawtext 315
+drawtext 315 24px arial
 moveto 130 -70 90
 moveto 175 -70 90
 moveto 175 -70 90
-drawtext 360
+drawtext 360 24px arial
 pensize 5
 pencolor 0 0 0
 moveto -180 -64 90

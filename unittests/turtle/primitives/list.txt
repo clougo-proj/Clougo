@@ -12,3 +12,4 @@ pensize exec run
 pensize_err runl execl
 ellipsearc exec run
 turtle_movement_err execl runl
+labelfont exec run

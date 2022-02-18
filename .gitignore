@@ -2,3 +2,4 @@ node_modules
 generated
 package-lock.json
 .vscode
+.azure

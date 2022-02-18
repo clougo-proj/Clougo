@@ -17,6 +17,9 @@ $obj.create = function(logo, sys) {
     const originalHeading = 0; // deg
     const originalPenSize = logo.type.makeLogoList([1, 1]);
 
+    const defaultCanvasFont = "24px arial";
+    const defaultLabelFont = logo.type.makeLogoList([logo.type.makeLogoList(["Arial"]), 24, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0]);
+
     const MAX_UNDO_DEPTH = logo.constants.MAX_UNDO_DEPTH;
 
     const methods = {
@@ -105,6 +108,10 @@ $obj.create = function(logo, sys) {
 
         "label": primitiveLabel,
 
+        "labelfont": primitiveLabelfont,
+
+        "setlabelfont": primitiveSetlabelfont,
+
         "fill": [primitiveFill, "[fillmode \"False]"],
 
         "setxy": primitiveSetxy,
@@ -160,6 +167,8 @@ $obj.create = function(logo, sys) {
     let _mouseClickX = originX;
     let _mouseClickY = originY;
     let _mouseDown = false;
+
+    let _labelFont = defaultLabelFont;
 
     function primitivePendown() {
         _penDown = true;
@@ -245,7 +254,7 @@ $obj.create = function(logo, sys) {
         primitiveSetpencolor(0);
         primitiveSetbackground(15);
         primitiveSetfloodcolor(0);
-        // setlabelfont [[Arial] -24 0 0 400 0 0 0 0 3 2 1 18]
+        primitiveSetlabelfont(defaultLabelFont);
     }
     graphics.draw = primitiveDraw;
 
@@ -574,11 +583,59 @@ $obj.create = function(logo, sys) {
 
     function primitiveLabel(text) {
         if (typeof text === "number") {
-            logo.ext.canvas.sendCmd("drawtext", [text]);
-            return;
+            text = sys.logoFround6(text);
         }
 
-        logo.ext.canvas.sendCmdAsString("drawtext", [logo.type.toString(text)]);
+        let canvasFont = toCanvasFont(_labelFont);
+
+        logo.ext.canvas.sendCmdAsString("drawtext", [logo.type.toString(text), canvasFont]);
+    }
+
+    function primitiveLabelfont() {
+        return _labelFont;
+    }
+
+    function primitiveSetlabelfont(labelFont) {
+        _labelFont = labelFont;
+    }
+
+    function toCanvasFont(labelFont) {
+        if (typeof labelFont === "string") {
+            return labelFont;
+        }
+
+        if (!logo.type.isLogoList(labelFont) || logo.type.listLength(labelFont) < 2) {
+            return defaultLabelFont;
+        }
+
+        let faceName = logo.type.listItem(1, labelFont);
+        let height = logo.type.listItem(2, labelFont);
+        let weight = logo.type.listItem(5, labelFont);
+        let italic = logo.type.listItem(6, labelFont);
+
+        return formatCanvasFont(faceName, height, weight, italic);
+    }
+
+    function formatCanvasFont(faceName, height, weight = 400, italic = 0) {
+        if (!logo.type.isLogoList(faceName) || !sys.isInteger(height)) {
+            return defaultCanvasFont;
+        }
+
+        let canvasFont = [Math.abs(height).toString() + "px", logo.type.toString(faceName).toLowerCase()];
+
+        if (isCustomFontWeight(weight)) {
+            canvasFont.unshift(weight.toString());
+        }
+
+        if (italic !== 0) {
+            canvasFont.unshift("italic");
+        }
+
+        return canvasFont.join(" ");
+    }
+
+    function isCustomFontWeight(weight) {
+        return weight > 0 && weight !== 400 && sys.isInteger(weight) && weight <= 900;
     }
 
     function primitiveFill(fillmode = false) {
@@ -696,6 +753,8 @@ $obj.create = function(logo, sys) {
         _penColor = 0;
         _bgColor = 15;
         _penSize = originalPenSize;
+
+        _labelFont = defaultLabelFont;
     }
     graphics.reset = reset;
 

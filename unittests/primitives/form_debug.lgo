@@ -1,0 +1,27 @@
+show form 1 -1 "|%8X %8X|
+show form 1 -1 "|%08X %08X|
+show form 1 -1 "|%011X - %011X|
+
+pr "
+
+show form 1 -1 "|%8x %8x|
+show form 1 -1 "|%08x %08x|
+show form 1 -1 "|%011x - %011x|
+
+pr "
+
+show form 1 -1 "|%32b %32b|
+show form 1 -1 "|%032B %032B|
+show form 1 -1 "|%035b - %035B|
+
+pr "
+
+show form 1 -1 "|%8d %8d|
+show form 1 -1 "|%08D %08D|
+show form 1 -1 "|%011d - %011D|
+
+pr "
+
+show form 1 -1 "|%8o %8o|
+show form 1 -1 "|%08O %08O|
+show form 1 -1 "|%011o - %011O|

@@ -1,0 +1,18 @@
+Not enough inputs to form
+    at 1,5	form_err.lgo
+Not enough inputs to form
+    at 2,7	form_err.lgo
+Not enough inputs to form
+    at 3,9	form_err.lgo
+Too much inside ()'s
+    at 4,13	form_err.lgo
+form doesn't like abc as input
+    at 6,1	form_err.lgo
+form doesn't like x as input
+    at 7,1	form_err.lgo
+form doesn't like y as input
+    at 8,1	form_err.lgo
+form doesn't like 1.1 as input
+    at 10,1	form_err.lgo
+form doesn't like 2.1 as input
+    at 11,1	form_err.lgo

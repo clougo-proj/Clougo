@@ -9,8 +9,14 @@
 "use strict";
 
 var $obj = {};
-$obj.create = function(logo) {
+$obj.create = function(logo, sys) {
     const ds = {};
+
+    const LOGO_DEFAULT_PRECISION = 6;
+
+    const JS_MAX_PRECISION = 100;
+
+    const SPACE = " ";
 
     const methods = {
         "word": [primitiveWord, "[args] 2"],
@@ -83,6 +89,8 @@ $obj.create = function(logo) {
 
         "char": primitiveChar,
 
+        "form": primitiveForm,
+
         "lowercase": primitiveLowercase,
 
         "uppercase": primitiveUppercase,
@@ -138,6 +146,71 @@ $obj.create = function(logo) {
     function primitiveChar(value) {
         logo.type.validateInputByte(value);
         return logo.type.asciiToChar(value);
+    }
+
+    function primitiveForm(num, width, precision) {
+        logo.type.validateInputNumber(num);
+        logo.type.validateInputInteger(width);
+        if (sys.isInteger(precision)) {
+            return toFixed(num, precision).padStart(width, SPACE);
+        }
+
+        logo.type.validateInputWord(precision);
+        return formDebug(num, width, precision);
+    }
+
+    function formDebug(num, width, precision) {
+        let words = float64ToUint32Array(num);
+        return formatString(precision, words[0], words[1]);
+    }
+
+    function formatString(format, ...params) {
+        let result = format;
+        while (params.length > 0) {
+            let param = params.shift();
+            result = result.replace(/%(0?)(\d+)([bBdDoOxX])/, (match, zero, precision, base) => {
+                switch(base) {
+                case "x":
+                    return param.toString(16).padStart(precision, zero).padStart(precision, SPACE);
+                case "X":
+                    return param.toString(16).padStart(precision, zero).toUpperCase().padStart(precision, SPACE);
+                case "b":
+                case "B":
+                    return param.toString(2).padStart(precision, zero).padStart(precision, SPACE);
+                case "o":
+                case "O":
+                    return param.toString(8).padStart(precision, zero).padStart(precision, SPACE);
+                case "d":
+                case "D":
+                    return param.toString(10).padStart(precision, zero).padStart(precision, SPACE);
+                }
+            });
+        }
+
+        return result;
+    }
+
+    function float64ToUint32Array(num) {
+        var buffer = new ArrayBuffer(8);
+        var bytes = new Uint8Array(buffer);
+        var words = new Uint32Array(buffer);
+        var view = new DataView(buffer);
+        view.setFloat64(0, num);
+        bytes.reverse();
+        return words;
+    }
+
+    function toFixed(num, precision) {
+        if (precision < 0) {
+            precision = LOGO_DEFAULT_PRECISION;
+        }
+
+        if (precision <= JS_MAX_PRECISION) {
+            return num.toFixed(precision);
+        }
+
+        let fixed = num.toFixed(JS_MAX_PRECISION);
+        return fixed.padEnd(fixed.length + precision - JS_MAX_PRECISION, "0");
     }
 
     function primitiveLowercase(value) {

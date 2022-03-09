@@ -140,3 +140,6 @@ lowercase run exec
 lowercase_err runl execl
 uppercase run exec
 uppercase_err runl execl
+form exec run
+form_debug exec run
+form_err execl runl

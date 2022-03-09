@@ -13,6 +13,3 @@ pensize_err runl execl
 ellipsearc exec run
 turtle_movement_err execl runl
 labelfont exec run
-form exec run
-form_debug exec run
-form_err execl runl

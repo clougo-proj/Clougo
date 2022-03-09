@@ -25,3 +25,7 @@ pr "
 show form 1 -1 "|%8o %8o|
 show form 1 -1 "|%08O %08O|
 show form 1 -1 "|%011o - %011O|
+
+pr "
+
+show form 1 -1 2.1

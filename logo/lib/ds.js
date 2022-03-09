@@ -155,13 +155,17 @@ $obj.create = function(logo, sys) {
             return toFixed(num, precision).padStart(width, SPACE);
         }
 
+        if (width >= 0) {
+            logo.type.validateInputInteger(precision);
+        }
+
         logo.type.validateInputWord(precision);
         return formDebug(num, width, precision);
     }
 
-    function formDebug(num, width, precision) {
+    function formDebug(num, width, format) {
         let words = float64ToUint32Array(num);
-        return formatString(precision, words[0], words[1]);
+        return formatString(format.toString(), words[0], words[1]);
     }
 
     function formatString(format, ...params) {

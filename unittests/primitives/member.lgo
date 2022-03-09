@@ -1,0 +1,16 @@
+to show_empty_string :val
+    show (word "< :val ">)
+end
+
+show member "a "abc
+show member "b "abc
+show member "c "abc
+show_empty_string member "x "abc
+show_empty_string member "ab "abc
+
+show member "abc [abc x p]
+show member "x [abc x p]
+show member "p [abc x p]
+show member "a [abc x p]
+
+show member 1+2 [3 x p]

@@ -80,6 +80,8 @@ $obj.create = function(logo, sys) {
         "memberp": primitiveMemberp,
         "member?": primitiveMemberp,
 
+        "member": primitiveMember,
+
         "plistp": primitivePlistp,
         "plist?": primitivePlistp,
 
@@ -350,6 +352,21 @@ $obj.create = function(logo, sys) {
 
         logo.type.validateInputArray(group);
         return logo.type.arrayFindItem(candidate, group) !== -1;
+    }
+
+    function primitiveMember(candidate, group) {
+        if (logo.type.isLogoWord(group)) {
+            if (!logo.type.isLogoCharacter(candidate)) {
+                return logo.type.EMPTY_WORD;
+            }
+
+            let indexStart = logo.type.wordFindItem(candidate, group);
+            return (indexStart === logo.type.INDEX_NOT_FOUND) ? logo.type.EMPTY_WORD : logo.type.wordSubset(group, indexStart);
+        }
+
+        logo.type.validateInputList(group);
+        let indexStart = logo.type.listFindItem(candidate, group);
+        return (indexStart === logo.type.INDEX_NOT_FOUND) ? logo.type.EMPTY_LIST : logo.type.listSubset(group, indexStart);
     }
 
     function primitivePlistp(val) {

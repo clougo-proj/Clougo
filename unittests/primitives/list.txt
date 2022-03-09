@@ -71,6 +71,8 @@ sincos run exec
 sincos_err runl execl
 sign runl execl
 memberp runl execl
+member exec run
+member_err execl runl
 wait run exec
 apply1 run exec
 apply2 run exec

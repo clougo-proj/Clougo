@@ -15,6 +15,7 @@ $obj.create = function(logo, sys) {
 
     const CLASSNAME = logo.constants.CLASSNAME;
 
+
     const LIST_HEAD_SIZE = 2;
     const ARRAY_HEAD_SIZE = 2;
     const SRCMAP_NULL = 0;
@@ -23,6 +24,7 @@ $obj.create = function(logo, sys) {
     const NEWLINE = "\n";
     const CLOSE_PAREN = ")";
     const LAMBDA_EXPR = "[]";
+    const INDEX_NOT_FOUND = -1;
 
     type.LIST_HEAD_SIZE = LIST_HEAD_SIZE;
     type.ARRAY_HEAD_SIZE = ARRAY_HEAD_SIZE;
@@ -32,6 +34,7 @@ $obj.create = function(logo, sys) {
     type.NEWLINE = NEWLINE;
     type.CLOSE_PAREN = CLOSE_PAREN;
     type.LAMBDA_EXPR = LAMBDA_EXPR;
+    type.INDEX_NOT_FOUND = INDEX_NOT_FOUND;
 
     const OBJTYPE = {
         MIN_VALUE: 0,
@@ -41,7 +44,11 @@ $obj.create = function(logo, sys) {
         MAX_VALUE: 7
     };
 
+    const EMPTY_WORD = "";
+
     const EMPTY_LIST = makeLogoList([]);
+
+    type.EMPTY_WORD = EMPTY_WORD;
 
     type.EMPTY_LIST = EMPTY_LIST;
 
@@ -822,16 +829,26 @@ $obj.create = function(logo, sys) {
     }
     type.wordFindItem = wordFindItem;
 
+    function wordSubset(word, indexStart) {
+        return wordToString(word).substring(indexStart);
+    }
+    type.wordSubset = wordSubset;
+
     function listFindItem(item, list) {
         let index = list.findIndex((elem, i) => i >= LIST_HEAD_SIZE && equal(item, elem));
-        return (index === -1) ? -1 : index - LIST_HEAD_SIZE + LIST_ORIGIN;
+        return (index === INDEX_NOT_FOUND) ? INDEX_NOT_FOUND : index - LIST_HEAD_SIZE + LIST_ORIGIN;
     }
     type.listFindItem = listFindItem;
+
+    function listSubset(list, indexStart) {
+        return logo.type.makeLogoList(unboxList(list).slice(indexStart - 1));
+    }
+    type.listSubset = listSubset;
 
     function arrayFindItem(item, array) {
         let origin = arrayOrigin(array);
         let index = array.findIndex((elem, i) => i >= origin && equal(item, elem));
-        return (index === -1) ? -1 : index - ARRAY_HEAD_SIZE + origin;
+        return (index === INDEX_NOT_FOUND) ? INDEX_NOT_FOUND : index - ARRAY_HEAD_SIZE + origin;
     }
     type.arrayFindItem = arrayFindItem;
 

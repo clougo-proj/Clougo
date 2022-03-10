@@ -834,6 +834,22 @@ $obj.create = function(logo, sys) {
     }
     type.wordSubset = wordSubset;
 
+    function wordRemdup(word) {
+        let seenCharSet = new Set();
+        let result = [];
+        word = wordToString(word);
+        for (let i = word.length - 1; i >= 0; i--) {
+            let c = word.charAt(i);
+            if (!seenCharSet.has(c)) {
+                result.push(c);
+                seenCharSet.add(c);
+            }
+        }
+
+        return result.reverse().join("");
+    }
+    type.wordRemdup = wordRemdup;
+
     function listFindItem(item, list) {
         let index = list.findIndex((elem, i) => i >= LIST_HEAD_SIZE && equal(item, elem));
         return (index === INDEX_NOT_FOUND) ? INDEX_NOT_FOUND : index - LIST_HEAD_SIZE + LIST_ORIGIN;
@@ -844,6 +860,52 @@ $obj.create = function(logo, sys) {
         return logo.type.makeLogoList(unboxList(list).slice(indexStart - 1));
     }
     type.listSubset = listSubset;
+
+    function listRemdup(list) {
+        let seenItemSet = new Set();
+        let seenListMap = new Map();
+        let unboxedList = unboxList(list);
+        let result = [];
+        while (unboxedList.length > 0) {
+            let item = unboxedList.pop();
+            if (!isItemSeen(item)) {
+                result.push(item);
+                addItemSeen(item);
+            }
+        }
+
+        return makeLogoList(result.reverse());
+
+        function isItemSeen(item) {
+            if (!isLogoList(item)) {
+                return seenItemSet.has(item);
+            }
+
+            let key = toString(item);
+            if (!seenListMap.has(key)) {
+                return false;
+            }
+
+            let values = seenListMap.get(key);
+            sys.assert(Array.isArray(values));
+            return values.findIndex(elem => equal(item, elem)) != -1;
+        }
+
+        function addItemSeen(item) {
+            if (!isLogoList(item)) {
+                seenItemSet.add(item);
+                return;
+            }
+
+            let key = toString(item);
+            if (!seenListMap.has(key)) {
+                seenListMap.set(key, []);
+            }
+
+            seenListMap.get(key).push(item);
+        }
+    }
+    type.listRemdup = listRemdup;
 
     function arrayFindItem(item, array) {
         let origin = arrayOrigin(array);

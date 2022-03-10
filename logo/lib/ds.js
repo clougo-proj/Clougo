@@ -58,6 +58,8 @@ $obj.create = function(logo, sys) {
 
         "remove": primitiveRemove,
 
+        "remdup": primitiveRemdup,
+
         "setitem": primitiveSetitem,
 
         "mdsetitem": primitiveMdsetitem,
@@ -422,6 +424,15 @@ $obj.create = function(logo, sys) {
         return logo.type.makeLogoList(
             logo.type.unboxList(list)
                 .filter((item) => !logo.type.equal(item, thing)));
+    }
+
+    function primitiveRemdup(value) {
+        if (logo.type.isLogoList(value)) {
+            return logo.type.listRemdup(value);
+        }
+
+        logo.type.validateInputWord(value);
+        return logo.type.wordRemdup(value);
     }
 
     function primitiveReverse(value) {

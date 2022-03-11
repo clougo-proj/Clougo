@@ -67,6 +67,7 @@ Constants.LOGO_EXCEPTIONS = {
     OUTPUT_STOP_RUNRESULT : [38, "Can't use OUTPUT or STOP inside RUNRESULT"],
     CANT_OPEN_FILE        : [40, "I can't open file {0}"],
     NOT_MACRO             : [101, "{1} is not a macro."],
+    INVALID_RANGE         : [1016, "{0} doesn't like {1} as input range."],
     UNKNOWN_PROC_MODULE   : [1017, "{0} can't find method {1}"],
     MODULE_HAS_NO_EXPORT  : [1018, "Module {0} has no export {1}"],
     ONLY_IN_MODULE        : [1019, "Can't use {0} outside a module."],

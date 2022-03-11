@@ -1,15 +1,59 @@
-make "sum 0
-make "count 1000
-repeat :count[
-  make "n random 101
-  ;pr :n
-  if (or :n<0 :n>100) [
-    pr :n
-  ]
-  make "sum :sum+:n
-]
+to test_random_avg
+    localmake "sum 0
+    localmake "count 1000
+    repeat :count[
+        localmake "n random 101
+        if (or :n<0 :n>100) [
+            pr :n
+        ]
+        make "sum :sum+:n
+    ]
 
-make "avg :sum/:count
-if (or :avg<45 :avg>55) [
-  (pr "sum= :sum/:count)
-]
+    localmake "avg :sum/:count
+    if (or :avg<45 :avg>55) [
+        (pr "sum= :sum/:count)
+    ]
+end
+
+to test_random_histogram
+    local "i
+    localmake "a array 10
+    for[i 1 count :a][
+        setitem :i :a 0
+    ]
+
+    repeat 100000 [
+        localmake "num random 100000
+        localmake "i (int :num/10000)+1
+        setitem :i :a (item :i :a)+1
+    ]
+
+    for[i 1 count :a][
+        localmake "item (item :i :a)
+        if (or :item > 10400 :item < 9400) [
+            print :item
+        ]
+    ]
+end
+
+to random_counts_hit :start :end :target
+    localmake "count 0
+    while [(random :start :end) <> :target] [
+        make "count :count + 1
+    ]
+    output :count
+end
+
+to test_random_hit
+    if (random_counts_hit -100 100 100) = 0 [pr "|Error: Hitting 100 with count 0.|]
+    if (random_counts_hit -100 100 -100) = 0 [pr "|Error: Hitting -100 with count 0.|]
+    if (random_counts_hit -100 100 -100) = (random_counts_hit -100 100 100) [
+        pr "|Error: Hitting -100 and 100 with the same count.|
+    ]
+end
+
+test_random_avg
+
+test_random_histogram
+
+test_random_hit

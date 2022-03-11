@@ -21,6 +21,8 @@ const Logo = {};
 const testRunner = fromJs("./testrunner.js").create(Logo, sys);
 const constants = fromJs("./constants.js", "Constants");
 
+loadJs("./seedrandom/seedrandom.min.js");
+
 Logo.constants = constants;
 
 Logo.mode = {
@@ -88,4 +90,13 @@ function fromJs(scriptFile, name = "$obj") {
 
     importScripts(scriptFile);
     return self[name];
+}
+
+function loadJs(scriptFile) {
+    if (isNodeJsEnvFlag) {
+        require(scriptFile);
+        return;
+    }
+
+    importScripts(scriptFile);
 }

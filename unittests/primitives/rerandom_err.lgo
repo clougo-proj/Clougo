@@ -1,0 +1,6 @@
+(rerandom 1.2)
+(rerandom "not_a_number)
+(rerandom 1>2)
+(rerandom 1<2)
+(rerandom [])
+(rerandom {})

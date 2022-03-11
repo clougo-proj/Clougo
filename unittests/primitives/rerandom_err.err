@@ -1,0 +1,12 @@
+rerandom doesn't like 1.2 as input
+    at 1,2	rerandom_err.lgo
+rerandom doesn't like not_a_number as input
+    at 2,2	rerandom_err.lgo
+rerandom doesn't like false as input
+    at 3,2	rerandom_err.lgo
+rerandom doesn't like true as input
+    at 4,2	rerandom_err.lgo
+rerandom doesn't like [] as input
+    at 5,2	rerandom_err.lgo
+rerandom doesn't like {} as input
+    at 6,2	rerandom_err.lgo

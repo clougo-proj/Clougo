@@ -1,0 +1,9 @@
+rerandom repeat 10 [show random 100000]
+pr "
+rerandom repeat 10 [show (random 0 99999)]
+pr "
+(rerandom 1) repeat 10 [show random 100000]
+pr "
+(rerandom 2) repeat 10 [show random 100000]
+pr "
+(rerandom 3) repeat 10 [show random 100000]

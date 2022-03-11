@@ -63,7 +63,9 @@ $obj.create = function(logo, sys) {
         "notequalp": primitiveNotequalp,
         "notequal?": primitiveNotequalp,
 
-        "random": primitiveRandom,
+        "random": [primitiveRandom, "num [num2 .novalue]"],
+
+        "rerandom": [primitiveRerandom, "[seed .novalue]"],
 
         "iseq": primitiveIseq,
 
@@ -192,8 +194,24 @@ $obj.create = function(logo, sys) {
         return Math.sign(opnd);
     }
 
-    function primitiveRandom(range) {
-        return Math.floor(Math.random() * Math.floor(range));
+    function primitiveRandom(num, num2 = undefined) {
+        if (num2 === undefined) {
+            logo.type.validateInputPosInteger(num);
+            return Math.floor(Math.random() * num);
+        }
+
+        logo.type.validateInputInteger(num);
+        logo.type.validateInputInteger(num2);
+        logo.type.throwIf(!(num < num2), logo.type.LogoException.INVALID_RANGE, [num, num2]);
+        return Math.floor(Math.random() * (num2 - num + 1)) + num;
+    }
+
+    function primitiveRerandom(seed = undefined) {
+        if (seed !== undefined) {
+            logo.type.validateInputInteger(seed);
+        }
+
+        Math.seedrandom(logo.type.toString(seed));
     }
 
     function primitiveIseq(from, to) {

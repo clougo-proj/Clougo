@@ -37,7 +37,10 @@ cleartext run exec
 item run exec
 list run exec
 mdarray run exec
-random run exec
+random exec
+random_err execl runl
+rerandom run exec
+rerandom_err execl runl
 and run exec
 and_err runl execl
 or run exec

@@ -1,0 +1,13 @@
+random
+random 1.2
+random "not_a_number
+random 1>2
+random []
+random {}
+(random 20 0)
+(random 20 20)
+(random 1 2.2)
+(random 1 "not_a_number)
+(random 1 1<2)
+(random 1 [])
+(random 1 {})

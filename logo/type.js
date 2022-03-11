@@ -717,6 +717,11 @@ $obj.create = function(logo, sys) {
     }
     type.validateInputNonNegInteger = validateInputNonNegInteger;
 
+    function validateInputPosInteger(value) {
+        throwIf(!isPosInteger(value), type.LogoException.INVALID_INPUT, value);
+    }
+    type.validateInputPosInteger = validateInputPosInteger;
+
     function validateInputNumber(value) {
         throwIf(!logo.type.isLogoNumber(value), type.LogoException.INVALID_INPUT, value);
     }
@@ -1084,6 +1089,10 @@ $obj.create = function(logo, sys) {
         return sys.isInteger(value) && value >= 0;
     }
     type.isNonNegInteger = isNonNegInteger;
+
+    function isPosInteger(value) {
+        return sys.isInteger(value) && value > 0;
+    }
 
     function isNumericConstant(curToken) {
         return typeof curToken !== "boolean" && typeof curToken !== "object" && !isNaN(Number(curToken));

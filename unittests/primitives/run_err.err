@@ -7,7 +7,7 @@ I don't know how to false
 run doesn't like {} as input
     at 4,1	run_err.lgo
 You don't say what to do with 100
-    at 5,1	run_err.lgo
+    at 5,5	run_err.lgo
 I don't know how to abc
     at 6,1	run_err.lgo
 I don't know how to pr1

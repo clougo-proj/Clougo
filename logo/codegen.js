@@ -307,8 +307,7 @@ $obj.create = function(logo, sys) {
             return;
         }
 
-        return Code.stmt("{", genInstrList(evxContext.next(), "run"), "}")
-            .append("\n;$ret=undefined;");
+        return Code.stmt("{", genInstrList(evxContext.next(), "run", undefined, true), "}");
     }
 
     function genIf(evxContext) {

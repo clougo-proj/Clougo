@@ -147,7 +147,7 @@ $obj.create = function(logo, sys) {
         return ret;
     }
 
-    async function primitiveRun(template, allowRetVal = false) {
+    async function primitiveRun(template, allowRetVal = true) {
         template = wordTemplateToList(template);
         logo.type.validateInputList(template);
         return await callTemplate(template, false, allowRetVal);

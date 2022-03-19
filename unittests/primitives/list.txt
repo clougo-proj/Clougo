@@ -150,3 +150,5 @@ uppercase_err runl execl
 form exec run
 form_debug exec run
 form_err execl runl
+mouseon execl runl
+mouseon_err execl runl

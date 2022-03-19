@@ -316,12 +316,25 @@ $obj.create = function(logo, sys, ext) {
 
         if (isMacro(name)) {
             validateMacroOutput(retVal, name, srcmap);
-            return await logo.env.getPrimitive("run").apply(undefined, [retVal, true]);
+            return await getPrimitive("run").apply(undefined, [retVal, true]);
         }
 
         return retVal;
     }
     env.callProcAsync = callProcAsync;
+
+    async function callTemplate(template, macroExpand = false, allowRetVal = false) {
+        let srcmap = getProcSrcmap();
+        let ret = await applyInstrList(template, srcmap,
+            !logo.type.inSameLine(srcmap, logo.type.getTemplateSrcmap(template)), {}, undefined, macroExpand, allowRetVal);
+
+        if (!allowRetVal) {
+            checkUnusedValue(ret, srcmap);
+        }
+
+        return ret;
+    }
+    env.callTemplate = callTemplate;
 
     function validateMacroOutput(val, name, srcmap) {
         if (!logo.type.isLogoList(val)) {
@@ -971,7 +984,7 @@ $obj.create = function(logo, sys, ext) {
                     if (isInterpretedCommand(line)) {
                         ret = await logoExecHelper(line.substring(2), false, srcidx, i);
                     } else if (isTurtleCanvasMouseEvent(line)) {
-                        logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).onMouseEvent(mockEventFromLine(line));
+                        await logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).onMouseEvent(mockEventFromLine(line));
                     } else {
                         ret = await logoExecHelper(line, genjs, srcidx, i);
                     }
@@ -1021,23 +1034,49 @@ $obj.create = function(logo, sys, ext) {
     }
     env.errorOnLogoException = errorOnLogoException;
 
-    async function evalLogo(parsedCommand) {
-        let scopeStackLength = moduleContext().scopeStack.length;
-
-        if (!sys.isUndefined(parsedCommand)) {
-            try {
-                await logo.interpreter.evxBody(logo.parse.parseBlock(parsedCommand));
-            } catch(e) {
-                if (!logo.type.LogoException.is(e)) {
-                    throw e;
-                } else {
-                    errorOnLogoException(e, false);
-                    _abortExecution = true;
-                }
+    async function catchLogoException(f) {
+        try {
+            await f();
+        } catch (e) {
+            if (!logo.type.LogoException.is(e)) {
+                throw e;
+            } else {
+                errorOnLogoException(e, false);
+                _abortExecution = true;
             }
         }
+    }
+    env.catchLogoException = catchLogoException;
 
+    async function resetCallStackAfterExecute(f) {
+        let callStackLength = _callStack.length;
+        let frameProcName = _frameProcName;
+        let curSlot = _curSlot;
+
+        let retVal = await f();
+
+        _callStack.splice(callStackLength);
+        _frameProcName = frameProcName;
+        _curSlot = curSlot;
+
+        return retVal;
+    }
+    env.resetCallStackAfterExecute = resetCallStackAfterExecute;
+
+    async function resetScopeStackAfterExecute(f) {
+        let scopeStackLength = moduleContext().scopeStack.length;
+        let retVal = await f();
         moduleContext().scopeStack.splice(scopeStackLength);
+        return retVal;
+    }
+    env.resetScopeStackAfterExecute = resetScopeStackAfterExecute;
+
+    async function evalLogo(parsedCommand) {
+        await resetScopeStackAfterExecute(async () => {
+            if (!sys.isUndefined(parsedCommand)) {
+                await catchLogoException(async () => await logo.interpreter.evxBody(logo.parse.parseBlock(parsedCommand)));
+            }
+        });
     }
     env.evalLogo = evalLogo;
 
@@ -1065,24 +1104,13 @@ $obj.create = function(logo, sys, ext) {
     }
 
     async function evalLogoJs(logoJsSrc) {
-
-        let context = moduleContext();
-        let scopeStackLength = context.scopeStack.length;
-
-        try {
-            $ret = undefined; // eslint-disable-line no-unused-vars
-            eval(logoJsSrc);
-            await moduleContext().procJsFunc.$();
-        } catch(e) {
-            if (!logo.type.LogoException.is(e)) {
-                throw e;
-            } else {
-                errorOnLogoException(e, false);
-                _abortExecution = true;
-            }
-        }
-
-        context.scopeStack.splice(scopeStackLength);
+        await resetScopeStackAfterExecute(async () => {
+            await catchLogoException(async () => {
+                $ret = undefined; // eslint-disable-line no-unused-vars
+                eval(logoJsSrc);
+                await moduleContext().procJsFunc.$();
+            });
+        });
     }
     env.evalLogoJs = evalLogoJs;
 
@@ -1116,32 +1144,31 @@ $obj.create = function(logo, sys, ext) {
         let formalParam = getInstrListFormalParam(template);
 
         if (formalParam !== undefined) {
-            logo.env.checkSlotLength(logo.type.LAMBDA_EXPR, slot.param, inputListSrcmap, formalParam.length);
+            checkSlotLength(logo.type.LAMBDA_EXPR, slot.param, inputListSrcmap, formalParam.length);
         }
 
         if (getGenJs() && !macroExpand && (_userBlockCalled.has(template) || logo.config.get("eagerJitInstrList"))) {
-            let scopeStackLength = moduleContext().scopeStack.length;
-            if (pushCallStack) {
-                prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
-            }
+            return await resetScopeStackAfterExecute(async () => {
+                if (pushCallStack) {
+                    prepareCallProc(logo.type.LAMBDA_EXPR, srcmap, slot);
+                }
 
-            let retVal = await callLogoInstrListAsync(template, slot.param);
+                let retVal = await callLogoInstrListAsync(template, slot.param);
 
-            if (pushCallStack) {
-                completeCallProc();
-            }
+                if (pushCallStack) {
+                    completeCallProc();
+                }
 
-            moduleContext().scopeStack.splice(scopeStackLength);
-            return retVal;
+                return retVal;
+            });
         }
 
         _userBlockCalled.set(template, true);
         let bodyComp = logo.type.embedReferenceSrcmap(template, srcmap);
         if (formalParam === undefined) {
-            let scopeStackLength = moduleContext().scopeStack.length;
-            let ret = await logo.interpreter.evxInstrList(bodyComp, slot, pushCallStack, allowRetVal, macroExpand);
-            moduleContext().scopeStack.splice(scopeStackLength);
-            return ret;
+            return await resetScopeStackAfterExecute(async () =>
+                await logo.interpreter.evxInstrList(bodyComp, slot, pushCallStack, allowRetVal, macroExpand)
+            );
         }
 
         return await logo.interpreter.evxInstrListWithFormalParam(
@@ -1171,7 +1198,7 @@ $obj.create = function(logo, sys, ext) {
         }
 
         slot.param.splice(0, 0, template, srcmap);
-        let retVal = await logo.env.callProcAsync.apply(undefined, slot.param);
+        let retVal = await callProcAsync.apply(undefined, slot.param);
 
         if (!isPrimitive(template)) {
             completeCallProc();

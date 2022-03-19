@@ -171,7 +171,7 @@ function saveEditorContent() {
     writeLogoStorage("logoSrc", editor.getValue());
 }
 
-window.setInterval(saveEditorContent, 10000);
+window.setInterval(saveEditorContent, 1000);
 
 
 const zoomTurtleCanvas = (() => {  // eslint-disable-line no-unused-vars
@@ -426,6 +426,11 @@ const turtleCanvas = createTurtleCanvas("turtleCanvas", {
     "assert": assert
 });
 
+function onContextMenu(e) { // eslint-disable-line no-unused-vars
+    e.preventDefault();
+    return false;
+}
+
 function onMouseMove(e) { // eslint-disable-line no-unused-vars
     logoWorker.onMouseEvent(createMouseMsg(e, "move"));
 }
@@ -450,12 +455,12 @@ function createMouseMsg(e, msgType) {
     let x = canvasPane.scrollLeft();
     let y = canvasPane.scrollTop();
     let w = canvasPane[0].scrollWidth;
-    let h = canvasPane[0].scrollHeight;
+    let h =  $("#turtleCanvas").height();
 
     let posX = toTurtleCoord(e.clientX, x0 + (w - h) * 0.5, x, h, TURTLE_CANVAS_SIZE, TURTLE_CANVAS_OFFSET);
     let posY = -toTurtleCoord(e.clientY, y0, y, h, TURTLE_CANVAS_SIZE, TURTLE_CANVAS_OFFSET);
 
-    return [msgType, posX, posY];
+    return [msgType, posX, posY, e.button];
 }
 
 function toTurtleCoord(pixPos, edge, scrollPos, pixRange, logicRange, logicOffset) {

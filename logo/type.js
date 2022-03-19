@@ -677,6 +677,12 @@ $obj.create = function(logo, sys) {
     }
     type.bodySrcmapFromProcText = bodySrcmapFromProcText;
 
+    function getTemplateSrcmap(template) {
+        let templateSrcmap = getEmbeddedSrcmap(template);
+        return Array.isArray(templateSrcmap) ? templateSrcmap[0] : templateSrcmap;
+    }
+    type.getTemplateSrcmap = getTemplateSrcmap;
+
     function throwIf(predicate, exception, value) {
         if (predicate) {
             throw exception.withParam(
@@ -854,6 +860,11 @@ $obj.create = function(logo, sys) {
         return result.reverse().join("");
     }
     type.wordRemdup = wordRemdup;
+
+    function wordToList (word) {
+        return isLogoWord(word) ? makeLogoList([word]) : word;
+    }
+    type.wordToList = wordToList;
 
     function listFindItem(item, list) {
         let index = list.findIndex((elem, i) => i >= LIST_HEAD_SIZE && equal(item, elem));

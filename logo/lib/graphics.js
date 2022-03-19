@@ -22,6 +22,10 @@ $obj.create = function(logo, sys) {
 
     const MAX_UNDO_DEPTH = logo.constants.MAX_UNDO_DEPTH;
 
+    const MOUSE_MAIN_BUTTON = 0;
+
+    const MOUSE_SECONDARY_BUTTON = 2;
+
     const methods = {
         "forward": primitiveForward,
         "fd": primitiveForward,
@@ -140,6 +144,8 @@ $obj.create = function(logo, sys) {
 
         "floodcolor": primitiveFloodcolor,
 
+        "mouseon": primitiveMouseon,
+
         "mousepos": primitiveMousepos,
 
         "clickpos": primitiveClickpos,
@@ -169,6 +175,8 @@ $obj.create = function(logo, sys) {
     let _mouseDown = false;
 
     let _labelFont = defaultLabelFont;
+
+    let _onLeftButtonDown, _onLeftButtonUp, _onRightButtonDown, _onRightButtonUp, _onMove;
 
     function primitivePendown() {
         _penDown = true;
@@ -662,6 +670,20 @@ $obj.create = function(logo, sys) {
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
 
+    function primitiveMouseon(onLeftButtonDown, onLeftButtonUp, onRightButtonDown, onRightButtonUp, onMove) {
+        logo.type.validateInputWordOrList(onLeftButtonDown);
+        logo.type.validateInputWordOrList(onLeftButtonUp);
+        logo.type.validateInputWordOrList(onRightButtonDown);
+        logo.type.validateInputWordOrList(onRightButtonUp);
+        logo.type.validateInputWordOrList(onMove);
+
+        _onLeftButtonDown = onLeftButtonDown;
+        _onLeftButtonUp = onLeftButtonUp;
+        _onRightButtonDown = onRightButtonDown;
+        _onRightButtonUp = onRightButtonUp;
+        _onMove = onMove;
+    }
+
     function primitiveMousepos() {
         return logo.type.makeLogoList([_mouseX, _mouseY]);
     }
@@ -700,26 +722,65 @@ $obj.create = function(logo, sys) {
         return msg[2];
     }
 
-    function onMouseEvent(msg) {
+    function getMsgButton(msg) {
+        return msg[3];
+    }
+
+    async function callIOCallback(template) {
+        if (template === undefined || logo.type.isEmptyList(template)) {
+            return;
+        }
+
+        await logo.env.resetCallStackAfterExecute(async () => {
+            await logo.env.resetScopeStackAfterExecute(async () => {
+                await logo.env.catchLogoException(async () => {
+                    template = logo.type.wordToList(template);
+                    logo.type.validateInputList(template);
+                    await logo.env.callTemplate(template);
+                });
+            });
+        });
+    }
+
+    async function onMouseEvent(msg) {
         const mouseEventHandler = {
-            "move": () => {
+            "move": async () => {
                 _mouseX = getMsgPosX(msg);
                 _mouseY = getMsgPosY(msg);
+                await callIOCallback(_onMove);
             },
-            "click": () => {
+            "click": async () => {
+                _mouseX = getMsgPosX(msg);
+                _mouseY = getMsgPosY(msg);
                 _mouseClickX = getMsgPosX(msg);
                 _mouseClickY = getMsgPosY(msg);
             },
-            "down": () => {
+            "down": async () => {
+                _mouseX = getMsgPosX(msg);
+                _mouseY = getMsgPosY(msg);
                 _mouseDown = true;
+                let button = getMsgButton(msg);
+                if (button === MOUSE_MAIN_BUTTON) {
+                    await callIOCallback(_onLeftButtonDown);
+                } else if (button === MOUSE_SECONDARY_BUTTON) {
+                    await callIOCallback(_onRightButtonDown);
+                }
             },
-            "up": () => {
+            "up": async () => {
+                _mouseX = getMsgPosX(msg);
+                _mouseY = getMsgPosY(msg);
                 _mouseDown = false;
+                let button = getMsgButton(msg);
+                if (button === MOUSE_MAIN_BUTTON) {
+                    await callIOCallback(_onLeftButtonUp);
+                } else if (button === MOUSE_SECONDARY_BUTTON) {
+                    await callIOCallback(_onRightButtonUp);
+                }
             }
         };
 
         sys.assert(getMsgType(msg) in mouseEventHandler);
-        mouseEventHandler[getMsgType(msg)](msg);
+        await mouseEventHandler[getMsgType(msg)](msg);
     }
     graphics.onMouseEvent = onMouseEvent;
 

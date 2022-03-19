@@ -1,0 +1,34 @@
+Not enough inputs to mouseon
+    at 1,8	mouseon_err.lgo
+Not enough inputs to mouseon
+    at 2,11	mouseon_err.lgo
+Not enough inputs to mouseon
+    at 3,13	mouseon_err.lgo
+Not enough inputs to mouseon
+    at 4,15	mouseon_err.lgo
+Not enough inputs to mouseon
+    at 5,17	mouseon_err.lgo
+Too much inside ()'s
+    at 6,20	mouseon_err.lgo
+mouseon doesn't like {} as input
+    at 8,1	mouseon_err.lgo
+mouseon doesn't like {} as input
+    at 9,1	mouseon_err.lgo
+mouseon doesn't like {} as input
+    at 10,1	mouseon_err.lgo
+mouseon doesn't like {} as input
+    at 11,1	mouseon_err.lgo
+mouseon doesn't like {} as input
+    at 12,1	mouseon_err.lgo
+I don't know how to on_mouse_move
+    at 14,1	mouseon_err.lgo
+I don't know how to on_left_mouse_down
+    at 14,1	mouseon_err.lgo
+I don't know how to on_left_mouse_up
+    at 14,1	mouseon_err.lgo
+I don't know how to on_mouse_move
+    at 14,1	mouseon_err.lgo
+I don't know how to on_right_mouse_down
+    at 14,48	mouseon_err.lgo
+I don't know how to on_right_mouse_up
+    at 14,70	mouseon_err.lgo

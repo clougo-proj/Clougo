@@ -1,0 +1,20 @@
+mouseon
+mouseon []
+mouseon [][]
+mouseon [][][]
+mouseon [][][][]
+(mouseon [][][][][][])
+
+mouseon [][][][]{}
+mouseon [][][]{}[]
+mouseon [][]{}[][]
+mouseon []{}[][][]
+mouseon {}[][][][]
+
+mouseon "on_left_mouse_down "on_left_mouse_up [on_right_mouse_down] [on_right_mouse_up] "on_mouse_move
+;turtle mouse move 0 1
+;turtle mouse down -101.2 99.1 0
+;turtle mouse up -110.7 -1.1 0
+;turtle mouse move 100.4 -200.7
+;turtle mouse down 101.5 -99.3 2
+;turtle mouse up 111.7 1.9 2

@@ -126,31 +126,10 @@ $obj.create = function(logo, sys) {
         }
     }
 
-    function wordTemplateToList(template) {
-        return logo.type.isLogoWord(template) ? logo.type.makeLogoList([template]) : template;
-    }
-
-    function getTemplateSrcmap(template) {
-        let templateSrcmap = logo.type.getEmbeddedSrcmap(template);
-        return Array.isArray(templateSrcmap) ? templateSrcmap[0] : templateSrcmap;
-    }
-
-    async function callTemplate(template, macroExpand = false, allowRetVal = false) {
-        let srcmap = logo.env.getProcSrcmap();
-        let ret = await logo.env.applyInstrList(template, srcmap,
-            !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)), {}, undefined, macroExpand, allowRetVal);
-
-        if (!allowRetVal) {
-            logo.env.checkUnusedValue(ret, srcmap);
-        }
-
-        return ret;
-    }
-
     async function primitiveRun(template, allowRetVal = true) {
-        template = wordTemplateToList(template);
+        template = logo.type.wordToList(template);
         logo.type.validateInputList(template);
-        return await callTemplate(template, false, allowRetVal);
+        return await logo.env.callTemplate(template, false, allowRetVal);
     }
 
     async function primitiveRunresult(template) {
@@ -171,61 +150,61 @@ $obj.create = function(logo, sys) {
     }
 
     async function primitiveMacroexpand(template) {
-        template = wordTemplateToList(template);
+        template = logo.type.wordToList(template);
         logo.type.validateInputNonEmptyList(template);
         logo.type.validateInputMacro(logo.type.listFirst(template));
-        return await callTemplate(template, true, true);
+        return await logo.env.callTemplate(template, true, true);
     }
 
     async function primitiveIf(predicate, template) {
         logo.type.validateInputBoolean(predicate);
 
-        template = wordTemplateToList(template);
+        template = logo.type.wordToList(template);
         logo.type.validateInputList(template);
 
         if (logo.type.logoBoolean(predicate)) {
-            await callTemplate(template);
+            await logo.env.callTemplate(template);
         }
     }
 
     async function primitiveWhile(predicate, template) {
         logo.type.validateInputList(predicate);
 
-        template = wordTemplateToList(template);
+        template = logo.type.wordToList(template);
         logo.type.validateInputList(template);
 
-        while (await callTemplate(predicate, false, true)) {
-            await callTemplate(template);
+        while (await logo.env.callTemplate(predicate, false, true)) {
+            await logo.env.callTemplate(template);
         }
     }
 
     async function primitiveIfelse(predicate, templateTrue, templateFalse) {
         logo.type.validateInputBoolean(predicate);
 
-        templateTrue = wordTemplateToList(templateTrue);
-        templateFalse = wordTemplateToList(templateFalse);
+        templateTrue = logo.type.wordToList(templateTrue);
+        templateFalse = logo.type.wordToList(templateFalse);
 
         logo.type.validateInputList(templateTrue);
         logo.type.validateInputList(templateFalse);
 
         if (logo.type.logoBoolean(predicate)) {
-            await callTemplate(templateTrue);
+            await logo.env.callTemplate(templateTrue);
         } else {
-            await callTemplate(templateFalse);
+            await logo.env.callTemplate(templateFalse);
         }
     }
 
     async function primitiveCatch(label, template) {
         logo.type.validateInputWord(label);
-        template = wordTemplateToList(template);
+        template = logo.type.wordToList(template);
         logo.type.validateInputList(template);
 
         try {
             let srcmap = logo.env.getProcSrcmap();
             let retVal = await logo.env.applyInstrList(template, srcmap,
-                !logo.type.inSameLine(srcmap, getTemplateSrcmap(template)));
+                !logo.type.inSameLine(srcmap, logo.type.getTemplateSrcmap(template)));
             if (logo.config.get("unusedValue")) {
-                logo.env.checkUnusedValue(retVal, getTemplateSrcmap(template));
+                logo.env.checkUnusedValue(retVal, logo.type.getTemplateSrcmap(template));
             }
         } catch(e) {
             if (logo.type.LogoException.is(e) && e.isCustom()) {

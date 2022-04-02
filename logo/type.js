@@ -364,7 +364,7 @@ $obj.create = function(logo, sys) {
     type.isNamedColor = isNamedColor;
 
     function isColor(color) {
-        return isPaletteIndex(color) || logo.type.isRGBList(color) || isNamedColor(color);
+        return isPaletteIndex(color) || isRGBList(color) || isNamedColor(color);
     }
     type.isColor = isColor;
 
@@ -380,7 +380,7 @@ $obj.create = function(logo, sys) {
 
     function getRGB(color) {
         if (isPaletteIndex(color)) {
-            return logo.type.getPaletteRGB(color);
+            return getPaletteRGB(color);
         }
 
         if (isNamedColor(color)) {
@@ -432,7 +432,7 @@ $obj.create = function(logo, sys) {
     type.listMaxIndex = listMaxIndex;
 
     function listIndexWithinRange(index, list) {
-        return index >= type.LIST_ORIGIN && index <= listMaxIndex(list);
+        return index >= LIST_ORIGIN && index <= listMaxIndex(list);
     }
     type.listIndexWithinRange = listIndexWithinRange;
 
@@ -552,10 +552,10 @@ $obj.create = function(logo, sys) {
 
         for (let i in iterable) {
             let item = iterable[i];
-            if (logo.type.isLogoWord(item)) {
+            if (isLogoWord(item)) {
                 ret.push(item);
             } else {
-                Array.prototype.push.apply(ret, logo.type.unboxList(item));
+                Array.prototype.push.apply(ret, unboxList(item));
             }
 
             if (separator !== undefined) {
@@ -567,14 +567,14 @@ $obj.create = function(logo, sys) {
     }
     type.flattenList = flattenList;
 
-    function makeLogoArray(val, origin = type.ARRAY_DEFAULT_ORIGIN) {
+    function makeLogoArray(val, origin = ARRAY_DEFAULT_ORIGIN) {
         let ret = makeObject(OBJTYPE.ARRAY, val);
         ret.splice(1, 0, origin);
         return ret;
     }
     type.makeLogoArray = makeLogoArray;
 
-    function makeLogoArrayBySize(size, origin = type.ARRAY_DEFAULT_ORIGIN) {
+    function makeLogoArrayBySize(size, origin = ARRAY_DEFAULT_ORIGIN) {
         let ret = makeObject(OBJTYPE.ARRAY, Array.apply(null, Array(size)).map(() => null));
         ret.splice(1, 0, origin);
         return ret;
@@ -604,7 +604,7 @@ $obj.create = function(logo, sys) {
 
     function charToAscii(word) {
         let charCode = (typeof word === "string") ? word.charCodeAt(0) : 48 + word; // typeof word === "number"
-        throwIf(!isByteValue(charCode), type.LogoException.INVALID_INPUT, word);
+        throwIf(!isByteValue(charCode), LogoException.INVALID_INPUT, word);
         return charCode;
     }
     type.charToAscii = charToAscii;
@@ -686,7 +686,7 @@ $obj.create = function(logo, sys) {
     function throwIf(predicate, exception, value) {
         if (predicate) {
             throw exception.withParam(
-                [logo.env.getProcName(), logo.type.toString(value, true)],
+                [logo.env.getProcName(), toString(value, true)],
                 logo.env.getProcSrcmap());
         }
     }
@@ -699,123 +699,123 @@ $obj.create = function(logo, sys) {
     type.checkMinInputCount = checkMinInputCount;
 
     function validateInputBoolean(value) {
-        throwIf(!logo.type.isLogoBoolean(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isLogoBoolean(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputBoolean = validateInputBoolean;
 
     function validateInputWord(value) {
-        throwIf(!logo.type.isLogoWord(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isLogoWord(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputWord = validateInputWord;
 
     function validateInputCharacter(value) {
-        throwIf(!logo.type.isLogoCharacter(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isLogoCharacter(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputCharacter = validateInputCharacter;
 
     function validateInputInteger(value) {
-        throwIf(!sys.isInteger(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!sys.isInteger(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputInteger = validateInputInteger;
 
     function validateInputNonNegInteger(value) {
-        throwIf(!isNonNegInteger(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isNonNegInteger(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonNegInteger = validateInputNonNegInteger;
 
     function validateInputPosInteger(value) {
-        throwIf(!isPosInteger(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isPosInteger(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputPosInteger = validateInputPosInteger;
 
     function validateInputNumber(value) {
-        throwIf(!logo.type.isLogoNumber(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isLogoNumber(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputNumber = validateInputNumber;
 
     function validateNumber(value, exception, srcmap, exceptionParam) {
-        if (!logo.type.isLogoNumber(value)) {
+        if (!isLogoNumber(value)) {
             throw exception.withParam(exceptionParam, srcmap);
         }
     }
     type.validateNumber = validateNumber;
 
     function validateInputNonNegNumber(value) {
-        throwIf(!(logo.type.isLogoNumber(value) && value >= 0), type.LogoException.INVALID_INPUT, value);
+        throwIf(!(isLogoNumber(value) && value >= 0), LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonNegNumber = validateInputNonNegNumber;
 
     function validateInputPosNumber(value) {
-        throwIf(!(logo.type.isLogoNumber(value) && value > 0), type.LogoException.INVALID_INPUT, value);
+        throwIf(!(isLogoNumber(value) && value > 0), LogoException.INVALID_INPUT, value);
     }
     type.validateInputPosNumber = validateInputPosNumber;
 
     function validateInputNonEmptyWord(value) {
-        throwIf(!(logo.type.isLogoWord(value) && value.length >= 1), type.LogoException.INVALID_INPUT, value);
+        throwIf(!(isLogoWord(value) && value.length >= 1), LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonEmptyWord = validateInputNonEmptyWord;
 
     function validateIndexWithinWordRange(index, word) {
-        throwIf(index < 1 || index > word.length, type.LogoException.INVALID_INPUT, index);
+        throwIf(index < 1 || index > word.length, LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinWordRange = validateIndexWithinWordRange;
 
     function validateInputList(value) {
-        throwIf(!logo.type.isLogoList(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isLogoList(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputList = validateInputList;
 
     function validateInputWordOrList(value) {
-        throwIf(!logo.type.isLogoWord(value) && !logo.type.isLogoList(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isLogoWord(value) && !isLogoList(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputWordOrList = validateInputWordOrList;
 
     function validateInputNonEmptyList(value) {
-        throwIf(!(logo.type.isLogoList(value) && logo.type.length(value) >= 1), type.LogoException.INVALID_INPUT, value);
+        throwIf(!(isLogoList(value) && length(value) >= 1), LogoException.INVALID_INPUT, value);
     }
     type.validateInputNonEmptyList = validateInputNonEmptyList;
 
     function validateInputRGB(value) {
-        throwIf(!logo.type.isColor(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isColor(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputRGB = validateInputRGB;
 
     function validateInputPensize(value) {
-        throwIf(!((sys.isInteger(value) && value > 0) || (logo.type.isLogoList(value) &&
-            logo.type.length(value) == 2 && listItem(1, value) > 0 && listItem(2, value) > 0)),
-        type.LogoException.INVALID_INPUT, value);
+        throwIf(!((sys.isInteger(value) && value > 0) || (isLogoList(value) &&
+            length(value) == 2 && listItem(1, value) > 0 && listItem(2, value) > 0)),
+        LogoException.INVALID_INPUT, value);
     }
     type.validateInputPensize = validateInputPensize;
 
     function validateInputXY(value) {
-        throwIf(!(logo.type.isLogoList(value) && logo.type.length(value) == 2 && logo.type.isLogoNumber(
-            logo.type.listItem(1, value)) && logo.type.isLogoNumber(logo.type.listItem(2, value))),
-        type.LogoException.INVALID_INPUT, value);
+        throwIf(!(isLogoList(value) && length(value) == 2 && isLogoNumber(
+            listItem(1, value)) && isLogoNumber(listItem(2, value))),
+        LogoException.INVALID_INPUT, value);
     }
     type.validateInputXY = validateInputXY;
 
     function validateInputMacro(name) {
-        throwIf(!(logo.env.isMacro(name) && logo.env.isCallableProc(name)), type.LogoException.NOT_MACRO, name);
+        throwIf(!(logo.env.isMacro(name) && logo.env.isCallableProc(name)), LogoException.NOT_MACRO, name);
     }
     type.validateInputMacro = validateInputMacro;
 
     function validateIndexWithinListRange(index, list) {
-        throwIf(!logo.type.listIndexWithinRange(index, list), type.LogoException.INVALID_INPUT, index);
+        throwIf(!listIndexWithinRange(index, list), LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinListRange = validateIndexWithinListRange;
 
     function validateInputArray(value) {
-        throwIf(!logo.type.isLogoArray(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isLogoArray(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputArray = validateInputArray;
 
     function validateInputByte(value) {
-        throwIf(!logo.type.isByteValue(value), type.LogoException.INVALID_INPUT, value);
+        throwIf(!isByteValue(value), LogoException.INVALID_INPUT, value);
     }
     type.validateInputByte = validateInputByte;
 
     function validateIndexWithinArrayRange(index, array) {
-        throwIf(!logo.type.arrayIndexWithinRange(index, array), type.LogoException.INVALID_INPUT, index);
+        throwIf(!arrayIndexWithinRange(index, array), LogoException.INVALID_INPUT, index);
     }
     type.validateIndexWithinArrayRange = validateIndexWithinArrayRange;
 
@@ -873,7 +873,7 @@ $obj.create = function(logo, sys) {
     type.listFindItem = listFindItem;
 
     function listSubset(list, indexStart) {
-        return logo.type.makeLogoList(unboxList(list).slice(indexStart - 1));
+        return makeLogoList(unboxList(list).slice(indexStart - 1));
     }
     type.listSubset = listSubset;
 
@@ -1091,7 +1091,7 @@ $obj.create = function(logo, sys) {
             return false;
         }
 
-        throw type.LogoException.INVALID_INPUT.withParam([name, logo.type.toString(value, true)],
+        throw LogoException.INVALID_INPUT.withParam([name, toString(value, true)],
             srcmap);
     }
     type.isLogoBooleanTrue = isLogoBooleanTrue;
@@ -1173,7 +1173,7 @@ $obj.create = function(logo, sys) {
     function getVarValue(varname, srcmap) {
         const curScope = logo.env.findLogoVarScope(varname);
         if (!(varname in curScope)) {
-            throw type.LogoException.VAR_HAS_NO_VALUE.withParam([varname], srcmap);
+            throw LogoException.VAR_HAS_NO_VALUE.withParam([varname], srcmap);
         }
 
         return curScope[varname];
@@ -1246,13 +1246,13 @@ $obj.create = function(logo, sys) {
         }
 
         function toStringHelper(v) {
-            return type.isLogoList(v) ? "[" +  unboxList(v).map(toStringHelper).join(" ") + "]" :
-                type.isLogoArray(v) ? "{" +  unboxArray(v).map(toStringHelper).join(" ") + "}" :
-                    type.isLogoPlist(v) ? toStringHelper(plistToList(v)) :
+            return isLogoList(v) ? "[" +  unboxList(v).map(toStringHelper).join(" ") + "]" :
+                isLogoArray(v) ? "{" +  unboxArray(v).map(toStringHelper).join(" ") + "}" :
+                    isLogoPlist(v) ? toStringHelper(plistToList(v)) :
                         v === null ? "[]" : scalarToString(v);
         }
 
-        return (type.isLogoArray(v) || (outterBracket && type.isLogoList(v)) || isLogoPlist(v)) ? toStringHelper(v) :
+        return (isLogoArray(v) || (outterBracket && isLogoList(v)) || isLogoPlist(v)) ? toStringHelper(v) :
             unboxList(v).map(toStringHelper).join(" ");
     }
     type.toString = toString;
@@ -1311,8 +1311,8 @@ $obj.create = function(logo, sys) {
                 }
 
                 return sys.isUndefined(this._value) ? msg :
-                    msg.replace(/\{0\}/g, logo.type.toString(this._value[0], true))
-                        .replace(/\{1\}/g, logo.type.toString(this._value[1], true));
+                    msg.replace(/\{0\}/g, toString(this._value[0], true))
+                        .replace(/\{1\}/g, toString(this._value[1], true));
             }
         };
 

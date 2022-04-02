@@ -10,3 +10,7 @@ showTurtle
     [turtle_tracks_mouse pe setpensize 10 pd]
     [pu]
     [turtle_tracks_mouse])
+
+wait 600
+
+mouseoff

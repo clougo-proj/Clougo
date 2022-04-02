@@ -146,6 +146,8 @@ $obj.create = function(logo, sys) {
 
         "mouseon": primitiveMouseon,
 
+        "mouseoff": primitiveMouseoff,
+
         "mousepos": primitiveMousepos,
 
         "clickpos": primitiveClickpos,
@@ -682,6 +684,14 @@ $obj.create = function(logo, sys) {
         _onRightButtonDown = onRightButtonDown;
         _onRightButtonUp = onRightButtonUp;
         _onMove = onMove;
+    }
+
+    function primitiveMouseoff() {
+        _onLeftButtonDown = undefined;
+        _onLeftButtonUp = undefined;
+        _onRightButtonDown = undefined;
+        _onRightButtonUp = undefined;
+        _onMove = undefined;
     }
 
     function primitiveMousepos() {

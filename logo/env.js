@@ -984,7 +984,9 @@ $obj.create = function(logo, sys, ext) {
                     if (isInterpretedCommand(line)) {
                         ret = await logoExecHelper(line.substring(2), false, srcidx, i);
                     } else if (isTurtleCanvasMouseEvent(line)) {
-                        await logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).onMouseEvent(mockEventFromLine(line));
+                        await logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).onMouseEvent(mockMouseEventFromLine(line));
+                    } else if (isTurtleCanvasKeyboardEvent(line)) {
+                        await logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).onKeyboardEvent(mockKeyboardEventFromLine(line));
                     } else {
                         ret = await logoExecHelper(line, genjs, srcidx, i);
                     }
@@ -1005,9 +1007,20 @@ $obj.create = function(logo, sys, ext) {
         return line.length > pattern.length && line.substring(0, pattern.length) == pattern;
     }
 
-    function mockEventFromLine(line) {
+    function mockMouseEventFromLine(line) {
         const eventStart = 2;
         return line.trim().split(" ").slice(eventStart).map(sys.toNumberIfApplicable);
+    }
+
+    function isTurtleCanvasKeyboardEvent(line) {
+        const pattern = ";turtle keyboard ";
+        return line.length > pattern.length && line.substring(0, pattern.length) == pattern;
+    }
+
+    function mockKeyboardEventFromLine(line) {
+        const eventStart = 2;
+        let tokens = line.trim().split(" ").slice(eventStart);
+        return [tokens[0], {"key": tokens[1], "code": tokens[2]}];
     }
 
     function throwRuntimeLogoException(exception, srcmap, value) { // eslint-disable-line no-unused-vars

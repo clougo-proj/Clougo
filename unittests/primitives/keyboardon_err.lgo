@@ -1,0 +1,13 @@
+keyboardon
+(keyboardon [][][][][])
+
+keyboardon {}
+(keyboardon []{})
+(keyboardon {}[])
+
+keyboardon "on_key_down
+;turtle keyboard down A keyA
+
+(keyboardon "on_key_down "on_key_up)
+;turtle keyboard down A KeyA
+;turtle keyboard up A KeyA

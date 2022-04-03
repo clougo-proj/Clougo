@@ -1,0 +1,540 @@
+
+down+up Backspace Backspace
+down_keyboardvalue=8
+up_keyboardvalue=8
+
+down+up Tab Tab
+down_keyboardvalue=9
+up_keyboardvalue=9
+
+down+up Enter Enter
+down_keyboardvalue=13
+up_keyboardvalue=13
+
+down+up Shift ShiftLeft
+down_keyboardvalue=16
+up_keyboardvalue=16
+
+down+up Shift ShiftRight
+down_keyboardvalue=16
+up_keyboardvalue=16
+
+down+up Control ControlLeft
+down_keyboardvalue=17
+up_keyboardvalue=17
+
+down+up Control ControlRight
+down_keyboardvalue=17
+up_keyboardvalue=17
+
+down+up Alt AltLeft
+down_keyboardvalue=18
+up_keyboardvalue=18
+
+down+up Alt AltRight
+down_keyboardvalue=18
+up_keyboardvalue=18
+
+down+up Pause Pause
+down_keyboardvalue=19
+up_keyboardvalue=19
+
+down+up CapsLock CapsLock
+down_keyboardvalue=20
+up_keyboardvalue=20
+
+down+up Escape Escape
+down_keyboardvalue=27
+up_keyboardvalue=27
+
+down+up Space Space
+down_keyboardvalue=32
+up_keyboardvalue=32
+
+down+up PageUp PageUp
+down_keyboardvalue=33
+up_keyboardvalue=33
+
+down+up PageDown PageDown
+down_keyboardvalue=34
+up_keyboardvalue=34
+
+down+up End End
+down_keyboardvalue=35
+up_keyboardvalue=35
+
+down+up Home Home
+down_keyboardvalue=36
+up_keyboardvalue=36
+
+down+up ArrowLeft ArrowLeft
+down_keyboardvalue=37
+up_keyboardvalue=37
+
+down+up ArrowUp ArrowUp
+down_keyboardvalue=38
+up_keyboardvalue=38
+
+down+up ArrowRight ArrowRight
+down_keyboardvalue=39
+up_keyboardvalue=39
+
+down+up ArrowDown ArrowDown
+down_keyboardvalue=40
+up_keyboardvalue=40
+
+down+up PrintScreen PrintScreen
+down_keyboardvalue=44
+up_keyboardvalue=44
+
+down+up Insert Insert
+down_keyboardvalue=45
+up_keyboardvalue=45
+
+down+up Delete Delete
+down_keyboardvalue=46
+up_keyboardvalue=46
+
+down+up 0 Digit0
+down_keyboardvalue=48
+up_keyboardvalue=48
+
+down+up 1 Digit1
+down_keyboardvalue=49
+up_keyboardvalue=49
+
+down+up 2 Digit2
+down_keyboardvalue=50
+up_keyboardvalue=50
+
+down+up 3 Digit3
+down_keyboardvalue=51
+up_keyboardvalue=51
+
+down+up 4 Digit4
+down_keyboardvalue=52
+up_keyboardvalue=52
+
+down+up 5 Digit5
+down_keyboardvalue=53
+up_keyboardvalue=53
+
+down+up 6 Digit6
+down_keyboardvalue=54
+up_keyboardvalue=54
+
+down+up 7 Digit7
+down_keyboardvalue=55
+up_keyboardvalue=55
+
+down+up 8 Digit8
+down_keyboardvalue=56
+up_keyboardvalue=56
+
+down+up 9 Digit9
+down_keyboardvalue=57
+up_keyboardvalue=57
+
+down+up A KeyA
+down_keyboardvalue=65
+up_keyboardvalue=65
+
+down+up B KeyB
+down_keyboardvalue=66
+up_keyboardvalue=66
+
+down+up C KeyC
+down_keyboardvalue=67
+up_keyboardvalue=67
+
+down+up D KeyD
+down_keyboardvalue=68
+up_keyboardvalue=68
+
+down+up E KeyE
+down_keyboardvalue=69
+up_keyboardvalue=69
+
+down+up F KeyF
+down_keyboardvalue=70
+up_keyboardvalue=70
+
+down+up G KeyG
+down_keyboardvalue=71
+up_keyboardvalue=71
+
+down+up H KeyH
+down_keyboardvalue=72
+up_keyboardvalue=72
+
+down+up H KeyI
+down_keyboardvalue=73
+up_keyboardvalue=73
+
+down+up J KeyJ
+down_keyboardvalue=74
+up_keyboardvalue=74
+
+down+up K KeyK
+down_keyboardvalue=75
+up_keyboardvalue=75
+
+down+up L KeyL
+down_keyboardvalue=76
+up_keyboardvalue=76
+
+down+up M KeyM
+down_keyboardvalue=77
+up_keyboardvalue=77
+
+down+up N KeyN
+down_keyboardvalue=78
+up_keyboardvalue=78
+
+down+up O KeyO
+down_keyboardvalue=79
+up_keyboardvalue=79
+
+down+up P KeyP
+down_keyboardvalue=80
+up_keyboardvalue=80
+
+down+up Q KeyQ
+down_keyboardvalue=81
+up_keyboardvalue=81
+
+down+up R KeyR
+down_keyboardvalue=82
+up_keyboardvalue=82
+
+down+up S KeyS
+down_keyboardvalue=83
+up_keyboardvalue=83
+
+down+up T KeyT
+down_keyboardvalue=84
+up_keyboardvalue=84
+
+down+up U KeyU
+down_keyboardvalue=85
+up_keyboardvalue=85
+
+down+up V KeyV
+down_keyboardvalue=86
+up_keyboardvalue=86
+
+down+up W KeyW
+down_keyboardvalue=87
+up_keyboardvalue=87
+
+down+up X KeyX
+down_keyboardvalue=88
+up_keyboardvalue=88
+
+down+up Y KeyY
+down_keyboardvalue=89
+up_keyboardvalue=89
+
+down+up Z KeyZ
+down_keyboardvalue=90
+up_keyboardvalue=90
+
+down+up a KeyA
+down_keyboardvalue=65
+up_keyboardvalue=65
+
+down+up b KeyB
+down_keyboardvalue=66
+up_keyboardvalue=66
+
+down+up c KeyC
+down_keyboardvalue=67
+up_keyboardvalue=67
+
+down+up d KeyD
+down_keyboardvalue=68
+up_keyboardvalue=68
+
+down+up e KeyE
+down_keyboardvalue=69
+up_keyboardvalue=69
+
+down+up f KeyF
+down_keyboardvalue=70
+up_keyboardvalue=70
+
+down+up g KeyG
+down_keyboardvalue=71
+up_keyboardvalue=71
+
+down+up h KeyH
+down_keyboardvalue=72
+up_keyboardvalue=72
+
+down+up i KeyI
+down_keyboardvalue=73
+up_keyboardvalue=73
+
+down+up j KeyJ
+down_keyboardvalue=74
+up_keyboardvalue=74
+
+down+up k KeyK
+down_keyboardvalue=75
+up_keyboardvalue=75
+
+down+up l KeyL
+down_keyboardvalue=76
+up_keyboardvalue=76
+
+down+up m KeyM
+down_keyboardvalue=77
+up_keyboardvalue=77
+
+down+up n KeyN
+down_keyboardvalue=78
+up_keyboardvalue=78
+
+down+up o KeyO
+down_keyboardvalue=79
+up_keyboardvalue=79
+
+down+up p KeyP
+down_keyboardvalue=80
+up_keyboardvalue=80
+
+down+up q KeyQ
+down_keyboardvalue=81
+up_keyboardvalue=81
+
+down+up r KeyR
+down_keyboardvalue=82
+up_keyboardvalue=82
+
+down+up s KeyS
+down_keyboardvalue=83
+up_keyboardvalue=83
+
+down+up t KeyT
+down_keyboardvalue=84
+up_keyboardvalue=84
+
+down+up u KeyU
+down_keyboardvalue=85
+up_keyboardvalue=85
+
+down+up v KeyV
+down_keyboardvalue=86
+up_keyboardvalue=86
+
+down+up w KeyW
+down_keyboardvalue=87
+up_keyboardvalue=87
+
+down+up x KeyX
+down_keyboardvalue=88
+up_keyboardvalue=88
+
+down+up y KeyY
+down_keyboardvalue=89
+up_keyboardvalue=89
+
+down+up z KeyZ
+down_keyboardvalue=90
+up_keyboardvalue=90
+
+down+up Meta MetaLeft
+down_keyboardvalue=91
+up_keyboardvalue=91
+
+down+up Meta MetaRight
+down_keyboardvalue=92
+up_keyboardvalue=92
+
+down+up ContextMenu ContextMenu
+down_keyboardvalue=93
+up_keyboardvalue=93
+
+down+up 0 Numpad0
+down_keyboardvalue=96
+up_keyboardvalue=96
+
+down+up 1 Numpad1
+down_keyboardvalue=97
+up_keyboardvalue=97
+
+down+up 2 Numpad2
+down_keyboardvalue=98
+up_keyboardvalue=98
+
+down+up 3 Numpad3
+down_keyboardvalue=99
+up_keyboardvalue=99
+
+down+up 4 Numpad4
+down_keyboardvalue=100
+up_keyboardvalue=100
+
+down+up 5 Numpad5
+down_keyboardvalue=101
+up_keyboardvalue=101
+
+down+up 6 Numpad6
+down_keyboardvalue=102
+up_keyboardvalue=102
+
+down+up 7 Numpad7
+down_keyboardvalue=103
+up_keyboardvalue=103
+
+down+up 8 Numpad8
+down_keyboardvalue=104
+up_keyboardvalue=104
+
+down+up 9 Numpad9
+down_keyboardvalue=105
+up_keyboardvalue=105
+
+down+up * NumpadMultiply
+down_keyboardvalue=106
+up_keyboardvalue=106
+
+down+up + NumpadAdd
+down_keyboardvalue=107
+up_keyboardvalue=107
+
+down+up - NumpadSubtract
+down_keyboardvalue=109
+up_keyboardvalue=109
+
+down+up . NumpadDecimal
+down_keyboardvalue=110
+up_keyboardvalue=110
+
+down+up / NumpadDivide
+down_keyboardvalue=111
+up_keyboardvalue=111
+
+down+up F1 F1
+down_keyboardvalue=112
+up_keyboardvalue=112
+
+down+up F2 F2
+down_keyboardvalue=113
+up_keyboardvalue=113
+
+down+up F3 F3
+down_keyboardvalue=114
+up_keyboardvalue=114
+
+down+up F4 F4
+down_keyboardvalue=115
+up_keyboardvalue=115
+
+down+up F5 F5
+down_keyboardvalue=116
+up_keyboardvalue=116
+
+down+up F6 F6
+down_keyboardvalue=117
+up_keyboardvalue=117
+
+down+up F7 F7
+down_keyboardvalue=118
+up_keyboardvalue=118
+
+down+up F8 F8
+down_keyboardvalue=119
+up_keyboardvalue=119
+
+down+up F9 F9
+down_keyboardvalue=120
+up_keyboardvalue=120
+
+down+up F10 F10
+down_keyboardvalue=121
+up_keyboardvalue=121
+
+down+up F11 F11
+down_keyboardvalue=122
+up_keyboardvalue=122
+
+down+up F12 F12
+down_keyboardvalue=123
+up_keyboardvalue=123
+
+down+up NumLock NumLock
+down_keyboardvalue=144
+up_keyboardvalue=144
+
+down+up ScrollLock ScrollLock
+down_keyboardvalue=145
+up_keyboardvalue=145
+
+down+up AudioVolumeMute
+down_keyboardvalue=173
+up_keyboardvalue=173
+
+down+up AudioVolumeDown
+down_keyboardvalue=174
+up_keyboardvalue=174
+
+down+up AudioVolumeUp
+down_keyboardvalue=175
+up_keyboardvalue=175
+
+down+up LaunchMediaPlayer
+down_keyboardvalue=181
+up_keyboardvalue=181
+
+down+up LaunchApplication1
+down_keyboardvalue=182
+up_keyboardvalue=182
+
+down+up LaunchApplication2
+down_keyboardvalue=183
+up_keyboardvalue=183
+
+down+up ; Semicolon
+down_keyboardvalue=186
+up_keyboardvalue=186
+
+down+up = Equal
+down_keyboardvalue=187
+up_keyboardvalue=187
+
+down+up , Comma
+down_keyboardvalue=188
+up_keyboardvalue=188
+
+down+up - Minus
+down_keyboardvalue=189
+up_keyboardvalue=189
+
+down+up . Period
+down_keyboardvalue=190
+up_keyboardvalue=190
+
+down+up / Slash
+down_keyboardvalue=191
+up_keyboardvalue=191
+
+down+up ` Backquote
+down_keyboardvalue=192
+up_keyboardvalue=192
+
+down+up [ BracketLeft
+down_keyboardvalue=219
+up_keyboardvalue=219
+
+down+up \ Backslash
+down_keyboardvalue=220
+up_keyboardvalue=220
+
+down+up ] BracketRight
+down_keyboardvalue=221
+up_keyboardvalue=221
+
+down+up ' Quote
+down_keyboardvalue=222
+up_keyboardvalue=222

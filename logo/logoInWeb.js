@@ -121,6 +121,10 @@ $obj.create = function logoInWeb(Logo, sys) { // eslint-disable-line no-unused-v
             postMessage([LOGO_EVENT.READY]);
         };
 
+        webMsgHandler[LOGO_METHOD.KEYBOARD_EVENT] = function(e) {
+            logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).onKeyboardEvent(getMsgBody(e));
+        };
+
         webMsgHandler[LOGO_METHOD.MOUSE_EVENT] = function(e) {
             logo.lrt.util.getLibrary(LOGO_LIBRARY.GRAPHICS).onMouseEvent(getMsgBody(e));
         };

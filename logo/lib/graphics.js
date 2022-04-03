@@ -22,6 +22,10 @@ $obj.create = function(logo, sys) {
 
     const MAX_UNDO_DEPTH = logo.constants.MAX_UNDO_DEPTH;
 
+    const KEYBOARD_EVENT_CODE_CODE = logo.constants.KEYBOARD_EVENT_CODE_CODE;
+
+    const KEYBOARD_EVENT_KEY_CODE = logo.constants.KEYBOARD_EVENT_KEY_CODE;
+
     const MOUSE_MAIN_BUTTON = 0;
 
     const MOUSE_SECONDARY_BUTTON = 2;
@@ -144,6 +148,12 @@ $obj.create = function(logo, sys) {
 
         "floodcolor": primitiveFloodcolor,
 
+        "keyboardon": [primitiveKeyboardon, "keydown [keyup .novalue]"],
+
+        "keyboardoff": primitiveKeyboardoff,
+
+        "keyboardvalue": primitiveKeyboardvalue,
+
         "mouseon": primitiveMouseon,
 
         "mouseoff": primitiveMouseoff,
@@ -177,6 +187,9 @@ $obj.create = function(logo, sys) {
     let _mouseDown = false;
 
     let _labelFont = defaultLabelFont;
+
+    let _onKeyDown, _onKeyUp;
+    let _lastKeyboardValue = 0;
 
     let _onLeftButtonDown, _onLeftButtonUp, _onRightButtonDown, _onRightButtonUp, _onMove;
 
@@ -672,6 +685,25 @@ $obj.create = function(logo, sys) {
         logo.ext.canvas.sendCmd("moveto", [_turtleX, _turtleY, _turtleHeading]);
     }
 
+    function primitiveKeyboardon(onKeyDown, onKeyUp = undefined) {
+        logo.type.validateInputWordOrList(onKeyDown);
+        if (onKeyUp !== undefined) {
+            logo.type.validateInputWordOrList(onKeyUp);
+        }
+
+        _onKeyDown = onKeyDown;
+        _onKeyUp = onKeyUp;
+    }
+
+    function primitiveKeyboardoff() {
+        _onKeyDown = undefined;
+        _onKeyUp = undefined;
+    }
+
+    function primitiveKeyboardvalue() {
+        return _lastKeyboardValue;
+    }
+
     function primitiveMouseon(onLeftButtonDown, onLeftButtonUp, onRightButtonDown, onRightButtonUp, onMove) {
         logo.type.validateInputWordOrList(onLeftButtonDown);
         logo.type.validateInputWordOrList(onLeftButtonUp);
@@ -720,22 +752,6 @@ $obj.create = function(logo, sys) {
         _turtleHeading = turtleState.heading;
     }
 
-    function getMsgType(msg) {
-        return msg[0];
-    }
-
-    function getMsgPosX(msg) {
-        return msg[1];
-    }
-
-    function getMsgPosY(msg) {
-        return msg[2];
-    }
-
-    function getMsgButton(msg) {
-        return msg[3];
-    }
-
     async function callIOCallback(template) {
         if (template === undefined || logo.type.isEmptyList(template)) {
             return;
@@ -752,24 +768,96 @@ $obj.create = function(logo, sys) {
         });
     }
 
+    async function onKeyboardEvent(msg) {
+        function getKeyboardMsgType(msg) {
+            return msg[0];
+        }
+
+        function getKeyboardMsgEvent(msg) {
+            return msg[1];
+        }
+
+        function isCharacter(event) {
+            return event.key.length === 1 || event.code === "Tab";
+        }
+
+        function getCharacterCode(event) {
+            return event.key.length === 1 ? event.key.charCodeAt(0) :
+                event.code === "Tab" ? KEYBOARD_EVENT_CODE_CODE.Tab : 0;
+        }
+
+        function getKeyCode(event) {
+            return event.code in KEYBOARD_EVENT_CODE_CODE ? KEYBOARD_EVENT_CODE_CODE[event.code] :
+                event.key in KEYBOARD_EVENT_KEY_CODE ? KEYBOARD_EVENT_KEY_CODE[event.key] : 0;
+        }
+
+        function expectCharacterCode() {
+            return _onKeyDown !== undefined && _onKeyUp === undefined;
+        }
+
+        function expectKeyCode() {
+            return _onKeyDown !== undefined && _onKeyUp !== undefined;
+        }
+
+        const keyboardEventHandler = {
+            "down": async () => {
+                let event = getKeyboardMsgEvent(msg);
+                if (expectCharacterCode() && isCharacter(event)) {
+                    _lastKeyboardValue = getCharacterCode(event);
+                    await callIOCallback(_onKeyDown);
+                } else if (expectKeyCode()) {
+                    _lastKeyboardValue = getKeyCode(event);
+                    await callIOCallback(_onKeyDown);
+                }
+            },
+            "up": async () => {
+                let event = getKeyboardMsgEvent(msg);
+                if (expectKeyCode()) {
+                    _lastKeyboardValue = getKeyCode(event);
+                    await callIOCallback(_onKeyUp);
+                }
+            }
+        };
+
+        sys.assert(getKeyboardMsgType(msg) in keyboardEventHandler);
+        await keyboardEventHandler[getKeyboardMsgType(msg)]();
+    }
+    graphics.onKeyboardEvent = onKeyboardEvent;
+
     async function onMouseEvent(msg) {
+        function getMouseMsgType(msg) {
+            return msg[0];
+        }
+
+        function getMouseMsgPosX(msg) {
+            return msg[1];
+        }
+
+        function getMouseMsgPosY(msg) {
+            return msg[2];
+        }
+
+        function getMouseMsgButton(msg) {
+            return msg[3];
+        }
+
         const mouseEventHandler = {
             "move": async () => {
-                _mouseX = getMsgPosX(msg);
-                _mouseY = getMsgPosY(msg);
+                _mouseX = getMouseMsgPosX(msg);
+                _mouseY = getMouseMsgPosY(msg);
                 await callIOCallback(_onMove);
             },
             "click": async () => {
-                _mouseX = getMsgPosX(msg);
-                _mouseY = getMsgPosY(msg);
-                _mouseClickX = getMsgPosX(msg);
-                _mouseClickY = getMsgPosY(msg);
+                _mouseX = getMouseMsgPosX(msg);
+                _mouseY = getMouseMsgPosY(msg);
+                _mouseClickX = getMouseMsgPosX(msg);
+                _mouseClickY = getMouseMsgPosY(msg);
             },
             "down": async () => {
-                _mouseX = getMsgPosX(msg);
-                _mouseY = getMsgPosY(msg);
+                _mouseX = getMouseMsgPosX(msg);
+                _mouseY = getMouseMsgPosY(msg);
                 _mouseDown = true;
-                let button = getMsgButton(msg);
+                let button = getMouseMsgButton(msg);
                 if (button === MOUSE_MAIN_BUTTON) {
                     await callIOCallback(_onLeftButtonDown);
                 } else if (button === MOUSE_SECONDARY_BUTTON) {
@@ -777,10 +865,10 @@ $obj.create = function(logo, sys) {
                 }
             },
             "up": async () => {
-                _mouseX = getMsgPosX(msg);
-                _mouseY = getMsgPosY(msg);
+                _mouseX = getMouseMsgPosX(msg);
+                _mouseY = getMouseMsgPosY(msg);
                 _mouseDown = false;
-                let button = getMsgButton(msg);
+                let button = getMouseMsgButton(msg);
                 if (button === MOUSE_MAIN_BUTTON) {
                     await callIOCallback(_onLeftButtonUp);
                 } else if (button === MOUSE_SECONDARY_BUTTON) {
@@ -789,8 +877,8 @@ $obj.create = function(logo, sys) {
             }
         };
 
-        sys.assert(getMsgType(msg) in mouseEventHandler);
-        await mouseEventHandler[getMsgType(msg)](msg);
+        sys.assert(getMouseMsgType(msg) in mouseEventHandler);
+        await mouseEventHandler[getMouseMsgType(msg)]();
     }
     graphics.onMouseEvent = onMouseEvent;
 

@@ -331,6 +331,11 @@ $obj.create = function(logo, sys) {
     }
     type.isLogoList = isLogoList;
 
+    function isAscii(value) {
+        return sys.isInteger(value) && value >= 0 && value <= 127;
+    }
+    type.isAscii = isAscii;
+
     function isByteValue(value) {
         return sys.isInteger(value) && value >= 0 && value <= 255;
     }
@@ -604,7 +609,7 @@ $obj.create = function(logo, sys) {
 
     function charToAscii(word) {
         let charCode = (typeof word === "string") ? word.charCodeAt(0) : 48 + word; // typeof word === "number"
-        throwIf(!isByteValue(charCode), LogoException.INVALID_INPUT, word);
+        throwIf(!isAscii(charCode), LogoException.INVALID_INPUT, word);
         return charCode;
     }
     type.charToAscii = charToAscii;

@@ -1,0 +1,14 @@
+keyboardon [pr keyboardvalue]
+65
+97
+1092
+
+(keyboardon [pr word "down= keyboardvalue] [pr word "up= keyboardvalue] )
+down=65
+up=65
+down=65
+up=65
+down=65
+up=65
+
+keyboardoff

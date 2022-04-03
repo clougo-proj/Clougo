@@ -1,0 +1,22 @@
+print [keyboardon [pr keyboardvalue]]
+keyboardon [pr keyboardvalue]
+;turtle keyboard down A KeyA
+;turtle keyboard down a KeyA
+;turtle keyboard down ф KeyA
+
+print "
+print [(keyboardon [pr word "down= keyboardvalue] [pr word "up= keyboardvalue])]
+(keyboardon [pr word "down= keyboardvalue] [pr word "up= keyboardvalue])
+;turtle keyboard down A KeyA
+;turtle keyboard up A KeyA
+;turtle keyboard down a KeyA
+;turtle keyboard up a KeyA
+;turtle keyboard down ф KeyA
+;turtle keyboard up ф KeyA
+
+print "
+print [keyboardoff]
+keyboardoff
+;turtle keyboard down A KeyA
+;turtle keyboard down a KeyA
+;turtle keyboard down ф KeyA

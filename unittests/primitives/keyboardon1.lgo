@@ -1,0 +1,406 @@
+keyboardon [pr (word "keyboardvalue= keyboardvalue)]
+print (list "\ndown+up "Backspace "Backspace )
+;turtle keyboard down Backspace Backspace
+;turtle keyboard up Backspace Backspace
+print (list "\ndown+up "Tab "Tab )
+;turtle keyboard down Tab Tab
+;turtle keyboard up Tab Tab
+print (list "\ndown+up "Enter "Enter )
+;turtle keyboard down Enter Enter
+;turtle keyboard up Enter Enter
+print (list "\ndown+up "Shift "ShiftLeft )
+;turtle keyboard down Shift ShiftLeft
+;turtle keyboard up Shift ShiftLeft
+print (list "\ndown+up "Shift "ShiftRight )
+;turtle keyboard down Shift ShiftRight
+;turtle keyboard up Shift ShiftRight
+print (list "\ndown+up "Control "ControlLeft )
+;turtle keyboard down Control ControlLeft
+;turtle keyboard up Control ControlLeft
+print (list "\ndown+up "Control "ControlRight )
+;turtle keyboard down Control ControlRight
+;turtle keyboard up Control ControlRight
+print (list "\ndown+up "Alt "AltLeft )
+;turtle keyboard down Alt AltLeft
+;turtle keyboard up Alt AltLeft
+print (list "\ndown+up "Alt "AltRight )
+;turtle keyboard down Alt AltRight
+;turtle keyboard up Alt AltRight
+print (list "\ndown+up "Pause "Pause )
+;turtle keyboard down Pause Pause
+;turtle keyboard up Pause Pause
+print (list "\ndown+up "CapsLock "CapsLock )
+;turtle keyboard down CapsLock CapsLock
+;turtle keyboard up CapsLock CapsLock
+print (list "\ndown+up "Escape "Escape )
+;turtle keyboard down Escape Escape
+;turtle keyboard up Escape Escape
+print (list "\ndown+up "Space "Space )
+;turtle keyboard down Space Space
+;turtle keyboard up Space Space
+print (list "\ndown+up "PageUp "PageUp )
+;turtle keyboard down PageUp PageUp
+;turtle keyboard up PageUp PageUp
+print (list "\ndown+up "PageDown "PageDown )
+;turtle keyboard down PageDown PageDown
+;turtle keyboard up PageDown PageDown
+print (list "\ndown+up "End "End )
+;turtle keyboard down End End
+;turtle keyboard up End End
+print (list "\ndown+up "Home "Home )
+;turtle keyboard down Home Home
+;turtle keyboard up Home Home
+print (list "\ndown+up "ArrowLeft "ArrowLeft )
+;turtle keyboard down ArrowLeft ArrowLeft
+;turtle keyboard up ArrowLeft ArrowLeft
+print (list "\ndown+up "ArrowUp "ArrowUp )
+;turtle keyboard down ArrowUp ArrowUp
+;turtle keyboard up ArrowUp ArrowUp
+print (list "\ndown+up "ArrowRight "ArrowRight )
+;turtle keyboard down ArrowRight ArrowRight
+;turtle keyboard up ArrowRight ArrowRight
+print (list "\ndown+up "ArrowDown "ArrowDown )
+;turtle keyboard down ArrowDown ArrowDown
+;turtle keyboard up ArrowDown ArrowDown
+print (list "\ndown+up "PrintScreen "PrintScreen )
+;turtle keyboard down PrintScreen PrintScreen
+;turtle keyboard up PrintScreen PrintScreen
+print (list "\ndown+up "Insert "Insert )
+;turtle keyboard down Insert Insert
+;turtle keyboard up Insert Insert
+print (list "\ndown+up "Delete "Delete )
+;turtle keyboard down Delete Delete
+;turtle keyboard up Delete Delete
+print (list "\ndown+up "0 "Digit0 )
+;turtle keyboard down 0 Digit0
+;turtle keyboard up 0 Digit0
+print (list "\ndown+up "1 "Digit1 )
+;turtle keyboard down 1 Digit1
+;turtle keyboard up 1 Digit1
+print (list "\ndown+up "2 "Digit2 )
+;turtle keyboard down 2 Digit2
+;turtle keyboard up 2 Digit2
+print (list "\ndown+up "3 "Digit3 )
+;turtle keyboard down 3 Digit3
+;turtle keyboard up 3 Digit3
+print (list "\ndown+up "4 "Digit4 )
+;turtle keyboard down 4 Digit4
+;turtle keyboard up 4 Digit4
+print (list "\ndown+up "5 "Digit5 )
+;turtle keyboard down 5 Digit5
+;turtle keyboard up 5 Digit5
+print (list "\ndown+up "6 "Digit6 )
+;turtle keyboard down 6 Digit6
+;turtle keyboard up 6 Digit6
+print (list "\ndown+up "7 "Digit7 )
+;turtle keyboard down 7 Digit7
+;turtle keyboard up 7 Digit7
+print (list "\ndown+up "8 "Digit8 )
+;turtle keyboard down 8 Digit8
+;turtle keyboard up 8 Digit8
+print (list "\ndown+up "9 "Digit9 )
+;turtle keyboard down 9 Digit9
+;turtle keyboard up 9 Digit9
+print (list "\ndown+up "A "KeyA )
+;turtle keyboard down A KeyA
+;turtle keyboard up A KeyA
+print (list "\ndown+up "B "KeyB )
+;turtle keyboard down B KeyB
+;turtle keyboard up B KeyB
+print (list "\ndown+up "C "KeyC )
+;turtle keyboard down C KeyC
+;turtle keyboard up C KeyC
+print (list "\ndown+up "D "KeyD )
+;turtle keyboard down D KeyD
+;turtle keyboard up D KeyD
+print (list "\ndown+up "E "KeyE )
+;turtle keyboard down E KeyE
+;turtle keyboard up E KeyE
+print (list "\ndown+up "F "KeyF )
+;turtle keyboard down F KeyF
+;turtle keyboard up F KeyF
+print (list "\ndown+up "G "KeyG )
+;turtle keyboard down G KeyG
+;turtle keyboard up G KeyG
+print (list "\ndown+up "H "KeyH )
+;turtle keyboard down H KeyH
+;turtle keyboard up H KeyH
+print (list "\ndown+up "H "KeyI )
+;turtle keyboard down I KeyI
+;turtle keyboard up I KeyI
+print (list "\ndown+up "J "KeyJ )
+;turtle keyboard down J KeyJ
+;turtle keyboard up J KeyJ
+print (list "\ndown+up "K "KeyK )
+;turtle keyboard down K KeyK
+;turtle keyboard up K KeyK
+print (list "\ndown+up "L "KeyL )
+;turtle keyboard down L KeyL
+;turtle keyboard up L KeyL
+print (list "\ndown+up "M "KeyM )
+;turtle keyboard down M KeyM
+;turtle keyboard up M KeyM
+print (list "\ndown+up "N "KeyN )
+;turtle keyboard down N KeyN
+;turtle keyboard up N KeyN
+print (list "\ndown+up "O "KeyO )
+;turtle keyboard down O KeyO
+;turtle keyboard up O KeyO
+print (list "\ndown+up "P "KeyP )
+;turtle keyboard down P KeyP
+;turtle keyboard up P KeyP
+print (list "\ndown+up "Q "KeyQ )
+;turtle keyboard down Q KeyQ
+;turtle keyboard up Q KeyQ
+print (list "\ndown+up "R "KeyR )
+;turtle keyboard down R KeyR
+;turtle keyboard up R KeyR
+print (list "\ndown+up "S "KeyS )
+;turtle keyboard down S KeyS
+;turtle keyboard up S KeyS
+print (list "\ndown+up "T "KeyT )
+;turtle keyboard down T KeyT
+;turtle keyboard up T KeyT
+print (list "\ndown+up "U "KeyU )
+;turtle keyboard down U KeyU
+;turtle keyboard up U KeyU
+print (list "\ndown+up "V "KeyV )
+;turtle keyboard down V KeyV
+;turtle keyboard up V KeyV
+print (list "\ndown+up "W "KeyW )
+;turtle keyboard down W KeyW
+;turtle keyboard up W KeyW
+print (list "\ndown+up "X "KeyX )
+;turtle keyboard down X KeyX
+;turtle keyboard up X KeyX
+print (list "\ndown+up "Y "KeyY )
+;turtle keyboard down Y KeyY
+;turtle keyboard up Y KeyY
+print (list "\ndown+up "Z "KeyZ )
+;turtle keyboard down Z KeyZ
+;turtle keyboard up Z KeyZ
+print (list "\ndown+up "a "KeyA )
+;turtle keyboard down a KeyA
+;turtle keyboard up a KeyA
+print (list "\ndown+up "b "KeyB )
+;turtle keyboard down b KeyB
+;turtle keyboard up b KeyB
+print (list "\ndown+up "c "KeyC )
+;turtle keyboard down c KeyC
+;turtle keyboard up c KeyC
+print (list "\ndown+up "d "KeyD )
+;turtle keyboard down d KeyD
+;turtle keyboard up d KeyD
+print (list "\ndown+up "e "KeyE )
+;turtle keyboard down e KeyE
+;turtle keyboard up e KeyE
+print (list "\ndown+up "f "KeyF )
+;turtle keyboard down f KeyF
+;turtle keyboard up f KeyF
+print (list "\ndown+up "g "KeyG )
+;turtle keyboard down g KeyG
+;turtle keyboard up g KeyG
+print (list "\ndown+up "h "KeyH )
+;turtle keyboard down h KeyH
+;turtle keyboard up h KeyH
+print (list "\ndown+up "i "KeyI )
+;turtle keyboard down i KeyI
+;turtle keyboard up i KeyI
+print (list "\ndown+up "j "KeyJ )
+;turtle keyboard down j KeyJ
+;turtle keyboard up j KeyJ
+print (list "\ndown+up "k "KeyK )
+;turtle keyboard down k KeyK
+;turtle keyboard up k KeyK
+print (list "\ndown+up "l "KeyL )
+;turtle keyboard down l KeyL
+;turtle keyboard up l KeyL
+print (list "\ndown+up "m "KeyM )
+;turtle keyboard down m KeyM
+;turtle keyboard up m KeyM
+print (list "\ndown+up "n "KeyN )
+;turtle keyboard down n KeyN
+;turtle keyboard up n KeyN
+print (list "\ndown+up "o "KeyO )
+;turtle keyboard down o KeyO
+;turtle keyboard up o KeyO
+print (list "\ndown+up "p "KeyP )
+;turtle keyboard down p KeyP
+;turtle keyboard up p KeyP
+print (list "\ndown+up "q "KeyQ )
+;turtle keyboard down q KeyQ
+;turtle keyboard up q KeyQ
+print (list "\ndown+up "r "KeyR )
+;turtle keyboard down r KeyR
+;turtle keyboard up r KeyR
+print (list "\ndown+up "s "KeyS )
+;turtle keyboard down s KeyS
+;turtle keyboard up s KeyS
+print (list "\ndown+up "t "KeyT )
+;turtle keyboard down t KeyT
+;turtle keyboard up t KeyT
+print (list "\ndown+up "u "KeyU )
+;turtle keyboard down u KeyU
+;turtle keyboard up u KeyU
+print (list "\ndown+up "v "KeyV )
+;turtle keyboard down v KeyV
+;turtle keyboard up v KeyV
+print (list "\ndown+up "w "KeyW )
+;turtle keyboard down w KeyW
+;turtle keyboard up w KeyW
+print (list "\ndown+up "x "KeyX )
+;turtle keyboard down x KeyX
+;turtle keyboard up x KeyX
+print (list "\ndown+up "y "KeyY )
+;turtle keyboard down y KeyY
+;turtle keyboard up y KeyY
+print (list "\ndown+up "z "KeyZ )
+;turtle keyboard down z KeyZ
+;turtle keyboard up z KeyZ
+print (list "\ndown+up "Meta "MetaLeft )
+;turtle keyboard down Meta MetaLeft
+;turtle keyboard up Meta MetaLeft
+print (list "\ndown+up "Meta "MetaRight )
+;turtle keyboard down Meta MetaRight
+;turtle keyboard up Meta MetaRight
+print (list "\ndown+up "ContextMenu "ContextMenu )
+;turtle keyboard down ContextMenu ContextMenu
+;turtle keyboard up ContextMenu ContextMenu
+print (list "\ndown+up "0 "Numpad0 )
+;turtle keyboard down 0 Numpad0
+;turtle keyboard up 0 Numpad0
+print (list "\ndown+up "1 "Numpad1 )
+;turtle keyboard down 1 Numpad1
+;turtle keyboard up 1 Numpad1
+print (list "\ndown+up "2 "Numpad2 )
+;turtle keyboard down 2 Numpad2
+;turtle keyboard up 2 Numpad2
+print (list "\ndown+up "3 "Numpad3 )
+;turtle keyboard down 3 Numpad3
+;turtle keyboard up 3 Numpad3
+print (list "\ndown+up "4 "Numpad4 )
+;turtle keyboard down 4 Numpad4
+;turtle keyboard up 4 Numpad4
+print (list "\ndown+up "5 "Numpad5 )
+;turtle keyboard down 5 Numpad5
+;turtle keyboard up 5 Numpad5
+print (list "\ndown+up "6 "Numpad6 )
+;turtle keyboard down 6 Numpad6
+;turtle keyboard up 6 Numpad6
+print (list "\ndown+up "7 "Numpad7 )
+;turtle keyboard down 7 Numpad7
+;turtle keyboard up 7 Numpad7
+print (list "\ndown+up "8 "Numpad8 )
+;turtle keyboard down 8 Numpad8
+;turtle keyboard up 8 Numpad8
+print (list "\ndown+up "9 "Numpad9 )
+;turtle keyboard down 9 Numpad9
+;turtle keyboard up 9 Numpad9
+print (list "\ndown+up "* "NumpadMultiply )
+;turtle keyboard down * NumpadMultiply
+;turtle keyboard up * NumpadMultiply
+print (list "\ndown+up "+ "NumpadAdd )
+;turtle keyboard down + NumpadAdd
+;turtle keyboard up + NumpadAdd
+print (list "\ndown+up "- "NumpadSubtract )
+;turtle keyboard down - NumpadSubtract
+;turtle keyboard up - NumpadSubtract
+print (list "\ndown+up ". "NumpadDecimal )
+;turtle keyboard down . NumpadDecimal
+;turtle keyboard up . NumpadDecimal
+print (list "\ndown+up "/ "NumpadDivide )
+;turtle keyboard down / NumpadDivide
+;turtle keyboard up / NumpadDivide
+print (list "\ndown+up "F1 "F1 )
+;turtle keyboard down F1 F1
+;turtle keyboard up F1 F1
+print (list "\ndown+up "F2 "F2 )
+;turtle keyboard down F2 F2
+;turtle keyboard up F2 F2
+print (list "\ndown+up "F3 "F3 )
+;turtle keyboard down F3 F3
+;turtle keyboard up F3 F3
+print (list "\ndown+up "F4 "F4 )
+;turtle keyboard down F4 F4
+;turtle keyboard up F4 F4
+print (list "\ndown+up "F5 "F5 )
+;turtle keyboard down F5 F5
+;turtle keyboard up F5 F5
+print (list "\ndown+up "F6 "F6 )
+;turtle keyboard down F6 F6
+;turtle keyboard up F6 F6
+print (list "\ndown+up "F7 "F7 )
+;turtle keyboard down F7 F7
+;turtle keyboard up F7 F7
+print (list "\ndown+up "F8 "F8 )
+;turtle keyboard down F8 F8
+;turtle keyboard up F8 F8
+print (list "\ndown+up "F9 "F9 )
+;turtle keyboard down F9 F9
+;turtle keyboard up F9 F9
+print (list "\ndown+up "F10 "F10 )
+;turtle keyboard down F10 F10
+;turtle keyboard up F10 F10
+print (list "\ndown+up "F11 "F11 )
+;turtle keyboard down F11 F11
+;turtle keyboard up F11 F11
+print (list "\ndown+up "F12 "F12 )
+;turtle keyboard down F12 F12
+;turtle keyboard up F12 F12
+print (list "\ndown+up "NumLock "NumLock )
+;turtle keyboard down NumLock NumLock
+;turtle keyboard up NumLock NumLock
+print (list "\ndown+up "ScrollLock "ScrollLock )
+;turtle keyboard down ScrollLock ScrollLock
+;turtle keyboard up ScrollLock ScrollLock
+print (list "\ndown+up "AudioVolumeMute )
+;turtle keyboard down AudioVolumeMute
+;turtle keyboard up AudioVolumeMute
+print (list "\ndown+up "AudioVolumeDown )
+;turtle keyboard down AudioVolumeDown
+;turtle keyboard up AudioVolumeDown
+print (list "\ndown+up "AudioVolumeUp )
+;turtle keyboard down AudioVolumeUp
+;turtle keyboard up AudioVolumeUp
+print (list "\ndown+up "LaunchMediaPlayer )
+;turtle keyboard down LaunchMediaPlayer
+;turtle keyboard up LaunchMediaPlayer
+print (list "\ndown+up "LaunchApplication1 )
+;turtle keyboard down LaunchApplication1
+;turtle keyboard up LaunchApplication1
+print (list "\ndown+up "LaunchApplication2 )
+;turtle keyboard down LaunchApplication2
+;turtle keyboard up LaunchApplication2
+print (list "\ndown+up "\; "Semicolon )
+;turtle keyboard down ; Semicolon
+;turtle keyboard up ; Semicolon
+print (list "\ndown+up "= "Equal )
+;turtle keyboard down = Equal
+;turtle keyboard up = Equal
+print (list "\ndown+up ", "Comma )
+;turtle keyboard down , Comma
+;turtle keyboard up , Comma
+print (list "\ndown+up "- "Minus )
+;turtle keyboard down - Minus
+;turtle keyboard up - Minus
+print (list "\ndown+up ". "Period )
+;turtle keyboard down . Period
+;turtle keyboard up . Period
+print (list "\ndown+up "/ "Slash )
+;turtle keyboard down / Slash
+;turtle keyboard up / Slash
+print (list "\ndown+up "` "Backquote )
+;turtle keyboard down ` Backquote
+;turtle keyboard up ` Backquote
+print (list "\ndown+up "\[ "BracketLeft )
+;turtle keyboard down [ BracketLeft
+;turtle keyboard up [ BracketLeft
+print (list "\ndown+up "\\ "Backslash )
+;turtle keyboard down \ Backslash
+;turtle keyboard up \ Backslash
+print (list "\ndown+up "\] "BracketRight )
+;turtle keyboard down ] BracketRight
+;turtle keyboard up ] BracketRight
+print (list "\ndown+up "' "Quote )
+;turtle keyboard down ' Quote
+;turtle keyboard up ' Quote

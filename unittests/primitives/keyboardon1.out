@@ -1,0 +1,359 @@
+
+down+up Backspace Backspace
+
+down+up Tab Tab
+keyboardvalue=9
+
+down+up Enter Enter
+
+down+up Shift ShiftLeft
+
+down+up Shift ShiftRight
+
+down+up Control ControlLeft
+
+down+up Control ControlRight
+
+down+up Alt AltLeft
+
+down+up Alt AltRight
+
+down+up Pause Pause
+
+down+up CapsLock CapsLock
+
+down+up Escape Escape
+
+down+up Space Space
+
+down+up PageUp PageUp
+
+down+up PageDown PageDown
+
+down+up End End
+
+down+up Home Home
+
+down+up ArrowLeft ArrowLeft
+
+down+up ArrowUp ArrowUp
+
+down+up ArrowRight ArrowRight
+
+down+up ArrowDown ArrowDown
+
+down+up PrintScreen PrintScreen
+
+down+up Insert Insert
+
+down+up Delete Delete
+
+down+up 0 Digit0
+keyboardvalue=48
+
+down+up 1 Digit1
+keyboardvalue=49
+
+down+up 2 Digit2
+keyboardvalue=50
+
+down+up 3 Digit3
+keyboardvalue=51
+
+down+up 4 Digit4
+keyboardvalue=52
+
+down+up 5 Digit5
+keyboardvalue=53
+
+down+up 6 Digit6
+keyboardvalue=54
+
+down+up 7 Digit7
+keyboardvalue=55
+
+down+up 8 Digit8
+keyboardvalue=56
+
+down+up 9 Digit9
+keyboardvalue=57
+
+down+up A KeyA
+keyboardvalue=65
+
+down+up B KeyB
+keyboardvalue=66
+
+down+up C KeyC
+keyboardvalue=67
+
+down+up D KeyD
+keyboardvalue=68
+
+down+up E KeyE
+keyboardvalue=69
+
+down+up F KeyF
+keyboardvalue=70
+
+down+up G KeyG
+keyboardvalue=71
+
+down+up H KeyH
+keyboardvalue=72
+
+down+up H KeyI
+keyboardvalue=73
+
+down+up J KeyJ
+keyboardvalue=74
+
+down+up K KeyK
+keyboardvalue=75
+
+down+up L KeyL
+keyboardvalue=76
+
+down+up M KeyM
+keyboardvalue=77
+
+down+up N KeyN
+keyboardvalue=78
+
+down+up O KeyO
+keyboardvalue=79
+
+down+up P KeyP
+keyboardvalue=80
+
+down+up Q KeyQ
+keyboardvalue=81
+
+down+up R KeyR
+keyboardvalue=82
+
+down+up S KeyS
+keyboardvalue=83
+
+down+up T KeyT
+keyboardvalue=84
+
+down+up U KeyU
+keyboardvalue=85
+
+down+up V KeyV
+keyboardvalue=86
+
+down+up W KeyW
+keyboardvalue=87
+
+down+up X KeyX
+keyboardvalue=88
+
+down+up Y KeyY
+keyboardvalue=89
+
+down+up Z KeyZ
+keyboardvalue=90
+
+down+up a KeyA
+keyboardvalue=97
+
+down+up b KeyB
+keyboardvalue=98
+
+down+up c KeyC
+keyboardvalue=99
+
+down+up d KeyD
+keyboardvalue=100
+
+down+up e KeyE
+keyboardvalue=101
+
+down+up f KeyF
+keyboardvalue=102
+
+down+up g KeyG
+keyboardvalue=103
+
+down+up h KeyH
+keyboardvalue=104
+
+down+up i KeyI
+keyboardvalue=105
+
+down+up j KeyJ
+keyboardvalue=106
+
+down+up k KeyK
+keyboardvalue=107
+
+down+up l KeyL
+keyboardvalue=108
+
+down+up m KeyM
+keyboardvalue=109
+
+down+up n KeyN
+keyboardvalue=110
+
+down+up o KeyO
+keyboardvalue=111
+
+down+up p KeyP
+keyboardvalue=112
+
+down+up q KeyQ
+keyboardvalue=113
+
+down+up r KeyR
+keyboardvalue=114
+
+down+up s KeyS
+keyboardvalue=115
+
+down+up t KeyT
+keyboardvalue=116
+
+down+up u KeyU
+keyboardvalue=117
+
+down+up v KeyV
+keyboardvalue=118
+
+down+up w KeyW
+keyboardvalue=119
+
+down+up x KeyX
+keyboardvalue=120
+
+down+up y KeyY
+keyboardvalue=121
+
+down+up z KeyZ
+keyboardvalue=122
+
+down+up Meta MetaLeft
+
+down+up Meta MetaRight
+
+down+up ContextMenu ContextMenu
+
+down+up 0 Numpad0
+keyboardvalue=48
+
+down+up 1 Numpad1
+keyboardvalue=49
+
+down+up 2 Numpad2
+keyboardvalue=50
+
+down+up 3 Numpad3
+keyboardvalue=51
+
+down+up 4 Numpad4
+keyboardvalue=52
+
+down+up 5 Numpad5
+keyboardvalue=53
+
+down+up 6 Numpad6
+keyboardvalue=54
+
+down+up 7 Numpad7
+keyboardvalue=55
+
+down+up 8 Numpad8
+keyboardvalue=56
+
+down+up 9 Numpad9
+keyboardvalue=57
+
+down+up * NumpadMultiply
+keyboardvalue=42
+
+down+up + NumpadAdd
+keyboardvalue=43
+
+down+up - NumpadSubtract
+keyboardvalue=45
+
+down+up . NumpadDecimal
+keyboardvalue=46
+
+down+up / NumpadDivide
+keyboardvalue=47
+
+down+up F1 F1
+
+down+up F2 F2
+
+down+up F3 F3
+
+down+up F4 F4
+
+down+up F5 F5
+
+down+up F6 F6
+
+down+up F7 F7
+
+down+up F8 F8
+
+down+up F9 F9
+
+down+up F10 F10
+
+down+up F11 F11
+
+down+up F12 F12
+
+down+up NumLock NumLock
+
+down+up ScrollLock ScrollLock
+
+down+up AudioVolumeMute
+
+down+up AudioVolumeDown
+
+down+up AudioVolumeUp
+
+down+up LaunchMediaPlayer
+
+down+up LaunchApplication1
+
+down+up LaunchApplication2
+
+down+up ; Semicolon
+keyboardvalue=59
+
+down+up = Equal
+keyboardvalue=61
+
+down+up , Comma
+keyboardvalue=44
+
+down+up - Minus
+keyboardvalue=45
+
+down+up . Period
+keyboardvalue=46
+
+down+up / Slash
+keyboardvalue=47
+
+down+up ` Backquote
+keyboardvalue=96
+
+down+up [ BracketLeft
+keyboardvalue=91
+
+down+up \ Backslash
+keyboardvalue=92
+
+down+up ] BracketRight
+keyboardvalue=93
+
+down+up ' Quote
+keyboardvalue=39

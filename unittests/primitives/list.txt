@@ -152,3 +152,7 @@ form_debug exec run
 form_err execl runl
 mouseon execl runl
 mouseon_err execl runl
+keyboardon execl runl
+keyboardon1 execl runl
+keyboardon2 execl runl
+keyboardon_err execl runl

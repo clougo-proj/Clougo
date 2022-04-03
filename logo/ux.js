@@ -362,6 +362,9 @@ function createLogoWorker(eventHandler) {
         "clearWorkspace": function() {
             worker.postMessage([LOGO_METHOD.CLEAR_WORKSPACE]);
         },
+        "onKeyboardEvent": function(event) {
+            worker.postMessage([LOGO_METHOD.KEYBOARD_EVENT, event]);
+        },
         "onMouseEvent": function(event) {
             worker.postMessage([LOGO_METHOD.MOUSE_EVENT, event]);
         },
@@ -425,6 +428,32 @@ const turtleCanvas = createTurtleCanvas("turtleCanvas", {
     },
     "assert": assert
 });
+
+document.addEventListener("keydown", (e) => {
+    if (allowKeyboardEvents(e)) {
+        logoWorker.onKeyboardEvent(createKeyboarMsg("down", e.key, e.code));
+    }
+});
+
+document.addEventListener("keyup", (e) => {
+    if (allowKeyboardEvents(e)) {
+        logoWorker.onKeyboardEvent(createKeyboarMsg("up", e.key, e.code));
+    }
+});
+
+function allowKeyboardEvents() {
+    return document.activeElement.id === "canvasPane";
+}
+
+function createKeyboarMsg(msgType, key, code) {
+    return [
+        msgType,
+        {
+            "key": key,
+            "code": code
+        }
+    ];
+}
 
 function onContextMenu(e) { // eslint-disable-line no-unused-vars
     e.preventDefault();

@@ -8,7 +8,7 @@
 
 "use strict";
 
-/* global jQuery, $, ace, createTurtleCanvas, Constants */
+/* global $, ace, createTurtleCanvas, Constants, VanillaTerminal */
 
 const TURTLE_CANVAS_SIZE = 1000;
 
@@ -27,14 +27,6 @@ function assert(cond, msg) {
 function createLogoTerminal(eventHandler) {
 
     let curLine = "";
-
-    let thisTerm = {
-        "echo": function() {},
-        "set_prompt": function() {},
-        "pause": function() {},
-        "resume": function() {},
-        "clear": function() {}
-    };
 
     const isReady = {
         "logo": true,
@@ -55,21 +47,17 @@ function createLogoTerminal(eventHandler) {
             );
     }
 
-    jQuery(document).ready($ => {
-        $("#term").terminal(command => {
-            if (getAllReady()) {
-                thisTerm.pause();
-                eventHandler.console(command);
-            }
-        }, {
-            greetings: "Welcome to Logo",
-            name: "LogoTerm",
-            onInit : function (term) {
-                thisTerm = term;
-            },
-            clear: false,
-            prompt: "? "
-        });
+    const term = new VanillaTerminal({
+        container: "term",
+        welcome: "Welcome to Logo",
+    });
+
+    term.onInput((commandLine) => {
+        if (getAllReady()) {
+            eventHandler.console(commandLine);
+        }
+
+        term.resetCommand();
     });
 
     return {
@@ -77,30 +65,29 @@ function createLogoTerminal(eventHandler) {
             curLine += text;
         },
         "writeln": function(text) {
-            thisTerm.echo(curLine + text);
+            term.output(curLine + text);
             curLine = "";
         },
         "prompt": function(text) {
-            thisTerm.echo(curLine);
+            term.setPrompt(curLine + text);
             curLine = "";
-            thisTerm.set_prompt(text);
         },
         "user": function() {
-            thisTerm.set_prompt(curLine);
+            term.setPrompt(curLine);
             curLine = "";
         },
         "setBusy": function(id) {
             setReady(id, false);
-            thisTerm.pause();
+            term.idle();
         },
         "setReady": function(id) {
             setReady(id, true);
             if (getAllReady()) {
-                thisTerm.resume();
+                term.setPrompt();
             }
         },
         "cleartext": function() {
-            thisTerm.clear();
+            term.clear();
         }
     };
 }
@@ -173,7 +160,6 @@ function saveEditorContent() {
 
 window.setInterval(saveEditorContent, 1000);
 
-
 const zoomTurtleCanvas = (() => {  // eslint-disable-line no-unused-vars
     const settingKey = "$settings$turtleCanvasZoom$";
     const turtleCanvasHeight = {
@@ -240,14 +226,9 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
         "hidden": "93vh"};
 
     const terminalHeight = {
-        "full": "93vh",
-        "quarter": "22vh",
+        "full": "95vh",
+        "quarter": "24vh",
         "hidden": "0px"};
-
-    const terminalClass = {
-        "full": "col span12 terminal",
-        "quarter": "col span12 terminal",
-        "hidden": "col span12 terminal hidden"};
 
     const nextState = {
         "full": "quarter",
@@ -262,7 +243,6 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
         $("#topPane").css("height", topPaneHeight[state]);
         $("#canvasPane").css("height", topPaneHeight[state]);
         $("#editor").css("height", topPaneHeight[state]);
-        $("#term").attr("class", terminalClass[state]);
         $("#term").css("height", terminalHeight[state]);
         editor.resize();
     };

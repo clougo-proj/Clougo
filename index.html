@@ -7,13 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta charset="utf-8" />
 <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css">
-<script>
-window.addEventListener("load", () => {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/service-worker.js");
-  }
-});
-</script>
 <script src="jquery/jquery-1.11.0.min.js"></script>
 <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 <script src="vanilla-terminal/VanillaTerminal.js"></script>
@@ -21,35 +14,27 @@ window.addEventListener("load", () => {
 
 <script src="ace-editor/src/ace.js" type="text/javascript" charset="utf-8"></script>
 
-<script src="floodfill/floodfill.js"></script>
-
 </head>
 <body>
 <div class= "container-fluid">
   <div class="row">
-
           <ul id="menubar" class="nav nav-pills">
-              <li><a onclick="if (confirm('Are you sure you wish to ERASE ALL?')) { clearWorkspace() }"
+              <li><a id="clearWorkspaceBtn"
                 data-toggle="tab"><span class="glyphicon glyphicon-erase"></span></a></li>
-            <li><a onclick="zoomTurtleCanvas()">
+            <li><a id="zoomTurtleCanvasBtn">
                 <span  id="zoomTurtleCanvasButton" class="glyphicon glyphicon-zoom-in"></span></a>
             </li>
-            <li><a onclick="changeUpperPane()">
+            <li><a id="changeUpperPaneBtn">
                 <span id="changeUpperPaneButton" class="glyphicon glyphicon-adjust"></span></a>
             </li>
-            <li><a onclick="adjustTerminal()">
+            <li><a id="adjustTerminalBtn">
                 <span class="glyphicon glyphicon-resize-vertical"></span></a>
             </li>
-            <li><a onclick="turtleUndo()"><span class="glyphicon glyphicon-arrow-left"></span></a></li>
-            <li><a onclick="runProgram(true)" data-toggle="tab"><span class="glyphicon glyphicon-play"></span></a></li>
+            <li><a id="turtleUndoBtn"><span class="glyphicon glyphicon-arrow-left"></span></a></li>
+            <li><a id="runProgramBtn" data-toggle="tab"><span class="glyphicon glyphicon-play"></span></a></li>
           </ul>
     <div id="topPane" class="col span12">
-      <div id="canvasPane" class="col span12 collapse in" style="overflow:auto;" tabindex="1"
-          oncontextmenu=onContextMenu(event)
-          onmousemove=onMouseMove(event)
-          onmousedown=onMouseDown(event)
-          onmouseup=onMouseUp(event)
-          onclick=onMouseClick(event)>
+      <div id="canvasPane" class="col span12 collapse in" style="overflow:auto;" tabindex="1">
         <canvas id="turtleCanvas" width="1000px" height="1000px">
         Your browser does not support the HTML5 canvas tag.
         </canvas>
@@ -59,12 +44,8 @@ window.addEventListener("load", () => {
     <div id="term" class="col span12 collapse"></div>
   </div>
 </div>
-<script src="logo/constants.js"></script>
-<script src="logo/canvasCommon.js"></script>
-<script src="logo/canvas.js"></script>
-<script src="logo/ux.js"></script>
-
+<script type="module" src="logo/canvas.js"></script>
+<script type="module" src="logo/ux.js"></script>
 <link href="css/main.css" rel="stylesheet"/>
-
 </body>
 </html>

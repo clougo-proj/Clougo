@@ -6,47 +6,42 @@
 // Implements miscellaneous primitives
 // Runs in Logo worker thread
 
-"use strict";
+export default {
+    "create": function(logo) {
+        const misc = {};
 
-var $obj = {};
-$obj.create = function(logo) {
-    const misc = {};
+        const methods = {
 
-    const methods = {
+            "demo": primitiveDemo,
 
-        "demo": primitiveDemo,
+            ".test": dotTest
+        };
+        misc.methods = methods;
 
-        ".test": dotTest
-    };
-    misc.methods = methods;
+        async function primitiveDemo(name) {
+            let option = undefined;
+            if (logo.type.isLogoList(name)) {
+                option = logo.type.listItem(2, name).toLowerCase();
+                name = logo.type.listItem(1, name).toLowerCase();
+            } else {
+                name = name.toLowerCase();
+            }
 
-    async function primitiveDemo(name) {
-        let option = undefined;
-        if (logo.type.isLogoList(name)) {
-            option = logo.type.listItem(2, name).toLowerCase();
-            name = logo.type.listItem(1, name).toLowerCase();
-        } else {
-            name = name.toLowerCase();
+            let demoFileName = name + ".lgo";
+
+            let src = await logo.logofs.readFile("/demo/" + demoFileName);
+
+            if (option !== undefined && option == "load") {
+                logo.io.editorLoad(src);
+            }
+
+            await logo.entry.exec(src, "/demo/" + demoFileName);
         }
 
-        let demoFileName = name + ".lgo";
-
-        let src = logo.logofs.readFile("/demo/" + demoFileName);
-
-        if (option !== undefined && option == "load") {
-            logo.io.editorLoad(src);
+        async function dotTest(testName, testMethod) {
+            await logo.entry.runSingleTest(testName, testMethod);
         }
 
-        await logo.entry.exec(src, "/demo/" + demoFileName);
+        return misc;
     }
-
-    async function dotTest(testName, testMethod) {
-        await logo.entry.runSingleTest(testName, testMethod);
-    }
-
-    return misc;
 };
-
-if (typeof exports != "undefined") {
-    exports.$obj = $obj;
-}

@@ -1,6 +1,13 @@
-const { spawn } = require("child_process");
+//-------------------------------------------------------------------------------------------------------
+// Copyright (C) Clougo Project. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//-------------------------------------------------------------------------------------------------------
 
-const clitests = require("../generated/clitests.js").$obj;
+// Logo CLI tester
+
+import { spawn } from "child_process";
+
+import clitests from "../generated/clitests.js";
 
 const IO_TYPE = {
     "STDIN": "stdin",

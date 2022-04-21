@@ -6,39 +6,34 @@
 // Implements Logo's OS-related primitives
 // Runs in Logo worker thread
 
-"use strict";
+export default {
+    "create": function(logo) {
+        const os = {};
 
-var $obj = {};
-$obj.create = function(logo) {
-    const os = {};
+        const methods = {
 
-    const methods = {
+            "time": primitiveTime,
 
-        "time": primitiveTime,
+            "timemilli": primitiveTimeMilli,
 
-        "timemilli": primitiveTimeMilli,
+            ".novalue": dotNovalue,
 
-        ".novalue": dotNovalue,
+        };
+        os.methods = methods;
 
-    };
-    os.methods = methods;
+        function primitiveTime() {
+            let date = new Date().toString().split(" "); // E.g. [Sat Sep 01 2018 14:53:26 GMT+1400 (LINT)]
+            return logo.type.makeLogoList(date.slice(0, 3).concat(date[4], date[3]));
+        }
 
-    function primitiveTime() {
-        let date = new Date().toString().split(" "); // E.g. [Sat Sep 01 2018 14:53:26 GMT+1400 (LINT)]
-        return logo.type.makeLogoList(date.slice(0, 3).concat(date[4], date[3]));
+        function primitiveTimeMilli() {
+            return new Date().getTime();
+        }
+
+        function dotNovalue() {
+            return undefined;
+        }
+
+        return os;
     }
-
-    function primitiveTimeMilli() {
-        return new Date().getTime();
-    }
-
-    function dotNovalue() {
-        return undefined;
-    }
-
-    return os;
 };
-
-if (typeof exports != "undefined") {
-    exports.$obj = $obj;
-}

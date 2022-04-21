@@ -28,10 +28,10 @@ stages:
       - script: npm run test
         displayName: 'run test'
 
-      - script: npm run predeploy
-        displayName: 'run predeploy'
+      - script: npm run release
+        displayName: 'run release'
 
-      - publish: .
+      - publish: dist
         artifact: clougoWebApp
 
 - stage: deployQA

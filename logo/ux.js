@@ -3,12 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //-------------------------------------------------------------------------------------------------------
 
-// Logo's runtime library
-// Runs in browser's Logo worker thread or Node's main thread
+// Clougo's UX
 
-"use strict";
+/* global $, ace, VanillaTerminal */
 
-/* global $, ace, createTurtleCanvas, Constants, VanillaTerminal */
+import Constants from "./constants.js";
+
+import createTurtleCanvas from "./canvas.js";
 
 const TURTLE_CANVAS_SIZE = 1000;
 
@@ -100,7 +101,7 @@ const logoTerminal0 = createLogoTerminal({
 
 function readLogoStorage(key, defaultValue) {
     let ret = localStorage.getItem(key);
-    if (ret === null) {
+    if (ret === null || ret === undefined) {
         return defaultValue;
     }
 
@@ -177,7 +178,9 @@ const zoomTurtleCanvas = (() => {  // eslint-disable-line no-unused-vars
     let state = readLogoStorage(settingKey, "fit");
 
     const zoomTurtleCanvas = function(stateOverride) {
-        state = (stateOverride === undefined) ? nextState[state] : stateOverride;
+        state = (stateOverride !== undefined) ? stateOverride :
+            Object.hasOwn(nextState, state) ? nextState[state] : "fit";
+
         writeLogoStorage(settingKey, state);
         $("#turtleCanvas").css("height", turtleCanvasHeight[state]);
         $("#zoomTurtleCanvasButton").attr("class", turtleGlyphicon[state]);
@@ -207,7 +210,9 @@ const changeUpperPane = (() => { // eslint-disable-line no-unused-vars
     let state = readLogoStorage(settingKey, "turtle");
 
     const changeUpperPane = function(stateOverride) {
-        state = (stateOverride === undefined) ? nextState[state] : stateOverride;
+        state = (stateOverride !== undefined) ? stateOverride :
+            Object.hasOwn(nextState, state) ? nextState[state] : "turtle";
+
         writeLogoStorage(settingKey, state);
         $("#canvasPane").css("width", canvasPaneWidth[state]);
         $("#editor").css("width", editorWidth[state]);
@@ -238,7 +243,9 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
     let state = readLogoStorage(settingKey, "quarter");
 
     const adjustTerminal = function(stateOverride) {
-        state = (stateOverride === undefined) ? nextState[state] : stateOverride;
+        state = (stateOverride !== undefined) ? stateOverride :
+            Object.hasOwn(nextState, state) ? nextState[state] : "quarter";
+
         writeLogoStorage(settingKey, state);
         $("#topPane").css("height", topPaneHeight[state]);
         $("#canvasPane").css("height", topPaneHeight[state]);
@@ -256,7 +263,7 @@ function createLogoWorker(eventHandler) {
         return undefined;
     }
 
-    let worker = new Worker("logo/logo.js");
+    let worker =new Worker(new URL("logoWorker.js", import.meta.url), {type: "module"});
 
     // handles messages from logo worker
     worker.onmessage = function(event) {
@@ -492,9 +499,43 @@ function getConfigOverride() {
     return configOverride;
 }
 
+window.addEventListener("load", () => {
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register(new URL("/service-worker.js", import.meta.url), {type: "module"});
+    }
+});
+
 let configOverride = getConfigOverride();
 logoWorker.config(configOverride);
 
 if (configOverride["unitTestButton"]) {
-    $("#menubar").append("<li><a onclick=\"runLogoTest()\" data-toggle=\"tab\"><span class=\"glyphicon glyphicon-wrench\"></span></a></li>");
+    $("#menubar").append("<li><a id=\"runLogoTestBtn\" data-toggle=\"tab\"><span class=\"glyphicon glyphicon-wrench\"></span></a></li>");
 }
+
+$("#clearWorkspaceBtn")[0].onclick = () => {
+    if (confirm("Are you sure you wish to ERASE ALL?")) {
+        clearWorkspace();
+    }
+};
+
+$("#zoomTurtleCanvasBtn")[0].onclick = () => zoomTurtleCanvas();
+
+$("#changeUpperPaneBtn")[0].onclick = () => changeUpperPane();
+
+$("#adjustTerminalBtn")[0].onclick = () => adjustTerminal();
+
+$("#turtleUndoBtn")[0].onclick = () => turtleUndo();
+
+$("#runProgramBtn")[0].onclick = () => runProgram(true);
+
+$("#runLogoTestBtn")[0].onclick = () => runLogoTest();
+
+$("#canvasPane")[0].oncontextmenu = onContextMenu;
+
+$("#canvasPane")[0].onmousemove = onMouseMove;
+
+$("#canvasPane")[0].onmousedown = onMouseDown;
+
+$("#canvasPane")[0].onmouseup = onMouseUp;
+
+$("#canvasPane")[0].onclick = onMouseClick;

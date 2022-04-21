@@ -6,9 +6,9 @@
 // On top of HTML5 canvas, implements low-level primitives for Logo graphics as defined in canvasCommon.js
 // Runs in browser's main thread
 
-"use strict";
-
-/* global CanvasCommon, floodFill, Constants */
+import CanvasCommon from "./canvasCommon.js";
+import floodFill from "../floodfill/floodfill.js";
+import Constants from "./constants.js";
 
 const MAX_UNDO_DEPTH = Constants.MAX_UNDO_DEPTH;
 
@@ -24,7 +24,7 @@ if (CanvasRenderingContext2D.prototype.ellipse === undefined) {
     };
 }
 
-function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unused-vars
+export default function createTurtleCanvas(turtleCanvas, ext) { // eslint-disable-line no-unused-vars
     const _self = {};
 
     const _canvas = document.getElementById(turtleCanvas);

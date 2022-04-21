@@ -18,7 +18,7 @@
 //     https://github.com/williammalone/HTML5-Paint-Bucket-Tool/blob/master/html5-canvas-paint-bucket.js
 //
 
-function floodFill(canvas, startX, startY, fillColor, fillMode, stopColor) {
+export default function floodFill(canvas, startX, startY, fillColor, fillMode, stopColor) {
 
   function getPixelPos(x, y) {
       return (y * canvas.width + x) * 4;

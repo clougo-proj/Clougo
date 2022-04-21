@@ -3,54 +3,49 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //-------------------------------------------------------------------------------------------------------
 
-"use strict";
+export default {
+    "create": function(logo, sys) {
+        const traceKeys = [
+            "parse",
+            "parse.result",
+            "env.eagerEval",
+            "evx",
+            "evalJs",
+            "codegen",
+            "codegen.genLocal",
+            "codegen.lambda",
+            "console",
+            "lrt",
+            "time",
+            "draw",
+            "tmp"
+        ];
 
-var $obj = {};
-$obj.create = function(logo, sys) {
-    const traceKeys = [
-        "parse",
-        "parse.result",
-        "env.eagerEval",
-        "evx",
-        "evalJs",
-        "codegen",
-        "codegen.genLocal",
-        "codegen.lambda",
-        "console",
-        "lrt",
-        "time",
-        "draw",
-        "tmp"
-    ];
+        const trace = {};
 
-    const trace = {};
+        const traceTable = {};
+        traceKeys.forEach(v => traceTable[v] = () => {});
 
-    const traceTable = {};
-    traceKeys.forEach(v => traceTable[v] = () => {});
-
-    function enableTrace(tagPattern) {
-        const reTags = sys.makeMatchListRegexp([tagPattern]);
-        traceKeys.filter(v => v.match(reTags))
-            .forEach(v => traceTable[v] = console.error); // eslint-disable-line no-console
-    }
-    trace.enableTrace = enableTrace;
-
-    function info(text, tag) {
-        sys.assert(tag in traceTable, "Unknown trace tag: " + tag);
-        if (logo.config.get("trace")) {
-            traceTable[tag](text);
+        function enableTrace(tagPattern) {
+            const reTags = sys.makeMatchListRegexp([tagPattern]);
+            traceKeys.filter(v => v.match(reTags))
+                .forEach(v => traceTable[v] = console.error); // eslint-disable-line no-console
         }
-    }
-    trace.info = info;
+        trace.enableTrace = enableTrace;
 
-    function getTraceStream(tag) {
-        return traceTable[tag];
-    }
-    trace.getTraceStream = getTraceStream;
+        function info(text, tag) {
+            sys.assert(tag in traceTable, "Unknown trace tag: " + tag);
+            if (logo.config.get("trace")) {
+                traceTable[tag](text);
+            }
+        }
+        trace.info = info;
 
-    return trace;
+        function getTraceStream(tag) {
+            return traceTable[tag];
+        }
+        trace.getTraceStream = getTraceStream;
+
+        return trace;
+    }
 };
-
-if (typeof exports != "undefined") {
-    exports.$obj = $obj;
-}

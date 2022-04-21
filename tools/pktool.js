@@ -7,11 +7,12 @@
 
 // Library for package a directory into a single JS file
 
-const fs = require("fs");
-const { join } = require("path");
+import { existsSync, lstatSync, readdirSync, statSync, readFileSync } from "fs";
 
-function dirToJs(root, encodeDirectory = encodeDirFiles) {
-    if (!(fs.existsSync(root) && fs.lstatSync(root).isDirectory())) {
+import { join } from "path";
+
+export function dirToJs(root, encodeDirectory = encodeDirFiles) {
+    if (!(existsSync(root) && lstatSync(root).isDirectory())) {
         throw Error("Directory '" + root + "' does not exist.");
     }
 
@@ -19,10 +20,8 @@ function dirToJs(root, encodeDirectory = encodeDirFiles) {
     let dir = splittedPath[0];
     let parent = splittedPath[1];
 
-    return "var $obj = " + encodeDir(dir, parent, encodeDirectory) +
-        ";\nif (typeof exports !== \"undefined\") { exports.$obj = $obj; }\n";
+    return "export default " + encodeDir(dir, parent, encodeDirectory);
 }
-exports.dirToJs = dirToJs;
 
 function splitPath(path) {
     const pattern = /^(.*)[/\\]([^/\\]+)$/;
@@ -41,30 +40,15 @@ function encodeDir(dir, parent, encodeDirectory) {
 }
 
 function encodeSubDirs(path, encodeDirectory) {
-    return fs.readdirSync(path).filter(name => fs.statSync(join(path, name)).isDirectory())
+    return readdirSync(path).filter(name => statSync(join(path, name)).isDirectory())
         .map(subDir => "\"" + subDir + "\": " + encodeDir(subDir, path, encodeDirectory));
 }
 
 function encodeDirFiles(path) {
-    return fs.readdirSync(path).filter(name => fs.statSync(join(path, name)).isFile())
+    return readdirSync(path).filter(name => statSync(join(path, name)).isFile())
         .map(file => "\"" + file + "\":" + encodeFile(path + "/" + file));
 }
 
-function readFile(fileName) {
-    if (!fileExists(fileName)) {
-        return [];
-    }
-
-    return fs.readFileSync(fileName, "utf8").split(/\r?\n/);
-}
-exports.readFile = readFile;
-
-function fileExists(fileName) {
-    return fs.existsSync(fileName) && fs.lstatSync(fileName).isFile();
-}
-exports.fileExists = fileExists;
-
 function encodeFile(srcfile) {
-    return JSON.stringify(fs.readFileSync(srcfile, "utf8"));
+    return JSON.stringify(readFileSync(srcfile, "utf8"));
 }
-exports.encodeFile = encodeFile;

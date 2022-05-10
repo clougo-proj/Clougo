@@ -5,19 +5,21 @@
 
 // Clougo's UX
 
-/* global $, ace, VanillaTerminal */
+/* global $ */
 
-import Constants from "./constants.js";
+import Logojs from "./logojs.js";
 
-import createTurtleCanvas from "./canvas.js";
+import LogoTerminal from "./logoTerminal.js";
+
+import LogoEditor from "./logoEditor.js";
+
+import Canvas from "./canvas.js";
+
+import logoStorage from "./logoStorage.js";
 
 const TURTLE_CANVAS_SIZE = 1000;
 
 const TURTLE_CANVAS_OFFSET = -500;
-
-const LOGO_EVENT = Constants.LOGO_EVENT;
-
-const LOGO_METHOD = Constants.LOGO_METHOD;
 
 function assert(cond, msg) {
     if (!cond) {
@@ -25,92 +27,11 @@ function assert(cond, msg) {
     }
 }
 
-function createLogoTerminal(eventHandler) {
-
-    let curLine = "";
-
-    const isReady = {
-        "logo": true,
-        "canvas": true
-    };
-
-    function setReady(id, val) {
-        if (id in isReady) {
-            isReady[id] = val;
-        }
-    }
-
-    function getAllReady() {
-        return Object.keys(isReady)
-            .map(e => isReady[e])
-            .reduce(
-                function(acc, cur) { return acc && cur; }
-            );
-    }
-
-    const term = new VanillaTerminal({
-        container: "term",
-        welcome: "Welcome to Logo",
-    });
-
-    term.onInput((commandLine) => {
-        if (getAllReady()) {
-            eventHandler.console(commandLine);
-        }
-
-        term.resetCommand();
-    });
-
-    return {
-        "write": function(text) {
-            curLine += text;
-        },
-        "writeln": function(text) {
-            term.output(curLine + text);
-            curLine = "";
-        },
-        "prompt": function(text) {
-            term.setPrompt(curLine + text);
-            curLine = "";
-        },
-        "user": function() {
-            term.setPrompt(curLine);
-            curLine = "";
-        },
-        "setBusy": function(id) {
-            setReady(id, false);
-            term.idle();
-        },
-        "setReady": function(id) {
-            setReady(id, true);
-            if (getAllReady()) {
-                term.setPrompt();
-            }
-        },
-        "cleartext": function() {
-            term.clear();
-        }
-    };
-}
-
-const logoTerminal0 = createLogoTerminal({
+const logoTerminal0 = LogoTerminal.create("term", {
     "console": function(text) {
-        logoWorker.console(text);
+        logojs.console(text);
     }
 });
-
-function readLogoStorage(key, defaultValue) {
-    let ret = localStorage.getItem(key);
-    if (ret === null || ret === undefined) {
-        return defaultValue;
-    }
-
-    return ret;
-}
-
-function writeLogoStorage(key, value) {
-    localStorage.setItem(key, value);
-}
 
 // http://localhost:8080/?on=unitTestButton
 const getUrlParams = (() => {
@@ -125,38 +46,29 @@ function runProgram(transpile) { // eslint-disable-line no-unused-vars
     let src = editor.getValue();
     logoTerminal0.setBusy("logo");
     if (transpile) {
-        logoWorker.exec(src);
+        logojs.exec(src);
     } else {
-        logoWorker.run(src);
+        logojs.run(src);
     }
 }
 
 function clearWorkspace() { // eslint-disable-line no-unused-vars
-    logoWorker.clearWorkspace();
+    logojs.clearWorkspace();
     editor.setValue("");
     logoTerminal0.cleartext();
-    writeLogoStorage("logoSrc", "");
+    logoStorage.write("logoSrc", "");
 }
 
 function runLogoTest() { // eslint-disable-line no-unused-vars
     logoTerminal0.setBusy("logo");
-    logoWorker.test();
+    logojs.test();
 }
 
-const editor = ace.edit("editor");
-editor.setTheme("ace/theme/monokai");
-editor.setBehavioursEnabled(false);
-editor.getSession().setMode("ace/mode/logo");
-
-editor.setValue(readLogoStorage("logoSrc", ""));
-editor.setOptions({
-    fontSize: "12pt",
-    tabSize: 2,
-    useSoftTabs: true
-});
+const editor = LogoEditor.create("editor");
+editor.setValue(logoStorage.read("logoSrc", ""));
 
 function saveEditorContent() {
-    writeLogoStorage("logoSrc", editor.getValue());
+    logoStorage.write("logoSrc", editor.getValue());
 }
 
 window.setInterval(saveEditorContent, 1000);
@@ -175,13 +87,13 @@ const zoomTurtleCanvas = (() => {  // eslint-disable-line no-unused-vars
         "fit": "pixel",
         "pixel": "fit"};
 
-    let state = readLogoStorage(settingKey, "fit");
+    let state = logoStorage.read(settingKey, "fit");
 
     const zoomTurtleCanvas = function(stateOverride) {
         state = (stateOverride !== undefined) ? stateOverride :
             Object.hasOwn(nextState, state) ? nextState[state] : "fit";
 
-        writeLogoStorage(settingKey, state);
+        logoStorage.write(settingKey, state);
         $("#turtleCanvas").css("height", turtleCanvasHeight[state]);
         $("#zoomTurtleCanvasButton").attr("class", turtleGlyphicon[state]);
     };
@@ -207,13 +119,13 @@ const changeUpperPane = (() => { // eslint-disable-line no-unused-vars
         "editor": "split",
         "split": "turtle"};
 
-    let state = readLogoStorage(settingKey, "turtle");
+    let state = logoStorage.read(settingKey, "turtle");
 
     const changeUpperPane = function(stateOverride) {
         state = (stateOverride !== undefined) ? stateOverride :
             Object.hasOwn(nextState, state) ? nextState[state] : "turtle";
 
-        writeLogoStorage(settingKey, state);
+        logoStorage.write(settingKey, state);
         $("#canvasPane").css("width", canvasPaneWidth[state]);
         $("#editor").css("width", editorWidth[state]);
         editor.resize();
@@ -240,13 +152,13 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
         "quarter": "hidden",
         "hidden": "full"};
 
-    let state = readLogoStorage(settingKey, "quarter");
+    let state = logoStorage.read(settingKey, "quarter");
 
     const adjustTerminal = function(stateOverride) {
         state = (stateOverride !== undefined) ? stateOverride :
             Object.hasOwn(nextState, state) ? nextState[state] : "quarter";
 
-        writeLogoStorage(settingKey, state);
+        logoStorage.write(settingKey, state);
         $("#topPane").css("height", topPaneHeight[state]);
         $("#canvasPane").css("height", topPaneHeight[state]);
         $("#editor").css("height", topPaneHeight[state]);
@@ -258,111 +170,8 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
     return adjustTerminal;
 })();
 
-function createLogoWorker(eventHandler) {
-    if(typeof(Worker) === "undefined") {
-        return undefined;
-    }
-
-    let worker =new Worker(new URL("logoWorker.js", import.meta.url), {type: "module"});
-
-    // handles messages from logo worker
-    worker.onmessage = function(event) {
-        let msg = event.data;
-
-        if (msg instanceof ArrayBuffer) {
-            let tqcache = new Float32Array(msg);
-            eventHandler.canvas(tqcache);
-            return;
-        }
-
-        switch(msg[0]) {
-        case LOGO_EVENT.CANVAS:
-            // message for turtle canvas
-            eventHandler.canvas(msg[1]);
-            break;
-        case LOGO_EVENT.READY:
-        case LOGO_EVENT.MULTILINE:
-        case LOGO_EVENT.VERTICAL_BAR:
-        {
-            // ready for logo command line input
-            let prompt = (msg[0] == LOGO_EVENT.MULTILINE) ? "> " :
-                (msg[0] == LOGO_EVENT.VERTICAL_BAR) ? "| " :
-                    (msg[0] == LOGO_EVENT.READY) ? "? " : "";
-
-            eventHandler.ready();
-            eventHandler.prompt(prompt);
-            break;
-        }
-        case LOGO_EVENT.CONTINUE:
-            // ready for user interative input (e.g. readword)
-            eventHandler.ready();
-            eventHandler.user();
-            break;
-        case LOGO_EVENT.OUT:
-        case LOGO_EVENT.ERR:
-            // out/err stream with newline
-            eventHandler.writeln(msg[1]);
-            break;
-        case LOGO_EVENT.OUTN:
-        case LOGO_EVENT.ERRN:
-            // out/err stream w/o newline
-            eventHandler.write(msg[1]);
-            break;
-        case LOGO_EVENT.CLEAR_TEXT:
-            // cleartext in terminal
-            eventHandler.cleartext();
-            break;
-        case LOGO_EVENT.BUSY:
-            // logo work is busy (vs. ready)
-            eventHandler.busy();
-            break;
-        case LOGO_EVENT.EXIT:
-            eventHandler.prompt("You can now close the window");
-            eventHandler.exit();
-            break;
-        case LOGO_EVENT.EDITOR_LOAD:
-            eventHandler.editorLoad(msg[1]);
-            break;
-        case LOGO_EVENT.CANVAS_SNAPSHOT:
-            eventHandler.canvasSnapshot();
-            break;
-        default:
-        }
-    };
-
-    return {
-        "console": function(param) {
-            worker.postMessage([LOGO_METHOD.CONSOLE, param]);
-        },
-        "exec": function(param) {
-            worker.postMessage([LOGO_METHOD.EXEC, param, "** Editor **"]);
-        },
-        "run": function(param) {
-            worker.postMessage([LOGO_METHOD.RUN, param, 1]);
-        },
-        "test": function() {
-            worker.postMessage([LOGO_METHOD.TEST]);
-        },
-        "config": function(config) {
-            worker.postMessage([LOGO_METHOD.CONFIG, config]);
-        },
-        "clearWorkspace": function() {
-            worker.postMessage([LOGO_METHOD.CLEAR_WORKSPACE]);
-        },
-        "onKeyboardEvent": function(event) {
-            worker.postMessage([LOGO_METHOD.KEYBOARD_EVENT, event]);
-        },
-        "onMouseEvent": function(event) {
-            worker.postMessage([LOGO_METHOD.MOUSE_EVENT, event]);
-        },
-        "turtleUndo": function() {
-            worker.postMessage([LOGO_METHOD.TURTLE_UNDO]);
-        }
-    };
-}
-
 function turtleUndo() { // eslint-disable-line no-unused-vars
-    logoWorker.turtleUndo();
+    logojs.turtleUndo();
     turtleCanvas.undo();
 }
 
@@ -370,7 +179,7 @@ function canvasSnapshot() {
     turtleCanvas.snapshot();
 }
 
-const logoWorker = createLogoWorker({
+const logojs = Logojs.create({
     "canvas": function(tqcache) {
         turtleCanvas.receive(tqcache);
     },
@@ -406,7 +215,7 @@ const logoWorker = createLogoWorker({
     }
 });
 
-const turtleCanvas = createTurtleCanvas("turtleCanvas", {
+const turtleCanvas = Canvas.create("turtleCanvas", {
     "turtleReady": function() { logoTerminal0.setReady("canvas"); },
     "turtleBusy": function() { logoTerminal0.setBusy("canvas"); },
     "setBackgroundColor": function(color) {
@@ -418,13 +227,13 @@ const turtleCanvas = createTurtleCanvas("turtleCanvas", {
 
 document.addEventListener("keydown", (e) => {
     if (allowKeyboardEvents(e)) {
-        logoWorker.onKeyboardEvent(createKeyboarMsg("down", e.key, e.code));
+        logojs.onKeyboardEvent(createKeyboardMsg("down", e.key, e.code));
     }
 });
 
 document.addEventListener("keyup", (e) => {
     if (allowKeyboardEvents(e)) {
-        logoWorker.onKeyboardEvent(createKeyboarMsg("up", e.key, e.code));
+        logojs.onKeyboardEvent(createKeyboardMsg("up", e.key, e.code));
     }
 });
 
@@ -432,7 +241,7 @@ function allowKeyboardEvents() {
     return document.activeElement.id === "canvasPane";
 }
 
-function createKeyboarMsg(msgType, key, code) {
+function createKeyboardMsg(msgType, key, code) {
     return [
         msgType,
         {
@@ -448,19 +257,19 @@ function onContextMenu(e) { // eslint-disable-line no-unused-vars
 }
 
 function onMouseMove(e) { // eslint-disable-line no-unused-vars
-    logoWorker.onMouseEvent(createMouseMsg(e, "move"));
+    logojs.onMouseEvent(createMouseMsg(e, "move"));
 }
 
 function onMouseClick(e) { // eslint-disable-line no-unused-vars
-    logoWorker.onMouseEvent(createMouseMsg(e, "click"));
+    logojs.onMouseEvent(createMouseMsg(e, "click"));
 }
 
 function onMouseDown(e) { // eslint-disable-line no-unused-vars
-    logoWorker.onMouseEvent(createMouseMsg(e, "down"));
+    logojs.onMouseEvent(createMouseMsg(e, "down"));
 }
 
 function onMouseUp(e) { // eslint-disable-line no-unused-vars
-    logoWorker.onMouseEvent(createMouseMsg(e, "up"));
+    logojs.onMouseEvent(createMouseMsg(e, "up"));
 }
 
 function createMouseMsg(e, msgType) {
@@ -484,7 +293,7 @@ function toTurtleCoord(pixPos, edge, scrollPos, pixRange, logicRange, logicOffse
 }
 
 function getConfigOverride() {
-    let configOverride = JSON.parse(readLogoStorage("configOverride", "{}"));
+    let configOverride = JSON.parse(logoStorage.read("configOverride", "{}"));
     let onParams = getUrlParams("on");
     let offParams = getUrlParams("off");
     if (onParams !== null) {
@@ -495,7 +304,7 @@ function getConfigOverride() {
         offParams.split(/ /).forEach(key =>{ configOverride[key] = false; });
     }
 
-    writeLogoStorage("configOverride", JSON.stringify(configOverride));
+    logoStorage.write("configOverride", JSON.stringify(configOverride));
     return configOverride;
 }
 
@@ -506,7 +315,7 @@ window.addEventListener("load", () => {
 });
 
 let configOverride = getConfigOverride();
-logoWorker.config(configOverride);
+logojs.config(configOverride);
 
 if (configOverride["unitTestButton"]) {
     $("#menubar").append("<li><a id=\"runLogoTestBtn\" data-toggle=\"tab\"><span class=\"glyphicon glyphicon-wrench\"></span></a></li>");

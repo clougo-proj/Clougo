@@ -1,9 +1,0 @@
-for
-for [i 1 2]
-for [i][pr :i]
-for [i 0][pr :i]
-for [i "a "b][pr :i]
-for [i "0 "b][pr :i]
-for[i 0 1 "a][pr :i]
-for(list word "a "b (125-119) word "3 "4){}
-for(list word "a "b (125-119) word "\"a "4){}

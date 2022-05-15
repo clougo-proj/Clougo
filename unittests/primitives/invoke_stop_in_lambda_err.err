@@ -1,8 +1,0 @@
-Can only use stop inside a procedure
-    at 1,1	invoke_stop_in_lambda_err.lgo
-Can only use stop inside a procedure
-    at 2,1	invoke_stop_in_lambda_err.lgo
-Can only use output inside a procedure
-    at 3,1	invoke_stop_in_lambda_err.lgo
-Can only use output inside a procedure
-    at 4,1	invoke_stop_in_lambda_err.lgo

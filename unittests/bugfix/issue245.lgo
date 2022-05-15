@@ -1,6 +1,0 @@
-to f
-end
-
-ifelse "true [] "false
-ifelse "true "f "false
-pr "passed

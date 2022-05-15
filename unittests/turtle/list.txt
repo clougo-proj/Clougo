@@ -1,9 +1,0 @@
-draw exec run
-tree exec run
-treecap exec run
-ylz5 exec run runl
-floodfill exec run
-huayuan exec run
-label exec run
-colortab exec run
-rgb exec run

@@ -1,9 +1,0 @@
-to test_uncaught
-  catch "tag1 [
-    (throw "tag0)
-    output "error_a
-  ]
-  output "error_b
-end
-
-test_uncaught

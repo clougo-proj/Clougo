@@ -3,5 +3,5 @@ bootstrap-3.3.7-dist/*
 css/*
 floodfill/*
 terminal/*
-generated/*
+logo/generated/*
 logo/seedrandom/*

@@ -1,9 +1,0 @@
-localmake "statement (list
-    (list "x)
-    (list "make "\"m ":m+:x))
-
-localmake "m 0
-
-repeat 300000 [apply :statement [1]]
-
-pr :m

@@ -1,4 +1,0 @@
-define "a [[x y][
-    op  word :x :y]]
-
-show (a "ab "c)

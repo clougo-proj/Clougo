@@ -1,6 +1,0 @@
-Not enough inputs to namep
-    at 1,11	namep_err.lgo
-namep doesn't like {} as input
-    at 2,6	namep_err.lgo
-namep doesn't like [] as input
-    at 3,6	namep_err.lgo

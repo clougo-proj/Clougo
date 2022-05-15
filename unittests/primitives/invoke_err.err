@@ -1,6 +1,0 @@
-Not enough inputs to invoke
-    at 1,7	invoke_err.lgo
-Not enough inputs to invoke
-    at 2,14	invoke_err.lgo
-invoke doesn't like {} as input
-    at 3,1	invoke_err.lgo

@@ -1,6 +1,0 @@
-to f :X
-make "X 1
-pr :X
-end
-
-f 0

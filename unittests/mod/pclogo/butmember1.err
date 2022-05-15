@@ -1,6 +1,0 @@
-remove doesn't like {1 2 3} as input
-    butmember at 14,4	/mod/pclogo/pclogo.lgo
-    at 1,1	butmember1.lgo
-remove doesn't like {1 2 3} as input
-    bm at 10,4	/mod/pclogo/pclogo.lgo
-    at 2,1	butmember1.lgo

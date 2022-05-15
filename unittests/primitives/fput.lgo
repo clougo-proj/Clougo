@@ -1,2 +1,0 @@
-pr fput "d "abc
-pr fput {3} [a b]

@@ -1,5 +1,0 @@
-fd 100 rt 90 fd 50
-show pos
-show xcor
-show ycor
-show heading

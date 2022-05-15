@@ -1,7 +1,0 @@
-run
-run "true
-run "false
-run {}
-run 100
-run "abc
-run (list "pr1 "\"a)

@@ -1,4 +1,0 @@
-for [i "0 1][pr :i]
-for [i "2 "3][pr :i]
-for [i 4 "5][pr :i]
-for(list word "a "b (125-119) 3+"4)se [pr] [:ab]

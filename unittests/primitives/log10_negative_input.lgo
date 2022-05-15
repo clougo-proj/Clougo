@@ -1,6 +1,0 @@
-to test_throw_on_negative
-  log10 -1
-end
-
-test_throw_on_negative
-

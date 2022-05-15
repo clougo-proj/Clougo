@@ -1,5 +1,0 @@
-[class animal name cat]
-[class animal name dog]
-[new Animal.new tellname Animal.tellname]
-cat
-dog

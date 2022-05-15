@@ -1,8 +1,0 @@
-butfirst doesn't like  as input
-    at 1,1	butfirst_err.lgo
-bf doesn't like [] as input
-    at 2,1	butfirst_err.lgo
-Not enough inputs to bf
-    at 3,2	butfirst_err.lgo
-butfirst doesn't like {0} as input
-    at 4,1	butfirst_err.lgo

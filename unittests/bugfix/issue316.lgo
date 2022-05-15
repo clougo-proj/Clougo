@@ -1,5 +1,0 @@
-to say :letter
-pr :letter
-end
-
-foreach "word [say ?]

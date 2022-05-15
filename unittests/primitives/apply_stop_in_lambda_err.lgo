@@ -1,4 +1,0 @@
-apply [[x] stop] [5]
-apply [stop] [5]
-apply [[x] output :x] [5]
-apply [output 1] [5]

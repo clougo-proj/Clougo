@@ -1,4 +1,0 @@
-runresult [stop]
-runresult (list "stop)
-runresult [output 0]
-runresult (list "output 0)

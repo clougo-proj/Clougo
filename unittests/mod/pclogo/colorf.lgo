@@ -1,4 +1,0 @@
-for[i 0 15][colorf :i]
-colorf 3.5
-colorf -1
-colorf 16

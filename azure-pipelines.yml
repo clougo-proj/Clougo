@@ -16,6 +16,7 @@ stages:
     - job: build
       steps:
       - checkout: self
+        submodules: true
         persistCredentials: true
         clean: true
 

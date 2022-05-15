@@ -1,2 +1,0 @@
-invoke [pr ?] "Hello
-(invoke [pr word ?1 ?2] 1 2)

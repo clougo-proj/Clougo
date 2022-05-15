@@ -1,7 +1,0 @@
-to ttt
-  type "a
-  type "b
-  pr "c
-end
-
-ttt

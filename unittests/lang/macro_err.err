@@ -1,6 +1,0 @@
-Macro nooutput returned no value instead of a list.
-    at 12,1	macro_err.lgo
-Macro returnsword returned hello instead of a list.
-    at 13,1	macro_err.lgo
-Macro returnsarray returned {} instead of a list.
-    at 14,1	macro_err.lgo

@@ -1,5 +1,0 @@
-.macro a :x
-op (list "pr (word "\" :x))
-end
-
-show macroexpand [a "abc]

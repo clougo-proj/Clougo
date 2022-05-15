@@ -1,3 +1,0 @@
-#!/bin/sh
-
-node $Clougo/logo/logo $*

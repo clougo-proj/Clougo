@@ -1,8 +1,0 @@
-show (sentence "one)
-show Sentence "one "two
-show (se "un "deux "tres "quatre "cinq "six "sept "huit "neuf "dix)
-show (se 1 2 3 4 5[6 7])
-show (se [[1 2] [3 4]] [5 [6 7]])
-show (se "true "false)
-show (se not "FALSE not "True)
-show (se)

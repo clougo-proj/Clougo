@@ -1,3 +1,0 @@
-show reverse
-show reverse {1 2 3}
-show (reverse [1 2] 3)

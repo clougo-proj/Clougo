@@ -1,6 +1,0 @@
-Not enough inputs to reverse
-    at 1,13	reverse_err.lgo
-reverse doesn't like {1 2 3} as input
-    at 2,6	reverse_err.lgo
-Too much inside ()'s
-    at 3,21	reverse_err.lgo

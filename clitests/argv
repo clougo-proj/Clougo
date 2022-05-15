@@ -1,3 +1,0 @@
-logo ../unittests/cli/argv.lgo 1 2 3
->3\n
->[1 2 3]\n

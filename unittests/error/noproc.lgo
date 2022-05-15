@@ -1,5 +1,0 @@
-to test :count
-    pr1 :count
-end
-
-test 10

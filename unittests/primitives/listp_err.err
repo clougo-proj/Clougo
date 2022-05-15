@@ -1,4 +1,0 @@
-Not enough inputs to listp
-    at 1,2	listp_err.lgo
-Too much inside ()'s
-    at 2,16	listp_err.lgo

@@ -1,3 +1,0 @@
-log10 doesn't like -1 as input
-    test_throw_on_negative at 2,3	log10_negative_input.lgo
-    at 5,1	log10_negative_input.lgo

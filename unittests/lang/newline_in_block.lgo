@@ -1,6 +1,0 @@
-to test
-  repeat 10[pr
-  "hello]
-end
-
-test

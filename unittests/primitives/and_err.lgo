@@ -1,7 +1,0 @@
-(and 1)
-(and "2)
-(and "abc)
-(and [])
-(and {})
-and "true "abc
-and "false "def

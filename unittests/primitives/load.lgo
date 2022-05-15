@@ -1,7 +1,0 @@
-load "/mod/pclogo/pclogo.lgo
-load "load_aux0.lgo
-load "load_subdir/load_aux1.lgo
-
-show getxy
-show :text
-show :value

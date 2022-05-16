@@ -228,12 +228,14 @@ const turtleCanvas = Canvas.create("turtleCanvas", {
 document.addEventListener("keydown", (e) => {
     if (allowKeyboardEvents(e)) {
         logojs.onKeyboardEvent(createKeyboardMsg("down", e.key, e.code));
+        e.preventDefault();
     }
 });
 
 document.addEventListener("keyup", (e) => {
     if (allowKeyboardEvents(e)) {
         logojs.onKeyboardEvent(createKeyboardMsg("up", e.key, e.code));
+        e.preventDefault();
     }
 });
 

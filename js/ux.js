@@ -7,7 +7,7 @@
 
 /* global $ */
 
-import Logojs from "./logojs.js";
+import Logojs from "../logo/logojs.js";
 
 import LogoTerminal from "./logoTerminal.js";
 

@@ -21,6 +21,31 @@ const TURTLE_CANVAS_SIZE = 1000;
 
 const TURTLE_CANVAS_OFFSET = -500;
 
+const TOP_FOCUS_NAME = "Clougo";
+
+const FOCUS_ID = {
+    "Terminal": "term",
+    "Terminal Input": "term-input",
+    "Canvas": "canvasPane",
+};
+
+const FOCUS_CLASS = {
+    "Editor": "ace_text-input"
+};
+
+const FOCUS_BY_ID = swapKeyValue(FOCUS_ID);
+
+const FOCUS_BY_CLASS = swapKeyValue(FOCUS_CLASS);
+
+function swapKeyValue(obj) {
+    const ret = {};
+    Object.keys(obj).forEach(key => {
+        ret[obj[key]] = key;
+    });
+
+    return ret;
+}
+
 function assert(cond, msg) {
     if (!cond) {
         throw Error(msg);
@@ -212,8 +237,32 @@ const logojs = Logojs.create({
     },
     "canvasSnapshot": function() {
         canvasSnapshot();
+    },
+    "getFocus": function(callId) {
+        logojs.returnValue(getFocusName(), callId);
+    },
+    "setFocus": function(name) {
+        if (Object.hasOwn(FOCUS_ID, name)) {
+            document.getElementById(FOCUS_ID[name]).focus();
+        } else if (Object.hasOwn(FOCUS_CLASS, name)) {
+            document.getElementsByClassName(FOCUS_CLASS[name])[0].focus();
+        }
     }
 });
+
+function getFocusName() {
+    let focusId = document.activeElement.id;
+    if (focusId && Object.hasOwn(FOCUS_BY_ID, focusId)) {
+        return FOCUS_BY_ID[focusId];
+    }
+
+    let focusClass = document.activeElement.className;
+    if (focusClass && Object.hasOwn(FOCUS_BY_CLASS, focusClass)) {
+        return FOCUS_BY_CLASS[focusClass];
+    }
+
+    return TOP_FOCUS_NAME;
+}
 
 const turtleCanvas = Canvas.create("turtleCanvas", {
     "turtleReady": function() { logoTerminal0.setReady("canvas"); },

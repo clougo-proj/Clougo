@@ -2,7 +2,7 @@
 // Licence: MIT License (see `LICENSE` for details)
 
 const KEY = 'VanillaTerm';
-const INPUT_ID = 'vanilla-terminal-input';
+const INPUT_ID = '\"term-input\"';
 
 const { addEventListener, localStorage } = window;
 
@@ -25,7 +25,7 @@ function markup ({ shell: { prompt } }) {
     <output></output>
     <div class="command">
       <div class="prompt">${prompt}</div>
-      <input id=${INPUT_ID}" class="input" spellcheck="false" />
+      <input id=${INPUT_ID} class="input" spellcheck="false" />
     </table>
   </div>
 `);

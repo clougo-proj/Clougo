@@ -127,6 +127,11 @@ const zoomTurtleCanvas = (() => {  // eslint-disable-line no-unused-vars
     return zoomTurtleCanvas;
 })();
 
+function canSplitElement(id) {
+    let element = document.getElementById(id);
+    return element.clientWidth > element.clientHeight * 1.5;
+}
+
 const changeUpperPane = (() => { // eslint-disable-line no-unused-vars
     const settingKey = "$settings$viewState$";
     const canvasPaneWidth = {
@@ -149,6 +154,10 @@ const changeUpperPane = (() => { // eslint-disable-line no-unused-vars
     const changeUpperPane = function(stateOverride) {
         state = (stateOverride !== undefined) ? stateOverride :
             Object.hasOwn(nextState, state) ? nextState[state] : "turtle";
+
+        if (state == "split" && !canSplitElement("topPane")) {
+            state = nextState[state];
+        }
 
         logoStorage.write(settingKey, state);
         $("#canvasPane").css("width", canvasPaneWidth[state]);

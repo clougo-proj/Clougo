@@ -39,6 +39,8 @@ Licence: MIT License (see `LICENSE` for details)
       }
       .VanillaTerm output span {
         display: block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
         font-weight: normal;
         color: #dddddd;
       }

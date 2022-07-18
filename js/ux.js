@@ -24,6 +24,7 @@ const TURTLE_CANVAS_OFFSET = -500;
 const TOP_FOCUS_NAME = "Clougo";
 
 const FOCUS_ID = {
+    "Empty": "",
     "Terminal": "term",
     "Terminal Input": "term-input",
     "Canvas": "canvasPane",
@@ -283,10 +284,19 @@ const turtleCanvas = Canvas.create("turtleCanvas", {
     "assert": assert
 });
 
+function autoFocusCommandLine() {
+    return document.activeElement.id == FOCUS_ID.Terminal ||
+        ((document.activeElement.id == FOCUS_ID.Empty && document.activeElement.className != FOCUS_CLASS.Editor));
+}
+
 document.addEventListener("keydown", (e) => {
     if (allowKeyboardEvents(e)) {
         logojs.onKeyboardEvent(createKeyboardMsg("down", e.key, e.code));
         e.preventDefault();
+    }
+
+    if (autoFocusCommandLine()) {
+        document.getElementById(FOCUS_ID["Terminal Input"]).focus();
     }
 });
 

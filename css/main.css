@@ -6,6 +6,7 @@
     width: 99vw;
     height: 24vh;
     margin: auto;
+    outline: none;
     display: block;
 }
 #turtleCanvas {

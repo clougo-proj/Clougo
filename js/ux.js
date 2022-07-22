@@ -289,6 +289,10 @@ function autoFocusCommandLine() {
         ((document.activeElement.id == FOCUS_ID.Empty && document.activeElement.className != FOCUS_CLASS.Editor));
 }
 
+function focusTerminalInput() {
+    document.getElementById(FOCUS_ID["Terminal Input"]).focus();
+}
+
 document.addEventListener("keydown", (e) => {
     if (allowKeyboardEvents(e)) {
         logojs.onKeyboardEvent(createKeyboardMsg("down", e.key, e.code));
@@ -296,7 +300,7 @@ document.addEventListener("keydown", (e) => {
     }
 
     if (autoFocusCommandLine()) {
-        document.getElementById(FOCUS_ID["Terminal Input"]).focus();
+        focusTerminalInput();
     }
 });
 
@@ -418,3 +422,5 @@ $("#canvasPane")[0].onmousedown = onMouseDown;
 $("#canvasPane")[0].onmouseup = onMouseUp;
 
 $("#canvasPane")[0].onclick = onMouseClick;
+
+$("#term")[0].onclick = focusTerminalInput;

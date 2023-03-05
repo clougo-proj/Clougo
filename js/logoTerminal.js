@@ -6,7 +6,7 @@
 /* global VanillaTerminal */
 
 export default {
-    "create": function(terminalId, eventHandler) {
+    "create": function(terminalId, host) {
 
         let curLine = "";
 
@@ -36,7 +36,7 @@ export default {
 
         term.onInput((commandLine) => {
             if (getAllReady()) {
-                eventHandler.console(commandLine);
+                host.console(commandLine);
             }
 
             term.resetCommand();

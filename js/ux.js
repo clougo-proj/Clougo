@@ -17,11 +17,15 @@ import Canvas from "./canvas.js";
 
 import logoStorage from "./logoStorage.js";
 
+import Constants from "../logo/constants.js";
+
 const TURTLE_CANVAS_SIZE = 1000;
 
 const TURTLE_CANVAS_OFFSET = -500;
 
 const TOP_FOCUS_NAME = "Clougo";
+
+const LOGO_EVENT = Constants.LOGO_EVENT;
 
 const FOCUS_ID = {
     "Empty": "",
@@ -55,7 +59,7 @@ function assert(cond, msg) {
 
 const logoTerminal0 = LogoTerminal.create("term", {
     "console": function(text) {
-        logojs.console(text);
+        logojs.method.console(text);
     }
 });
 
@@ -72,14 +76,14 @@ function runProgram(transpile) { // eslint-disable-line no-unused-vars
     let src = editor.getValue();
     logoTerminal0.setBusy("logo");
     if (transpile) {
-        logojs.exec(src);
+        logojs.method.exec(src);
     } else {
-        logojs.run(src);
+        logojs.method.run(src);
     }
 }
 
 function clearWorkspace() { // eslint-disable-line no-unused-vars
-    logojs.clearWorkspace();
+    logojs.method.clearWorkspace();
     editor.setValue("");
     logoTerminal0.cleartext();
     logoStorage.write("logoSrc", "");
@@ -87,7 +91,7 @@ function clearWorkspace() { // eslint-disable-line no-unused-vars
 
 function runLogoTest() { // eslint-disable-line no-unused-vars
     logoTerminal0.setBusy("logo");
-    logojs.test();
+    logojs.method.test();
 }
 
 const editor = LogoEditor.create("editor");
@@ -206,61 +210,94 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
 })();
 
 function turtleUndo() { // eslint-disable-line no-unused-vars
-    logojs.turtleUndo();
+    logojs.method.turtleUndo();
     turtleCanvas.undo();
 }
 
-function canvasSnapshot() {
-    turtleCanvas.snapshot();
-}
-
-const logojs = Logojs.create({
-    "canvas": function(tqcache) {
-        turtleCanvas.receive(tqcache);
+const turtleCanvas = Canvas.create("turtleCanvas", {
+    "turtleReady": function() { logoTerminal0.setReady("canvas"); },
+    "turtleBusy": function() { logoTerminal0.setBusy("canvas"); },
+    "setBackgroundColor": function(color) {
+        $("#turtleCanvas").css("background-color", color);
+        $("#canvasPane").css("background-color", color);
     },
-    "ready": function() {
-        logoTerminal0.setReady("logo");
-    },
-    "busy": function() {
-        logoTerminal0.setBusy("logo");
-    },
-    "prompt": function(prompt) {
-        logoTerminal0.prompt(prompt);
-    },
-    "user": function() {
-        logoTerminal0.user();
-    },
-    "write": function(text) {
-        logoTerminal0.write(text);
-    },
-    "writeln": function(text) {
-        logoTerminal0.writeln(text);
-    },
-    "cleartext": function() {
-        logoTerminal0.cleartext();
-    },
-    "exit": function() {
-        logoTerminal0.setBusy("logo");
-    },
-    "editorLoad": function(src) {
-        editor.setValue(editor.getValue() + "\n" + src);
-    },
-    "canvasSnapshot": function() {
-        canvasSnapshot();
-    },
-    "getFocus": function(callId) {
-        logojs.returnValue(getFocusName(), callId);
-    },
-    "setFocus": function(name) {
-        if (Object.hasOwn(FOCUS_ID, name)) {
-            document.getElementById(FOCUS_ID[name]).focus();
-        } else if (Object.hasOwn(FOCUS_CLASS, name)) {
-            document.getElementsByClassName(FOCUS_CLASS[name])[0].focus();
-        }
-    }
+    "assert": assert
 });
 
-function getFocusName() {
+const logoEvent = {
+    "ready": ready,
+    "multiline": multiline,
+    "verticalBar": verticalBar,
+    "continue": _continue,
+    "busy": busy,
+    "exit": exit,
+    "out": logoTerminal0.writeln,
+    "err": logoTerminal0.writeln,
+    "outn": logoTerminal0.write,
+    "errn": logoTerminal0.write,
+    "draw": turtleCanvas.receive,
+    "canvasSnapshot": turtleCanvas.snapshot,
+    "cleartext": logoTerminal0.cleartext,
+    "editorLoad": (src) => editor.setValue(editor.getValue() + "\n" + src),
+    "getfocus": getFocus,
+    "setfocus": setFocus
+};
+
+const logoHost = {
+    "call": (...args) => {
+        let callId = args.shift();
+        let procName = args.shift();
+        if (procName in logoEvent) {
+            logojs.method.returnValue(logoEvent[procName].apply(null, args), callId);
+        }
+    }
+};
+
+let configOverride = getConfigOverride();
+if (configOverride["unitTestButton"]) {
+    $("#menubar").append("<li><a id=\"runLogoTestBtn\" data-toggle=\"tab\"><span class=\"glyphicon glyphicon-wrench\"></span></a></li>");
+}
+
+const logojs = Logojs.create(logoHost, configOverride);
+
+function ready() {
+    logoTerminal0.setReady("logo");
+    logoTerminal0.prompt("? ");
+}
+
+function multiline() {
+    logoTerminal0.setReady("logo");
+    logoTerminal0.prompt("> ");
+}
+
+function verticalBar() {
+    logoTerminal0.setReady("logo");
+    logoTerminal0.prompt("| ");
+}
+
+function _continue() {
+    logoTerminal0.setReady("logo");
+    logoTerminal0.user();
+}
+
+function busy() {
+    logoTerminal0.setBusy("logo");
+}
+
+function exit() {
+    logoTerminal0.writeln("(You can now close the window)");
+    logoTerminal0.setBusy("logo");
+}
+
+function setFocus(name) {
+    if (Object.hasOwn(FOCUS_ID, name)) {
+        document.getElementById(FOCUS_ID[name]).focus();
+    } else if (Object.hasOwn(FOCUS_CLASS, name)) {
+        document.getElementsByClassName(FOCUS_CLASS[name])[0].focus();
+    }
+}
+
+function getFocus() {
     let focusId = document.activeElement.id;
     if (focusId && Object.hasOwn(FOCUS_BY_ID, focusId)) {
         return FOCUS_BY_ID[focusId];
@@ -274,16 +311,6 @@ function getFocusName() {
     return TOP_FOCUS_NAME;
 }
 
-const turtleCanvas = Canvas.create("turtleCanvas", {
-    "turtleReady": function() { logoTerminal0.setReady("canvas"); },
-    "turtleBusy": function() { logoTerminal0.setBusy("canvas"); },
-    "setBackgroundColor": function(color) {
-        $("#turtleCanvas").css("background-color", color);
-        $("#canvasPane").css("background-color", color);
-    },
-    "assert": assert
-});
-
 function autoFocusCommandLine() {
     return document.activeElement.id == FOCUS_ID.Terminal ||
         ((document.activeElement.id == FOCUS_ID.Empty && document.activeElement.className != FOCUS_CLASS.Editor));
@@ -295,7 +322,7 @@ function focusTerminalInput() {
 
 document.addEventListener("keydown", (e) => {
     if (allowKeyboardEvents(e)) {
-        logojs.onKeyboardEvent(createKeyboardMsg("down", e.key, e.code));
+        logojs.method.keyboardEvent(createKeyboardMsg("down", e.key, e.code));
         e.preventDefault();
     }
 
@@ -306,7 +333,7 @@ document.addEventListener("keydown", (e) => {
 
 document.addEventListener("keyup", (e) => {
     if (allowKeyboardEvents(e)) {
-        logojs.onKeyboardEvent(createKeyboardMsg("up", e.key, e.code));
+        logojs.method.keyboardEvent(createKeyboardMsg("up", e.key, e.code));
         e.preventDefault();
     }
 });
@@ -331,19 +358,19 @@ function onContextMenu(e) { // eslint-disable-line no-unused-vars
 }
 
 function onMouseMove(e) { // eslint-disable-line no-unused-vars
-    logojs.onMouseEvent(createMouseMsg(e, "move"));
+    logojs.method.mouseEvent(createMouseMsg(e, "move"));
 }
 
 function onMouseClick(e) { // eslint-disable-line no-unused-vars
-    logojs.onMouseEvent(createMouseMsg(e, "click"));
+    logojs.method.mouseEvent(createMouseMsg(e, "click"));
 }
 
 function onMouseDown(e) { // eslint-disable-line no-unused-vars
-    logojs.onMouseEvent(createMouseMsg(e, "down"));
+    logojs.method.mouseEvent(createMouseMsg(e, "down"));
 }
 
 function onMouseUp(e) { // eslint-disable-line no-unused-vars
-    logojs.onMouseEvent(createMouseMsg(e, "up"));
+    logojs.method.mouseEvent(createMouseMsg(e, "up"));
 }
 
 function createMouseMsg(e, msgType) {
@@ -387,13 +414,6 @@ window.addEventListener("load", () => {
         navigator.serviceWorker.register(new URL("/service-worker.js", import.meta.url), {type: "module"});
     }
 });
-
-let configOverride = getConfigOverride();
-logojs.config(configOverride);
-
-if (configOverride["unitTestButton"]) {
-    $("#menubar").append("<li><a id=\"runLogoTestBtn\" data-toggle=\"tab\"><span class=\"glyphicon glyphicon-wrench\"></span></a></li>");
-}
 
 $("#clearWorkspaceBtn")[0].onclick = () => {
     if (confirm("Are you sure you wish to ERASE ALL?")) {

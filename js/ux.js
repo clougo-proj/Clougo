@@ -214,6 +214,18 @@ function turtleUndo() { // eslint-disable-line no-unused-vars
     turtleCanvas.undo();
 }
 
+function makeLocalStorageFileName(fileName) {
+    return "$file$" + fileName;
+}
+
+function getFileMetadata() {
+    return JSON.parse(logoStorage.read("fileMetadata", "{}"));
+}
+
+function setFileMetadata(fileMetadata) {
+    logoStorage.write("fileMetadata", JSON.stringify(fileMetadata));
+}
+
 const turtleCanvas = Canvas.create("turtleCanvas", {
     "turtleReady": function() { logoTerminal0.setReady("canvas"); },
     "turtleBusy": function() { logoTerminal0.setBusy("canvas"); },
@@ -239,6 +251,56 @@ const logoEvent = {
     "canvasSnapshot": turtleCanvas.snapshot,
     "cleartext": logoTerminal0.cleartext,
     "editorLoad": (src) => editor.setValue(editor.getValue() + "\n" + src),
+    "editorLoadFromLocalStorage": (fileName) => {
+        let fileMetadata = getFileMetadata();
+        if (!Object.prototype.hasOwnProperty.call(fileMetadata, fileName)) {
+            return false;
+        }
+
+        let src = logoStorage.read(makeLocalStorageFileName(fileName), "");
+        editor.setValue(src);
+        return true;
+    },
+    "editorSaveToLocalStorage": (fileName) => {
+        let fileMetadata = getFileMetadata();
+        if (Object.prototype.hasOwnProperty.call(fileMetadata, fileName)) {
+            return false;
+        }
+
+        let src = editor.getValue();
+        logoStorage.write(makeLocalStorageFileName(fileName), src);
+        fileMetadata[fileName] = {};
+        setFileMetadata(fileMetadata);
+        return true;
+    },
+    "listFilesInLocalStorage": () => {
+        return Object.keys(getFileMetadata());
+    },
+    "eraseFileInLocalStorage": (fileName) => {
+        let fileMetadata = getFileMetadata();
+        if (!Object.prototype.hasOwnProperty.call(fileMetadata, fileName)) {
+            return false;
+        }
+
+        delete fileMetadata[fileName];
+        setFileMetadata(fileMetadata);
+        return true;
+    },
+    "fileExistsInLocalStorage": (fileName) => {
+        let fileMetadata = getFileMetadata();
+        return Object.prototype.hasOwnProperty.call(fileMetadata, fileName);
+    },
+    "uneraseFileInLocalStorage": (fileName) => {
+        let src = logoStorage.read(makeLocalStorageFileName(fileName), undefined);
+        if (src === undefined) {
+            return false;
+        }
+
+        let fileMetadata = getFileMetadata();
+        fileMetadata[fileName] = {};
+        setFileMetadata(fileMetadata);
+        return true;
+    },
     "getfocus": getFocus,
     "setfocus": setFocus
 };

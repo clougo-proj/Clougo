@@ -4,8 +4,6 @@
 const KEY = 'VanillaTerm';
 const INPUT_ID = '\"term-input\"';
 
-const { addEventListener, localStorage } = window;
-
 function cloneCommandNode (el) {
   const line = el.cloneNode(true);
   const input = line.querySelector('.input');
@@ -31,14 +29,14 @@ function markup ({ shell: { prompt } }) {
 `);
 }
 
-class VanillaTerminal {
+export class VanillaTerminal {
   constructor(props = {}) {
     const {
       container = 'vanilla-terminal',
       welcome = 'Welcome to <a href="">Vanilla</a> terminal.',
       prompt = '',
     } = props;
-    this.history = localStorage[KEY] ? JSON.parse(localStorage[KEY]) : [];
+    this.history = window.localStorage[KEY] ? JSON.parse(window.localStorage[KEY]) : [];
     this.historyCursor = this.history.length;
     this.welcome = welcome;
     this.shell = { prompt };
@@ -81,7 +79,7 @@ class VanillaTerminal {
     DOM.input.addEventListener('keydown', this.onKeyDown, false);
     DOM.command.addEventListener('click', () => DOM.input.focus(), false);
 
-    addEventListener('keyup', (event) => {
+    window.addEventListener('keyup', (event) => {
       if (document.activeElement.id === INPUT_ID) {
         DOM.input.focus();
         event.stopPropagation();
@@ -115,7 +113,7 @@ class VanillaTerminal {
 
     // Save command line in history
     history.push(commandLine);
-    localStorage[KEY] = JSON.stringify(history);
+    window.localStorage[KEY] = JSON.stringify(history);
     this.historyCursor = history.length;
 
     // Clone command as a new output line

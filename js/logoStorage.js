@@ -5,7 +5,7 @@
 
 export default {
     "read": function(key, defaultValue) {
-        let ret = localStorage.getItem(key);
+        let ret = window.localStorage.getItem(key);
         if (ret === null || ret === undefined) {
             return defaultValue;
         }
@@ -13,6 +13,6 @@ export default {
         return ret;
     },
     "write": function(key, value) {
-        localStorage.setItem(key, value);
+        window.localStorage.setItem(key, value);
     }
 };

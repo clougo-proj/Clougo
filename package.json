@@ -2,19 +2,6 @@
     "name": "clougo",
     "version": "0.0.1",
     "description": "clougo",
-    "devDependencies": {
-        "@parcel/packager-raw-url": "^2.5.0",
-        "@parcel/service-worker": "^2.5.0",
-        "@parcel/transformer-webmanifest": "^2.5.0",
-        "buffer": "^6.0.3",
-        "crypto-browserify": "^3.12.0",
-        "eslint": "latest",
-        "events": "^3.3.0",
-        "http-server": "latest",
-        "parcel": "^2.5.0",
-        "process": "^0.11.10",
-        "stream-browserify": "^3.0.0"
-    },
     "scripts": {
         "clean": "rm -rf dist/",
         "eslint": "eslint logo",

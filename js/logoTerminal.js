@@ -5,6 +5,8 @@
 
 /* global VanillaTerminal */
 
+import { VanillaTerminal } from "../vanilla-terminal/VanillaTerminal.js";
+
 export default {
     "create": function(terminalId, host) {
 

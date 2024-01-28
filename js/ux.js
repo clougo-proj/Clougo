@@ -175,16 +175,13 @@ const changeUpperPane = (() => { // eslint-disable-line no-unused-vars
 })();
 
 const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
-    const settingKey = "$settings$terminalState$";
-    const topPaneHeight = {
-        "full": "0px",
-        "quarter": "71vh",
-        "hidden": "93vh"};
+    function getHeightPx(percentage, bias) {
+        return "" + Math.floor((window.innerHeight - bias) * percentage) + "px";
+    }
 
-    const terminalHeight = {
-        "full": "95vh",
-        "quarter": "24vh",
-        "hidden": "0px"};
+    const settingKey = "$settings$terminalState$";
+
+    const MENUBAR_HEIGT_PX = 42;
 
     const nextState = {
         "full": "quarter",
@@ -193,9 +190,25 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
 
     let state = logoStorage.read(settingKey, "quarter");
 
-    const adjustTerminal = function(stateOverride) {
-        state = (stateOverride !== undefined) ? stateOverride :
-            Object.hasOwn(nextState, state) ? nextState[state] : "quarter";
+    const adjustTerminal = function(toggle, currentState = undefined) {
+
+        let topPaneHeight = {
+            "full": "0px",
+            "quarter": getHeightPx(.75, MENUBAR_HEIGT_PX),
+            "hidden": getHeightPx(1, MENUBAR_HEIGT_PX)};
+
+        let terminalHeight = {
+            "full": getHeightPx(1, MENUBAR_HEIGT_PX), //"95vh",
+            "quarter": getHeightPx(.25, MENUBAR_HEIGT_PX), //"24vh",
+            "hidden": "0px"};
+
+        if (currentState !== undefined) {
+            state = currentState;
+        }
+
+        if (toggle === true) {
+            state = Object.hasOwn(nextState, state) ? nextState[state] : "quarter";
+        }
 
         logoStorage.write(settingKey, state);
         $("#topPane").css("height", topPaneHeight[state]);
@@ -205,7 +218,7 @@ const adjustTerminal = (() => { // eslint-disable-line no-unused-vars
         editor.resize();
     };
 
-    adjustTerminal(state);
+    adjustTerminal(false, state);
     return adjustTerminal;
 })();
 
@@ -487,7 +500,7 @@ $("#zoomTurtleCanvasBtn")[0].onclick = () => zoomTurtleCanvas();
 
 $("#changeUpperPaneBtn")[0].onclick = () => changeUpperPane();
 
-$("#adjustTerminalBtn")[0].onclick = () => adjustTerminal();
+$("#adjustTerminalBtn")[0].onclick = () => adjustTerminal(true);
 
 $("#turtleUndoBtn")[0].onclick = () => turtleUndo();
 
@@ -506,3 +519,5 @@ $("#canvasPane")[0].onmouseup = onMouseUp;
 $("#canvasPane")[0].onclick = onMouseClick;
 
 $("#term")[0].onclick = focusTerminalInput;
+
+$(window).on('resize', () => adjustTerminal());
